@@ -1,10 +1,13 @@
 {
-    "compilerOptions": {
-      "lib": ["dom", "es5", "es2015"],
-      "target": "es5",
-      "module": "esNext",
-      "moduleResolution": "node",
-      "sourceMap": true,
-      "allowSyntheticDefaultImports": true
-    }
+  "compilerOptions": {
+    "lib": ["dom", "es5", "es6", "es2015", "es2016", "esnext"],
+    "target": "es6",
+    "module": "esnext",
+    "moduleResolution": "node",
+    "sourceMap": true,
+    "allowSyntheticDefaultImports": true,
+    "experimentalDecorators": true,
+    "allowJs": true,
+    "noEmit": true 
   }
+}
