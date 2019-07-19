@@ -1,3 +1,5 @@
+<!-- About page for the application. -->
+
 <template>
   <div>
     <img src="@/assets/isovis.jpg">

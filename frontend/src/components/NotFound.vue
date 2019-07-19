@@ -1,3 +1,5 @@
+<!-- Page not found. -->
+
 <template>
   <div>
     <img src="@/assets/isovis.jpg">
