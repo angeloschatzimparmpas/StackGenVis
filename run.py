@@ -5,6 +5,7 @@ from flask_cors import CORS, cross_origin
 import json
 import collections
 import numpy as np
+from numpy  import array
 import pandas as pd  
 import warnings
 import copy
@@ -18,6 +19,8 @@ from mlxtend.classifier import StackingCVClassifier
 from sklearn import model_selection
 from sklearn.model_selection import GridSearchCV
 from sklearn.manifold import MDS
+from sklearn.metrics import classification_report
+from sklearn.preprocessing import scale
 
 # This block of code is for the connection between the server, the database, and the client (plus routing).
 
@@ -81,7 +84,7 @@ def catch_all(path):
 global mem
 mem = Memory("./cache_dir")
 
-def GridSearch(clf, params, scoring, FI):
+def GridSearch(clf, params, scoring, FI, target_names):
     
     grid = GridSearchCV(estimator=clf, 
                 param_grid=params,
@@ -89,9 +92,11 @@ def GridSearch(clf, params, scoring, FI):
                 cv=5,
                 refit='accuracy',
                 n_jobs = -1)
+    global subset
+    subset = XData
+    
+    grid.fit(subset, yData)
 
-    grid.fit(XData, yData)
-        
     cv_results = []
     cv_results.append(grid.cv_results_)
     df_cv_results = pd.DataFrame.from_dict(cv_results)
@@ -109,26 +114,48 @@ def GridSearch(clf, params, scoring, FI):
 
     df_cv_results_classifiers = pd.DataFrame(data = df_cv_results_per_row, columns= df_cv_results.columns)
     parameters = df_cv_results_classifiers['params']
+    PerClassMetrics = []
     FeatureImp = []
-    if (FI == 1):
-        for eachClassifierParams in grid.cv_results_['params']:
-            eachClassifierParamsDictList = {}
-            for key, value in eachClassifierParams.items():
-                Listvalue = []
-                Listvalue.append(value)
-                eachClassifierParamsDictList[key] = Listvalue
-            grid = GridSearchCV(estimator=clf, 
-                param_grid=eachClassifierParamsDictList,
-                scoring=scoring, 
-                cv=5,
-                refit='accuracy',
-                n_jobs = -1)
-            grid.fit(XData, yData)
-            FeatureImp.append(grid.best_estimator_.feature_importances_)
+    for eachClassifierParams in grid.cv_results_['params']:
+        eachClassifierParamsDictList = {}
+        for key, value in eachClassifierParams.items():
+            Listvalue = []
+            Listvalue.append(value)
+            eachClassifierParamsDictList[key] = Listvalue
+        grid = GridSearchCV(estimator=clf, 
+            param_grid=eachClassifierParamsDictList,
+            scoring=scoring, 
+            cv=5,
+            refit='accuracy',
+            n_jobs = -1)
+        grid.fit(subset, yData)
+        yPredict = grid.predict(subset)
+        PerClassMetrics.append(classification_report(yData, yPredict, target_names=target_names, digits=2, output_dict=True))
+        if (FI == 1):
+            X = subset.values
+            Y = array(yData)
+            FeatureImp.append(class_feature_importance(X, Y, grid.best_estimator_.feature_importances_))
 
-    return df_cv_results_classifiers, parameters, FeatureImp
 
-GridSearch = mem.cache(GridSearch)
+    FeatureImpPandas = pd.DataFrame(FeatureImp)
+    PerClassMetricsPandas = pd.DataFrame(PerClassMetrics)
+
+    return df_cv_results_classifiers, parameters, FeatureImpPandas, PerClassMetricsPandas
+
+
+def class_feature_importance(X, Y, feature_importances):
+    N, M = X.shape
+    X = scale(X)
+
+    out = {}
+    for c in set(Y):
+        out[c] = dict(
+            zip(range(N), np.mean(X[Y==c, :], axis=0)*feature_importances)
+        )
+
+    return out
+
+#GridSearch = mem.cache(GridSearch)
 
 def InitializeEnsemble():  
     DataResults = copy.deepcopy(DataResultsRaw)
@@ -149,15 +176,19 @@ def InitializeEnsemble():
 
     AllTargets = [o[target] for o in DataResultsRaw]
     AllTargetsFloatValues = []
+
     previous = None
     Class = 0
+    target_names = []
     for i, value in enumerate(AllTargets):
         if (i == 0):
             previous = value
+            target_names.append(value)
         if (value == previous):
             AllTargetsFloatValues.append(Class)
         else:
             Class = Class + 1
+            target_names.append(value)
             AllTargetsFloatValues.append(Class)
             previous = value
 
@@ -186,27 +217,28 @@ def InitializeEnsemble():
     #        'weights': ['uniform', 'distance'],
     #        'metric': ['euclidean', 'manhattan']}
     
-    results.append(GridSearch(clf, params, scoring, IF))
+    results.append(GridSearch(clf, params, scoring, IF, target_names))
 
     clf = RandomForestClassifier()
     params = {'n_estimators': [10, 50]}
     IF = 1
 
-    results.append(GridSearch(clf, params, scoring, IF))
+    results.append(GridSearch(clf, params, scoring, IF, target_names))
 
     df_cv_results_classifiers = pd.concat([results[0][0], results[1][0]], ignore_index=True, sort=False)
     parameters = pd.concat([results[0][1], results[1][1]], ignore_index=True, sort=False)
+    FeatureImportance = pd.concat([results[0][2], results[1][2]], ignore_index=True, sort=False)
+    PerClassMetrics = pd.concat([results[0][3], results[1][3]], ignore_index=True, sort=False)
 
     classifiersIDPlusParams = [] 
     classifierID = 0
     for oneClassifier in parameters: 
-        classifierID = classifierID + 1
         classifiersIDPlusParams.append(classifierID)
         classifiersIDPlusParams.append(oneClassifier)
+        classifierID = classifierID + 1
 
     del df_cv_results_classifiers['params']
     df_cv_results_classifiers_metrics = df_cv_results_classifiers.copy()
-
 
     df_cv_results_classifiers_metrics = df_cv_results_classifiers_metrics.ix[:, 0:NumberofscoringMetrics+1]
     del df_cv_results_classifiers_metrics['mean_fit_time']
@@ -229,9 +261,14 @@ def InitializeEnsemble():
 
     global ResultsforOverview
     ResultsforOverview = []
+    FeatureImportance = FeatureImportance.to_json(orient='records')
+    PerClassMetrics = PerClassMetrics.to_json(orient='records')
     ResultsforOverview.append(json.dumps(sumPerClassifier)) 
     ResultsforOverview.append(json.dumps(X_transformed)) 
     ResultsforOverview.append(json.dumps(classifiersIDPlusParams)) 
+    ResultsforOverview.append(FeatureImportance)
+    ResultsforOverview.append(PerClassMetrics) 
+    ResultsforOverview.append(json.dumps(target_names)) 
 
     return ResultsforOverview
 
@@ -263,7 +300,7 @@ def EnsembleModel (ClassifierIDsList, keyRetrieved):
         for clf, label in zip([sclf], 
                         ['StackingClassifierAllClassifiers']):
 
-            scores = model_selection.cross_val_score(clf, XData, yData, 
+            scores = model_selection.cross_val_score(clf, subset, yData, 
                                                     cv=5, scoring='accuracy')
             print("Accuracy: %0.2f (+/- %0.2f) [%s]" 
                 % (scores.mean(), scores.std(), label))
@@ -272,13 +309,13 @@ def EnsembleModel (ClassifierIDsList, keyRetrieved):
         ClassifierIDsList = ClassifierIDsList.split('"')
         for loop in ClassifierIDsList:
             if ('ClassifierID' in loop):
-                if (loop == 'ClassifierID: 1'):
+                if (loop == 'ClassifierID: 0'):
                     all_classifiers.append(KNeighborsClassifier(n_neighbors=1))
-                elif (loop == 'ClassifierID: 2'):
+                elif (loop == 'ClassifierID: 1'):
                     all_classifiers.append(KNeighborsClassifier(n_neighbors=2))
-                elif (loop == 'ClassifierID: 3'):
+                elif (loop == 'ClassifierID: 2'):
                     all_classifiers.append(KNeighborsClassifier(n_neighbors=10))
-                elif (loop == 'ClassifierID: 4'):
+                elif (loop == 'ClassifierID: 3'):
                     all_classifiers.append(RandomForestClassifier(random_state=RANDOM_SEED, n_estimators = 1))
                 else:
                     all_classifiers.append(RandomForestClassifier(random_state=RANDOM_SEED, n_estimators = 50))
@@ -293,7 +330,7 @@ def EnsembleModel (ClassifierIDsList, keyRetrieved):
         for clf, label in zip([sclf], 
                         ['StackingClassifierSelectedClassifiers']):
 
-            scores = model_selection.cross_val_score(clf, XData, yData, 
+            scores = model_selection.cross_val_score(clf, subset, yData, 
                                                     cv=5, scoring='accuracy')
             print("Accuracy: %0.2f (+/- %0.2f) [%s]" 
                 % (scores.mean(), scores.std(), label))
