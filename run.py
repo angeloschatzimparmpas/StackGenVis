@@ -38,6 +38,9 @@ cors = CORS(app, resources={r"/data/*": {"origins": "*"}})
 def RetrieveFileName():
     global fileName 
     fileName = request.get_data().decode('utf8').replace("'", '"') 
+    global featureSelection 
+    featureSelection = request.get_data().decode('utf8').replace("'", '"')
+    featureSelection = json.loads(featureSelection)
     return jsonify(fileName)
 
 # Sent data to client 
@@ -92,10 +95,8 @@ def GridSearch(clf, params, scoring, FI, target_names):
                 cv=5,
                 refit='accuracy',
                 n_jobs = -1)
-    global subset
-    subset = XData
     
-    grid.fit(subset, yData)
+    grid.fit(XData, yData)
 
     cv_results = []
     cv_results.append(grid.cv_results_)
@@ -116,12 +117,40 @@ def GridSearch(clf, params, scoring, FI, target_names):
     parameters = df_cv_results_classifiers['params']
     PerClassMetrics = []
     FeatureImp = []
-    for eachClassifierParams in grid.cv_results_['params']:
+    global subset
+    print(XData.columns)
+    subset = XData
+    for i, eachClassifierParams in enumerate(grid.cv_results_['params']):
         eachClassifierParamsDictList = {}
         for key, value in eachClassifierParams.items():
             Listvalue = []
             Listvalue.append(value)
             eachClassifierParamsDictList[key] = Listvalue
+        if (FI == 1):
+            if (featureSelection['featureSelection'] == ''):
+                subset = XData
+            else:
+                featureSelected = []
+                if ((i+1) == int(''.join(x for x in featureSelection['featureSelection'][0] if x.isdigit()))):
+                    if (int(''.join(x for x in featureSelection['featureSelection'][2] if x.isdigit())) == 1):
+                        featureSelected.append('petal_l')
+                    if (int(''.join(x for x in featureSelection['featureSelection'][5] if x.isdigit())) == 1):
+                        featureSelected.append('petal_w')
+                    if (int(''.join(x for x in featureSelection['featureSelection'][8] if x.isdigit())) == 1):
+                        featureSelected.append('sepal_l')
+                    if (int(''.join(x for x in featureSelection['featureSelection'][11] if x.isdigit())) == 1):
+                        featureSelected.append('sepal_w')
+                else:   
+                    if (int(''.join(x for x in featureSelection['featureSelection'][14] if x.isdigit())) == 1):
+                        featureSelected.append('petal_l')
+                    if (int(''.join(x for x in featureSelection['featureSelection'][17] if x.isdigit())) == 1):
+                        featureSelected.append('petal_w')
+                    if (int(''.join(x for x in featureSelection['featureSelection'][20] if x.isdigit())) == 1):
+                        featureSelected.append('sepal_l')
+                    if (int(''.join(x for x in featureSelection['featureSelection'][23] if x.isdigit())) == 1):
+                        featureSelected.append('sepal_w')
+                print(featureSelected)
+                subset = XData[featureSelected]
         grid = GridSearchCV(estimator=clf, 
             param_grid=eachClassifierParamsDictList,
             scoring=scoring, 

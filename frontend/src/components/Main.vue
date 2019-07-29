@@ -53,6 +53,14 @@
                 </mdb-card-body>
         </mdb-card>
     </b-col>
+     <b-col cols="3">
+        <mdb-card>
+            <mdb-card-header color="primary-color" tag="h5" class="text-center">Subset Feature Selection</mdb-card-header>
+                <mdb-card-body>
+                  <FeatureSelection/>
+                </mdb-card-body>
+        </mdb-card>
+    </b-col>
   </b-row>
   <b-row>
       <b-col cols="3">
@@ -77,6 +85,7 @@ import ScatterPlot from './ScatterPlot.vue'
 import BarChart from './BarChart.vue'
 import StretchedChord from './StretchedChord.vue'
 import Tuning from './Tuning.vue'
+import FeatureSelection from './FeatureSelection.vue'
 import axios from 'axios'
 import { mdbCard, mdbCardBody, mdbCardText, mdbCardHeader } from 'mdbvue'
 import { EventBus } from '../main.js'
@@ -90,6 +99,7 @@ export default Vue.extend({
     BarChart,
     StretchedChord,
     Tuning,
+    FeatureSelection,
     mdbCard,
     mdbCardBody,
     mdbCardHeader,
@@ -100,7 +110,8 @@ export default Vue.extend({
       Collection: 0,
       OverviewResults: 0,
       RetrieveValueFile: 'IrisC',
-      ClassifierIDsList: ''
+      ClassifierIDsList: '',
+      SelectedFeaturesPerClassifier: ''
     }
   },
   methods: {
@@ -110,7 +121,8 @@ export default Vue.extend({
     DataBaseRequestDataSetName () {
       const path = `http://127.0.0.1:5000/data/ServerRequest`
       const postData = {
-        fileName: this.RetrieveValueFile
+        fileName: this.RetrieveValueFile,
+        featureSelection: this.SelectedFeaturesPerClassifier
       }
       const axiosConfig = {
         headers: {
@@ -122,6 +134,7 @@ export default Vue.extend({
       }
       axios.post(path, postData, axiosConfig)
         .then(response => {
+          console.log(response)
           console.log('Send request to server! FileName was sent successfully!')
         })
         .catch(error => {
@@ -174,6 +187,8 @@ export default Vue.extend({
           EventBus.$emit('emittedEventCallingScatterPlot', this.OverviewResults)
           EventBus.$emit('emittedEventCallingBarChart', this.OverviewResults)
           EventBus.$emit('emittedEventCallingChordView', this.OverviewResults)
+          EventBus.$emit('emittedEventCallingTableView', this.OverviewResults)
+
         })
         .catch(error => {
           console.log(error)
@@ -204,6 +219,7 @@ export default Vue.extend({
   mounted() {
     EventBus.$on('SendSelectedPointsToServerEvent', data => { this.ClassifierIDsList = data })
     EventBus.$on('SendSelectedPointsToServerEvent', this.SendSelectedPointsToServer)
+    EventBus.$on('SendSelectedFeaturesEvent', data => { this.SelectedFeaturesPerClassifier = data })
   }
 })
 </script>

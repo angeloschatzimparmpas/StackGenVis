@@ -3,7 +3,8 @@
   id="Execute"
   v-on:click="execute">
   <font-awesome-icon icon="play" />
-  Execute</button>
+  {{ value }}
+  </button>
 </template>
 
 <script>
@@ -12,11 +13,13 @@ export default {
   data () {
     return {
         InitializeEnsemble: false,
+        value: 'Execute'
     };
   },
   methods: {
     execute () {
         this.InitializeEnsemble = true
+        this.value = 'ReExecute'
         this.$emit('InitializeEnsembleLearningEvent')
     }
   }

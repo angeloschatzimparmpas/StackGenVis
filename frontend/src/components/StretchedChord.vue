@@ -20,15 +20,22 @@ export default {
   methods: {
       StretchChord () {
         const FeatureImportance = JSON.parse(this.AllResults[3])
-        const ClassNames = JSON.parse(this.AllResults[5])    
+        const ClassNames = JSON.parse(this.AllResults[5]) 
 
         var SortFeaturesPerClass = []
+        var MergeSortFeaturesPerClass = []
+        var counter = 0
         FeatureImportance.forEach(classifier => {
+            counter++
+            var length = this.ObjectSize(classifier)
             for (let i = 0; i < length; i++) {
-                SortFeaturesPerClass.push(this.sortObject(classifier[i]))
+                SortFeaturesPerClass.push(this.sortObject(classifier[i], counter, ClassNames[i]))
             }
         })
-
+        MergeSortFeaturesPerClass = SortFeaturesPerClass[0]
+        for (let i = 0; i < SortFeaturesPerClass.length - 1; i++) {
+            MergeSortFeaturesPerClass = MergeSortFeaturesPerClass.concat(SortFeaturesPerClass[i+1])
+        }
         var margin = {left:80, top:40, right:120, bottom:50},
             width = Math.max( Math.min(window.innerWidth, 1100) - margin.left - margin.right - 20, 400),
             height = Math.max( Math.min(window.innerHeight - 250, 900) - margin.top - margin.bottom - 20, 400),
@@ -54,14 +61,17 @@ export default {
                                     
             var loom = d3.loom()
                 .padAngle(0.05)
-                //.sortSubgroups(sortAlpha)
-                //.heightInner(28)
-                .emptyPerc(0.2)
-                .widthInner(30)
+                //.sortSubgroups(sortCharacter)
+                //.heightInner(0)
+                //.sortGroups(function(d) { return d.words })
+                //.sortLooms(d3.descending)
+                .emptyPerc(0)
+                .widthInner(40)
                 //.widthInner(function(d) { return 6 * d.length; })
-                .value(function(d) { return d.words; })
-                .inner(function(d) { return d.character; })
-                .outer(function(d) { return d.location; });
+                .value(function(d) { return d.importancerate; })
+                .outercolorfun(function(d) { return d.class; })
+                .inner(function(d) { return d.feature; })
+                .outer(function(d) { return d.classifier; });
 
             var arc = d3.arc()
                 .innerRadius(innerRadius*1.01)
@@ -70,17 +80,13 @@ export default {
             var string = d3.string()
                 .radius(innerRadius)
                 .pullout(pullOutSize);
-                
-            var characterNotes = [];
-
-            characterNotes["Iris Setosa"] = "Speaking almost twice as many words as the second most abundant speaker, Gandalf is taking up a large portion of dialogue in almost every location he's in, but stays rather quiet in Mordor";
-            characterNotes["Iris Versicolour"] = "An unexpected runner up to having spoken the most words, Sam flourishes after the battle at Amon Hen, taking up a considerable portion of the words said in both Mordor and Gondor";
-            characterNotes["Iris Virginica"] = "Although eventually being crowned in Minas Tirith, Gondor, Aragorn is by far most talkative in that other human region, Rohan, fighting a battle at Helm's Deep and convincing an army of dead";
 
             ////////////////////////////////////////////////////////////
             ////////////////////// Create SVG //////////////////////////
             ////////////////////////////////////////////////////////////
                         
+            d3.select("#chart").selectAll("*").remove();
+
             var svg = d3.select("#chart").append("svg")
                 .attr("width", width + margin.left + margin.right)
                 .attr("height", height + margin.top + margin.bottom);
@@ -95,33 +101,8 @@ export default {
                 ////////////////////////////////////////////////////////////
                 
                 //Sort the inner characters based on the total number of words spoken
-                var dataAgg = [
-            {
-                "location": "Classifier 1",
-                "character": "Iris Setosa",
-                "words": 94
-            },
-            {
-                "location": "Classifier 1",
-                "character": "Iris Versicolour",
-                "words": 100
-            },
-            {
-                "location": "Classifier 1",
-                "character": "Iris Virginica",
-                "words": 100
-            },
-            {
-                "location": "Feature 1",
-                "character": "Iris Virginica",
-                "words": 40
-            },
-            {
-                "location": "Feature 2",
-                "character": "Iris Virginica",
-                "words": 60
-            },
-            ]			
+                var dataAgg = MergeSortFeaturesPerClass
+
             //Find the total number of words per character
             var dataChar = d3.nest()
                 .key(function(d) { return d.character; })
@@ -138,16 +119,16 @@ export default {
             //Set more loom functions
             loom
                 .sortSubgroups(sortCharacter)
-                .heightInner(innerRadius*0.75/characterOrder.length)
+                .heightInner(innerRadius*0.2/characterOrder.length)
             
             ////////////////////////////////////////////////////////////
             ///////////////////////// Colors ///////////////////////////
             ////////////////////////////////////////////////////////////
                             
-            var locations = ["Iris Setosa", "Iris Versicolour", "Iris Virginica"]
-            var colors = ["#5a3511", "#47635f", "#223e15"]
+            var categories = ClassNames
+            var colors = ["#0000FF", "#ff0000", "#00ff00"]
             var color = d3.scaleOrdinal()
-                .domain(locations)
+                .domain(categories)
                 .range(colors)
             
             //Create a group that already holds the data
@@ -238,7 +219,7 @@ export default {
 
             var outerArcs = arcs.append("path")
                 .attr("class", "arc")
-                .style("fill", function(d) { return color(d.innername) })
+                //.style("fill", function(d) { return color(d.outer.innername) })
                 .attr("d", arc)
                 .attr("transform", function(d, i) { //Pull the two slices apart
                     return "translate(" + d.pullOutSize + ',' + 0 + ")"
@@ -271,7 +252,7 @@ export default {
             outerLabels.append("text")
                 .attr("class", "outer-label-value")
                 .attr("dy", "1.5em")
-                .text(function(d,i){ return numFormat(d.value) + " words" })
+                .text(function(d,i){ return 'Relation:' + numFormat(d.value) + '%'})
 
             ////////////////////////////////////////////////////////////
             ////////////////// Draw inner strings //////////////////////
@@ -288,7 +269,9 @@ export default {
                 .attr("class", "string")
                 .style("mix-blend-mode", "multiply")
                 .attr("d", string)
-                .style("fill", function(d) { return d3.rgb( color(d.outer.innername) ).brighter(0.2)  })
+                .style("fill", function(d) {
+                        return d3.rgb( color(d.outer.outercolor) ).brighter(0.2)
+                    })
                 .style("opacity", defaultOpacity)
                 
             ////////////////////////////////////////////////////////////
@@ -355,11 +338,6 @@ export default {
                             return numFormat(words[0].value)
                         })
                         
-                    //Show the character note
-                    d3.selectAll(".character-note")
-                        .text(characterNotes[d.name])
-                        .call(wrap, 2.25*pullOutSize)
-                        
                 })
                 .on("mouseout", function(d) {
                     
@@ -370,7 +348,7 @@ export default {
                         
                     //Return the word count to what it was
                     d3.selectAll(".outer-label-value")	
-                        .text(function(s,i){ return numFormat(s.value) + " words" })
+                        .text(function(s,i){ return 'Importance Rate: ' + numFormat(s.value) })
                         
                     //Show all arcs again
                     d3.selectAll(".arc-wrapper")
@@ -430,19 +408,21 @@ export default {
         })
         }//wrap
         },
-        sortObject (obj) {
+        sortObject (obj, classifierID, ClassName) {
             var arr = []
             for (var prop in obj) {
                 if (Object.prototype.hasOwnProperty.call(obj, prop)) {
-                    if ((this.LimitFeatureImportance/100) < Math.abs(obj[prop])) {
+                    //if ((this.LimitFeatureImportance/100) < Math.abs(obj[prop])) {
                         arr.push({
-                        'FeatureID': prop,
-                        'ImportanceValue': obj[prop]
+                        'feature': 'Feature ' + prop,
+                        'classifier': 'Classifier ' + classifierID,
+                        'class': ClassName,
+                        'importancerate': Math.abs(Math.round(obj[prop] * 100))
                         })
-                    }
+                    //}
                 }
             }
-            arr = arr.sort(function (a, b) { return Math.abs(b.ImportanceValue) - Math.abs(a.ImportanceValue) })
+            arr = arr.sort(function (a, b) { return Math.abs(b.ImportanceValue - a.ImportanceValue) })
             return arr
         },
         ObjectSize (obj) {
