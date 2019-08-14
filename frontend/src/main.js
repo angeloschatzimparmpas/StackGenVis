@@ -6,9 +6,9 @@ import 'bootstrap-vue/dist/bootstrap-vue.css'
 import router from './router'
 import { library } from '@fortawesome/fontawesome-svg-core'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
-import { faUpload, faPlay } from '@fortawesome/free-solid-svg-icons'
+import { faUpload, faPlay, faCheck, faSave} from '@fortawesome/free-solid-svg-icons'
 
-library.add(faUpload, faPlay)
+library.add(faUpload, faPlay, faCheck, faSave)
 
 Vue.component('font-awesome-icon', FontAwesomeIcon)
 

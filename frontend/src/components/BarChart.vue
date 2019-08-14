@@ -32,8 +32,21 @@ export default {
   methods: {
     BarChartView () {
         const PerClassMetrics = JSON.parse(this.BarChartResults[4])
-        const ClassNames = JSON.parse(this.BarChartResults[5])    
-            
+        const ClassNames = JSON.parse(this.BarChartResults[5])
+        const limit = JSON.parse(this.BarChartResults[12])
+        var PerClassMetricsRed = []
+        var limitList = []
+        if (limit == '') {
+            for (let i = 0; i < PerClassMetrics.length; i++) {
+                limitList.push(i)
+            }
+        } else {
+            limitList = []
+            for (let i = 0; i < limit.length; i++) {
+                limitList.push(Number(limit[i].match(/\d+/)[0]))
+            }
+        }
+        console.log(limitList)
         const precisionPerClass = []
         const recallPerClass = []
         const f1ScorePerClass = []
@@ -42,11 +55,11 @@ export default {
         precisionPerClass[j] = []
         recallPerClass[j] = []
         f1ScorePerClass[j] = []
-        for (let i = 0; i < PerClassMetrics.length; i++) {
-            precisionPerClass[j].push(PerClassMetrics[i][ClassNames[j]].precision)
-            recallPerClass[j].push(PerClassMetrics[i][ClassNames[j]].recall)
-            f1ScorePerClass[j].push(PerClassMetrics[i][ClassNames[j]]['f1-score'])
-        }
+            for (let i = 0; i < limitList.length; i++) { // Fix this tomorrow! 0 to 16 and we want the ids.. 
+                precisionPerClass[j].push(PerClassMetrics[limitList[i]][ClassNames[j]].precision)
+                recallPerClass[j].push(PerClassMetrics[limitList[i]][ClassNames[j]].recall)
+                f1ScorePerClass[j].push(PerClassMetrics[limitList[i]][ClassNames[j]]['f1-score'])
+            }
         }
 
         var precisionData
@@ -55,8 +68,8 @@ export default {
 
         var layoutPrec = {
         autosize: false,
-        width: 400,
-        height: 400,
+        width: 300,
+        height: 300,
         xaxis: {
             title: 'Classifier ID',
             type:"category",
@@ -87,8 +100,8 @@ export default {
 
         var layoutRec = {
         autosize: false,
-        width: 400,
-        height: 400,
+        width: 300,
+        height: 300,
         xaxis: {
             title: 'Classifier ID',
             type:"category",
@@ -119,8 +132,8 @@ export default {
 
         var layoutf1Score = {
         autosize: false,
-        width: 400,
-        height: 400,
+        width: 300,
+        height: 300,
         xaxis: {
             title: 'Classifier ID',
             type:"category",

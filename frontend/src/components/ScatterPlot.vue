@@ -20,18 +20,9 @@ export default {
       const classifiersInfo = JSON.parse(this.ScatterPlotResults[2])
 
       var classifiersInfoProcessing = []
-      let step = 0
-      let doubleStep = 1
-
-      for (let i = 0; i < classifiersInfo.length / 2; i++) {
-      classifiersInfoProcessing[i] = 'ClassifierID: ' + step + '; Details: '
-      step++ 
-      for (let j = 0; j < Object.values(classifiersInfo[doubleStep]).length; j++) {
-          classifiersInfoProcessing[i] = classifiersInfoProcessing[i] + Object.keys(classifiersInfo[doubleStep])[j] + ': ' + Object.values(classifiersInfo[doubleStep])[j]
+      for (let i = 0; i < classifiersInfo.length; i++) {
+        classifiersInfoProcessing[i] = 'ClassifierID: ' + i + '; Details: '
       }
-      doubleStep = doubleStep + 2
-      }
-
       const DataforMDS = [{
       x: MDSData[0],
       y: MDSData[1],
@@ -49,7 +40,7 @@ export default {
       }
       }]
       const layout = {
-      title: 'Classifiers Performance MDS',
+      title: 'Models Performance (MDS)',
       xaxis: {
           visible: false
       },

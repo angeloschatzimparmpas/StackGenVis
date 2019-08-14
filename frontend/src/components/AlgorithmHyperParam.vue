@@ -1,0 +1,69 @@
+<template>
+  <div id="PCP" class="parcoords" style="width:600;height:300px"></div>
+</template>
+
+<script>
+import 'parcoord-es/dist/parcoords.css';
+import ParCoords from 'parcoord-es';
+import * as d3Base from 'd3'
+
+// attach all d3 plugins to the d3 library
+const d3 = Object.assign(d3Base)
+
+import { EventBus } from '../main.js'
+
+export default {
+  name: 'AlgorithmHyperParam',
+  data () {
+    return {
+      ModelsPerformance: 0,
+      selAlgorithm: 0,
+      pc: 0
+    }
+  },
+  methods: {
+    PCPView () {
+      var Combined = 0
+      if (this.selAlgorithm == 'KNN') {    
+        Combined = JSON.parse(this.ModelsPerformance[0])
+      } else {
+        Combined = JSON.parse(this.ModelsPerformance[1])
+      }
+      var valuesPerf = Object.values(Combined['mean_test_score'])
+      var ObjectsParams = Combined['params']
+      var ArrayCombined = new Array(valuesPerf.length)
+      for (let i = 0; i < valuesPerf.length; i++) {
+          Object.assign(ObjectsParams[i], {performance: valuesPerf[i]})
+          ArrayCombined[i] = ObjectsParams[i]
+      }
+      this.pc = ParCoords()("#PCP")
+          .data(ArrayCombined)
+          .bundlingStrength(0) // set bundling strength
+          .smoothness(0)
+          .bundleDimension('performance')
+          .showControlPoints(false)
+          .render()
+          .brushMode('1D-axes')
+          .reorderable()
+          .interactive();
+    },
+    brushed () {
+        if (this.pc.brushed()) {
+            EventBus.$emit('ReturningBrushedPoints', this.pc.brushed())
+        } else {
+            EventBus.$emit('ReturningBrushedPoints', this.pc.data())
+        }
+    },
+    clear () {
+        d3.selectAll("#PCP > *").remove(); 
+    }
+  },
+  mounted() {
+    EventBus.$on('emittedEventCallingModelBrushed', this.brushed)
+    EventBus.$on('emittedEventCallingModelSelect', data => { this.selAlgorithm = data })
+    EventBus.$on('emittedEventCallingModel', data => { this.ModelsPerformance = data })
+    EventBus.$on('emittedEventCallingModel', this.PCPView)
+    EventBus.$on('emittedEventCallingModelClear', this.clear)
+  }
+}
+</script>
