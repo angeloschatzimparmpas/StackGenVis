@@ -19,20 +19,46 @@ export default {
   },
   methods: {
       StretchChord () {
-        const FeatureImportance = this.AllResults[0]
-        const ClassNames = this.AllResults[1]
-        const ClassifiersIDs = this.AllResults[2]
-        if (ClassifiersIDs != ''){
+        d3.selectAll("#chart > *").remove(); 
+        const FeatureImportance = JSON.parse(this.AllResults[3])
+        const ClassNames = JSON.parse(this.AllResults[5])
+        const ClassifiersIDs = JSON.parse(this.AllResults[9])
+        const limit = JSON.parse(this.AllResults[12])
+        var limitList = []
+        if (limit == '') {
+            for (let i = 0; i < ClassifiersIDs.length; i++) {
+                limitList.push(ClassifiersIDs[i])
+            }
+        } else {
+            limitList = []
+            for (let i = 0; i < limit.length; i++) {
+                for (let j = 0; j < ClassifiersIDs.length; j++) {
+                    if (Number(limit[i].match(/\d+/)[0]) == ClassifiersIDs[j]) {
+                        limitList.push(Number(limit[i].match(/\d+/)[0]))
+                    }
+                }
+            }
+        }
+        if (limitList.length != 0){
             var SortFeaturesPerClass = []
             var MergeSortFeaturesPerClass = []
             var counter = 0
+            var SortFeaturesPerClassRemoveEmpty = []
+            var returnvalue = 0
             FeatureImportance.forEach(classifier => {
-                var length = this.ObjectSize(classifier)
-                for (let i = 0; i < length; i++) {
-                    SortFeaturesPerClass.push(this.sortObject(classifier[i], ClassifiersIDs[counter], ClassNames[i]))
+                for (let i = 0; i < limitList.length; i++) {
+                    returnvalue = this.sortObject(classifier[i], limitList[counter], ClassNames[i])
+                    if (returnvalue === undefined || returnvalue.length == 0) {
+                    } else {
+                         if (returnvalue[0]['classifier'] != 'M undefined') {
+                            console.log(returnvalue)
+                            SortFeaturesPerClass.push(returnvalue)
+                        }
+                    }
                 }
                 counter++
             })
+            //var SortFeaturesPerClassRemoveEmpty =  SortFeaturesPerClass.filter(e => e.length);
             MergeSortFeaturesPerClass = SortFeaturesPerClass[0]
             for (let i = 0; i < SortFeaturesPerClass.length - 1; i++) {
                 MergeSortFeaturesPerClass = MergeSortFeaturesPerClass.concat(SortFeaturesPerClass[i+1])
@@ -405,7 +431,7 @@ export default {
                     //if ((this.LimitFeatureImportance/100) < Math.abs(obj[prop])) {
                         arr.push({
                         'feature': 'F ' + prop,
-                        'classifier': 'Cl ' + classifierID,
+                        'classifier': 'M ' + classifierID,
                         'class': ClassName,
                         'importancerate': Math.abs(Math.round(obj[prop] * 100))
                         })

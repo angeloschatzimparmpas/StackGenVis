@@ -22,6 +22,7 @@ export default {
   },
   methods: {
     boxplot () {
+       d3.selectAll("#exploding_boxplot > *").remove(); 
       //generate random data
       const PerformAlgor1 = JSON.parse(this.PerformanceAllModels[0])
       const PerformAlgor2 = JSON.parse(this.PerformanceAllModels[1])
@@ -30,13 +31,13 @@ export default {
       var median = []
       var sum = 0
       for (let i = 0; i < Object.keys(PerformAlgor1.mean_test_score).length; i++) {
-        algorithm1.push({Performance: Object.values(PerformAlgor1.mean_test_score)[i]*100,Algorithm:'KNN',Model:'Model ' + i + ',  Accuracy '})
+        algorithm1.push({Accuracy: Object.values(PerformAlgor1.mean_test_score)[i]*100,Algorithm:'KNN',Model:'Model ' + i + ',  Accuracy '})
         sum = sum + Object.values(PerformAlgor1.mean_test_score)[i]*100
       }
       median.push(sum/Object.keys(PerformAlgor1.mean_test_score).length)
       sum = 0
       for (let i = 0; i < Object.keys(PerformAlgor2.mean_test_score).length; i++) {
-        algorithm2.push({Performance: Object.values(PerformAlgor2.mean_test_score)[i]*100,Algorithm:'RF',Model:'Model ' + i + ',  Accuracy '})
+        algorithm2.push({Accuracy: Object.values(PerformAlgor2.mean_test_score)[i]*100,Algorithm:'RF',Model:'Model ' + i + ',  Accuracy '})
         sum = sum + Object.values(PerformAlgor1.mean_test_score)[i]*100
       }
       var data = algorithm1.concat(algorithm2)
@@ -52,7 +53,7 @@ export default {
       // group : how to group data on x axis
       // color : color of the point / boxplot
       // label : displayed text in toolbox
-      var chart = exploding_boxplot(data, {y:'Performance',group:'Algorithm',color:'Algorithm',label:'Model'})
+      var chart = exploding_boxplot(data, {y:'Accuracy',group:'Algorithm',color:'Algorithm',label:'Model'})
 
       //call chart on a div
       chart('#exploding_boxplot')

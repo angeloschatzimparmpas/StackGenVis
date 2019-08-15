@@ -18,13 +18,31 @@ export default {
   },
   methods: {
     Heatmap () {
-        // Clear Heatmap first
-        var svg = d3.select("#Heatmap");
-        svg.selectAll("*").remove();
+      // Clear Heatmap first
+      var svg = d3.select("#Heatmap");
+      svg.selectAll("*").remove();
 
-        let FeaturesAccuracy = this.GetResultsAll[0]
-        let Features= this.GetResultsAll[1]
-        let Classifiers = this.GetResultsAll[2]
+      var FeaturesAccuracy = JSON.parse(this.GetResultsAll[6])
+      var Features= JSON.parse(this.GetResultsAll[7])
+      const limit = JSON.parse(this.GetResultsAll[12])
+      var Classifiers = JSON.parse(this.GetResultsAll[8])
+        
+      if (Classifiers != '') { 
+        var limitList = []
+        if (limit == '') {
+          for (let i = 0; i < Classifiers.length; i++) {
+              limitList.push(Classifiers[i])
+          }
+        } else {
+            limitList = []
+            for (let i = 0; i < limit.length; i++) {
+                for (let j = 0; j < Classifiers.length; j++) {
+                    if (Number(limit[i].match(/\d+/)[0]) == Classifiers[j]) {
+                        limitList.push(Number(limit[i].match(/\d+/)[0]))
+                    }
+                }
+            }
+        }
 
         let len = Features.length
         let indicesYAxis = new Array(len)
@@ -46,7 +64,7 @@ export default {
         .attr("transform",
                 "translate(" + margin.left + "," + margin.top + ")");
         
-        let len2 = Classifiers.length
+        let len2 = limitList.length
         let indicesXAxis = new Array(len)
         for (let i = 0; i < len2; i++) {
             indicesXAxis[i] = i
@@ -97,6 +115,7 @@ export default {
             .attr("height", y.bandwidth() )
             .style("fill", function(d) { return myColor(d.value)} )
 
+      }
     }
   },
   mounted () {

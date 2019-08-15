@@ -40,6 +40,73 @@ cors = CORS(app, resources={r"/data/*": {"origins": "*"}})
 
 # Retrieve data from client 
 @cross_origin(origin='localhost',headers=['Content-Type','Authorization'])
+@app.route('/data/Reset', methods=["GET", "POST"])
+def Reset():
+    global DataRawLength
+    global DataResultsRaw
+    global RANDOM_SEED
+    RANDOM_SEED = 42
+
+    global XData
+    XData = []
+
+    global yData
+    yData = []
+
+    global algorithmList
+    algorithmList = []
+
+    global ClassifierIDsList
+    ClassifierIDsList = ''
+
+    # Initializing models
+
+    global classifiersId
+    classifiersId = []
+    global classifiersIDwithFI
+    classifiersIDwithFI = []
+    global classifiersIDPlusParams
+    classifiersIDPlusParams = [] 
+    global classifierID
+    classifierID = 0
+
+    global resultsList
+    resultsList = []
+
+    global RetrieveModelsList
+    RetrieveModelsList = []
+
+    global allParametersPerformancePerModel
+    allParametersPerformancePerModel = []
+
+    global all_classifiers
+    all_classifiers = []
+
+    global crossValidation
+    crossValidation = 3
+
+    global scoring
+    #scoring = {'accuracy': 'accuracy', 'f1_macro': 'f1_weighted', 'precision': 'precision_weighted', 'recall': 'recall_weighted', 'jaccard': 'jaccard_weighted', 'neg_log_loss': 'neg_log_loss', 'r2': 'r2', 'neg_mean_absolute_error': 'neg_mean_absolute_error', 'neg_mean_absolute_error': 'neg_mean_absolute_error'}
+    scoring = {'accuracy': 'accuracy', 'f1_macro': 'f1_weighted', 'precision': 'precision_weighted', 'recall': 'recall_weighted', 'jaccard': 'jaccard_weighted'}
+
+    global yPredictProb
+    yPredictProb = []
+    
+    global loopFeatures
+    loopFeatures = 2
+
+    global columns 
+    columns = []
+
+    global results
+    results = []
+
+    global target_names
+    target_names = []
+    return 'The reset was done!'
+
+# Retrieve data from client 
+@cross_origin(origin='localhost',headers=['Content-Type','Authorization'])
 @app.route('/data/ServerRequest', methods=["GET", "POST"])
 def RetrieveFileName():
     fileName = request.get_data().decode('utf8').replace("'", '"') 
@@ -60,6 +127,9 @@ def RetrieveFileName():
     global ClassifierIDsList
     ClassifierIDsList = ''
 
+    global algorithmList
+    algorithmList = []
+
     # Initializing models
 
     global classifiersId
@@ -70,6 +140,9 @@ def RetrieveFileName():
     classifiersIDPlusParams = [] 
     global classifierID
     classifierID = 0
+
+    global RetrieveModelsList
+    RetrieveModelsList = []
 
     global resultsList
     resultsList = []
@@ -87,14 +160,14 @@ def RetrieveFileName():
     #scoring = {'accuracy': 'accuracy', 'f1_macro': 'f1_weighted', 'precision': 'precision_weighted', 'recall': 'recall_weighted', 'jaccard': 'jaccard_weighted', 'neg_log_loss': 'neg_log_loss', 'r2': 'r2', 'neg_mean_absolute_error': 'neg_mean_absolute_error', 'neg_mean_absolute_error': 'neg_mean_absolute_error'}
     scoring = {'accuracy': 'accuracy', 'f1_macro': 'f1_weighted', 'precision': 'precision_weighted', 'recall': 'recall_weighted', 'jaccard': 'jaccard_weighted'}
 
+    global yPredictProb
+    yPredictProb = []
+
     global loopFeatures
     loopFeatures = 2
 
-    global flag
-    flag = 0
-
-    global yPredictProb
-    yPredictProb = []
+    global columns 
+    columns = []
 
     global results
     results = []
@@ -223,8 +296,9 @@ def GridSearch(clf, params, FI):
     PerFeatureAccuracy = []
     global subset
     global loopFeatures
-    global flag
     global yPredictProb
+    global columns
+    columns = []
     counter = 0
     subset = XData
     for i, eachClassifierParams in enumerate(grid.cv_results_['params']):
@@ -244,22 +318,13 @@ def GridSearch(clf, params, FI):
             subset = XData
         else:
             featureSelected = []
-            if (int(''.join(x for x in featureSelection['featureSelection'][loopFeatures] if x.isdigit())) == 1):
-                featureSelected.append('petal_l')
-            loopFeatures = loopFeatures + 3
-            if (int(''.join(x for x in featureSelection['featureSelection'][loopFeatures] if x.isdigit())) == 1):
-                featureSelected.append('petal_w')
-            loopFeatures = loopFeatures + 3
-            if (int(''.join(x for x in featureSelection['featureSelection'][loopFeatures] if x.isdigit())) == 1):
-                featureSelected.append('sepal_l')
-            loopFeatures = loopFeatures + 3
-            if (int(''.join(x for x in featureSelection['featureSelection'][loopFeatures] if x.isdigit())) == 1):
-                featureSelected.append('sepal_w')
-            loopFeatures = loopFeatures + 3
+            for indices, each in enumerate(XData.columns):
+                if (int(''.join(x for x in featureSelection['featureSelection'][loopFeatures] if x.isdigit())) == 1):
+                    featureSelected.append(each)
+                loopFeatures = loopFeatures + 3
             subset = XData[featureSelected]
             element = (column_index(XData, featureSelected))
-            columns[flag] = element
-            flag = flag + 1
+            columns.append(element)
         grid.fit(subset, yData)   
         if (FI == 0):
             n_feats = XData.shape[1]
@@ -368,6 +433,8 @@ def InitializeEnsemble():
 
     return Results
 
+
+
 # Retrieve data from client 
 @cross_origin(origin='localhost',headers=['Content-Type','Authorization'])
 @app.route('/data/ServerRequestSelPoin', methods=["GET", "POST"])
@@ -375,6 +442,53 @@ def RetrieveSelClassifiersID():
     global ClassifierIDsList
     ClassifierIDsList = request.get_data().decode('utf8').replace("'", '"')
     key = 1
+    EnsembleModel(ClassifierIDsList, key)
+    return 'Everything Okay'
+
+# Retrieve data from client 
+@cross_origin(origin='localhost',headers=['Content-Type','Authorization'])
+@app.route('/data/FeaturesSelection', methods=["GET", "POST"])
+def FeatureSelPerModel():
+    global featureSelection
+    global loopFeatures
+    global ClassifierIDsList
+    RetrieveModelsPar = request.get_data().decode('utf8').replace("'", '"')
+    RetrieveModelsPar = json.loads(RetrieveModelsPar)
+    RetrieveModelsParRed = []
+    print(RetrieveModelsPar['brushedAll']) # FIX THIS THING!!!!!
+    for j, i in enumerate(RetrieveModelsPar['brushedAll']):
+        print(j)
+    RetrieveModelsParRed = [for j, i in enumerate(RetrieveModelsPar['brushedAll']) if j not in ClassifierIDsList]
+
+    RetrieveModelsParPandas = pd.DataFrame(RetrieveModelsParRed)
+    RetrieveModelsParPandas = RetrieveModelsParPandas.drop(columns=['performance'])
+    RetrieveModelsParPandas = RetrieveModelsParPandas.to_dict(orient='list')
+    print(RetrieveModelsParPandas)
+    RetrieveModels = {}
+    for key, value in RetrieveModelsParPandas.items():
+        withoutDuplicates = Remove(value)
+        RetrieveModels[key] = withoutDuplicates
+    global RetrieveModelsListNew
+    RetrieveModelsListNew.append(RetrieveModels)
+    loopFeatures = 2
+    featureSelection = request.get_data().decode('utf8').replace("'", '"')
+    featureSelection = json.loads(featureSelection)
+    global algorithmList
+    results = []
+    for index, eachalgor in enumerate(algorithmList):
+        if (eachalgor == 'KNN'):
+            clf = KNeighborsClassifier()
+            params = RetrieveModelsListNew[index]
+            IF = 0
+            results.append(GridSearch(clf, params, IF))
+            resultsList.append(results[0])
+        else:
+            clf = RandomForestClassifier()
+            params = RetrieveModelsListNew[index]
+            IF = 1
+            results.append(GridSearch(clf, params, IF))
+            resultsList.append(results[0])
+    key = 2
     EnsembleModel(ClassifierIDsList, key)
     return 'Everything Okay'
 
@@ -393,19 +507,23 @@ def EnsembleModel (ClassifierIDsList, keyRetrieved):
 
     global scores
     scores = []
+    global all_classifiersSelection
+    all_classifiersSelection = []  
+    global columns
 
     global all_classifiers
+
     if (keyRetrieved == 0):
+        columnsInit = []
         all_classifiers = []  
-        columns = []
-        columns = [XData.columns.get_loc(c) for c in XData.columns if c in XData]
+        columnsInit = [XData.columns.get_loc(c) for c in XData.columns if c in XData]
         for index, eachelem in enumerate(algorithmList):
             if (eachelem == 'KNN'):
                 for each in resultsList[index][1]:
-                    all_classifiers.append(make_pipeline(ColumnSelector(cols=columns), KNeighborsClassifier().set_params(**each)))
+                    all_classifiers.append(make_pipeline(ColumnSelector(cols=columnsInit), KNeighborsClassifier().set_params(**each)))
             else:
                 for each in resultsList[index][1]:
-                    all_classifiers.append(make_pipeline(ColumnSelector(cols=columns), RandomForestClassifier().set_params(**each)))
+                    all_classifiers.append(make_pipeline(ColumnSelector(cols=columnsInit), RandomForestClassifier().set_params(**each)))
 
         lr = LogisticRegression()
         sclf = StackingCVClassifier(classifiers=all_classifiers,
@@ -413,14 +531,7 @@ def EnsembleModel (ClassifierIDsList, keyRetrieved):
                             meta_classifier=lr,
                             random_state=RANDOM_SEED,
                             n_jobs = -1)
-
-        for clf, label in zip([sclf], 
-                       ['StackingClassifier']):
-
-            scores = model_selection.cross_val_score(clf, XData, yData, 
-                                                    cv=crossValidation, scoring='accuracy')
-    else:         
-        all_classifiersSelection = []  
+    elif (keyRetrieved == 1):       
         ClassifierIDsList = json.loads(ClassifierIDsList)    
         for loop in ClassifierIDsList['ClassifiersList']:
             temp = [int(s) for s in re.findall(r'\b\d+\b', loop)]
@@ -432,12 +543,51 @@ def EnsembleModel (ClassifierIDsList, keyRetrieved):
                             meta_classifier=lr,
                             random_state=RANDOM_SEED,
                             n_jobs = -1)
+    else: 
+        columnsReduce = columns.copy()
+        lr = LogisticRegression()
+        if (len(all_classifiersSelection) == 0):
+            all_classifiers = []
+            for index, eachelem in enumerate(algorithmList):
+                if (eachelem == 'KNN'):
+                    for j, each in enumerate(resultsList[index][1]):
+                        all_classifiers.append(make_pipeline(ColumnSelector(cols=columnsReduce[j]), KNeighborsClassifier().set_params(**each)))
+                    del columnsReduce[0:len(resultsList[index][1])]
+                else:
+                    for j, each in enumerate(resultsList[index][1]):
+                        all_classifiers.append(make_pipeline(ColumnSelector(cols=columnsReduce[j]), RandomForestClassifier().set_params(**each)))
+                    del columnsReduce[0:len(resultsList[index][1])]
+            print(all_classifiers)
+            sclf = StackingCVClassifier(classifiers=all_classifiers,
+                                use_probas=True,
+                                meta_classifier=lr,
+                                random_state=RANDOM_SEED,
+                                n_jobs = -1)
+        else:
+            for index, eachelem in enumerate(algorithmList):
+                if (eachelem == 'KNN'):
+                    print(resultsList[index][1])
+                    for j, each in enumerate(resultsList[index][1]):
+                        all_classifiersSelection.append(make_pipeline(ColumnSelector(cols=columnsReduce[j]), KNeighborsClassifier().set_params(**each)))
+                    del columnsReduce[0:len(resultsList[index][1])]
+                else:
+                    for j, each in enumerate(resultsList[index][1]):
+                        all_classifiersSelection.append(make_pipeline(ColumnSelector(cols=columnsReduce[j]), RandomForestClassifier().set_params(**each)))
+                    del columnsReduce[0:len(resultsList[index][1])]
+            print(all_classifiersSelection)
+            sclf = StackingCVClassifier(classifiers=all_classifiersSelection,
+                                use_probas=True,
+                                meta_classifier=lr,
+                                random_state=RANDOM_SEED,
+                                n_jobs = -1)
 
-        for clf, label in zip([sclf], 
-                       ['StackingClassifier']):
+    for clf, label in zip([sclf], 
+                    ['StackingClassifier']):
 
-            scores = model_selection.cross_val_score(clf, XData, yData, 
-                                                    cv=crossValidation, scoring='accuracy')
+        scores = model_selection.cross_val_score(clf, XData, yData, 
+                                                cv=crossValidation, scoring='accuracy')
+
+
 
 # Sending the final results to be visualized as a line plot
 @app.route('/data/SendFinalResultsBacktoVisualize', methods=["GET", "POST"])
@@ -461,7 +611,6 @@ def SendToPlot():
     }
     return jsonify(response)
 
-algorithmList = []
 # Retrieve data from client 
 @cross_origin(origin='localhost',headers=['Content-Type','Authorization'])
 @app.route('/data/ServerRequestSelParameters', methods=["GET", "POST"])
@@ -543,11 +692,12 @@ def RetrieveModelsParam():
     for key, value in RetrieveModelsParPandas.items():
         withoutDuplicates = Remove(value)
         RetrieveModels[key] = withoutDuplicates
+    global RetrieveModelsList
+    RetrieveModelsList.append(RetrieveModels)
 
     global classifierID
     global algorithmList
     results = []
-    print(algorithm)
     algorithmList.append(algorithm)
     if (algorithm == 'KNN'):
         clf = KNeighborsClassifier()

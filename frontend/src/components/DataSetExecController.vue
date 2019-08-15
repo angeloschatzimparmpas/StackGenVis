@@ -60,7 +60,6 @@ export default {
       const fileName = document.getElementById('selectFile')
       this.RetrieveValueCSV = fileName.options[fileName.selectedIndex].value
       this.RetrieveValueCSV = this.RetrieveValueCSV.split('.')[0]
-      console.log(this.RetrieveValueCSV)
       EventBus.$emit('SendToServerDataSetConfirmation', this.RetrieveValueCSV)
     },
     execute () {

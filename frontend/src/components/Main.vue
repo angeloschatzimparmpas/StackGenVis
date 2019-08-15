@@ -45,13 +45,24 @@
         </b-col>
         <b-col cols="6">
           <mdb-card>
-            <mdb-card-header color="primary-color" tag="h5" class="text-center">Models, Features, and Classes Connection</mdb-card-header>
-            <mdb-card-body>        
-              <StretchedChord/>
-            </mdb-card-body>
-            <mdb-card-body>        
-              <Heatmap/>
-            </mdb-card-body>
+            <mdb-card-header color="primary-color" tag="h5" class="text-center">Subset Feature Selection Per Model</mdb-card-header>
+            <b-row>
+              <b-col cols="4">
+                <mdb-card-body>        
+                  <StretchedChord/>
+                </mdb-card-body>
+              </b-col>
+            <b-col cols="4">  
+              <mdb-card-body>        
+                <Heatmap/>
+              </mdb-card-body>
+            </b-col>
+            <b-col cols="4"> 
+              <mdb-card-body>
+                <FeatureSelection/>
+              </mdb-card-body>
+            </b-col>
+          </b-row>
           </mdb-card>
         </b-col>
         <b-col cols="3">
@@ -74,15 +85,7 @@
               </mdb-card-body>
             </mdb-card>
           </b-col>
-          <b-col cols="6">
-            <mdb-card>
-                <mdb-card-header color="primary-color" tag="h5" class="text-center">Subset Feature Selection</mdb-card-header>
-                    <mdb-card-body>
-                      <FeatureSelection/>
-                    </mdb-card-body>
-            </mdb-card>
-          </b-col>
-          <b-col cols="3">
+          <b-col cols="3" offset-md="6">
             <mdb-card>
               <mdb-card-header color="primary-color" tag="h5" class="text-center">Meta-Model Performance</mdb-card-header>
               <mdb-card-body>
@@ -148,7 +151,10 @@ export default Vue.extend({
       selectedAlgorithm: '',
       PerformancePerModel: '',
       brushed: 0,
+      brushedAll: [],
       ExecutionStart: false,
+      reset: false,
+      limitModels: 64
     }
   },
   methods: {
@@ -200,14 +206,15 @@ export default Vue.extend({
           console.log('Server successfully sent all the data related to visualizations!')
           EventBus.$emit('emittedEventCallingScatterPlot', this.OverviewResults)
           var length = JSON.parse(this.OverviewResults[0]).length
-          if (length < 64) {
+          console.log(this.ClassifierIDsList)
+          if (length < this.limitModels) {
             this.OverviewResults.push(JSON.stringify(this.ClassifierIDsList))
             EventBus.$emit('emittedEventCallingBarChart', this.OverviewResults)
-            /*EventBus.$emit('emittedEventCallingChordView', this.OverviewResults)
+            EventBus.$emit('emittedEventCallingChordView', this.OverviewResults)
             EventBus.$emit('emittedEventCallingHeatmapView', this.OverviewResults)
             EventBus.$emit('emittedEventCallingTableView', this.OverviewResults)
             EventBus.$emit('emittedEventCallingDataSpacePlotView', this.OverviewResults)
-            EventBus.$emit('emittedEventCallingPredictionsSpacePlotView', this.OverviewResults)*/
+            EventBus.$emit('emittedEventCallingPredictionsSpacePlotView', this.OverviewResults)
             this.OverviewResults.pop()
           }
           this.getFinalResults()
@@ -256,14 +263,14 @@ export default Vue.extend({
       axios.post(path, postData, axiosConfig)
         .then(response => {
           console.log('Sent the selected points to the server (scatterplot)!')
-          if (this.ClassifierIDsList.length < 64) {
+          if (this.ClassifierIDsList.length < this.limitModels) {
             this.OverviewResults.push(JSON.stringify(this.ClassifierIDsList))
             EventBus.$emit('emittedEventCallingBarChart', this.OverviewResults)
-            /*EventBus.$emit('emittedEventCallingChordView', this.OverviewResults)
+            EventBus.$emit('emittedEventCallingChordView', this.OverviewResults)
             EventBus.$emit('emittedEventCallingHeatmapView', this.OverviewResults)
             EventBus.$emit('emittedEventCallingTableView', this.OverviewResults)
             EventBus.$emit('emittedEventCallingDataSpacePlotView', this.OverviewResults)
-            EventBus.$emit('emittedEventCallingPredictionsSpacePlotView', this.OverviewResults)*/
+            EventBus.$emit('emittedEventCallingPredictionsSpacePlotView', this.OverviewResults)
             this.OverviewResults.pop()
           }
           this.getFinalResults()
@@ -343,7 +350,7 @@ export default Vue.extend({
     SendBrushedParameters () {
       EventBus.$emit('emittedEventCallingModelBrushed')
       const path = `http://127.0.0.1:5000/data/SendBrushedParam`
-      console.log(this.selectedAlgorithm)
+      this.brushedAll.push(this.brushed)
       const postData = {
         brushed: this.brushed,
         algorithm: this.selectedAlgorithm
@@ -368,28 +375,85 @@ export default Vue.extend({
           console.log(error)
         })
     },
+    UpdateBasedonFeatures () {
+      const path = `http://127.0.0.1:5000/data/FeaturesSelection`
+        const postData = {
+          featureSelection: this.SelectedFeaturesPerClassifier,
+          brushedAll: this.brushedAll
+        }
+        const axiosConfig = {
+          headers: {
+            'Content-Type': 'application/json',
+            'Access-Control-Allow-Origin': '*',
+            'Access-Control-Allow-Headers': 'Origin, Content-Type, X-Auth-Token',
+            'Access-Control-Allow-Methods': 'GET, PUT, POST, DELETE, OPTIONS'
+          }
+        }
+        axios.post(path, postData, axiosConfig)
+          .then(response => {
+            console.log('Sent specific features per model!')
+             this.getFinalResults()
+          })
+          .catch(error => {
+            console.log(error)
+          })
+    },
     CallPCP () {
       EventBus.$emit('emittedEventCallingModelClear')
       EventBus.$emit('emittedEventCallingModelSelect', this.selectedAlgorithm)
       EventBus.$emit('emittedEventCallingModel', this.PerformancePerModel)
+    },
+    Reset () {
+      const path = `http://127.0.0.1:5000/data/Reset`
+      this.reset = true
+      const postData = {
+        ClassifiersList: this.reset
+      }
+      const axiosConfig = {
+        headers: {
+          'Content-Type': 'application/json',
+          'Access-Control-Allow-Origin': '*',
+          'Access-Control-Allow-Headers': 'Origin, Content-Type, X-Auth-Token',
+          'Access-Control-Allow-Methods': 'GET, PUT, POST, DELETE, OPTIONS'
+        }
+      }
+      axios.post(path, postData, axiosConfig)
+        .then(response => {
+          console.log('The server side was reset! Done.')
+          this.reset = false
+        })
+        .catch(error => {
+          console.log(error)
+        })
+    }
+  },
+  created() {
+    // does the browser support the Navigation Timing API?
+    if (window.performance) {
+        console.info("window.performance is supported");
+    }
+    // do something based on the navigation type...
+    if(performance.navigation.type === 1) {
+        console.info("TYPE_RELOAD");
+        this.Reset();
     }
   },
   mounted() {
     loadProgressBar()
     this.fileNameSend()
     window.onbeforeunload = function(e) {
-      //put here the reset function!
       return 'Dialog text here.'
     }
-     $(window).unload(function() {
-      alert('Handler for .unload() called.')
+    $(window).on("unload", function(e) {
+      alert('Handler for .unload() called.');
     })
     EventBus.$on('ReturningBrushedPoints', data => { this.brushed = data })
     EventBus.$on('SendSelectedPointsToServerEvent', data => { this.ClassifierIDsList = data })
     EventBus.$on('SendSelectedPointsToServerEvent', this.SendSelectedPointsToServer)
     EventBus.$on('SendSelectedFeaturesEvent', data => { this.SelectedFeaturesPerClassifier = data })
-    EventBus.$emit('SendToServerDataSetConfirmation', data => { this.RetrieveValueFile = data })
-    EventBus.$emit('SendToServerDataSetConfirmation', data => { this.fileNameSend })
+    EventBus.$on('SendSelectedFeaturesEvent', this.UpdateBasedonFeatures )
+    EventBus.$on('SendToServerDataSetConfirmation', data => { this.RetrieveValueFile = data })
+    EventBus.$on('SendToServerDataSetConfirmation', this.fileNameSend)
     EventBus.$on('PCPCall', data => { this.selectedAlgorithm = data })
     EventBus.$on('PCPCall', this.CallPCP)
     EventBus.$on('PCPCallDB', this.SendBrushedParameters)

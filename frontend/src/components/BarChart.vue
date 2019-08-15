@@ -34,32 +34,41 @@ export default {
         const PerClassMetrics = JSON.parse(this.BarChartResults[4])
         const ClassNames = JSON.parse(this.BarChartResults[5])
         const limit = JSON.parse(this.BarChartResults[12])
+        let ClassifierswithoutFI = JSON.parse(this.BarChartResults[8])
+        let ClassifierswithFI = JSON.parse(this.BarChartResults[9])
+        var Classifiers
+        Classifiers = ClassifierswithoutFI.concat(ClassifierswithFI)
+
         var PerClassMetricsRed = []
         var limitList = []
         if (limit == '') {
-            for (let i = 0; i < PerClassMetrics.length; i++) {
-                limitList.push(i)
+            for (let i = 0; i < Classifiers.length; i++) {
+                limitList.push(Classifiers[i])
             }
         } else {
             limitList = []
             for (let i = 0; i < limit.length; i++) {
-                limitList.push(Number(limit[i].match(/\d+/)[0]))
+                for (let j = 0; j < Classifiers.length; j++) {
+                    if (Number(limit[i].match(/\d+/)[0]) == Classifiers[j]) {
+                        limitList.push(Number(limit[i].match(/\d+/)[0]))
+                    }
+                }
             }
         }
-        console.log(limitList)
+        
         const precisionPerClass = []
         const recallPerClass = []
         const f1ScorePerClass = []
 
         for (let j = 0; j < ClassNames.length; j++) {
-        precisionPerClass[j] = []
-        recallPerClass[j] = []
-        f1ScorePerClass[j] = []
-            for (let i = 0; i < limitList.length; i++) { // Fix this tomorrow! 0 to 16 and we want the ids.. 
-                precisionPerClass[j].push(PerClassMetrics[limitList[i]][ClassNames[j]].precision)
-                recallPerClass[j].push(PerClassMetrics[limitList[i]][ClassNames[j]].recall)
-                f1ScorePerClass[j].push(PerClassMetrics[limitList[i]][ClassNames[j]]['f1-score'])
-            }
+            precisionPerClass[j] = []
+            recallPerClass[j] = []
+            f1ScorePerClass[j] = []
+                for (let i = 0; i < limitList.length; i++) { // Fix this tomorrow! 0 to 16 and we want the ids.. 
+                    precisionPerClass[j].push(PerClassMetrics[limitList[i]][ClassNames[j]].precision)
+                    recallPerClass[j].push(PerClassMetrics[limitList[i]][ClassNames[j]].recall)
+                    f1ScorePerClass[j].push(PerClassMetrics[limitList[i]][ClassNames[j]]['f1-score'])
+                }
         }
 
         var precisionData

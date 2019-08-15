@@ -18,12 +18,27 @@ export default {
       FeatureSelection () { 
         
         document.getElementById("myDynamicTable").innerHTML = "";
-        let Features= this.GetResults[0]
-        let ClassifierswithoutFI = this.GetResults[1]
-        let ClassifierswithFI = this.GetResults[2]
+        let Features= JSON.parse(this.GetResults[7])
+        let ClassifierswithoutFI = JSON.parse(this.GetResults[8])
+        let ClassifierswithFI = JSON.parse(this.GetResults[9])
+        const limit = JSON.parse(this.GetResults[12])
         var Classifiers
         Classifiers = ClassifierswithoutFI.concat(ClassifierswithFI)
-        console.log(Classifiers)
+        var limitList = []
+        if (limit == '') {
+            for (let i = 0; i < Classifiers.length; i++) {
+                limitList.push(Classifiers[i])
+            }
+        } else {
+            limitList = []
+            for (let i = 0; i < limit.length; i++) {
+                for (let j = 0; j < Classifiers.length; j++) {
+                    if (Number(limit[i].match(/\d+/)[0]) == Classifiers[j]) {
+                        limitList.push(Number(limit[i].match(/\d+/)[0]))
+                    }
+                }
+            }
+        }
         var myTableDiv = document.getElementById("myDynamicTable");
         var table = document.createElement('TABLE');
         table.border = '1';
@@ -32,7 +47,7 @@ export default {
         table.appendChild(tableBody);
 
         var checkBoxArray = []
-        for (var i = 0; i < Classifiers.length+1; i++) {
+        for (var i = 0; i < limitList.length+1; i++) {
             var tr = document.createElement('TR');
             tableBody.appendChild(tr);
             for (var j = 0; j < Features.length; j++) {
