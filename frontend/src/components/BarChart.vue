@@ -77,8 +77,8 @@ export default {
 
         var layoutPrec = {
         autosize: false,
-        width: 300,
-        height: 300,
+        width: 150,
+        height: 150,
         xaxis: {
             title: 'Classifier ID',
             type:"category",
@@ -109,8 +109,8 @@ export default {
 
         var layoutRec = {
         autosize: false,
-        width: 300,
-        height: 300,
+        width: 150,
+        height: 150,
         xaxis: {
             title: 'Classifier ID',
             type:"category",
@@ -141,8 +141,8 @@ export default {
 
         var layoutf1Score = {
         autosize: false,
-        width: 300,
-        height: 300,
+        width: 150,
+        height: 150,
         xaxis: {
             title: 'Classifier ID',
             type:"category",

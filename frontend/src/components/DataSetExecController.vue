@@ -23,7 +23,7 @@
 </template>
 
 <script>
-// import Papa from 'papaparse'
+import Papa from 'papaparse'
 import { EventBus } from '../main.js'
 
 export default {
@@ -37,24 +37,7 @@ export default {
   },
   methods: {
     upload () {
-      // const that = this
-      // const fileToLoad = event.target.files[0]
-      // const reader = new FileReader()
-      /*
-      reader.onload = fileLoadedEvent => {
-      Papa.parse(fileLoadedEvent.target.result, {
-      header: true,
-      complete (results) {
-      console.log('complete', results)
-      that.doc = JSON.stringify(results.data, null, 2)
-      },
-      error (errors) {
-      console.log('error', errors)
-      }
-      })
-      }
-      reader.readAsText(fileToLoad)
-      */
+      EventBus.$emit('UploadedFile')
     },
     selectDataSet () {   
       const fileName = document.getElementById('selectFile')

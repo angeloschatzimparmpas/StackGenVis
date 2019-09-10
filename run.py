@@ -359,7 +359,7 @@ def class_feature_importance(X, Y, feature_importances):
 
 #GridSearch = mem.cache(GridSearch)
 
-def InitializeEnsemble(): 
+def Preprocessing():
     global resultsList 
     df_cv_results_classifiersList = []
     parametersList = []
@@ -378,48 +378,107 @@ def InitializeEnsemble():
     FeatureImportance = pd.concat(FeatureImportanceList, ignore_index=True, sort=False)
     PerClassMetrics = pd.concat(PerClassMetricsList, ignore_index=True, sort=False)
     FeatureAccuracy = pd.concat(FeatureAccuracyList, ignore_index=True, sort=False)
-
+    global factors
+    factors = [1,1,1,1,1,1]
     global scoring 
     NumberofscoringMetrics = len(scoring)
-
+    global df_cv_results_classifiers_metrics
     del df_cv_results_classifiers['params']
     df_cv_results_classifiers_metrics = df_cv_results_classifiers.copy()
-    df_cv_results_classifiers_metrics = df_cv_results_classifiers_metrics.ix[:, 0:NumberofscoringMetrics+1]
     del df_cv_results_classifiers_metrics['mean_fit_time']
     del df_cv_results_classifiers_metrics['mean_score_time']
+    df_cv_results_classifiers_metrics = df_cv_results_classifiers_metrics.ix[:, 0:NumberofscoringMetrics]
+    return [parameters,FeatureImportance,PerClassMetrics,FeatureAccuracy,df_cv_results_classifiers_metrics]
 
+def sumPerMetric(factors):
     sumPerClassifier = []
+    global df_cv_results_classifiers_metrics
     for index, row in df_cv_results_classifiers_metrics.iterrows():
         rowSum = 0
-        for elements in row:
-            rowSum = elements + rowSum
-        sumPerClassifier.append(rowSum)
+        global scoring
+        lengthFactors = len(scoring)
+        for loop,elements in enumerate(row):
+            lengthFactors = lengthFactors -  1 + factors[loop]
+            rowSum = elements*factors[loop] + rowSum
+        sumPerClassifier.append(rowSum/lengthFactors)
+    return sumPerClassifier
 
+# Retrieve data from client 
+@cross_origin(origin='localhost',headers=['Content-Type','Authorization'])
+@app.route('/data/factors', methods=["GET", "POST"])
+def RetrieveFactors():
+    Factors = request.get_data().decode('utf8').replace("'", '"')
+    FactorsInt = json.loads(Factors)
+    global sumPerClassifierSel
+    global ModelSpaceMDSNew
+    global ModelSpaceTSNENew
+    sumPerClassifierSel = []
+    ModelSpaceMDSNew = []
+    ModelSpaceTSNENew = []
+    preProcessResults = []
+    preProcessResults = Preprocessing()
+    XClassifiers = preProcessResults[4]
+    flagLocal = 0
+    countRemovals = 0
+    for l,el in enumerate(FactorsInt['Factors']):
+        if el is 0:
+            XClassifiers.drop(XClassifiers.columns[[l-countRemovals]], axis=1, inplace=True)
+            counter = countRemovals + 1
+            flagLocal = 1
+    if flagLocal is 1:
+        ModelSpaceMDSNew = FunMDS(XClassifiers)
+        ModelSpaceTSNENew = FunTsne(XClassifiers)
+        ModelSpaceTSNENew = ModelSpaceTSNENew.tolist()
+    sumPerClassifierSel = sumPerMetric(FactorsInt['Factors'])
+    return 'Everything Okay'
+
+@app.route('/data/UpdateOverv', methods=["GET", "POST"])
+def UpdateOverview():
+    global sumPerClassifierSel
+    global ModelSpaceMDSNew
+    global ModelSpaceTSNENew
+    ResultsUpdateOverview = []
+    ResultsUpdateOverview.append(sumPerClassifierSel)
+    ResultsUpdateOverview.append(ModelSpaceMDSNew)
+    ResultsUpdateOverview.append(ModelSpaceTSNENew)
+    response = {    
+        'Results': ResultsUpdateOverview
+    }
+    return jsonify(response)
+
+def InitializeEnsemble(): 
+    preProcessResults = []
+    preProcessResults = Preprocessing()
+    sumPerClassifier = sumPerMetric(factors)
     mergedPredList = zip(*yPredictProb)
     mergedPredListListForm = []
     for el in mergedPredList:
         mergedPredListListForm.append(list(chain(*el)))
-    XClassifiers = df_cv_results_classifiers_metrics
-    
+    XClassifiers = preProcessResults[4]
     PredictionSpace = FunTsne(mergedPredListListForm)
     DataSpace = FunTsne(XData)
-    ModelSpace = FunMDS(XClassifiers)
+    ModelSpaceMDS = FunMDS(XClassifiers)
+    ModelSpaceTSNE = FunTsne(XClassifiers)
+    ModelSpaceTSNE = ModelSpaceTSNE.tolist()
     global ClassifierIDsList
     key = 0
     EnsembleModel(ClassifierIDsList, key)
-    DataSpaceList = DataSpace.tolist()
     PredictionSpaceList = PredictionSpace.tolist()
+    DataSpaceList = DataSpace.tolist()
+    ReturnResults(sumPerClassifier,ModelSpaceMDS,ModelSpaceTSNE,preProcessResults,DataSpaceList,PredictionSpaceList)
 
+def ReturnResults(sumPerClassifier,ModelSpaceMDS,ModelSpaceTSNE,preProcessResults,DataSpaceList,PredictionSpaceList):
     global Results
-
     Results = []
+    FeatureImportance = preProcessResults[1]
+    PerClassMetrics = preProcessResults[2]
+    FeatureAccuracy = preProcessResults[3]
     FeatureImportance = FeatureImportance.to_json(orient='records')
     PerClassMetrics = PerClassMetrics.to_json(orient='records')
     FeatureAccuracy = FeatureAccuracy.to_json(orient='records')
-    DataSpaceList = DataSpace.tolist()
     XDataJSON = XData.columns.tolist()
     Results.append(json.dumps(sumPerClassifier)) # Position: 0 
-    Results.append(json.dumps(ModelSpace)) # Position: 1
+    Results.append(json.dumps(ModelSpaceMDS)) # Position: 1
     Results.append(json.dumps(classifiersIDPlusParams)) # Position: 2
     Results.append(FeatureImportance) # Position: 3
     Results.append(PerClassMetrics) # Position: 4
@@ -430,10 +489,8 @@ def InitializeEnsemble():
     Results.append(json.dumps(classifiersIDwithFI)) # Position: 9 
     Results.append(json.dumps(DataSpaceList)) # Position: 10
     Results.append(json.dumps(PredictionSpaceList)) # Position: 11 
-
+    Results.append(json.dumps(ModelSpaceTSNE)) # Position: 12
     return Results
-
-
 
 # Retrieve data from client 
 @cross_origin(origin='localhost',headers=['Content-Type','Authorization'])
@@ -456,11 +513,12 @@ def FeatureSelPerModel():
     RetrieveModelsPar = json.loads(RetrieveModelsPar)
     RetrieveModelsParRed = []
     print(RetrieveModelsPar['brushedAll']) # FIX THIS THING!!!!!
-    for j, i in enumerate(RetrieveModelsPar['brushedAll']):
-        print(j)
-    RetrieveModelsParRed = [for j, i in enumerate(RetrieveModelsPar['brushedAll']) if j not in ClassifierIDsList]
+    #for j, i in enumerate(RetrieveModelsPar['brushedAll']):
+    #    print(j)
+    #RetrieveModelsParRed = [for j, i in enumerate(RetrieveModelsPar['brushedAll']) if j not in ClassifierIDsList]
 
-    RetrieveModelsParPandas = pd.DataFrame(RetrieveModelsParRed)
+    #RetrieveModelsParPandas = pd.DataFrame(RetrieveModelsParRed)
+    RetrieveModelsParPandas = pd.DataFrame(RetrieveModelsPar)
     RetrieveModelsParPandas = RetrieveModelsParPandas.drop(columns=['performance'])
     RetrieveModelsParPandas = RetrieveModelsParPandas.to_dict(orient='list')
     print(RetrieveModelsParPandas)
@@ -557,7 +615,6 @@ def EnsembleModel (ClassifierIDsList, keyRetrieved):
                     for j, each in enumerate(resultsList[index][1]):
                         all_classifiers.append(make_pipeline(ColumnSelector(cols=columnsReduce[j]), RandomForestClassifier().set_params(**each)))
                     del columnsReduce[0:len(resultsList[index][1])]
-            print(all_classifiers)
             sclf = StackingCVClassifier(classifiers=all_classifiers,
                                 use_probas=True,
                                 meta_classifier=lr,
@@ -566,7 +623,6 @@ def EnsembleModel (ClassifierIDsList, keyRetrieved):
         else:
             for index, eachelem in enumerate(algorithmList):
                 if (eachelem == 'KNN'):
-                    print(resultsList[index][1])
                     for j, each in enumerate(resultsList[index][1]):
                         all_classifiersSelection.append(make_pipeline(ColumnSelector(cols=columnsReduce[j]), KNeighborsClassifier().set_params(**each)))
                     del columnsReduce[0:len(resultsList[index][1])]
@@ -574,7 +630,6 @@ def EnsembleModel (ClassifierIDsList, keyRetrieved):
                     for j, each in enumerate(resultsList[index][1]):
                         all_classifiersSelection.append(make_pipeline(ColumnSelector(cols=columnsReduce[j]), RandomForestClassifier().set_params(**each)))
                     del columnsReduce[0:len(resultsList[index][1])]
-            print(all_classifiersSelection)
             sclf = StackingCVClassifier(classifiers=all_classifiersSelection,
                                 use_probas=True,
                                 meta_classifier=lr,
@@ -687,6 +742,7 @@ def RetrieveModelsParam():
     algorithm = RetrieveModelsPar['algorithm']
     RetrieveModelsParPandas = pd.DataFrame(RetrieveModelsPar['brushed'])
     RetrieveModelsParPandas = RetrieveModelsParPandas.drop(columns=['performance'])
+    RetrieveModelsParPandas = RetrieveModelsParPandas.drop(columns=['model'])
     RetrieveModelsParPandas = RetrieveModelsParPandas.to_dict(orient='list')
     RetrieveModels = {}
     for key, value in RetrieveModelsParPandas.items():

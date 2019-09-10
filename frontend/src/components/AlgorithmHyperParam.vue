@@ -1,5 +1,5 @@
 <template>
-  <div id="PCP" class="parcoords" style="width:600;height:300px"></div>
+  <div id="PCP" class="parcoords" style="height:200px"></div>
 </template>
 
 <script>
@@ -23,29 +23,45 @@ export default {
   },
   methods: {
     PCPView () {
-      var Combined = 0
-      if (this.selAlgorithm == 'KNN') {    
-        Combined = JSON.parse(this.ModelsPerformance[0])
-      } else {
-        Combined = JSON.parse(this.ModelsPerformance[1])
+      d3.selectAll("#PCP > *").remove(); 
+      if (this.selAlgorithm != '') {
+        var colors = ['#a6cee3','#1f78b4','#b2df8a','#33a02c','#fb9a99','#e31a1c','#fdbf6f','#ff7f00','#cab2d6','#6a3d9a']
+        var colorGiv = 0
+        
+        var Combined = 0
+        if (this.selAlgorithm == 'KNN') {    
+          Combined = JSON.parse(this.ModelsPerformance[0])
+          colorGiv = colors[0]
+        } else {
+          Combined = JSON.parse(this.ModelsPerformance[1])
+          colorGiv = colors[1]
+        }
+        var valuesPerf = Object.values(Combined['mean_test_score'])
+        var ObjectsParams = Combined['params']
+        var ArrayCombined = new Array(valuesPerf.length)
+        for (let i = 0; i < valuesPerf.length; i++) {
+            Object.assign(ObjectsParams[i], {performance: valuesPerf[i]}, {model: i})
+            ArrayCombined[i] = ObjectsParams[i]
+        }
+        this.pc = ParCoords()("#PCP")
+            .data(ArrayCombined)
+            .color(colorGiv)
+            .hideAxis(['model'])
+            .bundlingStrength(0) // set bundling strength
+            .smoothness(0)
+            .bundleDimension('performance')
+            .showControlPoints(false)
+            .render()
+            .brushMode('1D-axes')
+            .interactive();
+
+        this.pc.on("brush", function(d) {
+          EventBus.$emit('UpdateBoxPlot', d)
+        });
       }
-      var valuesPerf = Object.values(Combined['mean_test_score'])
-      var ObjectsParams = Combined['params']
-      var ArrayCombined = new Array(valuesPerf.length)
-      for (let i = 0; i < valuesPerf.length; i++) {
-          Object.assign(ObjectsParams[i], {performance: valuesPerf[i]})
-          ArrayCombined[i] = ObjectsParams[i]
-      }
-      this.pc = ParCoords()("#PCP")
-          .data(ArrayCombined)
-          .bundlingStrength(0) // set bundling strength
-          .smoothness(0)
-          .bundleDimension('performance')
-          .showControlPoints(false)
-          .render()
-          .brushMode('1D-axes')
-          .reorderable()
-          .interactive();
+    },
+    sliders () {
+
     },
     brushed () {
         if (this.pc.brushed()) {
@@ -56,6 +72,12 @@ export default {
     },
     clear () {
         d3.selectAll("#PCP > *").remove(); 
+    },
+    None () {
+      document.getElementById('PCP').style.cssText='display:none';
+    },
+    Reveal () {
+      document.getElementById('PCP').style.cssText='height:200px;display:""';
     }
   },
   mounted() {
@@ -63,7 +85,10 @@ export default {
     EventBus.$on('emittedEventCallingModelSelect', data => { this.selAlgorithm = data })
     EventBus.$on('emittedEventCallingModel', data => { this.ModelsPerformance = data })
     EventBus.$on('emittedEventCallingModel', this.PCPView)
+    EventBus.$on('ResponsiveandChange', this.PCPView)
     EventBus.$on('emittedEventCallingModelClear', this.clear)
+    EventBus.$on('slidersOn', this.None)
+    EventBus.$on('PCPCall', this.Reveal)
   }
 }
 </script>
