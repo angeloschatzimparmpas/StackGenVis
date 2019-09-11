@@ -92,7 +92,7 @@ export default {
             zeroline: false
         }
       }
-      Plotly.newPlot('LinePlot', DataforLinePlot, layout, {showSendToCloud: true})
+      Plotly.newPlot('LinePlot', DataforLinePlot, layout, {showSendToCloud: true, responsive: true})
     }
   },
   mounted() {

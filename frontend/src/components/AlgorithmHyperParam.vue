@@ -43,6 +43,7 @@ export default {
             Object.assign(ObjectsParams[i], {performance: valuesPerf[i]}, {model: i})
             ArrayCombined[i] = ObjectsParams[i]
         }
+        EventBus.$emit('AllAlModels', ArrayCombined.length)
         this.pc = ParCoords()("#PCP")
             .data(ArrayCombined)
             .color(colorGiv)
@@ -56,6 +57,7 @@ export default {
             .interactive();
 
         this.pc.on("brush", function(d) {
+          EventBus.$emit('AllSelModels', d.length)
           EventBus.$emit('UpdateBoxPlot', d)
         });
       }
@@ -65,9 +67,9 @@ export default {
     },
     brushed () {
         if (this.pc.brushed()) {
-            EventBus.$emit('ReturningBrushedPoints', this.pc.brushed())
+          EventBus.$emit('ReturningBrushedPoints', this.pc.brushed())
         } else {
-            EventBus.$emit('ReturningBrushedPoints', this.pc.data())
+          EventBus.$emit('ReturningBrushedPoints', this.pc.data())
         }
     },
     clear () {

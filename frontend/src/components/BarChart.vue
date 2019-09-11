@@ -27,15 +27,24 @@ export default {
   data () {
     return {
       BarChartResults: '',
+      ClassNamesOverview: ''
     }
   },
   methods: {
     BarChartView () {
         const PerClassMetrics = JSON.parse(this.BarChartResults[4])
-        const ClassNames = JSON.parse(this.BarChartResults[5])
-        const limit = JSON.parse(this.BarChartResults[12])
+        var ClassNames = JSON.parse(this.BarChartResults[5])
+        this.ClassNamesOverview = ClassNames
+        const limit = JSON.parse(this.BarChartResults[13])
         let ClassifierswithoutFI = JSON.parse(this.BarChartResults[8])
         let ClassifierswithFI = JSON.parse(this.BarChartResults[9])
+
+        for (let j = 0; j < this.ClassNamesOverview.length; j++) {
+            Plotly.purge('barChartf1Score' + j)
+            Plotly.purge('barChartPrecision' + j)
+            Plotly.purge('barChartRecall' + j)
+        }
+
         var Classifiers
         Classifiers = ClassifierswithoutFI.concat(ClassifierswithFI)
 
@@ -77,8 +86,8 @@ export default {
 
         var layoutPrec = {
         autosize: false,
-        width: 150,
-        height: 150,
+        width: 300,
+        height: 300,
         xaxis: {
             title: 'Classifier ID',
             type:"category",
@@ -109,8 +118,8 @@ export default {
 
         var layoutRec = {
         autosize: false,
-        width: 150,
-        height: 150,
+        width: 300,
+        height: 300,
         xaxis: {
             title: 'Classifier ID',
             type:"category",
@@ -141,8 +150,8 @@ export default {
 
         var layoutf1Score = {
         autosize: false,
-        width: 150,
-        height: 150,
+        width: 300,
+        height: 300,
         xaxis: {
             title: 'Classifier ID',
             type:"category",
@@ -242,11 +251,19 @@ export default {
 
             Plotly.newPlot('barChartf1Score' + j, f1ScoreData, layoutf1Score)
                 }
+        },
+        reset () {
+            for (let j = 0; j < this.ClassNamesOverview.length; j++) {
+                Plotly.purge('barChartf1Score' + j)
+                Plotly.purge('barChartPrecision' + j)
+                Plotly.purge('barChartRecall' + j)
+            }
         }
     },
     mounted() {
         EventBus.$on('emittedEventCallingBarChart', data => { this.BarChartResults = data })
         EventBus.$on('emittedEventCallingBarChart', this.BarChartView)
+        EventBus.$on('resetViews', this.reset)
     }
 }
 </script>

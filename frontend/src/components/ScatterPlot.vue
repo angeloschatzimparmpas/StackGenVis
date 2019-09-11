@@ -19,7 +19,7 @@ export default {
       representationDefault: 'MDS',
       colorsforOver: [],
       max: 0,
-      min: 0,
+      min: 0
     }
   },
   methods: {
@@ -123,26 +123,33 @@ export default {
           legend: {orientation: 'h', y: -0.3},
         }
       }
-
+     
       var config = {scrollZoom: true, displaylogo: false, showLink: false, showSendToCloud: false, modeBarButtonsToRemove: ['toImage', 'toggleSpikelines', 'autoScale2d', 'hoverClosestGl2d','hoverCompareCartesian','select2d','hoverClosestCartesian','zoomIn2d','zoomOut2d','zoom2d'], responsive: true}
       
-      Plotly.newPlot('OverviewPlotly', DataGeneral, layout, config)
+      var scat = document.getElementById('OverviewPlotly')
+      
+      Plotly.newPlot(scat, DataGeneral, layout, config)
+
       this.selectedPointsOverview()
     },
     selectedPointsOverview () {
       const OverviewPlotly = document.getElementById('OverviewPlotly')
       OverviewPlotly.on('plotly_selected', function (evt) {
-        const ClassifierIDsList = []
-        for (let i = 0; evt.points.length; i++) {
-          if (evt.points[i] === undefined) {
-            break
-          } else {
-            const OnlyId = evt.points[i].text.split(';')
-            ClassifierIDsList.push(OnlyId[0])
+        if (typeof evt !== 'undefined') {
+          const ClassifierIDsList = []
+          for (let i = 0; evt.points.length; i++) {
+            if (evt.points[i] === undefined) {
+              break
+            } else {
+              const OnlyId = evt.points[i].text.split(';')
+              ClassifierIDsList.push(OnlyId[0])
+            }
           }
-        }
-        if (ClassifierIDsList != '') {
-          EventBus.$emit('SendSelectedPointsToServerEvent', ClassifierIDsList)
+          if (ClassifierIDsList != '') {
+            EventBus.$emit('SendSelectedPointsToServerEvent', ClassifierIDsList)
+          } else {
+            EventBus.$emit('SendSelectedPointsToServerEvent', '')
+          }
         }
       })
     },

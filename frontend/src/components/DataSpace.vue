@@ -43,7 +43,7 @@ export default {
             visible: false
         }
         }
-        Plotly.newPlot('OverviewDataPlotly', Data, layout)
+        Plotly.newPlot('OverviewDataPlotly', Data, layout, {responsive: true})
     }
   },
   mounted() {

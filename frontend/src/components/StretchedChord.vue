@@ -23,7 +23,7 @@ export default {
         const FeatureImportance = JSON.parse(this.AllResults[3])
         const ClassNames = JSON.parse(this.AllResults[5])
         const ClassifiersIDs = JSON.parse(this.AllResults[9])
-        const limit = JSON.parse(this.AllResults[12])
+        const limit = JSON.parse(this.AllResults[13])
         var limitList = []
         if (limit == '') {
             for (let i = 0; i < ClassifiersIDs.length; i++) {
@@ -51,7 +51,6 @@ export default {
                     if (returnvalue === undefined || returnvalue.length == 0) {
                     } else {
                          if (returnvalue[0]['classifier'] != 'M undefined') {
-                            console.log(returnvalue)
                             SortFeaturesPerClass.push(returnvalue)
                         }
                     }
@@ -448,11 +447,15 @@ export default {
                 if (Object.prototype.hasOwnProperty.call(obj, key)) size++
             }
             return size
-        }                  
+        },
+        reset () {
+            d3.selectAll("#chart > *").remove(); 
+        }               
     },
     mounted () {
         EventBus.$on('emittedEventCallingChordView', data => { this.AllResults = data })
         EventBus.$on('emittedEventCallingChordView', this.StretchChord)
+        EventBus.$emit('resetViews', this.reset)
     }
 }
 </script>

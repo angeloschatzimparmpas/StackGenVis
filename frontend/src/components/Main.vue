@@ -38,7 +38,7 @@
       <b-row class="mb-3 mt-3">
         <b-col cols="3">
           <mdb-card>
-            <mdb-card-header color="primary-color" tag="h5" class="text-center">Algorithms Selection and HyperParameters Search</mdb-card-header>
+            <mdb-card-header color="primary-color" tag="h5" class="text-center">Algorithms Selection and HyperParameters Search [Sel.:{{valueSel}}/All:{{valueAll}}]</mdb-card-header>
               <mdb-card-body>
                   <Algorithms :width="width" :height="height"/>
                   <AlgorithmHyperParam/>
@@ -87,6 +87,7 @@
                     <option value="MDS">MDS Projection</option>
                     <option value="TSNE">t-SNE Projection</option>
                 </select>
+                [Sel.:{{OverSelLength}}/All:{{OverAllLength}}]
               </mdb-card-header>
               <mdb-card-body>
                 <ScatterPlot/>
@@ -175,7 +176,11 @@ export default Vue.extend({
       combineWH: [],
       basicValuesFact: [],
       sumPerClassifier: [],
-      representationSelection: 'MDS'
+      representationSelection: 'MDS',
+      valueSel: 0,
+      valueAll: 0,
+      OverSelLength: 0,
+      OverAllLength: 0
     }
   },
   methods: {
@@ -233,6 +238,8 @@ export default Vue.extend({
           console.log('Server successfully sent all the data related to visualizations!')
           EventBus.$emit('emittedEventCallingScatterPlot', this.OverviewResults)
           var length = JSON.parse(this.OverviewResults[0]).length
+          this.OverSelLength = length
+          this.OverAllLength = length
           if (length < this.limitModels) {
             this.OverviewResults.push(JSON.stringify(this.ClassifierIDsList))
             EventBus.$emit('emittedEventCallingBarChart', this.OverviewResults)
@@ -274,36 +281,43 @@ export default Vue.extend({
         })
     },
     SendSelectedPointsToServer () {
-      const path = `http://127.0.0.1:5000/data/ServerRequestSelPoin`
-      const postData = {
-        ClassifiersList: this.ClassifierIDsList
-      }
-      const axiosConfig = {
-        headers: {
-          'Content-Type': 'application/json',
-          'Access-Control-Allow-Origin': '*',
-          'Access-Control-Allow-Headers': 'Origin, Content-Type, X-Auth-Token',
-          'Access-Control-Allow-Methods': 'GET, PUT, POST, DELETE, OPTIONS'
+      if (this.ClassifierIDsList === ''){
+        this.OverSelLength = 0
+        EventBus.$emit('resetViews')
+      } else {
+        const path = `http://127.0.0.1:5000/data/ServerRequestSelPoin`
+      
+        const postData = {
+          ClassifiersList: this.ClassifierIDsList
         }
-      }
-      axios.post(path, postData, axiosConfig)
-        .then(response => {
-          console.log('Sent the selected points to the server (scatterplot)!')
-          if (this.ClassifierIDsList.length < this.limitModels) {
-            this.OverviewResults.push(JSON.stringify(this.ClassifierIDsList))
-            EventBus.$emit('emittedEventCallingBarChart', this.OverviewResults)
-            EventBus.$emit('emittedEventCallingChordView', this.OverviewResults)
-            EventBus.$emit('emittedEventCallingHeatmapView', this.OverviewResults)
-            EventBus.$emit('emittedEventCallingTableView', this.OverviewResults)
-            EventBus.$emit('emittedEventCallingDataSpacePlotView', this.OverviewResults)
-            EventBus.$emit('emittedEventCallingPredictionsSpacePlotView', this.OverviewResults)
-            this.OverviewResults.pop()
+        const axiosConfig = {
+          headers: {
+            'Content-Type': 'application/json',
+            'Access-Control-Allow-Origin': '*',
+            'Access-Control-Allow-Headers': 'Origin, Content-Type, X-Auth-Token',
+            'Access-Control-Allow-Methods': 'GET, PUT, POST, DELETE, OPTIONS'
           }
-          this.getFinalResults()
-        })
-        .catch(error => {
-          console.log(error)
-        })
+        }
+        axios.post(path, postData, axiosConfig)
+          .then(response => {
+            console.log('Sent the selected points to the server (scatterplot)!')
+            this.OverSelLength = this.ClassifierIDsList.length
+            if (this.ClassifierIDsList.length < this.limitModels) {
+              this.OverviewResults.push(JSON.stringify(this.ClassifierIDsList))
+              EventBus.$emit('emittedEventCallingBarChart', this.OverviewResults)
+              EventBus.$emit('emittedEventCallingChordView', this.OverviewResults)
+              EventBus.$emit('emittedEventCallingHeatmapView', this.OverviewResults)
+              EventBus.$emit('emittedEventCallingTableView', this.OverviewResults)
+              EventBus.$emit('emittedEventCallingDataSpacePlotView', this.OverviewResults)
+              EventBus.$emit('emittedEventCallingPredictionsSpacePlotView', this.OverviewResults)
+              this.OverviewResults.pop()
+            }
+            this.getFinalResults()
+          })
+          .catch(error => {
+            console.log(error)
+          })
+      }
     },
     getFinalResults () {
       this.FinalResults = this.getFinalResultsFromBackend()
@@ -556,7 +570,11 @@ export default Vue.extend({
     EventBus.$on('UpdateBoxPlot', this.UpdateBrushBoxPlot)
     EventBus.$on('CallFactorsView', data => { this.basicValuesFact = data })
     EventBus.$on('CallFactorsView', this.factors)
-    
+    EventBus.$on('AllAlModels', data => {
+      this.valueSel = data
+      this.valueAll = data
+    })
+    EventBus.$on('AllSelModels', data => {this.valueSel = data})
     //Prevent double click to search for a word. 
     document.addEventListener('mousedown', function (event) {
       if (event.detail > 1) {

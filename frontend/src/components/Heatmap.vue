@@ -24,7 +24,7 @@ export default {
 
       var FeaturesAccuracy = JSON.parse(this.GetResultsAll[6])
       var Features= JSON.parse(this.GetResultsAll[7])
-      const limit = JSON.parse(this.GetResultsAll[12])
+      const limit = JSON.parse(this.GetResultsAll[13])
       var Classifiers = JSON.parse(this.GetResultsAll[8])
         
       if (Classifiers != '') { 
@@ -116,11 +116,16 @@ export default {
             .style("fill", function(d) { return myColor(d.value)} )
 
       }
+    },
+    reset () {
+      var svg = d3.select("#Heatmap");
+      svg.selectAll("*").remove();
     }
   },
   mounted () {
         EventBus.$on('emittedEventCallingHeatmapView', data => { this.GetResultsAll = data })
         EventBus.$on('emittedEventCallingHeatmapView', this.Heatmap)
+        EventBus.$on('resetViews', this.reset)
     }
 }
 </script>

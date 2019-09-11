@@ -21,7 +21,7 @@ export default {
         let Features= JSON.parse(this.GetResults[7])
         let ClassifierswithoutFI = JSON.parse(this.GetResults[8])
         let ClassifierswithFI = JSON.parse(this.GetResults[9])
-        const limit = JSON.parse(this.GetResults[12])
+        const limit = JSON.parse(this.GetResults[13])
         var Classifiers
         Classifiers = ClassifierswithoutFI.concat(ClassifierswithFI)
         var limitList = []
@@ -103,11 +103,15 @@ export default {
             }
         });
         EventBus.$emit('SendSelectedFeaturesEvent', results)
+      },
+      reset () {
+        document.getElementById("myDynamicTable").innerHTML = "";
       }
   },
   mounted () {
         EventBus.$on('emittedEventCallingTableView', data => { this.GetResults = data })
         EventBus.$on('emittedEventCallingTableView', this.FeatureSelection)
+        EventBus.$on('resetViews', this.reset)
     }
 }
 </script>
