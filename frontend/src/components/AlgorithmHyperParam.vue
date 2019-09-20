@@ -25,7 +25,7 @@ export default {
     PCPView () {
       d3.selectAll("#PCP > *").remove(); 
       if (this.selAlgorithm != '') {
-        var colors = ['#a6cee3','#1f78b4','#b2df8a','#33a02c','#fb9a99','#e31a1c','#fdbf6f','#ff7f00','#cab2d6','#6a3d9a']
+        var colors = ['#8dd3c7','#ffffb3','#bebada','#fb8072','#80b1d3','#fdb462','#b3de69','#fccde5','#d9d9d9','#bc80bd','#ccebc5','#ffed6f']
         var colorGiv = 0
         
         var Combined = 0
@@ -38,22 +38,29 @@ export default {
         }
         var valuesPerf = Object.values(Combined['mean_test_score'])
         var ObjectsParams = Combined['params']
+        var newObjectsParams = []
         var ArrayCombined = new Array(valuesPerf.length)
         for (let i = 0; i < valuesPerf.length; i++) {
+          if (this.selAlgorithm == 'KNN') {  
+            newObjectsParams.push({'weights':ObjectsParams[i].weights, 'algorithm':ObjectsParams[i].algorithm,'metric':ObjectsParams[i].metric,'n_neighbors':ObjectsParams[i].n_neighbors})
+            Object.assign(newObjectsParams[i], {performance: valuesPerf[i]}, {model: i})
+            ArrayCombined[i] = newObjectsParams[i]
+          } else {
             Object.assign(ObjectsParams[i], {performance: valuesPerf[i]}, {model: i})
             ArrayCombined[i] = ObjectsParams[i]
+          }
         }
         EventBus.$emit('AllAlModels', ArrayCombined.length)
         this.pc = ParCoords()("#PCP")
             .data(ArrayCombined)
             .color(colorGiv)
-            .hideAxis(['model'])
+            .hideAxis(['model','performance'])
             .bundlingStrength(0) // set bundling strength
             .smoothness(0)
-            .bundleDimension('performance')
             .showControlPoints(false)
             .render()
             .brushMode('1D-axes')
+            .reorderable()
             .interactive();
 
         this.pc.on("brush", function(d) {

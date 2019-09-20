@@ -19,6 +19,12 @@
   <font-awesome-icon icon="play" />
   {{ value }}
   </button>
+  <button
+  id="Reset"
+  v-on:click="execute">
+  <font-awesome-icon icon="trash" />
+  {{ valueReset }}
+  </button>
 </div>
 </template>
 
@@ -32,6 +38,7 @@ export default {
     return {
       RetrieveValueCSV: 'IrisC',
       value: 'Execute',
+      valueReset: 'Reset',
       InitializeEnsemble: false
     }
   },

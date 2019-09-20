@@ -24,6 +24,14 @@ from sklearn.manifold import MDS
 from sklearn.manifold import TSNE
 from sklearn.metrics import classification_report
 from sklearn.preprocessing import scale
+#from sklearn.metrics import r2_score
+#from rfpimp import permutation_importances
+import eli5
+from eli5.sklearn import PermutationImportance
+from sklearn.feature_selection import SelectKBest
+from sklearn.feature_selection import chi2
+from sklearn.feature_selection import RFE
+from sklearn.decomposition import PCA
 
 from mlxtend.classifier import StackingCVClassifier
 from mlxtend.feature_selection import ColumnSelector
@@ -52,6 +60,9 @@ def Reset():
 
     global yData
     yData = []
+    
+    global detailsParams
+    detailsParams = []
 
     global algorithmList
     algorithmList = []
@@ -129,6 +140,9 @@ def RetrieveFileName():
 
     global algorithmList
     algorithmList = []
+
+    global detailsParams
+    detailsParams = []
 
     # Initializing models
 
@@ -263,7 +277,7 @@ def column_index(df, query_cols):
 global mem
 mem = Memory("./cache_dir")
 
-def GridSearch(clf, params, FI):
+def GridSearch(clf, params):
     global XData
     global yData
     global scoring
@@ -292,7 +306,10 @@ def GridSearch(clf, params, FI):
     df_cv_results_classifiers = pd.DataFrame(data = df_cv_results_per_row, columns= df_cv_results.columns)
     parameters = df_cv_results_classifiers['params']
     PerClassMetrics = []
-    FeatureImp = []
+    #perm_imp_rfpimp = []
+    #FeatureImp = []
+    #RFEList = []
+    permList = []
     PerFeatureAccuracy = []
     global subset
     global loopFeatures
@@ -325,25 +342,43 @@ def GridSearch(clf, params, FI):
             subset = XData[featureSelected]
             element = (column_index(XData, featureSelected))
             columns.append(element)
-        grid.fit(subset, yData)   
-        if (FI == 0):
-            n_feats = XData.shape[1]
-            for i in range(n_feats):
-                scores = model_selection.cross_val_score(grid.best_estimator_, XData.values[:, i].reshape(-1, 1), yData, cv=crossValidation)
-                PerFeatureAccuracy.append(scores.mean())
+        grid.fit(subset, yData) 
+        #perm_imp_rfpimp.append(permutation_importances(grid.best_estimator_, subset, yData, r2)['Importance']) 
+        perm = PermutationImportance(grid.best_estimator_, cv = None, refit = True, n_iter = 50).fit(subset, yData)
+        permList.append(perm.feature_importances_)
+        n_feats = subset.shape[1]
+        for i in range(n_feats):
+            scores = model_selection.cross_val_score(grid.best_estimator_, subset.values[:, i].reshape(-1, 1), yData, cv=crossValidation)
+            PerFeatureAccuracy.append(scores.mean())
 
         yPredict = grid.predict(subset)
         yPredictProb.append(grid.predict_proba(subset))
         PerClassMetrics.append(classification_report(yData, yPredict, target_names=target_names, digits=2, output_dict=True))
-        if (FI == 1):
-            X = subset.values
-            Y = array(yData)
-            FeatureImp.append(class_feature_importance(X, Y, grid.best_estimator_.feature_importances_))
+        #if (FI == 1):
+        #    X = subset.values
+        #    Y = array(yData)
+        #    FeatureImp.append(class_feature_importance(X, Y, grid.best_estimator_.feature_importances_))
+        #    rfe = RFE(grid.best_estimator_, 3)
+        #    fit = rfe.fit(subset, yData)
+        #    RFEList.append(fit.ranking_)
 
-    FeatureImpPandas = pd.DataFrame(FeatureImp)
+    bestfeatures = SelectKBest(score_func=chi2, k='all')
+    fit = bestfeatures.fit(subset,yData)
+    dfscores = pd.DataFrame(fit.scores_)
+    dfcolumns = pd.DataFrame(subset.columns)
+    #concat two dataframes for better visualization 
+    featureScores = pd.concat([dfcolumns,dfscores],axis=1)
+    featureScores.columns = ['Specs','Score']  #naming the dataframe columns
+    #FeatureImpPandas = pd.DataFrame(FeatureImp)
+    #RFEListPD = pd.DataFrame(RFEList)
+    #perm_imp_rfpimp = pd.DataFrame(perm_imp_rfpimp)
+    perm_imp_eli5PD = pd.DataFrame(permList)
     PerClassMetricsPandas = pd.DataFrame(PerClassMetrics)
     PerFeatureAccuracyPandas = pd.DataFrame(PerFeatureAccuracy)
-    return df_cv_results_classifiers, parameters, FeatureImpPandas, PerClassMetricsPandas, PerFeatureAccuracyPandas
+    return df_cv_results_classifiers, parameters, PerClassMetricsPandas, PerFeatureAccuracyPandas, perm_imp_eli5PD, featureScores
+
+#def r2(rf, X_train, y_train):
+#    return r2_score(y_train, rf.predict(X_train))
 
 def class_feature_importance(X, Y, feature_importances):
     N, M = X.shape
@@ -363,21 +398,33 @@ def Preprocessing():
     global resultsList 
     df_cv_results_classifiersList = []
     parametersList = []
-    FeatureImportanceList = []
+    #FeatureImportanceList = []
     PerClassMetricsList = []
     FeatureAccuracyList = []
+    #RFEListPD = []
+    #perm_imp_rfpimp = []
+    perm_imp_eli5PD = []
+    featureScores = []
     for j, result in enumerate(resultsList):
         df_cv_results_classifiersList.append(resultsList[j][0])
         parametersList.append(resultsList[j][1])
-        FeatureImportanceList.append(resultsList[j][2])
-        PerClassMetricsList.append(resultsList[j][3])
-        FeatureAccuracyList.append(resultsList[j][4])
+        #FeatureImportanceList.append(resultsList[j][2])
+        PerClassMetricsList.append(resultsList[j][2])
+        FeatureAccuracyList.append(resultsList[j][3])
+        #RFEListPD.append(resultsList[j][5])
+        #perm_imp_rfpimp.append(resultsList[j][6])
+        perm_imp_eli5PD.append(resultsList[j][4])
+        featureScores.append(resultsList[j][5])
 
     df_cv_results_classifiers = pd.concat(df_cv_results_classifiersList, ignore_index=True, sort=False)
     parameters = pd.concat(parametersList, ignore_index=True, sort=False)
-    FeatureImportance = pd.concat(FeatureImportanceList, ignore_index=True, sort=False)
+    #FeatureImportanceListPD = pd.concat(FeatureImportanceList, ignore_index=True, sort=False)
     PerClassMetrics = pd.concat(PerClassMetricsList, ignore_index=True, sort=False)
     FeatureAccuracy = pd.concat(FeatureAccuracyList, ignore_index=True, sort=False)
+    #RFEListPDCon = pd.concat(RFEListPD, ignore_index=True, sort=False)
+    #perm_imp_rfpimpCon = pd.concat(perm_imp_rfpimp, ignore_index=True, sort=False)
+    perm_imp_eli5PDCon = pd.concat(perm_imp_eli5PD, ignore_index=True, sort=False)
+    featureScoresCon = pd.concat(featureScores, ignore_index=True, sort=False)
     global factors
     factors = [1,1,1,1,1,1]
     global scoring 
@@ -388,19 +435,24 @@ def Preprocessing():
     del df_cv_results_classifiers_metrics['mean_fit_time']
     del df_cv_results_classifiers_metrics['mean_score_time']
     df_cv_results_classifiers_metrics = df_cv_results_classifiers_metrics.ix[:, 0:NumberofscoringMetrics]
-    return [parameters,FeatureImportance,PerClassMetrics,FeatureAccuracy,df_cv_results_classifiers_metrics]
+    return [parameters,PerClassMetrics,FeatureAccuracy,df_cv_results_classifiers_metrics,perm_imp_eli5PDCon,featureScoresCon]
 
 def sumPerMetric(factors):
     sumPerClassifier = []
-    global df_cv_results_classifiers_metrics
-    for index, row in df_cv_results_classifiers_metrics.iterrows():
+    preProcessResults = []
+    preProcessResults = Preprocessing()
+    loopThroughMetrics = preProcessResults[4]
+    for index, row in loopThroughMetrics.iterrows():
         rowSum = 0
         global scoring
         lengthFactors = len(scoring)
         for loop,elements in enumerate(row):
             lengthFactors = lengthFactors -  1 + factors[loop]
             rowSum = elements*factors[loop] + rowSum
-        sumPerClassifier.append(rowSum/lengthFactors)
+        if lengthFactors is 0:
+            sumPerClassifier = 0
+        else:
+            sumPerClassifier.append(rowSum/lengthFactors)
     return sumPerClassifier
 
 # Retrieve data from client 
@@ -413,6 +465,7 @@ def RetrieveFactors():
     global ModelSpaceMDSNew
     global ModelSpaceTSNENew
     sumPerClassifierSel = []
+    sumPerClassifierSel = sumPerMetric(FactorsInt['Factors'])
     ModelSpaceMDSNew = []
     ModelSpaceTSNENew = []
     preProcessResults = []
@@ -423,13 +476,12 @@ def RetrieveFactors():
     for l,el in enumerate(FactorsInt['Factors']):
         if el is 0:
             XClassifiers.drop(XClassifiers.columns[[l-countRemovals]], axis=1, inplace=True)
-            counter = countRemovals + 1
+            countRemovals = countRemovals + 1
             flagLocal = 1
     if flagLocal is 1:
         ModelSpaceMDSNew = FunMDS(XClassifiers)
         ModelSpaceTSNENew = FunTsne(XClassifiers)
         ModelSpaceTSNENew = ModelSpaceTSNENew.tolist()
-    sumPerClassifierSel = sumPerMetric(FactorsInt['Factors'])
     return 'Everything Okay'
 
 @app.route('/data/UpdateOverv', methods=["GET", "POST"])
@@ -470,26 +522,38 @@ def InitializeEnsemble():
 def ReturnResults(sumPerClassifier,ModelSpaceMDS,ModelSpaceTSNE,preProcessResults,DataSpaceList,PredictionSpaceList):
     global Results
     Results = []
-    FeatureImportance = preProcessResults[1]
-    PerClassMetrics = preProcessResults[2]
-    FeatureAccuracy = preProcessResults[3]
-    FeatureImportance = FeatureImportance.to_json(orient='records')
+    #FeatureImportanceListPD = preProcessResults[1]
+    PerClassMetrics = preProcessResults[1]
+    FeatureAccuracy = preProcessResults[2]
+    #RFEListPDCon = preProcessResults[5]
+    #perm_imp_rfpimpCon = preProcessResults[6]
+    perm_imp_eli5PDCon = preProcessResults[4]
+    featureScoresCon = preProcessResults[5]
+    #FeatureImportanceListPD = FeatureImportanceListPD.to_json(orient='records')
     PerClassMetrics = PerClassMetrics.to_json(orient='records')
     FeatureAccuracy = FeatureAccuracy.to_json(orient='records')
+    #RFEListPDCon = RFEListPDCon.to_json(orient='records')
+    #perm_imp_rfpimpCon = perm_imp_rfpimpCon.to_json(orient='records')
+    perm_imp_eli5PDCon = perm_imp_eli5PDCon.to_json(orient='records')
+    featureScoresCon = featureScoresCon.to_json(orient='records')
     XDataJSON = XData.columns.tolist()
     Results.append(json.dumps(sumPerClassifier)) # Position: 0 
     Results.append(json.dumps(ModelSpaceMDS)) # Position: 1
     Results.append(json.dumps(classifiersIDPlusParams)) # Position: 2
-    Results.append(FeatureImportance) # Position: 3
-    Results.append(PerClassMetrics) # Position: 4
-    Results.append(json.dumps(target_names)) # Position: 5 
-    Results.append(FeatureAccuracy) # Position: 6
-    Results.append(json.dumps(XDataJSON)) # Position: 7 
-    Results.append(json.dumps(classifiersId)) # Position: 8
-    Results.append(json.dumps(classifiersIDwithFI)) # Position: 9 
-    Results.append(json.dumps(DataSpaceList)) # Position: 10
-    Results.append(json.dumps(PredictionSpaceList)) # Position: 11 
-    Results.append(json.dumps(ModelSpaceTSNE)) # Position: 12
+    #Results.append(FeatureImportanceListPD) # Position: 3
+    Results.append(PerClassMetrics) # Position: 3
+    Results.append(json.dumps(target_names)) # Position: 4 
+    Results.append(FeatureAccuracy) # Position: 5
+    Results.append(json.dumps(XDataJSON)) # Position: 6 
+    Results.append(json.dumps(classifiersId)) # Position: 7
+    Results.append(json.dumps(classifiersIDwithFI)) # Position: 8 
+    Results.append(json.dumps(DataSpaceList)) # Position: 9
+    Results.append(json.dumps(PredictionSpaceList)) # Position: 10 
+    Results.append(json.dumps(ModelSpaceTSNE)) # Position: 11
+    #Results.append(RFEListPDCon) # Position: 13
+    #Results.append(perm_imp_rfpimpCon) # Position: 14
+    Results.append(perm_imp_eli5PDCon) # Position: 12
+    Results.append(featureScoresCon) # Position: 13
     return Results
 
 # Retrieve data from client 
@@ -507,46 +571,31 @@ def RetrieveSelClassifiersID():
 @app.route('/data/FeaturesSelection', methods=["GET", "POST"])
 def FeatureSelPerModel():
     global featureSelection
-    global loopFeatures
     global ClassifierIDsList
-    RetrieveModelsPar = request.get_data().decode('utf8').replace("'", '"')
-    RetrieveModelsPar = json.loads(RetrieveModelsPar)
-    RetrieveModelsParRed = []
-    print(RetrieveModelsPar['brushedAll']) # FIX THIS THING!!!!!
-    #for j, i in enumerate(RetrieveModelsPar['brushedAll']):
-    #    print(j)
-    #RetrieveModelsParRed = [for j, i in enumerate(RetrieveModelsPar['brushedAll']) if j not in ClassifierIDsList]
-
-    #RetrieveModelsParPandas = pd.DataFrame(RetrieveModelsParRed)
-    RetrieveModelsParPandas = pd.DataFrame(RetrieveModelsPar)
-    RetrieveModelsParPandas = RetrieveModelsParPandas.drop(columns=['performance'])
-    RetrieveModelsParPandas = RetrieveModelsParPandas.to_dict(orient='list')
-    print(RetrieveModelsParPandas)
-    RetrieveModels = {}
-    for key, value in RetrieveModelsParPandas.items():
-        withoutDuplicates = Remove(value)
-        RetrieveModels[key] = withoutDuplicates
-    global RetrieveModelsListNew
-    RetrieveModelsListNew.append(RetrieveModels)
-    loopFeatures = 2
     featureSelection = request.get_data().decode('utf8').replace("'", '"')
     featureSelection = json.loads(featureSelection)
+    global detailsParams
     global algorithmList
     results = []
+    global resultsList
+    resultsList = []
+    global loopFeatures
+    loopFeatures = 2
     for index, eachalgor in enumerate(algorithmList):
         if (eachalgor == 'KNN'):
             clf = KNeighborsClassifier()
-            params = RetrieveModelsListNew[index]
-            IF = 0
-            results.append(GridSearch(clf, params, IF))
+            params = detailsParams[index]
+            results.append(GridSearch(clf, params))
             resultsList.append(results[0])
         else:
             clf = RandomForestClassifier()
-            params = RetrieveModelsListNew[index]
-            IF = 1
-            results.append(GridSearch(clf, params, IF))
+            params =  detailsParams[index]
+            results.append(GridSearch(clf, params))
             resultsList.append(results[0])
-    key = 2
+    if (featureSelection['featureSelection'] == ''):
+        key = 0
+    else:
+        key = 2  
     EnsembleModel(ClassifierIDsList, key)
     return 'Everything Okay'
 
@@ -570,6 +619,7 @@ def EnsembleModel (ClassifierIDsList, keyRetrieved):
     global columns
 
     global all_classifiers
+    global algorithmList
 
     if (keyRetrieved == 0):
         columnsInit = []
@@ -684,11 +734,11 @@ def RetrieveModel():
         else: 
             clf = RandomForestClassifier()
             params = {'n_estimators': list(range(80, 120)), 'criterion': ['gini', 'entropy']}
-        GridSearchForParameters(clf, params)
+        GridSearchForParameters(clf, params, eachAlgor)
     SendEachClassifiersPerformanceToVisualize()
     return 'Everything Okay'
 
-def GridSearchForParameters(clf, params):
+def GridSearchForParameters(clf, params, eachAlgor):
     grid = GridSearchCV(estimator=clf, 
                 param_grid=params,
                 scoring='accuracy', 
@@ -753,28 +803,31 @@ def RetrieveModelsParam():
 
     global classifierID
     global algorithmList
+    global detailsParams
     results = []
     algorithmList.append(algorithm)
     if (algorithm == 'KNN'):
         clf = KNeighborsClassifier()
         params = RetrieveModels
-        IF = 0
-        results.append(GridSearch(clf, params, IF))
+        detailsParams.append(params)
+        results.append(GridSearch(clf, params))
         resultsList.append(results[0])
         for j, oneClassifier in enumerate(results[0][1]): 
             classifiersId.append(classifierID)
             classifiersIDPlusParams.append(classifierID)
-            classifierID = classifierID + 1
-    else:
+            classifierID = classifierID + 1 
+    elif (algorithm == 'RF'):
         clf = RandomForestClassifier()
         params = RetrieveModels
-        IF = 1
-        results.append(GridSearch(clf, params, IF))
+        detailsParams.append(params)
+        results.append(GridSearch(clf, params))
         resultsList.append(results[0])
         for oneClassifier, j in enumerate(results[0][1]): 
             classifiersIDPlusParams.append(classifierID)
             classifiersIDwithFI.append(classifierID)
             classifierID = classifierID + 1
+    else:
+        pass
     return 'Everything Okay'
 
     

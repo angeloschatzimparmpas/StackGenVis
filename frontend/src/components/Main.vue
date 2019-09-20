@@ -6,7 +6,7 @@
       <b-row class="md-3">
         <b-col cols="3">
           <mdb-card>
-            <mdb-card-header color="primary-color" tag="h5" class="text-center">Data Set Selection and Execution</mdb-card-header>
+            <mdb-card-header color="primary-color" tag="h5" class="text-center">Basic Operations Control Panel</mdb-card-header>
             <mdb-card-body>
               <mdb-card-text class="text-center" >
                 <DataSetExecController
@@ -18,7 +18,7 @@
         </b-col>
         <b-col cols="6">
           <mdb-card>
-            <mdb-card-header color="primary-color" tag="h5" class="text-center">Per Class Metrics Exploration</mdb-card-header>
+            <mdb-card-header color="primary-color" tag="h5" class="text-center">Diverse Models Exploration</mdb-card-header>
               <mdb-card-body>
                   <BarChart/>
               </mdb-card-body>
@@ -48,21 +48,18 @@
         </b-col>
         <b-col cols="6">
           <mdb-card>
-            <mdb-card-header color="primary-color" tag="h5" class="text-center">Subset Feature Selection Per Model</mdb-card-header>
+            <mdb-card-header color="primary-color" tag="h5" class="text-center">Models Feature Selection</mdb-card-header>
             <b-row>
-              <b-col cols="4">
-                <mdb-card-body>        
-                  <StretchedChord/>
-                </mdb-card-body>
-              </b-col>
-            <b-col cols="4">  
+            <b-col cols="12">  
               <mdb-card-body>        
                 <Heatmap/>
               </mdb-card-body>
             </b-col>
-            <b-col cols="4"> 
-              <mdb-card-body>
-                <FeatureSelection/>
+          </b-row>
+          <b-row>
+            <b-col cols="12">  
+              <mdb-card-body>        
+                <ToggleSelection/>
               </mdb-card-body>
             </b-col>
           </b-row>
@@ -118,13 +115,13 @@ import ScatterPlot from './ScatterPlot.vue'
 import DataSpace from './DataSpace.vue'
 import PredictionsSpace from './PredictionsSpace.vue'
 import BarChart from './BarChart.vue'
-import StretchedChord from './StretchedChord.vue'
 import Heatmap from './Heatmap.vue'
-import FeatureSelection from './FeatureSelection.vue'
+import ToggleSelection from './ToggleSelection.vue'
 import FinalResultsLinePlot from './FinalResultsLinePlot.vue'
 import axios from 'axios'
 import { loadProgressBar } from 'axios-progress-bar'
 import 'axios-progress-bar/dist/nprogress.css'
+import 'bootstrap-css-only/css/bootstrap.min.css'
 import { mdbCard, mdbCardBody, mdbCardText, mdbCardHeader } from 'mdbvue'
 import { EventBus } from '../main.js'
 import * as jQuery from 'jquery' 
@@ -145,9 +142,8 @@ export default Vue.extend({
     DataSpace,
     PredictionsSpace,
     BarChart,
-    StretchedChord,
     Heatmap,
-    FeatureSelection,
+    ToggleSelection,
     FinalResultsLinePlot,
     mdbCard,
     mdbCardBody,
@@ -180,7 +176,10 @@ export default Vue.extend({
       valueSel: 0,
       valueAll: 0,
       OverSelLength: 0,
-      OverAllLength: 0
+      OverAllLength: 0,
+      toggle1: 1,
+      toggle2: 1,
+      toggle3: 1
     }
   },
   methods: {
@@ -240,10 +239,17 @@ export default Vue.extend({
           var length = JSON.parse(this.OverviewResults[0]).length
           this.OverSelLength = length
           this.OverAllLength = length
+          this.valueSel = 0
+          this.valueAll = 0
+          var toggles = []
+          toggles.push(this.toggle1)
+          toggles.push(this.toggle2)
+          toggles.push(this.toggle3)
           if (length < this.limitModels) {
             this.OverviewResults.push(JSON.stringify(this.ClassifierIDsList))
             EventBus.$emit('emittedEventCallingBarChart', this.OverviewResults)
-            EventBus.$emit('emittedEventCallingChordView', this.OverviewResults)
+            EventBus.$emit('emitToggles', this.OverviewResults)
+            EventBus.$emit('emittedEventCallingToggles', toggles)
             EventBus.$emit('emittedEventCallingHeatmapView', this.OverviewResults)
             EventBus.$emit('emittedEventCallingTableView', this.OverviewResults)
             EventBus.$emit('emittedEventCallingDataSpacePlotView', this.OverviewResults)
@@ -305,7 +311,6 @@ export default Vue.extend({
             if (this.ClassifierIDsList.length < this.limitModels) {
               this.OverviewResults.push(JSON.stringify(this.ClassifierIDsList))
               EventBus.$emit('emittedEventCallingBarChart', this.OverviewResults)
-              EventBus.$emit('emittedEventCallingChordView', this.OverviewResults)
               EventBus.$emit('emittedEventCallingHeatmapView', this.OverviewResults)
               EventBus.$emit('emittedEventCallingTableView', this.OverviewResults)
               EventBus.$emit('emittedEventCallingDataSpacePlotView', this.OverviewResults)
@@ -390,7 +395,6 @@ export default Vue.extend({
     SendBrushedParameters () {
       EventBus.$emit('emittedEventCallingModelBrushed')
       const path = `http://127.0.0.1:5000/data/SendBrushedParam`
-      this.brushedAll.push(this.brushed)
       const postData = {
         brushed: this.brushed,
         algorithm: this.selectedAlgorithm
@@ -418,8 +422,7 @@ export default Vue.extend({
     UpdateBasedonFeatures () {
       const path = `http://127.0.0.1:5000/data/FeaturesSelection`
         const postData = {
-          featureSelection: this.SelectedFeaturesPerClassifier,
-          brushedAll: this.brushedAll
+          featureSelection: this.SelectedFeaturesPerClassifier
         }
         const axiosConfig = {
           headers: {
@@ -531,6 +534,13 @@ export default Vue.extend({
           console.log(error)
         })
     },
+    updateToggle () {
+      var toggles = []
+      toggles.push(this.toggle1)
+      toggles.push(this.toggle2)
+      toggles.push(this.toggle3)
+      EventBus.$emit('emittedEventCallingTogglesUpdate', toggles)
+    }
   },
   created() {
     // does the browser support the Navigation Timing API?
@@ -564,6 +574,12 @@ export default Vue.extend({
     EventBus.$on('SendToServerDataSetConfirmation', data => { this.RetrieveValueFile = data })
     EventBus.$on('SendToServerDataSetConfirmation', this.fileNameSend)
     EventBus.$on('PCPCall', data => { this.selectedAlgorithm = data })
+    EventBus.$on('toggle1', data => { this.toggle1 = data })
+    EventBus.$on('toggle2', data => { this.toggle2 = data })
+    EventBus.$on('toggle3', data => { this.toggle3 = data })
+    EventBus.$on('toggle1', this.updateToggle)
+    EventBus.$on('toggle2', this.updateToggle)
+    EventBus.$on('toggle3', this.updateToggle)
     EventBus.$on('PCPCall', this.CallPCP)
     EventBus.$on('PCPCallDB', this.SendBrushedParameters)
     EventBus.$on('UpdateBoxPlot', data => { this.brushedBoxPlotUpdate = data })

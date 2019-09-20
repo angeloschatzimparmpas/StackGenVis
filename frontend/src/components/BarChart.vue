@@ -32,12 +32,12 @@ export default {
   },
   methods: {
     BarChartView () {
-        const PerClassMetrics = JSON.parse(this.BarChartResults[4])
-        var ClassNames = JSON.parse(this.BarChartResults[5])
+        const PerClassMetrics = JSON.parse(this.BarChartResults[3])
+        var ClassNames = JSON.parse(this.BarChartResults[4])
         this.ClassNamesOverview = ClassNames
-        const limit = JSON.parse(this.BarChartResults[13])
-        let ClassifierswithoutFI = JSON.parse(this.BarChartResults[8])
-        let ClassifierswithFI = JSON.parse(this.BarChartResults[9])
+        let ClassifierswithoutFI = JSON.parse(this.BarChartResults[7])
+        let ClassifierswithFI = JSON.parse(this.BarChartResults[8])
+        const limit = JSON.parse(this.BarChartResults[14])
 
         for (let j = 0; j < this.ClassNamesOverview.length; j++) {
             Plotly.purge('barChartf1Score' + j)
