@@ -5,7 +5,6 @@
 </template>
 
 <script>
-import interact from 'interactjs'
 import { EventBus } from '../main.js'
 import * as d3Base from 'd3'
 import * as exploding_boxplot from 'd3_exploding_boxplot'
@@ -20,34 +19,37 @@ export default {
   data () {
     return {
       PerformanceAllModels: '',
+      brushedAll: [],
       brushedBoxPl: [],
       previousColor: 0,
       selectedAlgorithm: 0,
-      WH: []
+      KNNModels: 576, //KNN models
+      WH: [],
+      parameters: [],
+      chart: ''
     }
   },
   methods: {
     boxplot () {
       d3.selectAll("#exploding_boxplot > *").remove(); 
-      //generate random data
         const PerformAlgor1 = JSON.parse(this.PerformanceAllModels[0])
-        const PerformAlgor2 = JSON.parse(this.PerformanceAllModels[1])
+        const PerformAlgor2 = JSON.parse(this.PerformanceAllModels[2])
         var algorithm1 = []
         var algorithm2 = []
-        var median = []
-        var sum = 0
-        for (let i = 0; i < Object.keys(PerformAlgor1.mean_test_score).length; i++) {
-          algorithm1.push({Accuracy: Object.values(PerformAlgor1.mean_test_score)[i]*100,Algorithm:'KNN',Model:'Model ' + i + ',  Accuracy '})
-          sum = sum + Object.values(PerformAlgor1.mean_test_score)[i]*100
+        var parameters = []
+        for (var i = 0; i < Object.keys(PerformAlgor1['0']).length; i++) {
+          algorithm1.push({Performance: Object.values(PerformAlgor1['0'])[i]*100,Algorithm:'KNN',Model:'Model ' + i + '; Parameters '+JSON.stringify(Object.values(PerformAlgor1['params'])[i])+'; Performance '})
+          parameters.push(JSON.stringify(Object.values(PerformAlgor1['params'])[i]))
         }
-        median.push(sum/Object.keys(PerformAlgor1.mean_test_score).length)
-        sum = 0
-        for (let i = 0; i < Object.keys(PerformAlgor2.mean_test_score).length; i++) {
-          algorithm2.push({Accuracy: Object.values(PerformAlgor2.mean_test_score)[i]*100,Algorithm:'RF',Model:'Model ' + i + ',  Accuracy '})
-          sum = sum + Object.values(PerformAlgor1.mean_test_score)[i]*100
+        var temp = i
+        for (let j = 0; j < Object.keys(PerformAlgor2['0']).length; j++) {
+          temp = i + j
+          algorithm2.push({Performance: Object.values(PerformAlgor2['0'])[j]*100,Algorithm:'RF',Model:'Model ' + temp + '; Parameters '+JSON.stringify(Object.values(PerformAlgor2['params'])[j])+'; Performance '})
+          parameters.push(JSON.stringify(Object.values(PerformAlgor2['params'])[j]))
         }
+        EventBus.$emit('ParametersAll', parameters)
         var data = algorithm1.concat(algorithm2)
-        /*median.push(sum/Object.keys(PerformAlgor2.mean_test_score).length)
+        /*median.push(sum/Object.keys(PerformAlgor2['0']).length)
         if (median[0] > median[1])
           var data = algorithm1.concat(algorithm2)
         else 
@@ -59,26 +61,57 @@ export default {
         // group : how to group data on x axis
         // color : color of the point / boxplot
         // label : displayed text in toolbox
-        var chart = exploding_boxplot(data, {y:'Accuracy',group:'Algorithm',color:'Algorithm',label:'Model'})
-        chart.width(this.WH[0]*3)
-        chart.height(this.WH[1])
-        //call chart on a div
-        chart('#exploding_boxplot')
+        this.chart = exploding_boxplot(data, {y:'Performance',group:'Algorithm',color:'Algorithm',label:'Model'})
 
+        this.chart.width(this.WH[0]*3)
+        this.chart.height(this.WH[1])
+        //call chart on a div
+        this.chart('#exploding_boxplot')
+        const previousColor = ['#8dd3c7','#ffffb3','#bebada','#fb8072','#80b1d3','#fdb462','#b3de69','#fccde5','#d9d9d9','#bc80bd','#ccebc5','#ffed6f']
         var el = document.getElementsByClassName('d3-exploding-boxplot boxcontent')
-        var doubleClick = document.getElementsByClassName('exploding_boxplot')
-        doubleClick[0].ondblclick = function(d) {
-          EventBus.$emit('PCPCallDB')
-        }
+
+        this.brushStatus = document.getElementsByClassName('extent')
+
         el[0].onclick = function() {
+          var allPoints = document.getElementsByClassName('d3-exploding-boxplot point KNN')
+          for (let i = 0; i < allPoints.length; i++) {
+          //if (modelsActive.indexOf(i) == -1) {
+            allPoints[i].style.fill = previousColor[0]
+            allPoints[i].style.opacity = '1.0'
+          //}
+          } 
+
           EventBus.$emit('PCPCall', 'KNN')
         }
         el[1].onclick = function() {
+          var allPoints = document.getElementsByClassName('d3-exploding-boxplot point RF')
+          for (let i = 0; i < allPoints.length; i++) {
+          //if (modelsActive.indexOf(i) == -1) {
+            allPoints[i].style.fill = previousColor[1]
+            allPoints[i].style.opacity = '1.0'
+          //}
+          }
           EventBus.$emit('PCPCall', 'RF')
         }
+
+        const myObserver = new ResizeObserver(entries => {
+          EventBus.$emit('brusheAllOn')
+        });
+        
+        var brushRect = document.querySelector('.extent');
+        
+        myObserver.observe(brushRect);
+    },
+    brushActivationAll () {
+      // continue here and select the correct points.
+      console.log(this.chart.returnBrush())
     },
     brushed () {
-      var allPoints = document.getElementsByClassName("d3-exploding-boxplot point")
+      if (this.selectedAlgorithm == 'KNN') {
+        var allPoints = document.getElementsByClassName('d3-exploding-boxplot point KNN')
+      } else {
+        var allPoints = document.getElementsByClassName('d3-exploding-boxplot point RF')
+      }
       const previousColor = ['#8dd3c7','#ffffb3','#bebada','#fb8072','#80b1d3','#fdb462','#b3de69','#fccde5','#d9d9d9','#bc80bd','#ccebc5','#ffed6f']
       var modelsActive = []
       for (let j = 0; j < this.brushedBoxPl.length; j++) {
@@ -111,11 +144,75 @@ export default {
       } else {
         for (let i = 0; i < allPoints.length; i++) {
           allPoints[i].style.opacity = '1.0'
-          if (modelsActive.indexOf(i) == -1) {
-            allPoints[i].style.fill = "#d3d3d3"
-            allPoints[i].style.opacity = '0.4'
+          if (this.selectedAlgorithm == 'KNN') {
+            if (modelsActive.indexOf(i) == -1) {
+              allPoints[i].style.fill = "#d3d3d3"
+              allPoints[i].style.opacity = '0.4'
+            }
+          } else {
+            if (modelsActive.indexOf(i+this.KNNModels) == -1) {
+              allPoints[i].style.fill = "#d3d3d3"
+              allPoints[i].style.opacity = '0.4'
+            }
           }
         }
+      }
+
+      this.UpdateBarChart()
+    },
+    UpdateBarChart () {
+      var allPoints = document.getElementsByClassName('d3-exploding-boxplot point')
+      var activeModels = []
+      var algorithmsSelected = []
+      var parameters = []
+      for (let i = 0; i < allPoints.length; i++) {
+        if (allPoints[i].style.fill != "rgb(211, 211, 211)") {
+          activeModels.push(allPoints[i].__data__.Model)
+          if (allPoints[i].__data__.Algorithm === 'KNN') {
+            algorithmsSelected.push('KNN')
+          }
+          else {
+            algorithmsSelected.push('RF')
+          }
+        }
+      }
+      if (activeModels.length == 0){
+      } else {
+        for (let i = 0; i<activeModels.length; i++) {
+          var array = activeModels[i].split(';')
+          var temp2 = array[1].split(' ')
+          parameters.push(temp2[2])
+        }
+        EventBus.$emit('ReturningAlgorithmsBar', algorithmsSelected)
+        EventBus.$emit('ReturningBrushedPointsParamsBar', parameters)
+      }
+    },
+    selectedPointsPerAlgorithm () {
+      var allPoints = document.getElementsByClassName('d3-exploding-boxplot point')
+      var activeModels = []
+      var algorithmsSelected = []
+      var parameters = []
+      for (let i = 0; i < allPoints.length; i++) {
+        if (allPoints[i].style.fill != "rgb(211, 211, 211)") {
+          activeModels.push(allPoints[i].__data__.Model)
+          if (allPoints[i].__data__.Algorithm === 'KNN') {
+            algorithmsSelected.push('KNN')
+          }
+          else {
+            algorithmsSelected.push('RF')
+          }
+        }
+      }
+      if (activeModels.length == 0){
+        alert('No models selected, please, retry!')
+      } else {
+        for (let i = 0; i<activeModels.length; i++) {
+          var array = activeModels[i].split(';')
+          var temp2 = array[1].split(' ')
+          parameters.push(temp2[2])
+        }
+        EventBus.$emit('ReturningAlgorithms', algorithmsSelected)
+        EventBus.$emit('ReturningBrushedPointsParams', parameters)
       }
     },
     previousBoxPlotState () {
@@ -134,6 +231,7 @@ export default {
     }
   },
   mounted () {
+    EventBus.$on('emittedEventCallingModelBrushed', this.selectedPointsPerAlgorithm)
     EventBus.$on('emittedEventCallingAllAlgorithms', data => {
       this.PerformanceAllModels = data})
     EventBus.$on('emittedEventCallingAllAlgorithms', this.boxplot)
@@ -148,6 +246,7 @@ export default {
     EventBus.$on('ResponsiveandChange', this.previousBoxPlotState)
     EventBus.$on('emittedEventCallingSelectedALgorithm', data => {
       this.selectedAlgorithm = data})
+    EventBus.$on('brusheAllOn', this.brushActivationAll)
   }
 }
 </script>

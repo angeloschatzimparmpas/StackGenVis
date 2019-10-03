@@ -1,10 +1,10 @@
 <template>
-    <div id="WrapSliders" style="display:none">
-                <p>Accuracy:<b-form-slider ref="basic1" v-model="basicValue1" :min="0" :max="100" trigger-change-event @slide-start="slideStart" @slide-stop="slideStop" style="padding-right: 15px;padding-left:15px"></b-form-slider>{{ basicValue1 }}%</p>
-                <p>F1_Score:<b-form-slider ref="basic2" v-model="basicValue2" :min="0" :max="100" trigger-change-event @slide-start="slideStart" @slide-stop="slideStop" style="padding-right: 15px; padding-left:15px"></b-form-slider >{{ basicValue2 }}%</p>
-                <p>Precision:<b-form-slider ref="basic3" v-model="basicValue3" :min="0" :max="100" trigger-change-event @slide-start="slideStart"  @slide-stop="slideStop"style="padding-right: 15px; padding-left:15px"></b-form-slider>{{ basicValue3 }}%</p>
-                <p>Recall:<b-form-slider ref="basic4" v-model="basicValue4" :min="0" :max="100" trigger-change-event @slide-start="slideStart" @slide-stop="slideStop" style="padding-right: 15px; padding-left:15px"></b-form-slider>{{ basicValue4 }}%</p>
-                <p>Jaccard_Score:<b-form-slider ref="basic5" v-model="basicValue5" :min="0" :max="100" trigger-change-event @slide-start="slideStart" @slide-stop="slideStop" style="padding-right: 15px; padding-left:15px"></b-form-slider>{{ basicValue5 }}%</p>
+    <div id="WrapSliders">
+                <p>Acc<b-form-slider ref="basic1" v-model="basicValue1" :min="0" :max="100" trigger-change-event @slide-start="slideStart" @slide-stop="slideStop" style="padding-right: 15px;padding-left:15px"></b-form-slider>{{ basicValue1 }}%&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Met6<b-form-slider ref="basic1" v-model="basicValue6" :min="0" :max="100" trigger-change-event @slide-start="slideStart" @slide-stop="slideStop" style="padding-right: 15px;padding-left:15px"></b-form-slider>{{ basicValue6 }}%</p>
+                <p>F1s<b-form-slider ref="basic2" v-model="basicValue2" :min="0" :max="100" trigger-change-event @slide-start="slideStart" @slide-stop="slideStop" style="padding-right: 15px; padding-left:15px"></b-form-slider >{{ basicValue2 }}%&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Met7<b-form-slider ref="basic1" v-model="basicValue7" :min="0" :max="100" trigger-change-event @slide-start="slideStart" @slide-stop="slideStop" style="padding-right: 15px;padding-left:15px"></b-form-slider>{{ basicValue7 }}%</p>
+                <p>Pre<b-form-slider ref="basic3" v-model="basicValue3" :min="0" :max="100" trigger-change-event @slide-start="slideStart"  @slide-stop="slideStop" style="padding-right: 15px; padding-left:15px"></b-form-slider>{{ basicValue3 }}%&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Met8<b-form-slider ref="basic1" v-model="basicValue8" :min="0" :max="100" trigger-change-event @slide-start="slideStart" @slide-stop="slideStop" style="padding-right: 15px;padding-left:15px"></b-form-slider>{{ basicValue8 }}%</p>
+                <p>Rec<b-form-slider ref="basic4" v-model="basicValue4" :min="0" :max="100" trigger-change-event @slide-start="slideStart" @slide-stop="slideStop" style="padding-right: 15px; padding-left:15px"></b-form-slider>{{ basicValue4 }}%&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Met9<b-form-slider ref="basic1" v-model="basicValue9" :min="0" :max="100" trigger-change-event @slide-start="slideStart" @slide-stop="slideStop" style="padding-right: 15px;padding-left:15px"></b-form-slider>{{ basicValue9 }}%</p>
+                <p>Jac<b-form-slider ref="basic5" v-model="basicValue5" :min="0" :max="100" trigger-change-event @slide-start="slideStart" @slide-stop="slideStop" style="padding-right: 15px; padding-left:15px"></b-form-slider>{{ basicValue5 }}%&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Me10<b-form-slider ref="basic1" v-model="basicValue10" :min="0" :max="100" trigger-change-event @slide-start="slideStart" @slide-stop="slideStop" style="padding-right: 15px;padding-left:15px"></b-form-slider>{{ basicValue10 }}%</p>
     </div>
 </template>
 
@@ -21,7 +21,12 @@
             basicValue2: 100,
             basicValue3: 100,
             basicValue4: 100,
-            basicValue5: 100
+            basicValue5: 100,
+            basicValue6: 100,
+            basicValue7: 100,
+            basicValue8: 100,
+            basicValue9: 100,
+            basicValue10: 100
             }
         },
         methods: {
@@ -36,16 +41,19 @@
                 basicValues.push(this.basicValue5/100)
                 EventBus.$emit('CallFactorsView', basicValues)
             },
-            Enable () {
-                document.getElementById('WrapSliders').style.cssText='height:200px;display:""';
-            },
-            Disable () {
-                document.getElementById('WrapSliders').style.cssText='display:none';
-            }
         },
-        mounted () {
-            EventBus.$on('slidersOn', this.Enable)
-            EventBus.$on('PCPCall', this.Disable)
-        }
     }
 </script>
+
+<style>
+p {
+    margin: 0 !important;
+    padding: 0 !important;
+}
+.slider.slider-horizontal {
+    width: 150px !important;
+}
+.slider-handle {
+    background: black;
+}
+</style>

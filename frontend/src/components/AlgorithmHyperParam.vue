@@ -18,7 +18,8 @@ export default {
     return {
       ModelsPerformance: 0,
       selAlgorithm: 0,
-      pc: 0
+      pc: 0,
+      KNNModels: 576 //KNN models
     }
   },
   methods: {
@@ -33,20 +34,22 @@ export default {
           Combined = JSON.parse(this.ModelsPerformance[0])
           colorGiv = colors[0]
         } else {
-          Combined = JSON.parse(this.ModelsPerformance[1])
+          Combined = JSON.parse(this.ModelsPerformance[2])
           colorGiv = colors[1]
         }
-        var valuesPerf = Object.values(Combined['mean_test_score'])
+        var valuesPerf = Object.values(Combined['0'])
         var ObjectsParams = Combined['params']
         var newObjectsParams = []
-        var ArrayCombined = new Array(valuesPerf.length)
-        for (let i = 0; i < valuesPerf.length; i++) {
-          if (this.selAlgorithm == 'KNN') {  
+        var ArrayCombined = []
+        var temp
+        for (var i = 0; i < valuesPerf.length; i++) {
+          if (this.selAlgorithm === 'KNN') {
+            // There is a problem here!
             newObjectsParams.push({'weights':ObjectsParams[i].weights, 'algorithm':ObjectsParams[i].algorithm,'metric':ObjectsParams[i].metric,'n_neighbors':ObjectsParams[i].n_neighbors})
             Object.assign(newObjectsParams[i], {performance: valuesPerf[i]}, {model: i})
             ArrayCombined[i] = newObjectsParams[i]
           } else {
-            Object.assign(ObjectsParams[i], {performance: valuesPerf[i]}, {model: i})
+            Object.assign(ObjectsParams[i], {performance: valuesPerf[i]}, {model: this.KNNModels + i})
             ArrayCombined[i] = ObjectsParams[i]
           }
         }
@@ -54,7 +57,7 @@ export default {
         this.pc = ParCoords()("#PCP")
             .data(ArrayCombined)
             .color(colorGiv)
-            .hideAxis(['model','performance'])
+            .hideAxis(['model'])
             .bundlingStrength(0) // set bundling strength
             .smoothness(0)
             .showControlPoints(false)
@@ -63,7 +66,7 @@ export default {
             .reorderable()
             .interactive();
 
-        this.pc.on("brush", function(d) {
+        this.pc.on("brushend", function(d) {
           EventBus.$emit('AllSelModels', d.length)
           EventBus.$emit('UpdateBoxPlot', d)
         });
@@ -72,32 +75,18 @@ export default {
     sliders () {
 
     },
-    brushed () {
-        if (this.pc.brushed()) {
-          EventBus.$emit('ReturningBrushedPoints', this.pc.brushed())
-        } else {
-          EventBus.$emit('ReturningBrushedPoints', this.pc.data())
-        }
-    },
+
     clear () {
         d3.selectAll("#PCP > *").remove(); 
     },
-    None () {
-      document.getElementById('PCP').style.cssText='display:none';
-    },
-    Reveal () {
-      document.getElementById('PCP').style.cssText='height:200px;display:""';
-    }
   },
   mounted() {
-    EventBus.$on('emittedEventCallingModelBrushed', this.brushed)
+    EventBus.$on('ReturningBrushedPointsModels', this.brushed)
     EventBus.$on('emittedEventCallingModelSelect', data => { this.selAlgorithm = data })
     EventBus.$on('emittedEventCallingModel', data => { this.ModelsPerformance = data })
     EventBus.$on('emittedEventCallingModel', this.PCPView)
     EventBus.$on('ResponsiveandChange', this.PCPView)
     EventBus.$on('emittedEventCallingModelClear', this.clear)
-    EventBus.$on('slidersOn', this.None)
-    EventBus.$on('PCPCall', this.Reveal)
   }
 }
 </script>

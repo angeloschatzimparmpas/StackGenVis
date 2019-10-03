@@ -6,22 +6,13 @@
       <b-row class="md-3">
         <b-col cols="3">
           <mdb-card>
-            <mdb-card-header color="primary-color" tag="h5" class="text-center">Basic Operations Control Panel</mdb-card-header>
+            <mdb-card-header color="primary-color" tag="h5" class="text-center">Data and Performance Metrics Selection</mdb-card-header>
             <mdb-card-body>
               <mdb-card-text class="text-center" >
-                <DataSetExecController
-                v-on:InitializeEnsembleLearningEvent="DataBaseRequestDataSetName()"
-                />
+                <DataSetExecController/>
+                <SlidersController/>
               </mdb-card-text>
             </mdb-card-body>
-          </mdb-card>
-        </b-col>
-        <b-col cols="6">
-          <mdb-card>
-            <mdb-card-header color="primary-color" tag="h5" class="text-center">Diverse Models Exploration</mdb-card-header>
-              <mdb-card-body>
-                  <BarChart/>
-              </mdb-card-body>
           </mdb-card>
         </b-col>
         <b-col cols="3">
@@ -34,15 +25,44 @@
             </mdb-card-body>
           </mdb-card>
         </b-col>
+        <b-col cols="3">
+          <mdb-card>
+             <mdb-card-header color="primary-color" tag="h5" class="text-center">Models Space Visualization
+                [Sel.:{{OverSelLength}}/All:{{OverAllLength}}]
+                <select id="selectBarChart" @change="selectVisualRepresentation()">
+                  <option value="bar">Bar Chart</option>
+                  <option value="line">Line Plot</option>
+                  <option value="diffline">Difference Line Plot</option>
+                </select>
+              </mdb-card-header>
+              <mdb-card-body>
+                <ScatterPlot/>
+                <PerMetricBarChart/>
+              </mdb-card-body>
+          </mdb-card>
+        </b-col>
+        <b-col cols="3">
+          <mdb-card>
+            <mdb-card-header color="primary-color" tag="h5" class="text-center">Predictions Space Visualization</mdb-card-header>
+            <mdb-card-body>
+              <mdb-card-text class="text-center">
+                <PredictionsSpace/>
+                <BalancePredictions/>
+              </mdb-card-text>
+            </mdb-card-body>
+          </mdb-card>
+        </b-col>
       </b-row>
       <b-row class="mb-3 mt-3">
         <b-col cols="3">
           <mdb-card>
-            <mdb-card-header color="primary-color" tag="h5" class="text-center">Algorithms Selection and HyperParameters Search [Sel.:{{valueSel}}/All:{{valueAll}}]</mdb-card-header>
+            <mdb-card-header color="primary-color" tag="h5" class="text-center">Best Algorithms and HyperParameters Search [Sel.:{{valueSel}}/All:{{valueAll}}]</mdb-card-header>
               <mdb-card-body>
                   <Algorithms :width="width" :height="height"/>
                   <AlgorithmHyperParam/>
-                  <SlidersController/>
+                  <mdb-card-text class="text-center" >
+                    <Controller/>
+                  </mdb-card-text>
               </mdb-card-body>
           </mdb-card>
         </b-col>
@@ -56,46 +76,44 @@
               </mdb-card-body>
             </b-col>
           </b-row>
-          <b-row>
-            <b-col cols="12">  
               <mdb-card-body>        
                 <ToggleSelection/>
               </mdb-card-body>
-            </b-col>
-          </b-row>
           </mdb-card>
         </b-col>
         <b-col cols="3">
           <mdb-card >
-            <mdb-card-header color="primary-color" tag="h5" class="text-center">Predictions Space Visualization</mdb-card-header>
-            <mdb-card-body>
-              <mdb-card-text class="text-center">
-                <PredictionsSpace/>
-              </mdb-card-text>
-            </mdb-card-body>
+            <mdb-card>
+              <mdb-card-header color="primary-color" tag="h5" class="text-center">Meta-Model Performance</mdb-card-header>
+              <mdb-card-body>
+                <FinalResultsLinePlot/>
+              </mdb-card-body>
+            </mdb-card>
           </mdb-card>
         </b-col>
       </b-row>
       <b-row>
           <b-col cols="3">
             <mdb-card>
-              <mdb-card-header color="primary-color" tag="h5" class="text-center">Base Models Overview
-                <select id="selectProjection" @change="selectVisualRepresentation()">
-                    <option value="MDS">MDS Projection</option>
-                    <option value="TSNE">t-SNE Projection</option>
-                </select>
-                [Sel.:{{OverSelLength}}/All:{{OverAllLength}}]
-              </mdb-card-header>
+              <mdb-card-header color="primary-color" tag="h5" class="text-center">Diverse Algorithms Exploration</mdb-card-header>
               <mdb-card-body>
-                <ScatterPlot/>
+                  <BarChart/>
               </mdb-card-body>
             </mdb-card>
           </b-col>
-          <b-col cols="3" offset-md="6">
+          <b-col cols="6">
             <mdb-card>
-              <mdb-card-header color="primary-color" tag="h5" class="text-center">Meta-Model Performance</mdb-card-header>
+              <mdb-card-header color="primary-color" tag="h5" class="text-center">Current Stacking Ensemble</mdb-card-header>
               <mdb-card-body>
-                <FinalResultsLinePlot/>
+                  <Provenance/>
+              </mdb-card-body>
+            </mdb-card>
+          </b-col>
+          <b-col cols="3">
+             <mdb-card>
+              <mdb-card-header color="primary-color" tag="h5" class="text-center">Provenance Visualization</mdb-card-header>
+              <mdb-card-body>
+                  <CurrentStack/>
               </mdb-card-body>
             </mdb-card>
           </b-col>
@@ -110,14 +128,19 @@ import Vue from 'vue'
 import DataSetExecController from './DataSetExecController.vue'
 import Algorithms from './Algorithms.vue'
 import AlgorithmHyperParam from './AlgorithmHyperParam.vue'
+import Controller from './Controller.vue'
 import SlidersController from './SlidersController.vue'
 import ScatterPlot from './ScatterPlot.vue'
+import PerMetricBarChart from './PerMetricBarChart.vue'
 import DataSpace from './DataSpace.vue'
 import PredictionsSpace from './PredictionsSpace.vue'
+import BalancePredictions from './BalancePredictions.vue'
 import BarChart from './BarChart.vue'
 import Heatmap from './Heatmap.vue'
 import ToggleSelection from './ToggleSelection.vue'
 import FinalResultsLinePlot from './FinalResultsLinePlot.vue'
+import CurrentStack from './CurrentStack.vue'
+import Provenance from './Provenance.vue'
 import axios from 'axios'
 import { loadProgressBar } from 'axios-progress-bar'
 import 'axios-progress-bar/dist/nprogress.css'
@@ -137,13 +160,18 @@ export default Vue.extend({
     DataSetExecController,
     Algorithms,
     AlgorithmHyperParam,
+    Controller,
     SlidersController,
     ScatterPlot,
+    PerMetricBarChart,
     DataSpace,
     PredictionsSpace,
+    BalancePredictions,
     BarChart,
     Heatmap,
     ToggleSelection,
+    Provenance,
+    CurrentStack,
     FinalResultsLinePlot,
     mdbCard,
     mdbCardBody,
@@ -161,11 +189,10 @@ export default Vue.extend({
       Algorithms: ['KNN','RF'],
       selectedAlgorithm: '',
       PerformancePerModel: '',
-      brushed: 0,
-      brushedAll: [],
-      ExecutionStart: false,
+      PerformanceCheck: '',
+      selectedAlgorithms: [],
+      parametersofModels: [],
       reset: false,
-      limitModels: 64,
       brushedBoxPlotUpdate: 0,
       width: 0,
       height: 0,
@@ -179,19 +206,17 @@ export default Vue.extend({
       OverAllLength: 0,
       toggle1: 1,
       toggle2: 1,
-      toggle3: 1
+      toggle3: 1,
+      modelsUpdate: [],
+      parametersUpdate: [],
+      AlgorithmsUpdate: []
     }
   },
   methods: {
     selectVisualRepresentation () {
-      const representationSelectionDocum = document.getElementById('selectProjection')
+      const representationSelectionDocum = document.getElementById('selectBarChart')
       this.representationSelection = representationSelectionDocum.options[representationSelectionDocum.selectedIndex].value
       EventBus.$emit('RepresentationSelection', this.representationSelection)
-    },
-    DataBaseRequestDataSetName () {
-      this.ExecutionStart = true
-      EventBus.$emit('slidersOn')
-      this.getOverviewResults()
     },
     getCollection () {
       this.Collection = this.getCollectionFromBackend()
@@ -236,26 +261,19 @@ export default Vue.extend({
           this.OverviewResults = response.data.OverviewResults
           console.log('Server successfully sent all the data related to visualizations!')
           EventBus.$emit('emittedEventCallingScatterPlot', this.OverviewResults)
-          var length = JSON.parse(this.OverviewResults[0]).length
-          this.OverSelLength = length
-          this.OverAllLength = length
+          EventBus.$emit('InitializeMetricsBarChart', this.OverviewResults)
           this.valueSel = 0
           this.valueAll = 0
           var toggles = []
           toggles.push(this.toggle1)
           toggles.push(this.toggle2)
           toggles.push(this.toggle3)
-          if (length < this.limitModels) {
-            this.OverviewResults.push(JSON.stringify(this.ClassifierIDsList))
-            EventBus.$emit('emittedEventCallingBarChart', this.OverviewResults)
-            EventBus.$emit('emitToggles', this.OverviewResults)
-            EventBus.$emit('emittedEventCallingToggles', toggles)
-            EventBus.$emit('emittedEventCallingHeatmapView', this.OverviewResults)
-            EventBus.$emit('emittedEventCallingTableView', this.OverviewResults)
-            EventBus.$emit('emittedEventCallingDataSpacePlotView', this.OverviewResults)
-            EventBus.$emit('emittedEventCallingPredictionsSpacePlotView', this.OverviewResults)
-            this.OverviewResults.pop()
-          }
+          EventBus.$emit('emitToggles', this.OverviewResults)
+          EventBus.$emit('emittedEventCallingToggles', toggles)
+          EventBus.$emit('emittedEventCallingHeatmapView', this.OverviewResults)
+          EventBus.$emit('emittedEventCallingTableView', this.OverviewResults)
+          EventBus.$emit('emittedEventCallingDataSpacePlotView', this.OverviewResults)
+          EventBus.$emit('emittedEventCallingPredictionsSpacePlotView', this.OverviewResults)
           this.getFinalResults()
         })
         .catch(error => {
@@ -279,8 +297,30 @@ export default Vue.extend({
       axios.get(path, axiosConfig)
         .then(response => {
           this.PerformancePerModel = response.data.PerformancePerModel
-          console.log('Server successfully sent all the performance data related to models!')
+          console.log('Server successfully sent updated per class features!')
           EventBus.$emit('emittedEventCallingAllAlgorithms', this.PerformancePerModel)
+          EventBus.$emit('emittedEventCallingBarChart', this.PerformancePerModel)
+        })
+        .catch(error => {
+          console.log(error)
+        })
+    },
+    UpdateModelsFeaturePerformance () {
+      const path = `http://localhost:5000/data/UpdatePerFeaturePerformance`
+
+      const axiosConfig = {
+        headers: {
+          'Content-Type': 'application/json',
+          'Access-Control-Allow-Origin': '*',
+          'Access-Control-Allow-Headers': 'Origin, Content-Type, X-Auth-Token',
+          'Access-Control-Allow-Methods': 'GET, PUT, POST, DELETE, OPTIONS'
+        }
+      }
+      axios.get(path, axiosConfig)
+        .then(response => {
+          this.PerformanceCheck = response.data.PerformanceCheck
+          console.log('Server successfully sent all the performance data related to models!')
+          EventBus.$emit('emittedEventCallingBarChartUpdatedFeatures', this.PerformanceCheck)
         })
         .catch(error => {
           console.log(error)
@@ -308,15 +348,10 @@ export default Vue.extend({
           .then(response => {
             console.log('Sent the selected points to the server (scatterplot)!')
             this.OverSelLength = this.ClassifierIDsList.length
-            if (this.ClassifierIDsList.length < this.limitModels) {
-              this.OverviewResults.push(JSON.stringify(this.ClassifierIDsList))
-              EventBus.$emit('emittedEventCallingBarChart', this.OverviewResults)
-              EventBus.$emit('emittedEventCallingHeatmapView', this.OverviewResults)
-              EventBus.$emit('emittedEventCallingTableView', this.OverviewResults)
-              EventBus.$emit('emittedEventCallingDataSpacePlotView', this.OverviewResults)
-              EventBus.$emit('emittedEventCallingPredictionsSpacePlotView', this.OverviewResults)
-              this.OverviewResults.pop()
-            }
+            EventBus.$emit('emittedEventCallingHeatmapView', this.OverviewResults)
+            EventBus.$emit('emittedEventCallingTableView', this.OverviewResults)
+            EventBus.$emit('emittedEventCallingDataSpacePlotView', this.OverviewResults)
+            EventBus.$emit('emittedEventCallingPredictionsSpacePlotView', this.OverviewResults)
             this.getFinalResults()
           })
           .catch(error => {
@@ -396,8 +431,8 @@ export default Vue.extend({
       EventBus.$emit('emittedEventCallingModelBrushed')
       const path = `http://127.0.0.1:5000/data/SendBrushedParam`
       const postData = {
-        brushed: this.brushed,
-        algorithm: this.selectedAlgorithm
+        parameters: this.parametersofModels,
+        algorithms: this.selectedAlgorithms
       }
       const axiosConfig = {
         headers: {
@@ -410,10 +445,34 @@ export default Vue.extend({
       axios.post(path, postData, axiosConfig)
         .then(response => {
           console.log('Send request to server! Brushed parameters sent successfully!')
+          this.getScatterplotDataFromBackend()
            if (!this.ExecutionStart) {
           } else {
             this.getCollection()
           }
+        })
+        .catch(error => {
+          console.log(error)
+        })
+    },
+    UpdateBarChartFeatures () {
+      const path = `http://127.0.0.1:5000/data/FeaturesScoresUpdate`
+      const postData = {
+        parameters: this.parametersUpdate,
+        algorithms: this.AlgorithmsUpdate
+      }
+      const axiosConfig = {
+        headers: {
+          'Content-Type': 'application/json',
+          'Access-Control-Allow-Origin': '*',
+          'Access-Control-Allow-Headers': 'Origin, Content-Type, X-Auth-Token',
+          'Access-Control-Allow-Methods': 'GET, PUT, POST, DELETE, OPTIONS'
+        }
+      }
+      axios.post(path, postData, axiosConfig)
+        .then(response => {
+          console.log('Send request to server! Updating Barchart!')
+          this.UpdateModelsFeaturePerformance()
         })
         .catch(error => {
           console.log(error)
@@ -557,22 +616,27 @@ export default Vue.extend({
   mounted() {
     this.render(true)
     loadProgressBar()
-    this.fileNameSend()
     window.onbeforeunload = function(e) {
       return 'Dialog text here.'
     }
     $(window).on("unload", function(e) {
       alert('Handler for .unload() called.');
     })
+    EventBus.$on('ReturningAlgorithmsBar',  data => { this.AlgorithmsUpdate = data })
+    EventBus.$on('ReturningBrushedPointsParamsBar',  data => { this.parametersUpdate = data })
+    EventBus.$on('ReturningBrushedPointsParamsBar',  this.UpdateBarChartFeatures )
+    EventBus.$on('ConfirmDataSet', this.fileNameSend)
+    EventBus.$on('reset', this.Reset)
     EventBus.$on('UploadedFile', this.Reset)
     EventBus.$on('UploadedFile', this.UploadProcess)
-    EventBus.$on('ReturningBrushedPoints', data => { this.brushed = data })
+    EventBus.$on('InitializeEnsembleLearningEvent', this.getOverviewResults)
+    EventBus.$on('ReturningAlgorithms', data => { this.selectedAlgorithms = data })
+    EventBus.$on('ReturningBrushedPointsParams', data => { this.parametersofModels = data; })
     EventBus.$on('SendSelectedPointsToServerEvent', data => { this.ClassifierIDsList = data })
     EventBus.$on('SendSelectedPointsToServerEvent', this.SendSelectedPointsToServer)
     EventBus.$on('SendSelectedFeaturesEvent', data => { this.SelectedFeaturesPerClassifier = data })
     EventBus.$on('SendSelectedFeaturesEvent', this.UpdateBasedonFeatures )
     EventBus.$on('SendToServerDataSetConfirmation', data => { this.RetrieveValueFile = data })
-    EventBus.$on('SendToServerDataSetConfirmation', this.fileNameSend)
     EventBus.$on('PCPCall', data => { this.selectedAlgorithm = data })
     EventBus.$on('toggle1', data => { this.toggle1 = data })
     EventBus.$on('toggle2', data => { this.toggle2 = data })
@@ -590,6 +654,8 @@ export default Vue.extend({
       this.valueSel = data
       this.valueAll = data
     })
+    EventBus.$on('sendPointsNumber', data => {this.OverSelLength = data})
+    EventBus.$on('sendPointsNumber', data => {this.OverAllLength = data})
     EventBus.$on('AllSelModels', data => {this.valueSel = data})
     //Prevent double click to search for a word. 
     document.addEventListener('mousedown', function (event) {

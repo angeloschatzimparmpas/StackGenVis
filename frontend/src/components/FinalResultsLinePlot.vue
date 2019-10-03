@@ -70,7 +70,7 @@ export default {
         plot_bgcolor: "rgb(229,229,229)", 
         xaxis: {
             gridcolor: "rgb(255,255,255)",
-            title: 'Number of Execution',
+            title: 'Step of Execution',
             tickformat: '.0f',
             range: [0, this.scoresMean.length + 2], 
             showgrid: true, 
@@ -82,8 +82,7 @@ export default {
         }, 
         yaxis: {
             gridcolor: "rgb(255,255,255)", 
-            title: 'Accuracy (%)',
-            range: [0, 100],
+            title: 'Performance (%)',
             showgrid: true, 
             showline: false, 
             showticklabels: true, 

@@ -21,7 +21,9 @@ export default {
       limitation: 0,
       flag: false,
       classesNumber: 10,
-      cellSize: 24
+      cellSize: 24,
+      indicestoRem: [],
+      modelIds: []
     }
   },
   methods: {
@@ -29,69 +31,58 @@ export default {
       EventBus.$emit('SendSelectedFeaturesEvent', '')
     },
     Heatmap () {
+
       // Clear Heatmap first
       var svg = d3.select("#Heatmap");
       svg.selectAll("*").remove();
-      //svg.selectAll("*").remove();
       
-      //var FeaturesImportance = JSON.parse(this.GetResultsAll[3])
       var FeaturesAccuracy = JSON.parse(this.GetResultsAll[5])
       var Features= JSON.parse(this.GetResultsAll[6])
-      var ClassifierswithoutFI = JSON.parse(this.GetResultsAll[7])
-      var ClassifierswithFI = JSON.parse(this.GetResultsAll[8])
-      var Classifiers
-      Classifiers = ClassifierswithoutFI.concat(ClassifierswithFI)
-      //var RFEList = JSON.parse(this.GetResultsAll[13])
-      var PermImpEli = JSON.parse(this.GetResultsAll[12])
-      var featureUni = JSON.parse(this.GetResultsAll[13])
-      var limit
-      if (this.flag) {
-        limit = this.limitation;
-      } else {
-        limit = JSON.parse(this.GetResultsAll[14])
-        this.limitation = limit;
-      }
+      var Classifiers = this.modelIds
+      var keepingArrayIndices = this.indicestoRem
+      var PermImpEli = JSON.parse(this.GetResultsAll[10])
+      var featureUni = JSON.parse(this.GetResultsAll[11])
 
-
-      if (Classifiers != '') { 
-        var limitList = []
-        if (limit == '') {
-          for (let i = 0; i < Classifiers.length; i++) {
-              limitList.push(Classifiers[i])
+      var lengthInitial = PermImpEli.length
+      var counter = 0
+      var flag
+      for (var i = 0; i < lengthInitial; i++) {
+        flag = 0
+        for (var j = 0; j < keepingArrayIndices.length; j++) {
+          if (i == parseInt(keepingArrayIndices[j])) {
+            flag = 1
           }
-        } else {
-            limitList = []
-            for (let i = 0; i < limit.length; i++) {
-                for (let j = 0; j < Classifiers.length; j++) {
-                    if (Number(limit[i].match(/\d+/)[0]) == Classifiers[j]) {
-                        limitList.push(Number(limit[i].match(/\d+/)[0]))
-                    }
-                }
-            }
         }
-        
+        if (flag == 0) {
+          PermImpEli.splice(i-counter, 1)
+          counter++
+        }
+      }
+        var len2 = Classifiers.length
+        console.log(len2)
         var maxUni = Math.max.apply(Math, featureUni.map(function(o) { return o.Score; }))
         var minUni = Math.min.apply(Math, featureUni.map(function(o) { return o.Score; }))
         let len = Features.length
+        console.log(len)
         let indicesYAxis = new Array(len)
         for (let i = 0; i < len; i++) {
             indicesYAxis[i] = [Features[i]]
         } 
-        var len2 = limitList.length
+        console.log(indicesYAxis)
         let indicesXAxis = new Array(len)
         var temp = []
         for (let i = 0; i < len2; i++) {
           temp = []
           temp.push("R")
-          temp.push("Model "+i.toString())
+          temp.push("Model "+Classifiers[i].toString())
           indicesXAxis[i] = temp
         }
+        console.log(indicesXAxis)
         temp = []
         temp.push("R")
         temp.push("Average")
         indicesXAxis[len2] = temp
         
-        let withoutfilength = ClassifierswithoutFI.length
         var values = []
         var msg = false
         var counter = 0
@@ -140,19 +131,7 @@ export default {
       }
       var dataAll = {"columns":indicesXAxis,"index":indicesYAxis,"data":transposedArray}
       this.heatmap_display(dataAll, "#Heatmap");
-/*
-        // add the squares
-        svg.selectAll()
-            .data(data, function(d) {return d.group+':'+d.variable;})
-            .enter()
-            .append("rect")
-            .attr("x", function(d) { return x(d.group) })
-            .attr("y", function(d) { return y(d.variable) })
-            .attr("width", x.bandwidth() )
-            .attr("height", y.bandwidth() )
-            .style("fill", function(d) { return myColor(d.value)} )
-  */
-      }
+
     },
     heatmap_display(data, heatmapId) {
         var cellSize = this.cellSize
@@ -190,8 +169,8 @@ export default {
                                 svg.attr('transform', d3.event.transform) // updated for d3 v4
                             })
         //==================================================
-        var viewerWidth = $(document).width()/4.5;
-        var viewerHeight = $(document).height()/6;
+        var viewerWidth = $(document).width()/2;
+        var viewerHeight = $(document).height()/5.5;
         var viewerPosTop = 125;
         var viewerPosLeft = 100;
 
@@ -572,6 +551,8 @@ export default {
       EventBus.$on('emittedEventCallingTogglesUpdate', this.Refresh)
       EventBus.$on('emittedEventCallingTogglesUpdate', this.Heatmap)
       EventBus.$on('resetViews', this.reset)
+      EventBus.$on('sendModelsIDs', data => { this.modelIds = data })
+      EventBus.$on('sendIndicestoRemove', data => { this.indicestoRem = data })
     }
 }
 </script>

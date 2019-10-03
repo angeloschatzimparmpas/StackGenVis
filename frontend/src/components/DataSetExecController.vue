@@ -14,14 +14,14 @@
   <font-awesome-icon icon="upload"/>
   Upload</button>
   <button
-  id="Execute"
-  v-on:click="execute">
-  <font-awesome-icon icon="play" />
+  id="Confirm"
+  v-on:click="confirm">
+  <font-awesome-icon icon="check" />
   {{ value }}
   </button>
   <button
   id="Reset"
-  v-on:click="execute">
+  v-on:click="reset">
   <font-awesome-icon icon="trash" />
   {{ valueReset }}
   </button>
@@ -37,9 +37,8 @@ export default {
   data () {
     return {
       RetrieveValueCSV: 'IrisC',
-      value: 'Execute',
+      value: 'Confirm',
       valueReset: 'Reset',
-      InitializeEnsemble: false
     }
   },
   methods: {
@@ -52,10 +51,11 @@ export default {
       this.RetrieveValueCSV = this.RetrieveValueCSV.split('.')[0]
       EventBus.$emit('SendToServerDataSetConfirmation', this.RetrieveValueCSV)
     },
-    execute () {
-        this.InitializeEnsemble = true
-        this.value = 'ReExecute'
-        this.$emit('InitializeEnsembleLearningEvent')
+    reset () {
+      EventBus.$emit('reset')
+    },
+    confirm () {
+      EventBus.$emit('ConfirmDataSet')
     }
   }
 }

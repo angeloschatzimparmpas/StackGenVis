@@ -15,7 +15,7 @@ export default {
   },
   methods: {
     ScatterPlotDataView () {
-        const XandYCoordinates = JSON.parse(this.PredictionsData[10])
+        const XandYCoordinates = JSON.parse(this.PredictionsData[8])
 
         var result = XandYCoordinates.reduce(function(r, a) {
             a.forEach(function(s, i) {
@@ -40,7 +40,10 @@ export default {
         },
         yaxis: {
             visible: false
-        }
+        },
+        autosize: true,
+        width: 400,
+        height: 400,
         }
         Plotly.newPlot('OverviewPredPlotly', Data, layout, {responsive: true})
     }
