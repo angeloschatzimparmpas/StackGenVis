@@ -16,7 +16,7 @@ export default {
   data () {
     return {
       ScatterPlotResults: '',
-      representationDefault: 'MDS',
+      representationDef: 'MDS',
       colorsforOver: [],
       brushedBox : [],
       max: 0,
@@ -56,10 +56,10 @@ export default {
 
       Plotly.purge('OverviewPlotly')
       var colorsforScatterPlot = JSON.parse(this.ScatterPlotResults[0])
-      console.log(colorsforScatterPlot)
       var MDSData = JSON.parse(this.ScatterPlotResults[1])
-      console.log(MDSData)
       var parameters = JSON.parse(this.ScatterPlotResults[2])
+      var tSNEData = JSON.parse(this.ScatterPlotResults[12])
+
       parameters = JSON.parse(parameters)
       var classifiersInfo = this.brushedBox
       var keepingArrayIndices = []
@@ -75,7 +75,6 @@ export default {
           }
         }
       }
-
       var flag
       this.length = keepingArrayIndices.length
       EventBus.$emit('sendPointsNumber', this.length)
@@ -97,8 +96,7 @@ export default {
           counter++
         }
       }
-      console.log(MDSData)
-      console.log(colorsforScatterPlot)
+
       if (this.colorsforOver.length != 0) {
         if (this.colorsforOver[1].length != 0) {
           MDSData = this.colorsforOver[1]
@@ -107,13 +105,15 @@ export default {
           colorsforScatterPlot = this.colorsforOver[0]
         }
       }
-      console.log(this.colorsforOver)
+      console.log(MDSData)
+      console.log(tSNEData)
       var classifiersInfoProcessing = []
       for (let i = 0; i < modelsDetails.length; i++) {
         classifiersInfoProcessing[i] = 'Model ID: ' + modelsIDs[i] + '; Details: ' + modelsDetails[i]
       }
       var DataGeneral
       var layout
+      if (this.representationDef == 'MDS') {
         DataGeneral = [{
           type: 'scatter',
           mode: 'markers',
@@ -149,6 +149,43 @@ export default {
           hoverlabel: { bgcolor: "#FFF" },
           legend: {orientation: 'h', y: -0.3},
         }
+      } else {
+        DataGeneral = [{
+          type: 'scatter',
+          mode: 'markers',
+          x: tSNEData[0],
+          y: tSNEData[1],
+          hovertemplate: 
+                "<b>%{text}</b><br><br>" +
+                "<extra></extra>",
+          text: classifiersInfoProcessing,
+          marker: {
+              color: colorsforScatterPlot,
+              size: 12,
+              colorscale: 'Viridis',
+              colorbar: {
+                title: 'Metrics Average',
+                titleside: 'Top'
+              },
+          }
+        }]
+        layout = {
+          title: 'Models Performance (MDS)',
+          xaxis: {
+              visible: false
+          },
+          yaxis: {
+              visible: false
+          },
+          autosize: true,
+          width: 400,
+          height: 400,
+          dragmode: 'lasso',
+          hovermode: "closest",
+          hoverlabel: { bgcolor: "#FFF" },
+          legend: {orientation: 'h', y: -0.3},
+        }
+      }
      
       var config = {scrollZoom: true, displaylogo: false, showLink: false, showSendToCloud: false, modeBarButtonsToRemove: ['toImage', 'toggleSpikelines', 'autoScale2d', 'hoverClosestGl2d','hoverCompareCartesian','select2d','hoverClosestCartesian','zoomIn2d','zoomOut2d','zoom2d'], responsive: true}
       
@@ -193,6 +230,8 @@ export default {
       this.colorsforOver = data})
     EventBus.$on('ParametersAll',  data => { this.parametersAll = data })
     EventBus.$on('getColors', this.UpdateScatter)
+    EventBus.$on('RepresentationSelection', data => {this.representationDef = data})
+    EventBus.$on('RepresentationSelection', this.ScatterPlotView)
   }
 }
 </script>

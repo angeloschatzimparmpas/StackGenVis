@@ -496,6 +496,7 @@ def InitializeEnsemble():
     ModelSpaceMDS = FunMDS(XClassifiers)
     ModelSpaceTSNE = FunTsne(XClassifiers)
     ModelSpaceTSNE = ModelSpaceTSNE.tolist()
+    print(ModelSpaceTSNE)
     global ClassifierIDsList
     key = 0
     EnsembleModel(ClassifierIDsList, key)
@@ -530,6 +531,7 @@ def ReturnResults(sumPerClassifier,ModelSpaceMDS,ModelSpaceTSNE,preProcessResult
     Results.append(json.dumps(metricsPerModel)) # Position: 9
     Results.append(perm_imp_eli5PDCon) # Position: 10
     Results.append(featureScoresCon) # Position: 11
+    Results.append(json.dumps(ModelSpaceTSNE)) # Position: 12
     return Results
 
 # Retrieve data from client 

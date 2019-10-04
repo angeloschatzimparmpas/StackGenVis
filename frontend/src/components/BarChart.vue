@@ -85,9 +85,9 @@ export default {
                 }
         }*/
         var layout = {
-        autosize: false,
+        autosize: true,
         barmode: 'group',
-        width: 550,
+        width: 650,
         height: 400,
             xaxis: {
                 title: 'Algorithm',
@@ -132,6 +132,13 @@ export default {
                 },
                 exponentformat: 'e',
                 showexponent: 'all'
+            },
+        margin: {
+            l: 40,
+            r: 0,
+            b: 40,
+            t: 25,
+            pad: 0
             }
         }
         /*for (let j = 0; j < ClassNames.length; j++) {

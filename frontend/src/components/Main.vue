@@ -17,23 +17,12 @@
         </b-col>
         <b-col cols="3">
           <mdb-card>
-            <mdb-card-header color="primary-color" tag="h5" class="text-center">Data Space Visualization</mdb-card-header>
-            <mdb-card-body>
-              <mdb-card-text class="text-center">
-                <DataSpace/>
-              </mdb-card-text>
-            </mdb-card-body>
-          </mdb-card>
-        </b-col>
-        <b-col cols="3">
-          <mdb-card>
              <mdb-card-header color="primary-color" tag="h5" class="text-center">Models Space Visualization
-                [Sel.:{{OverSelLength}}/All:{{OverAllLength}}]
                 <select id="selectBarChart" @change="selectVisualRepresentation()">
-                  <option value="bar">Bar Chart</option>
-                  <option value="line">Line Plot</option>
-                  <option value="diffline">Difference Line Plot</option>
+                  <option value="mds" selected>MDS Projection</option>
+                  <option value="tsne">t-SNE Projection</option>
                 </select>
+              [Sel.:{{OverSelLength}}/All:{{OverAllLength}}]
               </mdb-card-header>
               <mdb-card-body>
                 <ScatterPlot/>
@@ -48,6 +37,16 @@
               <mdb-card-text class="text-center">
                 <PredictionsSpace/>
                 <BalancePredictions/>
+              </mdb-card-text>
+            </mdb-card-body>
+          </mdb-card>
+        </b-col>
+        <b-col cols="3">
+           <mdb-card>
+            <mdb-card-header color="primary-color" tag="h5" class="text-center">Data Space Visualization</mdb-card-header>
+            <mdb-card-body>
+              <mdb-card-text class="text-center">
+                <DataSpace/>
               </mdb-card-text>
             </mdb-card-body>
           </mdb-card>
@@ -101,19 +100,11 @@
               </mdb-card-body>
             </mdb-card>
           </b-col>
-          <b-col cols="6">
+          <b-col cols="9">
             <mdb-card>
-              <mdb-card-header color="primary-color" tag="h5" class="text-center">Current Stacking Ensemble</mdb-card-header>
+              <mdb-card-header color="primary-color" tag="h5" class="text-center">Current Stacking Ensemble and Provenance Visualization</mdb-card-header>
               <mdb-card-body>
                   <Provenance/>
-              </mdb-card-body>
-            </mdb-card>
-          </b-col>
-          <b-col cols="3">
-             <mdb-card>
-              <mdb-card-header color="primary-color" tag="h5" class="text-center">Provenance Visualization</mdb-card-header>
-              <mdb-card-body>
-                  <CurrentStack/>
               </mdb-card-body>
             </mdb-card>
           </b-col>
@@ -139,7 +130,6 @@ import BarChart from './BarChart.vue'
 import Heatmap from './Heatmap.vue'
 import ToggleSelection from './ToggleSelection.vue'
 import FinalResultsLinePlot from './FinalResultsLinePlot.vue'
-import CurrentStack from './CurrentStack.vue'
 import Provenance from './Provenance.vue'
 import axios from 'axios'
 import { loadProgressBar } from 'axios-progress-bar'
@@ -171,7 +161,6 @@ export default Vue.extend({
     Heatmap,
     ToggleSelection,
     Provenance,
-    CurrentStack,
     FinalResultsLinePlot,
     mdbCard,
     mdbCardBody,
@@ -216,6 +205,7 @@ export default Vue.extend({
     selectVisualRepresentation () {
       const representationSelectionDocum = document.getElementById('selectBarChart')
       this.representationSelection = representationSelectionDocum.options[representationSelectionDocum.selectedIndex].value
+      console.log(this.representationSelection)
       EventBus.$emit('RepresentationSelection', this.representationSelection)
     },
     getCollection () {

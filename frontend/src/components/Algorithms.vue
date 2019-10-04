@@ -23,9 +23,12 @@ export default {
       brushedBoxPl: [],
       previousColor: 0,
       selectedAlgorithm: 0,
+      AllAlgorithms: ['KNN','RF'],
       KNNModels: 576, //KNN models
       WH: [],
       parameters: [],
+      algorithm1: [],
+      algorithm2: [],
       chart: ''
     }
   },
@@ -34,28 +37,22 @@ export default {
       d3.selectAll("#exploding_boxplot > *").remove(); 
         const PerformAlgor1 = JSON.parse(this.PerformanceAllModels[0])
         const PerformAlgor2 = JSON.parse(this.PerformanceAllModels[2])
-        var algorithm1 = []
-        var algorithm2 = []
+        this.algorithm1 = []
+        this.algorithm2 = []
         var parameters = []
         for (var i = 0; i < Object.keys(PerformAlgor1['0']).length; i++) {
-          algorithm1.push({Performance: Object.values(PerformAlgor1['0'])[i]*100,Algorithm:'KNN',Model:'Model ' + i + '; Parameters '+JSON.stringify(Object.values(PerformAlgor1['params'])[i])+'; Performance '})
+          this.algorithm1.push({Performance: Object.values(PerformAlgor1['0'])[i]*100,Algorithm:'KNN',Model:'Model ' + i + '; Parameters '+JSON.stringify(Object.values(PerformAlgor1['params'])[i])+'; Performance ',ModelID:i})
           parameters.push(JSON.stringify(Object.values(PerformAlgor1['params'])[i]))
         }
         var temp = i
         for (let j = 0; j < Object.keys(PerformAlgor2['0']).length; j++) {
           temp = i + j
-          algorithm2.push({Performance: Object.values(PerformAlgor2['0'])[j]*100,Algorithm:'RF',Model:'Model ' + temp + '; Parameters '+JSON.stringify(Object.values(PerformAlgor2['params'])[j])+'; Performance '})
+          this.algorithm2.push({Performance: Object.values(PerformAlgor2['0'])[j]*100,Algorithm:'RF',Model:'Model ' + temp + '; Parameters '+JSON.stringify(Object.values(PerformAlgor2['params'])[j])+'; Performance ',ModelID:temp})
           parameters.push(JSON.stringify(Object.values(PerformAlgor2['params'])[j]))
         }
         EventBus.$emit('ParametersAll', parameters)
-        var data = algorithm1.concat(algorithm2)
-        /*median.push(sum/Object.keys(PerformAlgor2['0']).length)
-        if (median[0] > median[1])
-          var data = algorithm1.concat(algorithm2)
-        else 
-          var data = algorithm2.concat(algorithm1)*/
+        var data = this.algorithm1.concat(this.algorithm2)
 
-        // chart(data,aes)
         // aesthetic :
         // y : point's value on y axis
         // group : how to group data on x axis
@@ -104,7 +101,70 @@ export default {
     },
     brushActivationAll () {
       // continue here and select the correct points.
-      console.log(this.chart.returnBrush())
+      var limiter = this.chart.returnBrush()
+
+      var algorithm = []
+      const previousColor = ['#8dd3c7','#ffffb3','#bebada','#fb8072','#80b1d3','#fdb462','#b3de69','#fccde5','#d9d9d9','#bc80bd','#ccebc5','#ffed6f']
+      var modelsActive = []
+      for (var j = 0; j < this.AllAlgorithms.length; j++) {
+        algorithm = []
+        modelsActive = []
+        if (this.AllAlgorithms[j] === 'KNN') {
+          var allPoints = document.getElementsByClassName('d3-exploding-boxplot point KNN')
+          algorithm = this.algorithm1
+        } else {
+          var allPoints = document.getElementsByClassName('d3-exploding-boxplot point RF')
+          algorithm = this.algorithm2
+        }
+        for (let k = 0; k < allPoints.length; k++) {
+          if (algorithm[k].Performance < limiter[0] && algorithm[k].Performance > limiter[1]) {
+            modelsActive.push(algorithm[k].ModelID)
+          }
+        }
+        for (let i = 0; i < allPoints.length; i++) {
+          if (this.AllAlgorithms[j] === 'KNN') {
+            allPoints[i].style.fill = previousColor[0]
+          } else {
+            allPoints[i].style.fill = previousColor[1]
+          }
+        }
+
+        if (modelsActive.length == 0) {
+          for (let i = 0; i < allPoints.length; i++) {
+            //if (modelsActive.indexOf(i) == -1) {
+              allPoints[i].style.fill = "#d3d3d3"
+              allPoints[i].style.opacity = '1.0'
+            //}
+          }
+        } else if (modelsActive.length == allPoints.length) {
+          for (let i = 0; i < allPoints.length; i++) {
+            if (this.AllAlgorithms[j] === 'KNN') {
+              allPoints[i].style.fill = previousColor[0]
+              allPoints[i].style.opacity = '1.0'
+            } else {
+              allPoints[i].style.fill = previousColor[1]
+              allPoints[i].style.opacity = '1.0'
+            }
+          }
+        } else {
+          for (let i = 0; i < allPoints.length; i++) {
+            allPoints[i].style.opacity = '1.0'
+            if (this.AllAlgorithms[j] === 'KNN') {
+              if (modelsActive.indexOf(i) == -1) {
+                allPoints[i].style.fill = "#d3d3d3"
+                allPoints[i].style.opacity = '0.4'
+              }
+            } else {
+              if (modelsActive.indexOf(i+this.KNNModels) == -1) {
+                allPoints[i].style.fill = "#d3d3d3"
+                allPoints[i].style.opacity = '0.4'
+              }
+            }
+          }
+        }
+      }
+
+      this.UpdateBarChart()
     },
     brushed () {
       if (this.selectedAlgorithm == 'KNN') {

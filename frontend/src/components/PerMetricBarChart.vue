@@ -10,8 +10,7 @@ export default {
   name: 'PerMetricsBarChart',
   data () {
     return {
-      barchartmetrics: '',
-      representationDefault: 'bar'
+      barchartmetrics: ''
     }
   },
   methods: {
@@ -19,8 +18,8 @@ export default {
         var  metricsPerModel = JSON.parse(this.barchartmetrics[9])
         var vh = 80
 
-        if (this.representationDefault === 'bar'){
-            var type = 'bar';
+        /*if (this.representationDefault === 'bar'){
+        var type = 'bar';
         } else if (this.representationDefault === 'line'){
             var type = 'line';
         } else {
@@ -29,9 +28,9 @@ export default {
         var difference = [];
         for (var i=0; i<metricsPerModel.length; i++){
             difference.push(metricsPerModel[i] - metricsPerModel[i]);
-        }
+        }*/
 
-        if (type == 'difference'){
+        /*if (type == 'difference'){
             var trace = {
             x: kValuesLegend, 
             y: difference, 
@@ -69,7 +68,7 @@ export default {
                 }}};
 
         Plotly.newPlot('PerMetricBar', data, layout, {displayModeBar:false}, {staticPlot: true});
-        } else{
+        } else{*/
             var trace1 = {
             x: ['Acc','F1s','Pre','Rec','Jac'], 
             y: metricsPerModel, 
@@ -114,14 +113,12 @@ export default {
                 }}};
 
         Plotly.newPlot('PerMetricBar', data, layout, {displayModeBar:false}, {staticPlot: true});
-        }
+        //}
         }
     },
     mounted () {
         EventBus.$on('InitializeMetricsBarChart', data => {this.barchartmetrics = data;})
         EventBus.$on('InitializeMetricsBarChart', this.LineBar)
-        EventBus.$on('RepresentationSelection', this.LineBar)
-        EventBus.$on('RepresentationSelection', data => {this.representationDefault = data})
     }
 }
 </script>
