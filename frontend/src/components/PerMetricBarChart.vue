@@ -17,7 +17,6 @@ export default {
         LineBar () {
         var  metricsPerModel = JSON.parse(this.barchartmetrics[9])
         var vh = 80
-
         /*if (this.representationDefault === 'bar'){
         var type = 'bar';
         } else if (this.representationDefault === 'line'){
@@ -73,7 +72,7 @@ export default {
             x: ['Acc','F1s','Pre','Rec','Jac'], 
             y: metricsPerModel, 
             name: 'Projection average', 
-            type: type,
+            type: 'bar',
             marker: {
                 color: 'rgb(0,0,0)'
             }
@@ -82,7 +81,7 @@ export default {
             x: ['Acc','F1s','Pre','Rec','Jac'], 
             y: metricsPerModel, 
             name: 'Selected points', 
-            type: type,
+            type: 'bar',
             marker: {
                 color: 'rgb(0, 187, 187)'
             }

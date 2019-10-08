@@ -17,7 +17,6 @@ export default {
   name: 'Controller',
   data () {
     return {
-      value: 'Add to Stack',
       valueExecute: 'Execute Stacking Ensemble'
     }
   },

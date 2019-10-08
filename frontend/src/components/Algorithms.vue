@@ -1,7 +1,7 @@
 <template>
-    <div>
-        <div id="exploding_boxplot" class="exploding_boxplot" ref="myClickable"></div>
-    </div>
+  <div>
+    <div id="exploding_boxplot" class="exploding_boxplot"></div>
+  </div>
 </template>
 
 <script>
@@ -34,70 +34,75 @@ export default {
   },
   methods: {
     boxplot () {
+      // reset the boxplot
       d3.selectAll("#exploding_boxplot > *").remove(); 
-        const PerformAlgor1 = JSON.parse(this.PerformanceAllModels[0])
-        const PerformAlgor2 = JSON.parse(this.PerformanceAllModels[2])
-        this.algorithm1 = []
-        this.algorithm2 = []
-        var parameters = []
-        for (var i = 0; i < Object.keys(PerformAlgor1['0']).length; i++) {
-          this.algorithm1.push({Performance: Object.values(PerformAlgor1['0'])[i]*100,Algorithm:'KNN',Model:'Model ' + i + '; Parameters '+JSON.stringify(Object.values(PerformAlgor1['params'])[i])+'; Performance ',ModelID:i})
-          parameters.push(JSON.stringify(Object.values(PerformAlgor1['params'])[i]))
+
+      // retrieve models ID
+      const Algor1IDs = this.PerformanceAllModels[0]
+      const Algor2IDs = this.PerformanceAllModels[6]
+      
+      // retrieve the results like performance
+      const PerformAlgor1 = JSON.parse(this.PerformanceAllModels[1])
+      const PerformAlgor2 = JSON.parse(this.PerformanceAllModels[7])
+
+      // initialize/instansiate algorithms and parameters
+      this.algorithm1 = []
+      this.algorithm2 = []
+      var parameters = []
+
+      for (var i = 0; i < Object.keys(PerformAlgor1['0']).length; i++) {
+        this.algorithm1.push({Performance: Object.values(PerformAlgor1['0'])[i]*100,Algorithm:'KNN',Model:'Model ' + Algor1IDs[i] + '; Parameters '+JSON.stringify(Object.values(PerformAlgor1['params'])[i])+'; Performance Metrics ',ModelID:Algor1IDs[i]})
+        parameters.push(JSON.stringify(Object.values(PerformAlgor1['params'])[i]))
+      }
+      for (let j = 0; j < Object.keys(PerformAlgor2['0']).length; j++) {
+        this.algorithm2.push({Performance: Object.values(PerformAlgor2['0'])[j]*100,Algorithm:'RF',Model:'Model ' + Algor2IDs[j] + '; Parameters '+JSON.stringify(Object.values(PerformAlgor2['params'])[j])+'; Performance Metrics ',ModelID:Algor2IDs[j]})
+        parameters.push(JSON.stringify(Object.values(PerformAlgor2['params'])[j]))
+      }
+
+      EventBus.$emit('ParametersAll', parameters)
+
+      // concat the data
+      var data = this.algorithm1.concat(this.algorithm2)
+      
+      // aesthetic :
+      // y : point's value on y axis
+      // group : how to group data on x axis
+      // color : color of the point / boxplot
+      // label : displayed text in toolbox
+      this.chart = exploding_boxplot(data, {y:'Performance',group:'Algorithm',color:'Algorithm',label:'Model'})
+      this.chart.width(this.WH[0]*3) // interactive visualization
+      this.chart.height(this.WH[1]) // interactive visualization
+      //call chart on a div
+      this.chart('#exploding_boxplot')
+
+      // colorscale
+      const previousColor = ['#8dd3c7','#ffffb3','#bebada','#fb8072','#80b1d3','#fdb462','#b3de69','#fccde5','#d9d9d9','#bc80bd','#ccebc5','#ffed6f']
+      // check for brushing
+      var el = document.getElementsByClassName('d3-exploding-boxplot boxcontent')
+      this.brushStatus = document.getElementsByClassName('extent')
+      // on clicks
+      el[0].onclick = function() {
+        var allPoints = document.getElementsByClassName('d3-exploding-boxplot point KNN')
+        for (let i = 0; i < allPoints.length; i++) {
+          allPoints[i].style.fill = previousColor[0]
+          allPoints[i].style.opacity = '1.0'
+        } 
+        EventBus.$emit('PCPCall', 'KNN')
+      }
+      el[1].onclick = function() {
+        var allPoints = document.getElementsByClassName('d3-exploding-boxplot point RF')
+        for (let i = 0; i < allPoints.length; i++) {
+          allPoints[i].style.fill = previousColor[1]
+          allPoints[i].style.opacity = '1.0'
         }
-        var temp = i
-        for (let j = 0; j < Object.keys(PerformAlgor2['0']).length; j++) {
-          temp = i + j
-          this.algorithm2.push({Performance: Object.values(PerformAlgor2['0'])[j]*100,Algorithm:'RF',Model:'Model ' + temp + '; Parameters '+JSON.stringify(Object.values(PerformAlgor2['params'])[j])+'; Performance ',ModelID:temp})
-          parameters.push(JSON.stringify(Object.values(PerformAlgor2['params'])[j]))
-        }
-        EventBus.$emit('ParametersAll', parameters)
-        var data = this.algorithm1.concat(this.algorithm2)
-
-        // aesthetic :
-        // y : point's value on y axis
-        // group : how to group data on x axis
-        // color : color of the point / boxplot
-        // label : displayed text in toolbox
-        this.chart = exploding_boxplot(data, {y:'Performance',group:'Algorithm',color:'Algorithm',label:'Model'})
-
-        this.chart.width(this.WH[0]*3)
-        this.chart.height(this.WH[1])
-        //call chart on a div
-        this.chart('#exploding_boxplot')
-        const previousColor = ['#8dd3c7','#ffffb3','#bebada','#fb8072','#80b1d3','#fdb462','#b3de69','#fccde5','#d9d9d9','#bc80bd','#ccebc5','#ffed6f']
-        var el = document.getElementsByClassName('d3-exploding-boxplot boxcontent')
-
-        this.brushStatus = document.getElementsByClassName('extent')
-
-        el[0].onclick = function() {
-          var allPoints = document.getElementsByClassName('d3-exploding-boxplot point KNN')
-          for (let i = 0; i < allPoints.length; i++) {
-          //if (modelsActive.indexOf(i) == -1) {
-            allPoints[i].style.fill = previousColor[0]
-            allPoints[i].style.opacity = '1.0'
-          //}
-          } 
-
-          EventBus.$emit('PCPCall', 'KNN')
-        }
-        el[1].onclick = function() {
-          var allPoints = document.getElementsByClassName('d3-exploding-boxplot point RF')
-          for (let i = 0; i < allPoints.length; i++) {
-          //if (modelsActive.indexOf(i) == -1) {
-            allPoints[i].style.fill = previousColor[1]
-            allPoints[i].style.opacity = '1.0'
-          //}
-          }
-          EventBus.$emit('PCPCall', 'RF')
-        }
-
-        const myObserver = new ResizeObserver(entries => {
-          EventBus.$emit('brusheAllOn')
-        });
-        
-        var brushRect = document.querySelector('.extent');
-        
-        myObserver.observe(brushRect);
+        EventBus.$emit('PCPCall', 'RF')
+      }
+      // check if brushed through all boxplots and not only one at a time
+      const myObserver = new ResizeObserver(entries => {
+        EventBus.$emit('brusheAllOn')
+      })
+      var brushRect = document.querySelector('.extent')
+      myObserver.observe(brushRect);
     },
     brushActivationAll () {
       // continue here and select the correct points.
@@ -163,7 +168,6 @@ export default {
           }
         }
       }
-
       this.UpdateBarChart()
     },
     brushed () {
@@ -217,14 +221,13 @@ export default {
           }
         }
       }
-
       this.UpdateBarChart()
     },
     UpdateBarChart () {
       var allPoints = document.getElementsByClassName('d3-exploding-boxplot point')
       var activeModels = []
       var algorithmsSelected = []
-      var parameters = []
+      var modelsSelected =[]
       for (let i = 0; i < allPoints.length; i++) {
         if (allPoints[i].style.fill != "rgb(211, 211, 211)") {
           activeModels.push(allPoints[i].__data__.Model)
@@ -240,18 +243,18 @@ export default {
       } else {
         for (let i = 0; i<activeModels.length; i++) {
           var array = activeModels[i].split(';')
-          var temp2 = array[1].split(' ')
-          parameters.push(temp2[2])
+          var temp = array[0].split(' ')
+          modelsSelected.push(temp[1])
         }
-        EventBus.$emit('ReturningAlgorithmsBar', algorithmsSelected)
-        EventBus.$emit('ReturningBrushedPointsParamsBar', parameters)
       }
+      EventBus.$emit('updateBarChartAlgorithm', algorithmsSelected)
+      EventBus.$emit('updateBarChart', modelsSelected)
     },
     selectedPointsPerAlgorithm () {
       var allPoints = document.getElementsByClassName('d3-exploding-boxplot point')
       var activeModels = []
       var algorithmsSelected = []
-      var parameters = []
+      var models = []
       for (let i = 0; i < allPoints.length; i++) {
         if (allPoints[i].style.fill != "rgb(211, 211, 211)") {
           activeModels.push(allPoints[i].__data__.Model)
@@ -268,11 +271,11 @@ export default {
       } else {
         for (let i = 0; i<activeModels.length; i++) {
           var array = activeModels[i].split(';')
-          var temp2 = array[1].split(' ')
-          parameters.push(temp2[2])
+          var temp = array[0].split(' ')
+          models.push(temp[1])
         }
         EventBus.$emit('ReturningAlgorithms', algorithmsSelected)
-        EventBus.$emit('ReturningBrushedPointsParams', parameters)
+        EventBus.$emit('ReturningBrushedPointsIDs', models)
       }
     },
     previousBoxPlotState () {

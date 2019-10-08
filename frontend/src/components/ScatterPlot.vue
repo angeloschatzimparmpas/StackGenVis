@@ -1,5 +1,21 @@
 <template>
+<div>
+  <div align="center">
+            <button
+            id="AddStack"
+            v-on:click="AddStack">
+            <font-awesome-icon icon="plus" />
+            {{ valueStackAdd }}
+            </button>
+            <button
+            id="RemoveStack"
+            v-on:click="RemoveStack">
+            <font-awesome-icon icon="minus" />
+            {{ valueStackRemove }}
+            </button>
+  </div>
   <div id="OverviewPlotly" class="OverviewPlotly"></div>
+</div>
 </template>
 
 <script>
@@ -16,16 +32,24 @@ export default {
   data () {
     return {
       ScatterPlotResults: '',
-      representationDef: 'MDS',
+      representationDef: 'mds',
       colorsforOver: [],
       brushedBox : [],
       max: 0,
       min: 0,
       parametersAll: [],
       length: 0,
+      valueStackAdd: 'Add to Stack',
+      valueStackRemove: 'Remove from Stack'
     }
   },
   methods: {
+    AddStack () {
+      //EventBus.$emit('PCPCallDB')
+    },
+    RemoveStack () {
+      //EventBus.$emit('PCPCallDB')
+    },
     ScatterPlotView () {
 
       function isEquivalent(a, b) {
@@ -57,8 +81,20 @@ export default {
       Plotly.purge('OverviewPlotly')
       var colorsforScatterPlot = JSON.parse(this.ScatterPlotResults[0])
       var MDSData = JSON.parse(this.ScatterPlotResults[1])
+      console.log(colorsforScatterPlot)
       var parameters = JSON.parse(this.ScatterPlotResults[2])
-      var tSNEData = JSON.parse(this.ScatterPlotResults[12])
+      var TSNEData = JSON.parse(this.ScatterPlotResults[12])
+
+
+      if (this.colorsforOver.length != 0) {
+        if (this.colorsforOver[1].length != 0) {
+          MDSData = this.colorsforOver[1]
+          TSNEData = this.colorsforOver[2]
+        }
+        if (this.colorsforOver[0].length != 0) {
+          colorsforScatterPlot = this.colorsforOver[0]
+        }
+      }
 
       parameters = JSON.parse(parameters)
       var classifiersInfo = this.brushedBox
@@ -97,23 +133,13 @@ export default {
         }
       }
 
-      if (this.colorsforOver.length != 0) {
-        if (this.colorsforOver[1].length != 0) {
-          MDSData = this.colorsforOver[1]
-        }
-        if (this.colorsforOver[0].length != 0) {
-          colorsforScatterPlot = this.colorsforOver[0]
-        }
-      }
-      console.log(MDSData)
-      console.log(tSNEData)
       var classifiersInfoProcessing = []
       for (let i = 0; i < modelsDetails.length; i++) {
         classifiersInfoProcessing[i] = 'Model ID: ' + modelsIDs[i] + '; Details: ' + modelsDetails[i]
       }
       var DataGeneral
       var layout
-      if (this.representationDef == 'MDS') {
+      if (this.representationDef == 'mds') {
         DataGeneral = [{
           type: 'scatter',
           mode: 'markers',
@@ -150,11 +176,22 @@ export default {
           legend: {orientation: 'h', y: -0.3},
         }
       } else {
+        var result = TSNEData.reduce(function(r, a) {
+            a.forEach(function(s, i) {
+                var key = i === 0 ? 'Xax' : 'Yax';
+
+                r[key] || (r[key] = []); // if key not found on result object, add the key with empty array as the value
+
+                r[key].push(s);
+            })
+            return r;
+        }, {})
+
         DataGeneral = [{
           type: 'scatter',
           mode: 'markers',
-          x: tSNEData[0],
-          y: tSNEData[1],
+          x: result.Xax,
+          y: result.Yax,
           hovertemplate: 
                 "<b>%{text}</b><br><br>" +
                 "<extra></extra>",
@@ -170,21 +207,19 @@ export default {
           }
         }]
         layout = {
-          title: 'Models Performance (MDS)',
+          title: 'Models Performance (t-SNE)',
           xaxis: {
               visible: false
           },
           yaxis: {
               visible: false
           },
-          autosize: true,
-          width: 400,
-          height: 400,
           dragmode: 'lasso',
           hovermode: "closest",
           hoverlabel: { bgcolor: "#FFF" },
           legend: {orientation: 'h', y: -0.3},
         }
+
       }
      
       var config = {scrollZoom: true, displaylogo: false, showLink: false, showSendToCloud: false, modeBarButtonsToRemove: ['toImage', 'toggleSpikelines', 'autoScale2d', 'hoverClosestGl2d','hoverCompareCartesian','select2d','hoverClosestCartesian','zoomIn2d','zoomOut2d','zoom2d'], responsive: true}

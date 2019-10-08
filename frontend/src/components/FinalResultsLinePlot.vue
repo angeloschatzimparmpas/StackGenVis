@@ -46,7 +46,7 @@ export default {
         text: text,
         line: {color: "rgb(0,100,80)"}, 
         mode: "lines+markers", 
-        name: "Accuracy", 
+        name: "Current Accuracy", 
         type: "scatter"
       }
 
@@ -58,7 +58,7 @@ export default {
         fill: "tozerox", 
         fillcolor: "rgba(0,100,80,0.2)", 
         line: {color: "transparent"}, 
-        name: "Accuracy", 
+        name: "Current Accuracy", 
         showlegend: false, 
         type: "scatter"
       }

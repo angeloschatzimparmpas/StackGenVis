@@ -31,10 +31,10 @@ export default {
         
         var Combined = 0
         if (this.selAlgorithm == 'KNN') {    
-          Combined = JSON.parse(this.ModelsPerformance[0])
+          Combined = JSON.parse(this.ModelsPerformance[1])
           colorGiv = colors[0]
         } else {
-          Combined = JSON.parse(this.ModelsPerformance[2])
+          Combined = JSON.parse(this.ModelsPerformance[7])
           colorGiv = colors[1]
         }
         var valuesPerf = Object.values(Combined['0'])

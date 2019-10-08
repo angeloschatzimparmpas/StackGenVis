@@ -75,9 +75,11 @@
               </mdb-card-body>
             </b-col>
           </b-row>
+            <mdb-card-text>
               <mdb-card-body>        
                 <ToggleSelection/>
               </mdb-card-body>
+            </mdb-card-text>
           </mdb-card>
         </b-col>
         <b-col cols="3">
@@ -197,15 +199,13 @@ export default Vue.extend({
       toggle2: 1,
       toggle3: 1,
       modelsUpdate: [],
-      parametersUpdate: [],
-      AlgorithmsUpdate: []
+      AlgorithmsUpdate: [],
     }
   },
   methods: {
     selectVisualRepresentation () {
       const representationSelectionDocum = document.getElementById('selectBarChart')
       this.representationSelection = representationSelectionDocum.options[representationSelectionDocum.selectedIndex].value
-      console.log(this.representationSelection)
       EventBus.$emit('RepresentationSelection', this.representationSelection)
     },
     getCollection () {
@@ -251,6 +251,7 @@ export default Vue.extend({
           this.OverviewResults = response.data.OverviewResults
           console.log('Server successfully sent all the data related to visualizations!')
           EventBus.$emit('emittedEventCallingScatterPlot', this.OverviewResults)
+          EventBus.$emit('InitializeProvenance', this.OverviewResults)
           EventBus.$emit('InitializeMetricsBarChart', this.OverviewResults)
           this.valueSel = 0
           this.valueAll = 0
@@ -264,6 +265,7 @@ export default Vue.extend({
           EventBus.$emit('emittedEventCallingTableView', this.OverviewResults)
           EventBus.$emit('emittedEventCallingDataSpacePlotView', this.OverviewResults)
           EventBus.$emit('emittedEventCallingPredictionsSpacePlotView', this.OverviewResults)
+          EventBus.$emit('emittedEventCallingBalanceView', this.OverviewResults)
           this.getFinalResults()
         })
         .catch(error => {
@@ -295,27 +297,6 @@ export default Vue.extend({
           console.log(error)
         })
     },
-    UpdateModelsFeaturePerformance () {
-      const path = `http://localhost:5000/data/UpdatePerFeaturePerformance`
-
-      const axiosConfig = {
-        headers: {
-          'Content-Type': 'application/json',
-          'Access-Control-Allow-Origin': '*',
-          'Access-Control-Allow-Headers': 'Origin, Content-Type, X-Auth-Token',
-          'Access-Control-Allow-Methods': 'GET, PUT, POST, DELETE, OPTIONS'
-        }
-      }
-      axios.get(path, axiosConfig)
-        .then(response => {
-          this.PerformanceCheck = response.data.PerformanceCheck
-          console.log('Server successfully sent all the performance data related to models!')
-          EventBus.$emit('emittedEventCallingBarChartUpdatedFeatures', this.PerformanceCheck)
-        })
-        .catch(error => {
-          console.log(error)
-        })
-    },
     SendSelectedPointsToServer () {
       if (this.ClassifierIDsList === ''){
         this.OverSelLength = 0
@@ -342,6 +323,7 @@ export default Vue.extend({
             EventBus.$emit('emittedEventCallingTableView', this.OverviewResults)
             EventBus.$emit('emittedEventCallingDataSpacePlotView', this.OverviewResults)
             EventBus.$emit('emittedEventCallingPredictionsSpacePlotView', this.OverviewResults)
+            EventBus.$emit('emittedEventCallingBalanceView', this.OverviewResults)
             this.getFinalResults()
           })
           .catch(error => {
@@ -376,7 +358,6 @@ export default Vue.extend({
         const path = `http://127.0.0.1:5000/data/ServerRequest`
           const postData = {
             fileName: this.RetrieveValueFile,
-            featureSelection: this.SelectedFeaturesPerClassifier
           }
           const axiosConfig = {
             headers: {
@@ -421,7 +402,7 @@ export default Vue.extend({
       EventBus.$emit('emittedEventCallingModelBrushed')
       const path = `http://127.0.0.1:5000/data/SendBrushedParam`
       const postData = {
-        parameters: this.parametersofModels,
+        models: this.modelsUpdate,
         algorithms: this.selectedAlgorithms
       }
       const axiosConfig = {
@@ -448,7 +429,7 @@ export default Vue.extend({
     UpdateBarChartFeatures () {
       const path = `http://127.0.0.1:5000/data/FeaturesScoresUpdate`
       const postData = {
-        parameters: this.parametersUpdate,
+        models: this.modelsUpdate,
         algorithms: this.AlgorithmsUpdate
       }
       const axiosConfig = {
@@ -612,9 +593,8 @@ export default Vue.extend({
     $(window).on("unload", function(e) {
       alert('Handler for .unload() called.');
     })
-    EventBus.$on('ReturningAlgorithmsBar',  data => { this.AlgorithmsUpdate = data })
-    EventBus.$on('ReturningBrushedPointsParamsBar',  data => { this.parametersUpdate = data })
-    EventBus.$on('ReturningBrushedPointsParamsBar',  this.UpdateBarChartFeatures )
+    EventBus.$on('ReturningBrushedPointsIDs',  data => { this.modelsUpdate = data })
+    //EventBus.$on('ReturningBrushedPointsIDs',  this.UpdateBarChartFeatures )
     EventBus.$on('ConfirmDataSet', this.fileNameSend)
     EventBus.$on('reset', this.Reset)
     EventBus.$on('UploadedFile', this.Reset)
