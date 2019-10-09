@@ -40,7 +40,8 @@ export default {
       parametersAll: [],
       length: 0,
       valueStackAdd: 'Add to Stack',
-      valueStackRemove: 'Remove from Stack'
+      valueStackRemove: 'Remove from Stack',
+      AllData: []
     }
   },
   methods: {
@@ -81,7 +82,6 @@ export default {
       Plotly.purge('OverviewPlotly')
       var colorsforScatterPlot = JSON.parse(this.ScatterPlotResults[0])
       var MDSData = JSON.parse(this.ScatterPlotResults[1])
-      console.log(colorsforScatterPlot)
       var parameters = JSON.parse(this.ScatterPlotResults[2])
       var TSNEData = JSON.parse(this.ScatterPlotResults[12])
 
@@ -256,6 +256,7 @@ export default {
     }
   },
   mounted() {
+    EventBus.$on('UpdateAllPerformanceResults', data => { this.AllData = data })
     EventBus.$on('emittedEventCallingBrushedBoxPlot', data => {
       this.brushedBox = data})
     EventBus.$on('emittedEventCallingScatterPlot', data => {

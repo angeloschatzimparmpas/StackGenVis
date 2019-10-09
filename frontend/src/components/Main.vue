@@ -232,10 +232,7 @@ export default Vue.extend({
           console.log(error)
         })
     },
-    getOverviewResults () {
-      this.OverviewResults = this.getScatterplotDataFromBackend()
-    },
-    getScatterplotDataFromBackend () {
+    getDatafromtheBackEnd () {
       const path = `http://localhost:5000/data/PlotClassifiers`
 
       const axiosConfig = {
@@ -292,6 +289,7 @@ export default Vue.extend({
           console.log('Server successfully sent updated per class features!')
           EventBus.$emit('emittedEventCallingAllAlgorithms', this.PerformancePerModel)
           EventBus.$emit('emittedEventCallingBarChart', this.PerformancePerModel)
+          EventBus.$emit('UpdateAllPerformanceResults', this.PerformancePerModel)
         })
         .catch(error => {
           console.log(error)
@@ -416,11 +414,7 @@ export default Vue.extend({
       axios.post(path, postData, axiosConfig)
         .then(response => {
           console.log('Send request to server! Brushed parameters sent successfully!')
-          this.getScatterplotDataFromBackend()
-           if (!this.ExecutionStart) {
-          } else {
-            this.getCollection()
-          }
+          this.getDatafromtheBackEnd()
         })
         .catch(error => {
           console.log(error)
@@ -599,7 +593,6 @@ export default Vue.extend({
     EventBus.$on('reset', this.Reset)
     EventBus.$on('UploadedFile', this.Reset)
     EventBus.$on('UploadedFile', this.UploadProcess)
-    EventBus.$on('InitializeEnsembleLearningEvent', this.getOverviewResults)
     EventBus.$on('ReturningAlgorithms', data => { this.selectedAlgorithms = data })
     EventBus.$on('ReturningBrushedPointsParams', data => { this.parametersofModels = data; })
     EventBus.$on('SendSelectedPointsToServerEvent', data => { this.ClassifierIDsList = data })

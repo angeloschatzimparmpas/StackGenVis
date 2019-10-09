@@ -15,7 +15,7 @@ export default {
   },
   methods: {
     ScatterPlotDataView () {
-        const XandYCoordinates = JSON.parse(this.PredictionsData[8])
+        const XandYCoordinates = JSON.parse(this.PredictionsData[4])
 
         var result = XandYCoordinates.reduce(function(r, a) {
             a.forEach(function(s, i) {

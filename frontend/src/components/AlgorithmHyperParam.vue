@@ -34,23 +34,23 @@ export default {
           Combined = JSON.parse(this.ModelsPerformance[1])
           colorGiv = colors[0]
         } else {
-          Combined = JSON.parse(this.ModelsPerformance[7])
+          Combined = JSON.parse(this.ModelsPerformance[9])
           colorGiv = colors[1]
         }
         var valuesPerf = Object.values(Combined['0'])
         var ObjectsParams = Combined['params']
         var newObjectsParams = []
+        var newObjectsParams2 = []
         var ArrayCombined = []
         var temp
         for (var i = 0; i < valuesPerf.length; i++) {
           if (this.selAlgorithm === 'KNN') {
             // There is a problem here!
-            newObjectsParams.push({'weights':ObjectsParams[i].weights, 'algorithm':ObjectsParams[i].algorithm,'metric':ObjectsParams[i].metric,'n_neighbors':ObjectsParams[i].n_neighbors})
-            Object.assign(newObjectsParams[i], {performance: valuesPerf[i]}, {model: i})
+            newObjectsParams.push({model: i,'perf_metrics': valuesPerf[i],'n_neighbors':ObjectsParams[i].n_neighbors,'metric':ObjectsParams[i].metric,'algorithm':ObjectsParams[i].algorithm,'weights':ObjectsParams[i].weights})
             ArrayCombined[i] = newObjectsParams[i]
           } else {
-            Object.assign(ObjectsParams[i], {performance: valuesPerf[i]}, {model: this.KNNModels + i})
-            ArrayCombined[i] = ObjectsParams[i]
+            newObjectsParams2.push({model: this.KNNModels + i,'perf_metrics': valuesPerf[i],'n_estimators':ObjectsParams[i].n_estimators,'criterion':ObjectsParams[i].criterion})
+            ArrayCombined[i] = newObjectsParams2[i]
           }
         }
         EventBus.$emit('AllAlModels', ArrayCombined.length)

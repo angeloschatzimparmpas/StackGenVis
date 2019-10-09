@@ -1,4 +1,4 @@
-# first line: 634
+# first line: 310
 @memory.cache
 def GridSearchForModels(clf, params, eachAlgor, factors, AlgorithmsIDsEnd):
 
@@ -46,7 +46,7 @@ def GridSearchForModels(clf, params, eachAlgor, factors, AlgorithmsIDsEnd):
     # copy and filter in order to get only the metrics
     metrics = df_cv_results_classifiers.copy()
     metrics = metrics.filter(['mean_test_accuracy','mean_test_f1_macro','mean_test_precision','mean_test_recall','mean_test_jaccard']) 
-
+    
     # control the factors
     sumperModel = []
     for index, row in metrics.iterrows():
@@ -79,6 +79,7 @@ def GridSearchForModels(clf, params, eachAlgor, factors, AlgorithmsIDsEnd):
     permList = []
     PerFeatureAccuracy = []
     PerClassMetric = []
+    perModelProb = []
 
     for eachModelParameters in parametersLocalNew:
         clf.set_params(**eachModelParameters)
@@ -95,6 +96,11 @@ def GridSearchForModels(clf, params, eachAlgor, factors, AlgorithmsIDsEnd):
         yPredict = clf.predict(XData)
         # retrieve target names (class names)
         PerClassMetric.append(classification_report(yData, yPredict, target_names=target_names, digits=2, output_dict=True))
+        yPredictProb = clf.predict_proba(XData)
+        perModelProb.append(yPredictProb.tolist())
+
+    perModelProbPandas = pd.DataFrame(perModelProb)
+    perModelProbPandas = perModelProbPandas.to_json()
 
     PerClassMetricPandas = pd.DataFrame(PerClassMetric)  
     del PerClassMetricPandas['accuracy']  
@@ -124,5 +130,8 @@ def GridSearchForModels(clf, params, eachAlgor, factors, AlgorithmsIDsEnd):
     results.append(PerFeatureAccuracyPandas) # Position: 3 and so on
     results.append(perm_imp_eli5PD) # Position: 4 and so on
     results.append(featureScores) # Position: 5 and so on
+    metrics = metrics.to_json()
+    results.append(metrics) # Position: 6 and so on
+    results.append(perModelProbPandas) # Position: 7 and so on
 
     return results

@@ -39,11 +39,11 @@ export default {
 
       // retrieve models ID
       const Algor1IDs = this.PerformanceAllModels[0]
-      const Algor2IDs = this.PerformanceAllModels[6]
+      const Algor2IDs = this.PerformanceAllModels[8]
       
       // retrieve the results like performance
       const PerformAlgor1 = JSON.parse(this.PerformanceAllModels[1])
-      const PerformAlgor2 = JSON.parse(this.PerformanceAllModels[7])
+      const PerformAlgor2 = JSON.parse(this.PerformanceAllModels[9])
 
       // initialize/instansiate algorithms and parameters
       this.algorithm1 = []
@@ -51,11 +51,11 @@ export default {
       var parameters = []
 
       for (var i = 0; i < Object.keys(PerformAlgor1['0']).length; i++) {
-        this.algorithm1.push({Performance: Object.values(PerformAlgor1['0'])[i]*100,Algorithm:'KNN',Model:'Model ' + Algor1IDs[i] + '; Parameters '+JSON.stringify(Object.values(PerformAlgor1['params'])[i])+'; Performance Metrics ',ModelID:Algor1IDs[i]})
+        this.algorithm1.push({'Performance Metrics': Object.values(PerformAlgor1['0'])[i]*100,Algorithm:'KNN',Model:'Model ' + Algor1IDs[i] + '; Parameters '+JSON.stringify(Object.values(PerformAlgor1['params'])[i])+'; Performance Metrics ',ModelID:Algor1IDs[i]})
         parameters.push(JSON.stringify(Object.values(PerformAlgor1['params'])[i]))
       }
       for (let j = 0; j < Object.keys(PerformAlgor2['0']).length; j++) {
-        this.algorithm2.push({Performance: Object.values(PerformAlgor2['0'])[j]*100,Algorithm:'RF',Model:'Model ' + Algor2IDs[j] + '; Parameters '+JSON.stringify(Object.values(PerformAlgor2['params'])[j])+'; Performance Metrics ',ModelID:Algor2IDs[j]})
+        this.algorithm2.push({'Performance Metrics': Object.values(PerformAlgor2['0'])[j]*100,Algorithm:'RF',Model:'Model ' + Algor2IDs[j] + '; Parameters '+JSON.stringify(Object.values(PerformAlgor2['params'])[j])+'; Performance Metrics ',ModelID:Algor2IDs[j]})
         parameters.push(JSON.stringify(Object.values(PerformAlgor2['params'])[j]))
       }
 
@@ -69,7 +69,7 @@ export default {
       // group : how to group data on x axis
       // color : color of the point / boxplot
       // label : displayed text in toolbox
-      this.chart = exploding_boxplot(data, {y:'Performance',group:'Algorithm',color:'Algorithm',label:'Model'})
+      this.chart = exploding_boxplot(data, {y:'Performance Metrics',group:'Algorithm',color:'Algorithm',label:'Model'})
       this.chart.width(this.WH[0]*3) // interactive visualization
       this.chart.height(this.WH[1]) // interactive visualization
       //call chart on a div
@@ -88,6 +88,7 @@ export default {
           allPoints[i].style.opacity = '1.0'
         } 
         EventBus.$emit('PCPCall', 'KNN')
+        EventBus.$emit('updateBarChart', [])
       }
       el[1].onclick = function() {
         var allPoints = document.getElementsByClassName('d3-exploding-boxplot point RF')
@@ -96,6 +97,7 @@ export default {
           allPoints[i].style.opacity = '1.0'
         }
         EventBus.$emit('PCPCall', 'RF')
+        EventBus.$emit('updateBarChart', [])
       }
       // check if brushed through all boxplots and not only one at a time
       const myObserver = new ResizeObserver(entries => {
@@ -122,7 +124,7 @@ export default {
           algorithm = this.algorithm2
         }
         for (let k = 0; k < allPoints.length; k++) {
-          if (algorithm[k].Performance < limiter[0] && algorithm[k].Performance > limiter[1]) {
+          if (algorithm[k]['Performance Metrics'] < limiter[0] && algorithm[k]['Performance Metrics'] > limiter[1]) {
             modelsActive.push(algorithm[k].ModelID)
           }
         }

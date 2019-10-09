@@ -23,7 +23,6 @@ export default {
   methods: {
       execute () {
         EventBus.$emit('PCPCallDB')
-        //EventBus.$emit('InitializeEnsembleLearningEvent')
       }
   }
 }

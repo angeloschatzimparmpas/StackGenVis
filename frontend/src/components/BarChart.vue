@@ -25,19 +25,21 @@ export default {
   methods: {
     BarChartView () {
         const PerClassMetrics = JSON.parse(this.PerformanceResults[2])
-        const PerClassMetrics2 = JSON.parse(this.PerformanceResults[8])
+        const PerClassMetrics2 = JSON.parse(this.PerformanceResults[10])
 
         var KNNModels = []
         var RFModels = []
-        for (let i=0; i<this.algorithmsinBar.length;i++) {
-            if (this.algorithmsinBar[i] === "KNN") {
-                KNNModels.push(JSON.parse(this.modelsSelectedinBar[i]))
-            } else {
-                RFModels.push(JSON.parse(this.modelsSelectedinBar[i]) - this.KNNModels)
+        
+        if (this.modelsSelectedinBar.length != 0){
+            for (let i=0; i<this.algorithmsinBar.length;i++) {
+                if (this.algorithmsinBar[i] === "KNN") {
+                    KNNModels.push(JSON.parse(this.modelsSelectedinBar[i]))
+                } else {
+                    RFModels.push(JSON.parse(this.modelsSelectedinBar[i]) - this.KNNModels)
+                }
             }
         }
-        console.log(KNNModels)
-        console.log(RFModels)
+        
         var target_names
         target_names = Object.keys(PerClassMetrics)
 
@@ -74,12 +76,12 @@ export default {
             } else {
                 for (var j=0;j<KNNModels.length;j++){
                     temp = temp + (Object.values(PerClassMetrics)[i][KNNModels[j]]['f1-score']+Object.values(PerClassMetrics)[i][KNNModels[j]]['precision']+Object.values(PerClassMetrics)[i][KNNModels[j]]['recall'])/3
-                    temp = temp/KNNModels.length
                 }
+                temp = temp/KNNModels.length
             }
             sumLine.push(temp)
 
-            if (KNNModels.length == 0) {
+            if (RFModels.length == 0) {
                 for (var k=0;k<Object.keys(PerClassMetrics2[target_names[i]]).length;k++){
                     temp2 = temp2 + (Object.values(PerClassMetrics2)[i][k]['f1-score']+Object.values(PerClassMetrics2)[i][k]['precision']+Object.values(PerClassMetrics2)[i][k]['recall'])/3
                 }
@@ -87,13 +89,11 @@ export default {
             } else {
                 for (var k=0;k<RFModels.length;k++){
                     temp2 = temp2 + (Object.values(PerClassMetrics2)[i][RFModels[k]]['f1-score']+Object.values(PerClassMetrics2)[i][RFModels[k]]['precision']+Object.values(PerClassMetrics2)[i][RFModels[k]]['recall'])/3
-                    temp2 = temp2/RFModels.length
                 }
+                temp2 = temp2/RFModels.length
             }
             sumLine.push(temp2)
-
         }
-        console.log(sumLine)
         Plotly.purge('barChart')
         
         var layout = {

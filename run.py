@@ -92,9 +92,6 @@ def Reset():
     global scoring
     #scoring = {'accuracy': 'accuracy', 'f1_macro': 'f1_weighted', 'precision': 'precision_weighted', 'recall': 'recall_weighted', 'jaccard': 'jaccard_weighted', 'neg_log_loss': 'neg_log_loss', 'r2': 'r2', 'neg_mean_absolute_error': 'neg_mean_absolute_error', 'neg_mean_absolute_error': 'neg_mean_absolute_error'}
     scoring = {'accuracy': 'accuracy', 'f1_macro': 'f1_weighted', 'precision': 'precision_weighted', 'recall': 'recall_weighted', 'jaccard': 'jaccard_weighted'}
-
-    global yPredictProb
-    yPredictProb = []
     
     global loopFeatures
     loopFeatures = 2
@@ -164,9 +161,6 @@ def RetrieveFileName():
 
     global NumberofscoringMetrics
     NumberofscoringMetrics = len(scoring)
-
-    global yPredictProb
-    yPredictProb = []
 
     global loopFeatures
     loopFeatures = 2
@@ -280,324 +274,6 @@ def class_feature_importance(X, Y, feature_importances):
 
     return out
 
-#GridSearch = mem.cache(GridSearch)
-
-def Preprocessing():
-    global resultsList 
-    df_cv_results_classifiersList = []
-    parametersList = []
-    PerClassMetricsList = []
-    FeatureAccuracyList = []
-    perm_imp_eli5PD = []
-    featureScores = []
-    for j, result in enumerate(resultsList):
-        df_cv_results_classifiersList.append(resultsList[j][0])
-        parametersList.append(resultsList[j][1])
-        PerClassMetricsList.append(resultsList[j][2])
-        FeatureAccuracyList.append(resultsList[j][3])
-        perm_imp_eli5PD.append(resultsList[j][4])
-        featureScores.append(resultsList[j][5])
-
-    df_cv_results_classifiers = pd.concat(df_cv_results_classifiersList, ignore_index=True, sort=False)
-    parameters = pd.concat(parametersList, ignore_index=True, sort=False)
-    #FeatureImportanceListPD = pd.concat(FeatureImportanceList, ignore_index=True, sort=False)
-    PerClassMetrics = pd.concat(PerClassMetricsList, ignore_index=True, sort=False)
-    FeatureAccuracy = pd.concat(FeatureAccuracyList, ignore_index=True, sort=False)
-    #RFEListPDCon = pd.concat(RFEListPD, ignore_index=True, sort=False)
-    #perm_imp_rfpimpCon = pd.concat(perm_imp_rfpimp, ignore_index=True, sort=False)
-    perm_imp_eli5PDCon = pd.concat(perm_imp_eli5PD, ignore_index=True, sort=False)
-    featureScoresCon = pd.concat(featureScores, ignore_index=True, sort=False)
-    global factors
-    factors = [1,1,1,1,1,1]
-    global df_cv_results_classifiers_metrics
-    df_cv_results_classifiers_metrics = df_cv_results_classifiers.copy()
-    df_cv_results_classifiers_metrics = df_cv_results_classifiers_metrics.filter(['mean_test_accuracy','mean_test_f1_macro','mean_test_precision','mean_test_recall','mean_test_jaccard'])
-    return [parameters,PerClassMetrics,FeatureAccuracy,df_cv_results_classifiers_metrics,perm_imp_eli5PDCon,featureScoresCon]
-
-def sumPerMetric(factors):
-    sumPerClassifier = []
-    preProcessResults = []
-    preProcessResults = Preprocessing()
-    loopThroughMetrics = preProcessResults[3]
-    global scoring
-    global metricsPerModel
-    metricsPerModel = []
-    metricsPerModel.append(loopThroughMetrics['mean_test_accuracy'].sum()/loopThroughMetrics['mean_test_accuracy'].count())
-    metricsPerModel.append(loopThroughMetrics['mean_test_f1_macro'].sum()/loopThroughMetrics['mean_test_f1_macro'].count())
-    metricsPerModel.append(loopThroughMetrics['mean_test_precision'].sum()/loopThroughMetrics['mean_test_precision'].count())
-    metricsPerModel.append(loopThroughMetrics['mean_test_recall'].sum()/loopThroughMetrics['mean_test_recall'].count())
-    metricsPerModel.append(loopThroughMetrics['mean_test_jaccard'].sum()/loopThroughMetrics['mean_test_jaccard'].count())
-    for row in loopThroughMetrics.iterrows():
-        rowSum = 0
-        lengthFactors = len(scoring)
-        for loop,elements in enumerate(row):
-            lengthFactors = lengthFactors -  1 + factors[loop]
-            rowSum = elements*factors[loop] + rowSum
-        if lengthFactors is 0:
-            sumPerClassifier = 0
-        else:
-            sumPerClassifier.append(rowSum/lengthFactors)
-    return sumPerClassifier
-
-# Retrieve data from client 
-@cross_origin(origin='localhost',headers=['Content-Type','Authorization'])
-@app.route('/data/factors', methods=["GET", "POST"])
-def RetrieveFactors():
-    Factors = request.get_data().decode('utf8').replace("'", '"')
-    FactorsInt = json.loads(Factors)
-    global sumPerClassifierSel
-    global ModelSpaceMDSNew
-    global ModelSpaceTSNENew
-    sumPerClassifierSel = []
-    sumPerClassifierSel = sumPerMetric(FactorsInt['Factors'])
-    ModelSpaceMDSNew = []
-    ModelSpaceTSNENew = []
-    preProcessResults = []
-    preProcessResults = Preprocessing()
-    XClassifiers = preProcessResults[3]
-    flagLocal = 0
-    countRemovals = 0
-    for l,el in enumerate(FactorsInt['Factors']):
-        if el is 0:
-            XClassifiers.drop(XClassifiers.columns[[l-countRemovals]], axis=1, inplace=True)
-            countRemovals = countRemovals + 1
-            flagLocal = 1
-    if flagLocal is 1:
-        ModelSpaceMDSNew = FunMDS(XClassifiers)
-        ModelSpaceTSNENew = FunTsne(XClassifiers)
-        ModelSpaceTSNENew = ModelSpaceTSNENew.tolist()
-    return 'Everything Okay'
-
-@app.route('/data/UpdateOverv', methods=["GET", "POST"])
-def UpdateOverview():
-    global sumPerClassifierSel
-    global ModelSpaceMDSNew
-    global ModelSpaceTSNENew
-    global metricsPerModel
-    ResultsUpdateOverview = []
-    ResultsUpdateOverview.append(sumPerClassifierSel)
-    ResultsUpdateOverview.append(ModelSpaceMDSNew)
-    ResultsUpdateOverview.append(ModelSpaceTSNENew)
-    ResultsUpdateOverview.append(metricsPerModel)
-    response = {    
-        'Results': ResultsUpdateOverview
-    }
-    return jsonify(response)
-
-def InitializeEnsemble(): 
-    preProcessResults = []
-    preProcessResults = Preprocessing()
-    sumPerClassifier = sumPerMetric(factors)
-    mergedPredList = zip(*yPredictProb)
-    mergedPredListListForm = []
-    for el in mergedPredList:
-        mergedPredListListForm.append(list(chain(*el)))
-    XClassifiers = preProcessResults[3]
-    PredictionSpace = FunTsne(mergedPredListListForm)
-    DataSpace = FunTsne(XData)
-    ModelSpaceMDS = FunMDS(XClassifiers)
-    ModelSpaceTSNE = FunTsne(XClassifiers)
-    ModelSpaceTSNE = ModelSpaceTSNE.tolist()
-    global ClassifierIDsList
-    key = 0
-    EnsembleModel(ClassifierIDsList, key)
-    PredictionSpaceList = PredictionSpace.tolist()
-    DataSpaceList = DataSpace.tolist()
-    ReturnResults(sumPerClassifier,ModelSpaceMDS,ModelSpaceTSNE,preProcessResults,DataSpaceList,PredictionSpaceList)
-
-def ReturnResults(sumPerClassifier,ModelSpaceMDS,ModelSpaceTSNE,preProcessResults,DataSpaceList,PredictionSpaceList):
-    global Results
-    Results = []
-    parametersGen = preProcessResults[0]
-    PerClassMetrics = preProcessResults[1]
-    FeatureAccuracy = preProcessResults[2]
-    perm_imp_eli5PDCon = preProcessResults[4]
-    featureScoresCon = preProcessResults[5]
-    parametersGenPD = parametersGen.to_json(orient='records')
-    PerClassMetrics = PerClassMetrics.to_json(orient='records')
-    FeatureAccuracy = FeatureAccuracy.to_json(orient='records')
-    perm_imp_eli5PDCon = perm_imp_eli5PDCon.to_json(orient='records')
-    featureScoresCon = featureScoresCon.to_json(orient='records')
-    XDataJSON = XData.columns.tolist()
-    global metricsPerModel
-    Results.append(json.dumps(sumPerClassifier)) # Position: 0 
-    Results.append(json.dumps(ModelSpaceMDS)) # Position: 1
-    Results.append(json.dumps(parametersGenPD)) # Position: 2
-    Results.append(PerClassMetrics) # Position: 3
-    Results.append(json.dumps(target_names)) # Position: 4 
-    Results.append(FeatureAccuracy) # Position: 5
-    Results.append(json.dumps(XDataJSON)) # Position: 6 
-    Results.append(json.dumps(DataSpaceList)) # Position: 7
-    Results.append(json.dumps(PredictionSpaceList)) # Position: 8 
-    Results.append(json.dumps(metricsPerModel)) # Position: 9
-    Results.append(perm_imp_eli5PDCon) # Position: 10
-    Results.append(featureScoresCon) # Position: 11
-    Results.append(json.dumps(ModelSpaceTSNE)) # Position: 12
-    return Results
-
-# Retrieve data from client 
-@cross_origin(origin='localhost',headers=['Content-Type','Authorization'])
-@app.route('/data/ServerRequestSelPoin', methods=["GET", "POST"])
-def RetrieveSelClassifiersID():
-    global ClassifierIDsList
-    ClassifierIDsList = request.get_data().decode('utf8').replace("'", '"')
-    key = 1
-    EnsembleModel(ClassifierIDsList, key)
-    return 'Everything Okay'
-
-# Retrieve data from client 
-@cross_origin(origin='localhost',headers=['Content-Type','Authorization'])
-@app.route('/data/FeaturesSelection', methods=["GET", "POST"])
-def FeatureSelPerModel():
-    global featureSelection
-    global ClassifierIDsList
-    featureSelection = request.get_data().decode('utf8').replace("'", '"')
-    featureSelection = json.loads(featureSelection)
-    global detailsParams
-    global algorithmList
-    results = []
-    global resultsList
-    resultsList = []
-    global loopFeatures
-    loopFeatures = 2
-
-    algorithmsWithoutDuplicates = list(dict.fromkeys(algorithmList))
-    for index, eachalgor in enumerate(algorithmsWithoutDuplicates):
-        if (eachalgor == 'KNN'):
-            clf = KNeighborsClassifier()
-            params = detailsParams[index]
-            results.append(GridSearch(clf, params))
-            resultsList.append(results[0])
-        else:
-            clf = RandomForestClassifier()
-            params =  detailsParams[index]
-            results.append(GridSearch(clf, params))
-            resultsList.append(results[0])
-    if (featureSelection['featureSelection'] == ''):
-        key = 0
-    else:
-        key = 2
-    return 'Everything Okay'
-
-def FunMDS (data):
-    mds = MDS(n_components=2, random_state=RANDOM_SEED)
-    XTransformed = mds.fit_transform(data).T
-    XTransformed = XTransformed.tolist()
-    return XTransformed
-
-def FunTsne (data):
-    tsne = TSNE(n_components=2).fit_transform(data)
-    tsne.shape
-    return tsne
-
-def EnsembleModel (ClassifierIDsList, keyRetrieved): 
-
-    global scores
-    scores = []
-    global all_classifiersSelection
-    all_classifiersSelection = []  
-    global columns
-
-    global all_classifiers
-    global algorithmList
-
-    algorithmsWithoutDuplicates = list(dict.fromkeys(algorithmList))
-    if (keyRetrieved == 0):
-        columnsInit = []
-        all_classifiers = []  
-        columnsInit = [XData.columns.get_loc(c) for c in XData.columns if c in XData]
-
-        for index, eachelem in enumerate(algorithmsWithoutDuplicates):
-            if (eachelem == 'KNN'):
-                for each in resultsList[index][1]:
-                    all_classifiers.append(make_pipeline(ColumnSelector(cols=columnsInit), KNeighborsClassifier().set_params(**each)))
-            else:
-                for each in resultsList[index][1]:
-                    all_classifiers.append(make_pipeline(ColumnSelector(cols=columnsInit), RandomForestClassifier().set_params(**each)))
-
-        lr = LogisticRegression()
-        sclf = StackingCVClassifier(classifiers=all_classifiers,
-                            use_probas=True,
-                            meta_classifier=lr,
-                            random_state=RANDOM_SEED,
-                            n_jobs = -1)
-    elif (keyRetrieved == 1):       
-        ClassifierIDsList = json.loads(ClassifierIDsList)
-        for loop in ClassifierIDsList['ClassifiersList']:
-            temp = [int(s) for s in re.findall(r'\b\d+\b', loop)]
-            all_classifiersSelection.append(all_classifiers[temp[0]])
-
-        lr = LogisticRegression()
-        sclf = StackingCVClassifier(classifiers=all_classifiersSelection,
-                            use_probas=True,
-                            meta_classifier=lr,
-                            random_state=RANDOM_SEED,
-                            n_jobs = -1)
-    else: 
-        columnsReduce = columns.copy()
-        lr = LogisticRegression()
-        if (len(all_classifiersSelection) == 0):
-            all_classifiers = []
-            for index, eachelem in enumerate(algorithmsWithoutDuplicates):
-                if (eachelem == 'KNN'):
-                    for j, each in enumerate(resultsList[index][1]):
-                        all_classifiers.append(make_pipeline(ColumnSelector(cols=columnsReduce[j]), KNeighborsClassifier().set_params(**each)))
-                    del columnsReduce[0:len(resultsList[index][1])]
-                else:
-                    for j, each in enumerate(resultsList[index][1]):
-                        all_classifiers.append(make_pipeline(ColumnSelector(cols=columnsReduce[j]), RandomForestClassifier().set_params(**each)))
-                    del columnsReduce[0:len(resultsList[index][1])]
-            sclf = StackingCVClassifier(classifiers=all_classifiers,
-                                use_probas=True,
-                                meta_classifier=lr,
-                                random_state=RANDOM_SEED,
-                                n_jobs = -1)
-        else:
-            for index, eachelem in enumerate(algorithmsWithoutDuplicates):
-                if (eachelem == 'KNN'):
-                    for j, each in enumerate(resultsList[index][1]):
-                        all_classifiersSelection.append(make_pipeline(ColumnSelector(cols=columnsReduce[j]), KNeighborsClassifier().set_params(**each)))
-                    del columnsReduce[0:len(resultsList[index][1])]
-                else:
-                    for j, each in enumerate(resultsList[index][1]):
-                        all_classifiersSelection.append(make_pipeline(ColumnSelector(cols=columnsReduce[j]), RandomForestClassifier().set_params(**each)))
-                    del columnsReduce[0:len(resultsList[index][1])]
-            sclf = StackingCVClassifier(classifiers=all_classifiersSelection,
-                                use_probas=True,
-                                meta_classifier=lr,
-                                random_state=RANDOM_SEED,
-                                n_jobs = -1)
-
-    for clf, label in zip([sclf], 
-                    ['StackingClassifier']):
-
-        scores = model_selection.cross_val_score(clf, XData, yData, 
-                                                cv=crossValidation, scoring='accuracy')
-
-
-
-# Sending the final results to be visualized as a line plot
-@app.route('/data/SendFinalResultsBacktoVisualize', methods=["GET", "POST"])
-def SendToPlotFinalResults():
-    FinalResults = []
-    FinalResults.append(scores.mean())
-    FinalResults.append(scores.std())
-    response = {    
-        'FinalResults': FinalResults
-    }
-    return jsonify(response)
-
-# Sending the overview classifiers' results to be visualized as a scatterplot
-@app.route('/data/PlotClassifiers', methods=["GET", "POST"])
-def SendToPlot():
-    while (len(DataResultsRaw) != DataRawLength):
-        pass
-    InitializeEnsemble()
-    response = {    
-        'OverviewResults': Results
-    }
-    return jsonify(response)
-
 # Initialize every model for each algorithm
 @cross_origin(origin='localhost',headers=['Content-Type','Authorization'])
 @app.route('/data/ServerRequestSelParameters', methods=["GET", "POST"])
@@ -678,7 +354,7 @@ def GridSearchForModels(clf, params, eachAlgor, factors, AlgorithmsIDsEnd):
     # copy and filter in order to get only the metrics
     metrics = df_cv_results_classifiers.copy()
     metrics = metrics.filter(['mean_test_accuracy','mean_test_f1_macro','mean_test_precision','mean_test_recall','mean_test_jaccard']) 
-
+    
     # control the factors
     sumperModel = []
     for index, row in metrics.iterrows():
@@ -711,6 +387,7 @@ def GridSearchForModels(clf, params, eachAlgor, factors, AlgorithmsIDsEnd):
     permList = []
     PerFeatureAccuracy = []
     PerClassMetric = []
+    perModelProb = []
 
     for eachModelParameters in parametersLocalNew:
         clf.set_params(**eachModelParameters)
@@ -727,6 +404,11 @@ def GridSearchForModels(clf, params, eachAlgor, factors, AlgorithmsIDsEnd):
         yPredict = clf.predict(XData)
         # retrieve target names (class names)
         PerClassMetric.append(classification_report(yData, yPredict, target_names=target_names, digits=2, output_dict=True))
+        yPredictProb = clf.predict_proba(XData)
+        perModelProb.append(yPredictProb.tolist())
+
+    perModelProbPandas = pd.DataFrame(perModelProb)
+    perModelProbPandas = perModelProbPandas.to_json()
 
     PerClassMetricPandas = pd.DataFrame(PerClassMetric)  
     del PerClassMetricPandas['accuracy']  
@@ -756,6 +438,9 @@ def GridSearchForModels(clf, params, eachAlgor, factors, AlgorithmsIDsEnd):
     results.append(PerFeatureAccuracyPandas) # Position: 3 and so on
     results.append(perm_imp_eli5PD) # Position: 4 and so on
     results.append(featureScores) # Position: 5 and so on
+    metrics = metrics.to_json()
+    results.append(metrics) # Position: 6 and so on
+    results.append(perModelProbPandas) # Position: 7 and so on
 
     return results
 
@@ -767,18 +452,18 @@ def SendEachClassifiersPerformanceToVisualize():
     }
     return jsonify(response)
 
-def Remove(duplicate): 
-    final_list = [] 
-    for num in duplicate: 
-        if num not in final_list: 
-            if (isinstance(num, float)):
-                if np.isnan(num):
-                    pass
-                else:
-                    final_list.append(int(num)) 
-            else:
-                final_list.append(num) 
-    return final_list 
+#def Remove(duplicate): 
+#    final_list = [] 
+#    for num in duplicate: 
+#        if num not in final_list: 
+#            if (isinstance(num, float)):
+#                if np.isnan(num):
+#                    pass
+#                else:
+#                    final_list.append(int(num)) 
+#            else:
+#                final_list.append(num) 
+#    return final_list 
 
 # Retrieve data from client 
 @cross_origin(origin='localhost',headers=['Content-Type','Authorization'])
@@ -786,68 +471,295 @@ def Remove(duplicate):
 def RetrieveModelsParam():
     RetrieveModelsPar = request.get_data().decode('utf8').replace("'", '"')
     RetrieveModelsPar = json.loads(RetrieveModelsPar)
-    
-    global algorithmList
-    algorithmList = RetrieveModelsPar['algorithms']
-    count = []
-    if ('KNN' in algorithmList):
-        count.append('KNN')
-    if ('RF' in algorithmList):
-        count.append('RF')
 
-    global detailsParams
-    results = []
     counter1 = 0
     counter2 = 0
+    global KNNModels
     KNNModels = []
+    global RFModels
     RFModels = []
-    parametersLocalKNN = json.loads(allParametersPerformancePerModel[1])['params'].copy()
-    your_key = '496'
-    parametersLocalRF = json.loads(allParametersPerformancePerModel[4])['params'].copy()
-    for index, items in enumerate(algorithmList):
+    global algorithmsList
+    algorithmsList = RetrieveModelsPar['algorithms']
+
+    for index, items in enumerate(algorithmsList):
         if (items == 'KNN'):
             counter1 = counter1 + 1
-            KNNModels.append(RetrieveModelsPar['models'][index])
+            KNNModels.append(int(RetrieveModelsPar['models'][index]))
         else:
             counter2 = counter2 + 1
-            RFModels.append(str(int(RetrieveModelsPar['models'][index])-576))
+            RFModels.append(int(RetrieveModelsPar['models'][index])-576)
 
-    parametersLocalKNNNew = [ parametersLocalKNN[your_key] for your_key in KNNModels ]
-    parametersLocalRFNew = [ parametersLocalRF[your_key] for your_key in RFModels ]
+    return 'Everything Okay'
 
-    #output = pd.DataFrame()
-    #print(RetrieveModelsPar['models'])
-    #for d in RetrieveModelsPar['parameters']:  
-    #    output = output.append(json.loads(d), ignore_index=True)
-    #RetrieveModelsPandSel = output.loc[0:counter1,:]
-    #RetrieveModelsPandSel2 = output.loc[counter1:counter1+counter2,:]
-    #RetrieveModelsPandSelDic = RetrieveModelsPandSel.to_dict(orient='list')
-    #RetrieveModelsPandSelDic2 = RetrieveModelsPandSel2.to_dict(orient='list')
-    #print(RetrieveModelsPandSelDic)
-    #RetrieveModels = {}
-    #for key, value in RetrieveModelsPandSelDic.items():
-    #    withoutDuplicates = Remove(value)
-    #    RetrieveModels[key] = withoutDuplicates
+# Retrieve data from client 
+@cross_origin(origin='localhost',headers=['Content-Type','Authorization'])
+@app.route('/data/factors', methods=["GET", "POST"])
+def RetrieveFactors():
+    Factors = request.get_data().decode('utf8').replace("'", '"')
+    FactorsInt = json.loads(Factors)
+    global sumPerClassifierSel
+    global ModelSpaceMDSNew
+    global ModelSpaceTSNENew
+    sumPerClassifierSel = []
+    sumPerClassifierSel = sumPerMetric(FactorsInt['Factors'])
+    ModelSpaceMDSNew = []
+    ModelSpaceTSNENew = []
+    preProcessResults = []
+    preProcessResults = Preprocessing()
+    XClassifiers = preProcessResults[3]
+    flagLocal = 0
+    countRemovals = 0
+    for l,el in enumerate(FactorsInt['Factors']):
+        if el is 0:
+            XClassifiers.drop(XClassifiers.columns[[l-countRemovals]], axis=1, inplace=True)
+            countRemovals = countRemovals + 1
+            flagLocal = 1
+    if flagLocal is 1:
+        ModelSpaceMDSNew = FunMDS(XClassifiers)
+        ModelSpaceTSNENew = FunTsne(XClassifiers)
+        ModelSpaceTSNENew = ModelSpaceTSNENew.tolist()
+    return 'Everything Okay'
 
-    #RetrieveModels2 = {}
-    #for key, value in RetrieveModelsPandSelDic2.items():
-    #    withoutDuplicates = Remove(value)
-    #    RetrieveModels2[key] = withoutDuplicates
+@app.route('/data/UpdateOverv', methods=["GET", "POST"])
+def UpdateOverview():
+    global sumPerClassifierSel
+    global ModelSpaceMDSNew
+    global ModelSpaceTSNENew
+    global metricsPerModel
+    ResultsUpdateOverview = []
+    ResultsUpdateOverview.append(sumPerClassifierSel)
+    ResultsUpdateOverview.append(ModelSpaceMDSNew)
+    ResultsUpdateOverview.append(ModelSpaceTSNENew)
+    ResultsUpdateOverview.append(metricsPerModel)
+    response = {    
+        'Results': ResultsUpdateOverview
+    }
+    return jsonify(response)
+
+def PreprocessingMetrics():
+    dicKNN = json.loads(allParametersPerformancePerModel[6])
+    dicRF = json.loads(allParametersPerformancePerModel[14])
+    dfKNN = pd.DataFrame.from_dict(dicKNN)
+    dfKNNFiltered = dfKNN.iloc[KNNModels, :]
+    dfRF = pd.DataFrame.from_dict(dicRF)
+    dfRFFiltered = dfRF.iloc[RFModels, :]
+    df_concatMetrics = pd.concat([dfKNNFiltered, dfRFFiltered])
+    return df_concatMetrics
+
+def PreprocessingPred():
+    dicKNN = json.loads(allParametersPerformancePerModel[7])
+    dicRF = json.loads(allParametersPerformancePerModel[15])
+    dfKNN = pd.DataFrame.from_dict(dicKNN)
+    dfKNNFiltered = dfKNN.iloc[KNNModels, :]
+    dfRF = pd.DataFrame.from_dict(dicRF)
+    dfRFFiltered = dfRF.iloc[RFModels, :]
+    df_concatProbs = pd.concat([dfKNNFiltered, dfRFFiltered])
+    predictions = []
+    for column, content in df_concatProbs.items():
+        el = [sum(x)/len(x) for x in zip(*content)]
+        predictions.append(el)
+
+    return predictions
+
+def FunMDS (data):
+    mds = MDS(n_components=2, random_state=RANDOM_SEED)
+    XTransformed = mds.fit_transform(data).T
+    XTransformed = XTransformed.tolist()
+    return XTransformed
+
+def FunTsne (data):
+    tsne = TSNE(n_components=2).fit_transform(data)
+    tsne.shape
+    return tsne
+
+def InitializeEnsemble(): 
+
+    XModels = PreprocessingMetrics()
+    DataSpace = FunTsne(XData)
+    DataSpaceList = DataSpace.tolist()
+
+    ModelSpaceMDS = FunMDS(XModels)
+    ModelSpaceTSNE = FunTsne(XModels)
+    ModelSpaceTSNE = ModelSpaceTSNE.tolist()
+
+    PredictionProbSel = PreprocessingPred()
+    PredictionSpace = FunTsne(PredictionProbSel)
+    PredictionSpaceList = PredictionSpace.tolist()
+
+    key = 0
+    global scores
+    scores = EnsembleModel(key)
+
+    ReturnResults(ModelSpaceMDS,ModelSpaceTSNE,DataSpaceList,PredictionSpaceList)
+
+def ReturnResults(ModelSpaceMDS,ModelSpaceTSNE,DataSpaceList,PredictionSpaceList):
+
+    global Results
+    Results = []
+
+    XDataJSON = XData.columns.tolist()
+
+    Results.append(json.dumps(ModelSpaceMDS)) # Position: 0
+    Results.append(json.dumps(target_names)) # Position: 1
+    Results.append(json.dumps(XDataJSON)) # Position: 2 
+    Results.append(json.dumps(DataSpaceList)) # Position: 3
+    Results.append(json.dumps(PredictionSpaceList)) # Position: 4
+    Results.append(json.dumps(ModelSpaceTSNE)) # Position: 5
+
+    return Results
+
+# Sending the overview classifiers' results to be visualized as a scatterplot
+@app.route('/data/PlotClassifiers', methods=["GET", "POST"])
+def SendToPlot():
+    while (len(DataResultsRaw) != DataRawLength):
+        pass
+    InitializeEnsemble()
+    response = {    
+        'OverviewResults': Results
+    }
+    return jsonify(response)
+
+# Retrieve data from client 
+@cross_origin(origin='localhost',headers=['Content-Type','Authorization'])
+@app.route('/data/ServerRequestSelPoin', methods=["GET", "POST"])
+def RetrieveSelClassifiersID():
+    global ClassifierIDsList
+    ClassifierIDsList = request.get_data().decode('utf8').replace("'", '"')
+    key = 1
+    EnsembleModel(ClassifierIDsList, key)
+    return 'Everything Okay'
+
+# Retrieve data from client 
+@cross_origin(origin='localhost',headers=['Content-Type','Authorization'])
+@app.route('/data/FeaturesSelection', methods=["GET", "POST"])
+def FeatureSelPerModel():
+    global featureSelection
+    global ClassifierIDsList
+    featureSelection = request.get_data().decode('utf8').replace("'", '"')
+    featureSelection = json.loads(featureSelection)
+    global detailsParams
+    global algorithmList
+    results = []
     global resultsList
     resultsList = []
-    for alg in count:
-        if (alg == 'KNN'):
+    global loopFeatures
+    loopFeatures = 2
+
+    algorithmsWithoutDuplicates = list(dict.fromkeys(algorithmList))
+    for index, eachalgor in enumerate(algorithmsWithoutDuplicates):
+        if (eachalgor == 'KNN'):
             clf = KNeighborsClassifier()
-            #params = RetrieveModels
-            #detailsParams.append(params)
-            results.append(GridSearch(clf, parametersLocalKNNNew))
-            resultsList.append(results[0])
-        elif (alg == 'RF'):
-            clf = RandomForestClassifier()
-            #params = RetrieveModels2
-            #detailsParams.append(params)
-            results.append(GridSearch(clf, parametersLocalRFNew))
+            params = detailsParams[index]
+            results.append(GridSearch(clf, params))
             resultsList.append(results[0])
         else:
-            pass
+            clf = RandomForestClassifier()
+            params =  detailsParams[index]
+            results.append(GridSearch(clf, params))
+            resultsList.append(results[0])
+    if (featureSelection['featureSelection'] == ''):
+        key = 0
+    else:
+        key = 2
     return 'Everything Okay'
+
+location = './cachedir'
+memory = Memory(location, verbose=0)
+
+@memory.cache
+def EnsembleModel(keyRetrieved): 
+
+    scoresLocal = []
+    all_classifiersSelection = []  
+
+    if (keyRetrieved == 0):
+        columnsInit = []
+        all_classifiers = []  
+        columnsInit = [XData.columns.get_loc(c) for c in XData.columns if c in XData]
+
+        temp = json.loads(allParametersPerformancePerModel[1])
+        dfParamKNN = pd.DataFrame.from_dict(temp)
+        dfParamKNNFilt = dfParamKNN.iloc[:,1]
+
+        for eachelem in KNNModels:
+            arg = dfParamKNNFilt[eachelem]
+            all_classifiers.append(make_pipeline(ColumnSelector(cols=columnsInit), KNeighborsClassifier().set_params(**arg)))
+
+        temp = json.loads(allParametersPerformancePerModel[9])
+        dfParamRF = pd.DataFrame.from_dict(temp)
+        dfParamRFFilt = dfParamRF.iloc[:,1]
+        for eachelem in RFModels:
+            arg = dfParamRFFilt[eachelem]
+            all_classifiers.append(make_pipeline(ColumnSelector(cols=columnsInit), RandomForestClassifier().set_params(**arg)))
+
+        lr = LogisticRegression()
+        sclf = StackingCVClassifier(classifiers=all_classifiers,
+                            use_probas=True,
+                            meta_classifier=lr,
+                            random_state=RANDOM_SEED,
+                            n_jobs = -1)
+    elif (keyRetrieved == 1):       
+        ClassifierIDsList = json.loads(ClassifierIDsList)
+        for loop in ClassifierIDsList['ClassifiersList']:
+            temp = [int(s) for s in re.findall(r'\b\d+\b', loop)]
+            all_classifiersSelection.append(all_classifiers[temp[0]])
+
+        lr = LogisticRegression()
+        sclf = StackingCVClassifier(classifiers=all_classifiersSelection,
+                            use_probas=True,
+                            meta_classifier=lr,
+                            random_state=RANDOM_SEED,
+                            n_jobs = -1)
+    else: 
+        columnsReduce = columns.copy()
+        lr = LogisticRegression()
+        if (len(all_classifiersSelection) == 0):
+            all_classifiers = []
+            for index, eachelem in enumerate(algorithmsWithoutDuplicates):
+                if (eachelem == 'KNN'):
+                    for j, each in enumerate(resultsList[index][1]):
+                        all_classifiers.append(make_pipeline(ColumnSelector(cols=columnsReduce[j]), KNeighborsClassifier().set_params(**each)))
+                    del columnsReduce[0:len(resultsList[index][1])]
+                else:
+                    for j, each in enumerate(resultsList[index][1]):
+                        all_classifiers.append(make_pipeline(ColumnSelector(cols=columnsReduce[j]), RandomForestClassifier().set_params(**each)))
+                    del columnsReduce[0:len(resultsList[index][1])]
+            sclf = StackingCVClassifier(classifiers=all_classifiers,
+                                use_probas=True,
+                                meta_classifier=lr,
+                                random_state=RANDOM_SEED,
+                                n_jobs = -1)
+        else:
+            for index, eachelem in enumerate(algorithmsWithoutDuplicates):
+                if (eachelem == 'KNN'):
+                    for j, each in enumerate(resultsList[index][1]):
+                        all_classifiersSelection.append(make_pipeline(ColumnSelector(cols=columnsReduce[j]), KNeighborsClassifier().set_params(**each)))
+                    del columnsReduce[0:len(resultsList[index][1])]
+                else:
+                    for j, each in enumerate(resultsList[index][1]):
+                        all_classifiersSelection.append(make_pipeline(ColumnSelector(cols=columnsReduce[j]), RandomForestClassifier().set_params(**each)))
+                    del columnsReduce[0:len(resultsList[index][1])]
+            sclf = StackingCVClassifier(classifiers=all_classifiersSelection,
+                                use_probas=True,
+                                meta_classifier=lr,
+                                random_state=RANDOM_SEED,
+                                n_jobs = -1)
+
+    for clf, label in zip([sclf], 
+                    ['StackingClassifier']):
+
+        scoresLocal = model_selection.cross_val_score(clf, XData, yData, cv=crossValidation, scoring='accuracy')
+    return scoresLocal
+
+
+
+# Sending the final results to be visualized as a line plot
+@app.route('/data/SendFinalResultsBacktoVisualize', methods=["GET", "POST"])
+def SendToPlotFinalResults():
+    FinalResults = []
+    FinalResults.append(scores.mean())
+    FinalResults.append(scores.std())
+    response = {    
+        'FinalResults': FinalResults
+    }
+    return jsonify(response)
