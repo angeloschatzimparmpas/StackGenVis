@@ -16,14 +16,23 @@
         data () {
             return {
             resultsfromOverview: 0,
+            WH: []
             }
         },
         methods: {
             Balance () {
-                            // set the dimensions and margins of the graph
-            var margin = {top: 30, right: 30, bottom: 30, left: 60},
-                width = 600 - margin.left - margin.right,
-                height = 200 - margin.top - margin.bottom;
+
+            // Clear Heatmap first
+            var svg = d3.select("#my_dataviz");
+            svg.selectAll("*").remove();
+
+            var widthInitial = this.WH[0]*3 // interactive visualization
+            var heightInitial = this.WH[1]/1.6 // interactive visualization
+
+            // set the dimensions and margins of the graph
+            var margin = {top: 10, right: 30, bottom: 50, left: 60},
+                width = widthInitial - margin.left - margin.right,
+                height = heightInitial - margin.top - margin.bottom;
 
             // append the svg object to the body of the page
             var svg = d3.select("#my_dataviz")
@@ -69,8 +78,8 @@
             svg.append("path")
                 .attr("class", "mypath")
                 .datum(density1)
-                .attr("fill", "#69b3a2")
-                .attr("opacity", ".6")
+                .attr("fill", "#000")
+                .attr("opacity", "1")
                 .attr("stroke", "#000")
                 .attr("stroke-width", 1)
                 .attr("stroke-linejoin", "round")
@@ -84,8 +93,8 @@
             svg.append("path")
                 .attr("class", "mypath")
                 .datum(density2)
-                .attr("fill", "#404080")
-                .attr("opacity", ".6")
+                .attr("fill", "#00bbbb")
+                .attr("opacity", "1")
                 .attr("stroke", "#000")
                 .attr("stroke-width", 1)
                 .attr("stroke-linejoin", "round")
@@ -100,10 +109,11 @@
             })
 
             // Handmade legend
-            svg.append("circle").attr("cx",290).attr("cy",30).attr("r", 6).style("fill", "#69b3a2")
-            svg.append("circle").attr("cx",290).attr("cy",60).attr("r", 6).style("fill", "#404080")
-            svg.append("text").attr("x", 310).attr("y", 30).text("variable A").style("font-size", "15px").attr("alignment-baseline","middle")
-            svg.append("text").attr("x", 310).attr("y", 60).text("variable B").style("font-size", "15px").attr("alignment-baseline","middle")
+            var heightforText = 175
+            svg.append("circle").attr("cx",80).attr("cy",heightforText).attr("r", 6).style("fill", "#000")
+            svg.append("circle").attr("cx",300).attr("cy",heightforText).attr("r", 6).style("fill", "#00bbbb")
+            svg.append("text").attr("x", 100).attr("y", heightforText).text("Entire distribution").style("font-size", "15px").attr("alignment-baseline","middle")
+            svg.append("text").attr("x", 320).attr("y", heightforText).text("Selected points").style("font-size", "15px").attr("alignment-baseline","middle")
 
             // Function to compute density
             function kernelDensityEstimator(kernel, X) {
@@ -123,6 +133,10 @@
         mounted () {
             EventBus.$on('emittedEventCallingBalanceView', data => { this.resultsfromOverview = data} )
             EventBus.$on('emittedEventCallingBalanceView', this.Balance)
+            EventBus.$on('Responsive', data => {
+            this.WH = data})
+            EventBus.$on('ResponsiveandChange', data => {
+            this.WH = data})
         }
     }
 </script>

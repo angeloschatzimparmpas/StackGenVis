@@ -1,13 +1,11 @@
 <template>
 <div>
   <div align="center">
-            <button
-            id="AddStack"
-            v-on:click="AddStack">
-            <font-awesome-icon icon="plus" />
-            {{ valueStackAdd }}
-            </button>
-            <button
+            Projection Selection: <select id="selectBarChart" @change="selectVisualRepresentation()">
+              <option value="mds" selected>MDS Projection</option>
+              <option value="tsne">t-SNE Projection</option>
+            </select>
+            Action: <button
             id="RemoveStack"
             v-on:click="RemoveStack">
             <font-awesome-icon icon="minus" />
@@ -33,23 +31,26 @@ export default {
     return {
       ScatterPlotResults: '',
       representationDef: 'mds',
+      representationSelection: 'MDS',
       colorsforOver: [],
       brushedBox : [],
       max: 0,
       min: 0,
+      WH: [],
       parametersAll: [],
       length: 0,
-      valueStackAdd: 'Add to Stack',
       valueStackRemove: 'Remove from Stack',
-      AllData: []
+      DataPointsSelUpdate: []
     }
   },
   methods: {
-    AddStack () {
-      //EventBus.$emit('PCPCallDB')
+    selectVisualRepresentation () {
+      const representationSelectionDocum = document.getElementById('selectBarChart')
+      this.representationSelection = representationSelectionDocum.options[representationSelectionDocum.selectedIndex].value
+      EventBus.$emit('RepresentationSelection', this.representationSelection)
     },
     RemoveStack () {
-      //EventBus.$emit('PCPCallDB')
+      EventBus.$emit('PCPCallDB')
     },
     ScatterPlotView () {
 
@@ -84,7 +85,11 @@ export default {
       var MDSData = JSON.parse(this.ScatterPlotResults[1])
       var parameters = JSON.parse(this.ScatterPlotResults[2])
       var TSNEData = JSON.parse(this.ScatterPlotResults[12])
+      var modelId = JSON.parse(this.ScatterPlotResults[13])
 
+      EventBus.$emit('sendPointsNumber', modelId.length)
+
+      parameters = JSON.parse(parameters)
 
       if (this.colorsforOver.length != 0) {
         if (this.colorsforOver[1].length != 0) {
@@ -96,47 +101,11 @@ export default {
         }
       }
 
-      parameters = JSON.parse(parameters)
-      var classifiersInfo = this.brushedBox
-      var keepingArrayIndices = []
-      var modelsDetails = []
-      var modelsIDs = []
-      for (var j in parameters) {
-        for (var i in classifiersInfo) {
-          if (isEquivalent(JSON.parse(this.parametersAll[classifiersInfo[i].model]),parameters[j])) {
-            keepingArrayIndices.push(j)
-            modelsDetails.push(this.parametersAll[classifiersInfo[i].model])
-            modelsIDs.push(classifiersInfo[i].model)
-          } else {
-          }
-        }
-      }
-      var flag
-      this.length = keepingArrayIndices.length
-      EventBus.$emit('sendPointsNumber', this.length)
-      EventBus.$emit('sendModelsIDs', modelsIDs)
-      EventBus.$emit('sendIndicestoRemove', keepingArrayIndices)
-      var lengthInitial = colorsforScatterPlot.length
-      var counter = 0
-      for (var i = 0; i < lengthInitial; i++) {
-        flag = 0
-        for (var j = 0; j < keepingArrayIndices.length; j++) {
-          if (i == parseInt(keepingArrayIndices[j])) {
-            flag = 1
-          }
-        }
-        if (flag == 0) {
-          colorsforScatterPlot.splice(i-counter, 1)
-          MDSData[0].splice(i-counter,1)
-          MDSData[1].splice(i-counter,1)
-          counter++
-        }
+      var classifiersInfoProcessing = []
+      for (let i = 0; i < modelId.length; i++) {
+        classifiersInfoProcessing[i] = 'Model ID: ' + modelId[i] + '; Details: ' + JSON.stringify(parameters[i])
       }
 
-      var classifiersInfoProcessing = []
-      for (let i = 0; i < modelsDetails.length; i++) {
-        classifiersInfoProcessing[i] = 'Model ID: ' + modelsIDs[i] + '; Details: ' + modelsDetails[i]
-      }
       var DataGeneral
       var layout
       if (this.representationDef == 'mds') {
@@ -158,7 +127,10 @@ export default {
                 titleside: 'Top'
               },
           }
+        
         }]
+        var width = this.WH[0]*3 // interactive visualization
+        var height = this.WH[1]*1.5 // interactive visualization
         layout = {
           title: 'Models Performance (MDS)',
           xaxis: {
@@ -168,8 +140,8 @@ export default {
               visible: false
           },
           autosize: true,
-          width: 400,
-          height: 400,
+          width: width,
+          height: height,
           dragmode: 'lasso',
           hovermode: "closest",
           hoverlabel: { bgcolor: "#FFF" },
@@ -253,10 +225,30 @@ export default {
     },
     UpdateScatter () {
       this.ScatterPlotView()
+    },
+    animate() {
+      var colorsforScatterPlot = JSON.parse(this.DataPointsSelUpdate[0])
+      var MDSData = JSON.parse(this.DataPointsSelUpdate[1])
+      Plotly.animate('OverviewPlotly', {
+        data: [
+          {x: MDSData[0], y: MDSData[1],marker: {
+              color: colorsforScatterPlot,
+              }}
+        ],
+        traces: [0],
+        layout: {}
+      }, {
+        transition: {
+          duration: 1000,
+          easing: 'cubic-in-out'
+        },
+        frame: {
+          duration: 1000
+        }
+      })
     }
   },
   mounted() {
-    EventBus.$on('UpdateAllPerformanceResults', data => { this.AllData = data })
     EventBus.$on('emittedEventCallingBrushedBoxPlot', data => {
       this.brushedBox = data})
     EventBus.$on('emittedEventCallingScatterPlot', data => {
@@ -264,10 +256,16 @@ export default {
     EventBus.$on('emittedEventCallingScatterPlot', this.ScatterPlotView)
     EventBus.$on('getColors', data => {
       this.colorsforOver = data})
+    EventBus.$on('Responsive', data => {
+    this.WH = data})
+    EventBus.$on('ResponsiveandChange', data => {
+    this.WH = data})
     EventBus.$on('ParametersAll',  data => { this.parametersAll = data })
     EventBus.$on('getColors', this.UpdateScatter)
     EventBus.$on('RepresentationSelection', data => {this.representationDef = data})
     EventBus.$on('RepresentationSelection', this.ScatterPlotView)
+    EventBus.$on('UpdateModelsScatterplot', data => {this.DataPointsSelUpdate = data})
+    EventBus.$on('UpdateModelsScatterplot', this.animate)
   }
 }
 </script>

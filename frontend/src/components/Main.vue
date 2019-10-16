@@ -14,14 +14,16 @@
               </mdb-card-text>
             </mdb-card-body>
           </mdb-card>
+        <mdb-card style="margin-top: 15px">
+          <mdb-card-header color="primary-color" tag="h5" class="text-center">Parameters Space Exploration Overview</mdb-card-header>
+            <mdb-card-body>
+              <Parameters/>
+            </mdb-card-body>
+          </mdb-card>
         </b-col>
         <b-col cols="3">
           <mdb-card>
              <mdb-card-header color="primary-color" tag="h5" class="text-center">Models Space Visualization
-                <select id="selectBarChart" @change="selectVisualRepresentation()">
-                  <option value="mds" selected>MDS Projection</option>
-                  <option value="tsne">t-SNE Projection</option>
-                </select>
               [Sel.:{{OverSelLength}}/All:{{OverAllLength}}]
               </mdb-card-header>
               <mdb-card-body>
@@ -133,6 +135,7 @@ import Heatmap from './Heatmap.vue'
 import ToggleSelection from './ToggleSelection.vue'
 import FinalResultsLinePlot from './FinalResultsLinePlot.vue'
 import Provenance from './Provenance.vue'
+import Parameters from './Parameters.vue'
 import axios from 'axios'
 import { loadProgressBar } from 'axios-progress-bar'
 import 'axios-progress-bar/dist/nprogress.css'
@@ -163,6 +166,7 @@ export default Vue.extend({
     Heatmap,
     ToggleSelection,
     Provenance,
+    Parameters,
     FinalResultsLinePlot,
     mdbCard,
     mdbCardBody,
@@ -181,6 +185,8 @@ export default Vue.extend({
       selectedAlgorithm: '',
       PerformancePerModel: '',
       PerformanceCheck: '',
+      firstTimeFlag: 1,
+      selectedAlgorithms_Stack: [],
       selectedAlgorithms: [],
       parametersofModels: [],
       reset: false,
@@ -190,7 +196,6 @@ export default Vue.extend({
       combineWH: [],
       basicValuesFact: [],
       sumPerClassifier: [],
-      representationSelection: 'MDS',
       valueSel: 0,
       valueAll: 0,
       OverSelLength: 0,
@@ -200,14 +205,12 @@ export default Vue.extend({
       toggle3: 1,
       modelsUpdate: [],
       AlgorithmsUpdate: [],
+      SelectedMetricsForModels: [],
+      DataPointsSel: '',
+      DataPointsModels: ''
     }
   },
   methods: {
-    selectVisualRepresentation () {
-      const representationSelectionDocum = document.getElementById('selectBarChart')
-      this.representationSelection = representationSelectionDocum.options[representationSelectionDocum.selectedIndex].value
-      EventBus.$emit('RepresentationSelection', this.representationSelection)
-    },
     getCollection () {
       this.Collection = this.getCollectionFromBackend()
     },
@@ -248,7 +251,11 @@ export default Vue.extend({
           this.OverviewResults = response.data.OverviewResults
           console.log('Server successfully sent all the data related to visualizations!')
           EventBus.$emit('emittedEventCallingScatterPlot', this.OverviewResults)
-          EventBus.$emit('InitializeProvenance', this.OverviewResults)
+          if (this.firstTimeFlag == 1) {
+            this.selectedAlgorithms_Stack = this.selectedAlgorithms
+            EventBus.$emit('InitializeProvenance', this.selectedAlgorithms_Stack)
+          }
+          this.firstTimeFlag = 0
           EventBus.$emit('InitializeMetricsBarChart', this.OverviewResults)
           this.valueSel = 0
           this.valueAll = 0
@@ -259,7 +266,6 @@ export default Vue.extend({
           EventBus.$emit('emitToggles', this.OverviewResults)
           EventBus.$emit('emittedEventCallingToggles', toggles)
           EventBus.$emit('emittedEventCallingHeatmapView', this.OverviewResults)
-          EventBus.$emit('emittedEventCallingTableView', this.OverviewResults)
           EventBus.$emit('emittedEventCallingDataSpacePlotView', this.OverviewResults)
           EventBus.$emit('emittedEventCallingPredictionsSpacePlotView', this.OverviewResults)
           EventBus.$emit('emittedEventCallingBalanceView', this.OverviewResults)
@@ -289,7 +295,7 @@ export default Vue.extend({
           console.log('Server successfully sent updated per class features!')
           EventBus.$emit('emittedEventCallingAllAlgorithms', this.PerformancePerModel)
           EventBus.$emit('emittedEventCallingBarChart', this.PerformancePerModel)
-          EventBus.$emit('UpdateAllPerformanceResults', this.PerformancePerModel)
+          EventBus.$emit('emittedEventCallingOverview')
         })
         .catch(error => {
           console.log(error)
@@ -318,16 +324,79 @@ export default Vue.extend({
             console.log('Sent the selected points to the server (scatterplot)!')
             this.OverSelLength = this.ClassifierIDsList.length
             EventBus.$emit('emittedEventCallingHeatmapView', this.OverviewResults)
-            EventBus.$emit('emittedEventCallingTableView', this.OverviewResults)
-            EventBus.$emit('emittedEventCallingDataSpacePlotView', this.OverviewResults)
-            EventBus.$emit('emittedEventCallingPredictionsSpacePlotView', this.OverviewResults)
-            EventBus.$emit('emittedEventCallingBalanceView', this.OverviewResults)
+            this.getSelectedModelsMetrics()
             this.getFinalResults()
           })
           .catch(error => {
             console.log(error)
           })
       }
+    },
+    SendSelectedDataPointsToServer () {
+
+      const path = `http://127.0.0.1:5000/data/ServerRequestDataPoint`
+    
+      const postData = {
+        DataPointsSel: this.DataPointsSel
+      }
+      const axiosConfig = {
+        headers: {
+          'Content-Type': 'application/json',
+          'Access-Control-Allow-Origin': '*',
+          'Access-Control-Allow-Headers': 'Origin, Content-Type, X-Auth-Token',
+          'Access-Control-Allow-Methods': 'GET, PUT, POST, DELETE, OPTIONS'
+        }
+      }
+      axios.post(path, postData, axiosConfig)
+        .then(response => {
+          console.log('Sent the selected data points to the server!')
+          this.getSelectedDataPointsModels()
+        })
+        .catch(error => {
+          console.log(error)
+        })
+    },
+    getSelectedDataPointsModels () {
+      const path = `http://localhost:5000/data/ServerSentDataPointsModel`
+
+      const axiosConfig = {
+        headers: {
+          'Content-Type': 'application/json',
+          'Access-Control-Allow-Origin': '*',
+          'Access-Control-Allow-Headers': 'Origin, Content-Type, X-Auth-Token',
+          'Access-Control-Allow-Methods': 'GET, PUT, POST, DELETE, OPTIONS'
+        }
+      }
+      axios.get(path, axiosConfig)
+        .then(response => {
+          this.DataPointsModels = response.data.DataPointsModels
+          console.log('Server successfully sent the new models for the scatterplot!')
+          EventBus.$emit('UpdateModelsScatterplot', this.DataPointsModels)
+        })
+        .catch(error => {
+          console.log(error)
+        })
+    },
+    getSelectedModelsMetrics () {
+      const path = `http://localhost:5000/data/BarChartSelectedModels`
+
+      const axiosConfig = {
+        headers: {
+          'Content-Type': 'application/json',
+          'Access-Control-Allow-Origin': '*',
+          'Access-Control-Allow-Headers': 'Origin, Content-Type, X-Auth-Token',
+          'Access-Control-Allow-Methods': 'GET, PUT, POST, DELETE, OPTIONS'
+        }
+      }
+      axios.get(path, axiosConfig)
+        .then(response => {
+          this.SelectedMetricsForModels = response.data.SelectedMetricsForModels
+          console.log('Server successfully updated barchart for metrics based on selected models!')
+          EventBus.$emit('UpdateBarChartperMetric', this.SelectedMetricsForModels)
+        })
+        .catch(error => {
+          console.log(error)
+        })
     },
     getFinalResults () {
       this.FinalResults = this.getFinalResultsFromBackend()
@@ -597,6 +666,8 @@ export default Vue.extend({
     EventBus.$on('ReturningBrushedPointsParams', data => { this.parametersofModels = data; })
     EventBus.$on('SendSelectedPointsToServerEvent', data => { this.ClassifierIDsList = data })
     EventBus.$on('SendSelectedPointsToServerEvent', this.SendSelectedPointsToServer)
+    EventBus.$on('SendSelectedDataPointsToServerEvent', data => { this.DataPointsSel = data })
+    EventBus.$on('SendSelectedDataPointsToServerEvent', this.SendSelectedDataPointsToServer)
     EventBus.$on('SendSelectedFeaturesEvent', data => { this.SelectedFeaturesPerClassifier = data })
     EventBus.$on('SendSelectedFeaturesEvent', this.UpdateBasedonFeatures )
     EventBus.$on('SendToServerDataSetConfirmation', data => { this.RetrieveValueFile = data })

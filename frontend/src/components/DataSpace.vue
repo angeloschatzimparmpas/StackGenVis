@@ -11,12 +11,13 @@ export default {
   data () {
     return {
       CollectionData: '',
-      DataSpace: ''
+      DataSpace: '',
+      WH: []
     }
   },
   methods: {
     ScatterPlotDataView () {
-        const XandYCoordinates = JSON.parse(this.DataSpace[3])
+        const XandYCoordinates = JSON.parse(this.DataSpace[7])
 
         var result = XandYCoordinates.reduce(function(r, a) {
             a.forEach(function(s, i) {
@@ -29,10 +30,21 @@ export default {
             return r;
         }, {})
 
+        var dataPointInfo = []
+        for (let i = 0; i < XandYCoordinates.length; i++) {
+          dataPointInfo[i] = 'Data Point ID: ' + i
+        }
+
+        var width = this.WH[0]*3 // interactive visualization
+        var height = this.WH[1]*1.5 // interactive visualization
         const Data = [{
         x: result.Xax,
         y: result.Yax,
         mode: 'markers',
+        hovertemplate: 
+                "<b>%{text}</b><br><br>" +
+                "<extra></extra>",
+        text: dataPointInfo,
         }]
         const layout = {
         title: 'Data Space Projection (tSNE)',
@@ -41,7 +53,10 @@ export default {
         },
         yaxis: {
             visible: false
-        }
+        },
+        autosize: true,
+        width: width,
+        height: height,
         }
         Plotly.newPlot('OverviewDataPlotly', Data, layout, {responsive: true})
     }
@@ -52,6 +67,10 @@ export default {
     EventBus.$on('emittedEventCallingDataSpacePlotView', data => {
       this.DataSpace = data})
     EventBus.$on('emittedEventCallingDataSpacePlotView', this.ScatterPlotDataView)
+    EventBus.$on('Responsive', data => {
+    this.WH = data})
+    EventBus.$on('ResponsiveandChange', data => {
+    this.WH = data})
   }
 }
 </script>

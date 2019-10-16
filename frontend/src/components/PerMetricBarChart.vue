@@ -10,64 +10,25 @@ export default {
   name: 'PerMetricsBarChart',
   data () {
     return {
-      barchartmetrics: ''
+      barchartmetrics: '',
+      WH: [],
+      SelBarChartMetrics: []
     }
   },
   methods: {
         LineBar () {
-        var  metricsPerModel = JSON.parse(this.barchartmetrics[9])
-        var vh = 80
-        /*if (this.representationDefault === 'bar'){
-        var type = 'bar';
-        } else if (this.representationDefault === 'line'){
-            var type = 'line';
+
+        Plotly.purge('PerMetricBar')
+
+        var metricsPerModel = JSON.parse(this.barchartmetrics[9])
+        var metricsPerModelSel = []
+        if (this.SelBarChartMetrics.length == 0) {
+          metricsPerModelSel = metricsPerModel
         } else {
-            var type = 'difference';
+          metricsPerModelSel = this.SelBarChartMetrics
         }
-        var difference = [];
-        for (var i=0; i<metricsPerModel.length; i++){
-            difference.push(metricsPerModel[i] - metricsPerModel[i]);
-        }*/
-
-        /*if (type == 'difference'){
-            var trace = {
-            x: kValuesLegend, 
-            y: difference, 
-            name: 'Delta(preservation)', 
-            showlegend:  true,
-            type: 'line',
-            marker: {
-                color: 'rgb(128,128,0)'
-            }
-            };
-            var LimitXaxis = Number(maxKNN) + 1;
-            var data = [trace];
-            var layout = {
-            barmode: 'group',autosize: false,
-            width: 400,
-            height: vh * 1.3,
-            margin: {
-                l: 50,
-                r: 30,
-                b: 30,
-                t: 5,
-                pad: 4
-            },
-            xaxis: {range: [0, LimitXaxis],
-                title: 'Number of neighbors',
-                titlefont: {
-                size: 12,
-                color: 'black'
-                }},
-            yaxis: {
-                title: '+/- Pres.',
-                titlefont: {
-                size: 12,
-                color: 'black'
-                }}};
-
-        Plotly.newPlot('PerMetricBar', data, layout, {displayModeBar:false}, {staticPlot: true});
-        } else{*/
+        var width = this.WH[0]*3 // interactive visualization
+        var height = this.WH[1]/2 // interactive visualization
             var trace1 = {
             x: ['Acc','F1s','Pre','Rec','Jac'], 
             y: metricsPerModel, 
@@ -79,7 +40,7 @@ export default {
             };
             var trace2 = {
             x: ['Acc','F1s','Pre','Rec','Jac'], 
-            y: metricsPerModel, 
+            y: metricsPerModelSel, 
             name: 'Selected points', 
             type: 'bar',
             marker: {
@@ -89,8 +50,8 @@ export default {
             var data = [trace1, trace2];
             var layout = {
             barmode: 'group',autosize: false,
-            width:  400,
-            height: vh * 1.3,
+            width:  width,
+            height: height,
             margin: {
                 l: 50,
                 r: 30,
@@ -118,6 +79,13 @@ export default {
     mounted () {
         EventBus.$on('InitializeMetricsBarChart', data => {this.barchartmetrics = data;})
         EventBus.$on('InitializeMetricsBarChart', this.LineBar)
+        EventBus.$on('Responsive', data => {
+        this.WH = data})
+        EventBus.$on('ResponsiveandChange', data => {
+        this.WH = data})
+        EventBus.$on('UpdateBarChartperMetric', data => {
+        this.SelBarChartMetrics = data})
+        EventBus.$on('UpdateBarChartperMetric', this.LineBar)
     }
 }
 </script>

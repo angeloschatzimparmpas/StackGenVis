@@ -21,9 +21,7 @@ export default {
       limitation: 0,
       flag: false,
       classesNumber: 10,
-      cellSize: 24,
-      indicestoRem: [],
-      modelIds: []
+      cellSize: 20
     }
   },
   methods: {
@@ -38,46 +36,29 @@ export default {
       
       var FeaturesAccuracy = JSON.parse(this.GetResultsAll[5])
       var Features= JSON.parse(this.GetResultsAll[6])
-      var Classifiers = this.modelIds
       var keepingArrayIndices = this.indicestoRem
       var PermImpEli = JSON.parse(this.GetResultsAll[10])
       var featureUni = JSON.parse(this.GetResultsAll[11])
+      var modelIds = JSON.parse(this.GetResultsAll[13])
 
-      var lengthInitial = PermImpEli.length
-      var counter = 0
-      var flag
-      for (var i = 0; i < lengthInitial; i++) {
-        flag = 0
-        for (var j = 0; j < keepingArrayIndices.length; j++) {
-          if (i == parseInt(keepingArrayIndices[j])) {
-            flag = 1
-          }
-        }
-        if (flag == 0) {
-          PermImpEli.splice(i-counter, 1)
-          counter++
-        }
-      }
-        var len2 = Classifiers.length
-        console.log(len2)
+        var len2 = modelIds.length
+
         var maxUni = Math.max.apply(Math, featureUni.map(function(o) { return o.Score; }))
         var minUni = Math.min.apply(Math, featureUni.map(function(o) { return o.Score; }))
         let len = Features.length
-        console.log(len)
         let indicesYAxis = new Array(len)
         for (let i = 0; i < len; i++) {
             indicesYAxis[i] = [Features[i]]
         } 
-        console.log(indicesYAxis)
         let indicesXAxis = new Array(len)
         var temp = []
         for (let i = 0; i < len2; i++) {
           temp = []
           temp.push("R")
-          temp.push("Model "+Classifiers[i].toString())
+          temp.push("Model "+modelIds[i].toString())
           indicesXAxis[i] = temp
         }
-        console.log(indicesXAxis)
+
         temp = []
         temp.push("R")
         temp.push("Average")
@@ -85,19 +66,18 @@ export default {
         
         var values = []
         var msg = false
-        var counter = 0
         var modelData = []
         for (let j = 0; j < len2; j++) {
           var data = []
           for (let i = 0; i <len; i++) {
               if (this.Toggles[0] == 1 && this.Toggles[1] == 1 && this.Toggles[2] == 1) {
-                values[j] = ((((featureUni[i].Score-minUni)/(maxUni-minUni))*100)+(PermImpEli[j][i]*100+(FeaturesAccuracy[counter][0]*100)))/3
+                values[j] = ((((featureUni[i].Score-minUni)/(maxUni-minUni))*100)+(PermImpEli[j][i]*100+(FeaturesAccuracy[j][i]*100)))/3
               }
               else if (this.Toggles[0] == 1 && this.Toggles[1] == 1 && this.Toggles[2] == 0) {
                 values[j] = ((((featureUni[i].Score-minUni)/(maxUni-minUni))*100)+(PermImpEli[j][i]*100))/2
               }
               else if (this.Toggles[0] == 1 && this.Toggles[1] == 0 && this.Toggles[2] == 1) {
-                values[j] = ((((featureUni[i].Score-minUni)/(maxUni-minUni))*100)+(FeaturesAccuracy[counter][0]*100))/2
+                values[j] = ((((featureUni[i].Score-minUni)/(maxUni-minUni))*100)+(FeaturesAccuracy[j][i]*100))/2
               }
               else if (this.Toggles[0] == 0 && this.Toggles[1] == 1 && this.Toggles[2] == 1) {
                 values[j] = ((PermImpEli[j][i]*100))/2
@@ -109,12 +89,12 @@ export default {
                 values[j] = PermImpEli[j][i]*100
               }
               else if (this.Toggles[0] == 0 && this.Toggles[1] == 0 && this.Toggles[2] == 1) {
-                values[j] = FeaturesAccuracy[counter][0]*100
+                values[j] = FeaturesAccuracy[j][i]*100
               } else {
-                continue
+                alert('Please, keep at least one metric active') // Fix this!
+                values[j] = ((((featureUni[i].Score-minUni)/(maxUni-minUni))*100)+(PermImpEli[j][i]*100+(FeaturesAccuracy[j][i]*100)))/3
               }
               data.push(values[j]/100)
-              counter++
           }
           modelData.push(data)
         }
@@ -169,7 +149,7 @@ export default {
                                 svg.attr('transform', d3.event.transform) // updated for d3 v4
                             })
         //==================================================
-        var viewerWidth = $(document).width()/2;
+        var viewerWidth = $(document).width()/2.2;
         var viewerHeight = $(document).height()/5.5;
         var viewerPosTop = 125;
         var viewerPosLeft = 100;
@@ -364,17 +344,18 @@ export default {
                         })
                     }
                 }
-                var results = new Array()
-                for (let i = 0; i < rowsExtracted[0].childNodes.length; i++) {
+                var finalresults = []
+                for (let i = 0; i < rowsExtracted[0].childNodes.length - 1; i++) {
+                    var results = []
                     for (let j = 0; j < rowsExtracted.length; j++) {
                         if (rowsExtracted[j].childNodes[i].style.fill === "url(\"#diagonalHatch\")") {
-                            results.push('ClassifierID: ' + i, 'FeatureName: ' + j, 'Check: 0')
                         } else {
-                            results.push('ClassifierID: ' + i, 'FeatureName: ' + j, 'Check: 1')
+                            results.push(j)
                         }
                     }
+                    finalresults.push(results)
                 }
-                EventBus.$emit('SendSelectedFeaturesEvent', results)
+                EventBus.$emit('SendSelectedFeaturesEvent', finalresults)
               });
 
           var legend = svg.append("g")
@@ -551,8 +532,6 @@ export default {
       EventBus.$on('emittedEventCallingTogglesUpdate', this.Refresh)
       EventBus.$on('emittedEventCallingTogglesUpdate', this.Heatmap)
       EventBus.$on('resetViews', this.reset)
-      EventBus.$on('sendModelsIDs', data => { this.modelIds = data })
-      EventBus.$on('sendIndicestoRemove', data => { this.indicestoRem = data })
     }
 }
 </script>

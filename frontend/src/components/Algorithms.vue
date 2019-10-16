@@ -76,7 +76,7 @@ export default {
       this.chart('#exploding_boxplot')
 
       // colorscale
-      const previousColor = ['#8dd3c7','#ffffb3','#bebada','#fb8072','#80b1d3','#fdb462','#b3de69','#fccde5','#d9d9d9','#bc80bd','#ccebc5','#ffed6f']
+      const previousColor = ['#8dd3c7','#8da0cb']
       // check for brushing
       var el = document.getElementsByClassName('d3-exploding-boxplot boxcontent')
       this.brushStatus = document.getElementsByClassName('extent')
@@ -178,7 +178,7 @@ export default {
       } else {
         var allPoints = document.getElementsByClassName('d3-exploding-boxplot point RF')
       }
-      const previousColor = ['#8dd3c7','#ffffb3','#bebada','#fb8072','#80b1d3','#fdb462','#b3de69','#fccde5','#d9d9d9','#bc80bd','#ccebc5','#ffed6f']
+      const previousColor = ['#8dd3c7','#8da0cb']
       var modelsActive = []
       for (let j = 0; j < this.brushedBoxPl.length; j++) {
         modelsActive.push(this.brushedBoxPl[j].model)

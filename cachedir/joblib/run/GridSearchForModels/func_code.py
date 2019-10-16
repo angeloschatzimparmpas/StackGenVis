@@ -1,4 +1,4 @@
-# first line: 310
+# first line: 307
 @memory.cache
 def GridSearchForModels(clf, params, eachAlgor, factors, AlgorithmsIDsEnd):
 
@@ -78,6 +78,7 @@ def GridSearchForModels(clf, params, eachAlgor, factors, AlgorithmsIDsEnd):
 
     permList = []
     PerFeatureAccuracy = []
+    PerFeatureAccuracyAll = []
     PerClassMetric = []
     perModelProb = []
 
@@ -88,10 +89,11 @@ def GridSearchForModels(clf, params, eachAlgor, factors, AlgorithmsIDsEnd):
         permList.append(perm.feature_importances_)
 
         n_feats = XData.shape[1]
+        PerFeatureAccuracy = []
         for i in range(n_feats):
             scores = model_selection.cross_val_score(clf, XData.values[:, i].reshape(-1, 1), yData, cv=crossValidation)
             PerFeatureAccuracy.append(scores.mean())
-
+        PerFeatureAccuracyAll.append(PerFeatureAccuracy)
         clf.fit(XData, yData) 
         yPredict = clf.predict(XData)
         # retrieve target names (class names)
@@ -112,7 +114,7 @@ def GridSearchForModels(clf, params, eachAlgor, factors, AlgorithmsIDsEnd):
     perm_imp_eli5PD = pd.DataFrame(permList)
     perm_imp_eli5PD = perm_imp_eli5PD.to_json()
 
-    PerFeatureAccuracyPandas = pd.DataFrame(PerFeatureAccuracy)
+    PerFeatureAccuracyPandas = pd.DataFrame(PerFeatureAccuracyAll)
     PerFeatureAccuracyPandas = PerFeatureAccuracyPandas.to_json()
 
     bestfeatures = SelectKBest(score_func=chi2, k='all')

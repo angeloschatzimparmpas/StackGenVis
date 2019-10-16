@@ -1,4 +1,4 @@
-# first line: 669
+# first line: 703
 @memory.cache
 def EnsembleModel(keyRetrieved): 
 
@@ -22,7 +22,7 @@ def EnsembleModel(keyRetrieved):
         dfParamRF = pd.DataFrame.from_dict(temp)
         dfParamRFFilt = dfParamRF.iloc[:,1]
         for eachelem in RFModels:
-            arg = dfParamRFFilt[eachelem]
+            arg = dfParamRFFilt[eachelem-576]
             all_classifiers.append(make_pipeline(ColumnSelector(cols=columnsInit), RandomForestClassifier().set_params(**arg)))
 
         lr = LogisticRegression()
