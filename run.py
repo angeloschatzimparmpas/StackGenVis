@@ -575,6 +575,54 @@ def PreprocessingPred():
         predictions.append(el)
     return predictions
 
+def PreprocessingPredUpdate(Models):
+    Models = json.loads(Models)
+    ModelsList= []
+    for loop in Models['ClassifiersList']:
+        temp = [int(s) for s in re.findall(r'\b\d+\b', loop)]
+        ModelsList.append(temp[0])
+    dicKNN = json.loads(allParametersPerformancePerModel[7])
+    dicRF = json.loads(allParametersPerformancePerModel[15])
+    dfKNN = pd.DataFrame.from_dict(dicKNN)
+    dfKNN.index = dfKNN.index.astype(int)
+    dfKNNFiltered = dfKNN.loc[KNNModels, :]
+    dfRF = pd.DataFrame.from_dict(dicRF)
+    dfRF.index = dfRF.index.astype(int) + 576
+    dfRFFiltered = dfRF.loc[RFModels, :]
+    df_concatProbs = pd.concat([dfKNNFiltered, dfRFFiltered])
+    listProbs = df_concatProbs.index.values.tolist()
+    deletedElements = 0
+    for index, element in enumerate(listProbs):
+        if element in ModelsList:
+            index = index - deletedElements
+            df_concatProbs = df_concatProbs.drop(df_concatProbs.index[index])
+            deletedElements = deletedElements + 1
+    df_concatProbsCleared = df_concatProbs
+    listIDsRemaining = df_concatProbsCleared.index.values.tolist()
+
+    predictionsAll = PreprocessingPred()
+    PredictionSpaceAll = FunTsne(predictionsAll)
+
+    predictionsSel = []
+    for column, content in df_concatProbsCleared.items():
+        el = [sum(x)/len(x) for x in zip(*content)]
+        predictionsSel.append(el)
+
+    PredictionSpaceSel = FunTsne(predictionsSel)
+
+    #ModelSpaceMDSNewComb = [list(a) for a in  zip(PredictionSpaceAll[0], ModelSpaceMDS[1])]
+
+    #ModelSpaceMDSNewSel = FunMDS(df_concatMetrics)
+    #ModelSpaceMDSNewSelComb = [list(a) for a in  zip(ModelSpaceMDSNewSel[0], ModelSpaceMDSNewSel[1])]
+
+    mtx2PredFinal = []
+    mtx1Pred, mtx2Pred, disparity2 = procrustes(PredictionSpaceAll, PredictionSpaceSel)
+
+    a1, b1 = zip(*mtx2Pred)
+    mtx2PredFinal.append(a1)
+    mtx2PredFinal.append(b1)
+    return [mtx2PredFinal,listIDsRemaining]
+
 def PreprocessingParam():
     dicKNN = json.loads(allParametersPerformancePerModel[1])
     dicRF = json.loads(allParametersPerformancePerModel[9])
@@ -733,6 +781,7 @@ def ReturnResults(ModelSpaceMDS,ModelSpaceTSNE,DataSpaceList,PredictionSpaceList
     FeatureAccuracy = FeatureAccuracy.to_json(orient='records')
     perm_imp_eli5PDCon = perm_imp_eli5PDCon.to_json(orient='records')
     featureScoresCon = featureScoresCon.to_json(orient='records')
+    XDataJSONEntireSet = XData.to_json(orient='records')
     XDataJSON = XData.columns.tolist()
 
     Results.append(json.dumps(sumPerClassifier)) # Position: 0 
@@ -749,6 +798,8 @@ def ReturnResults(ModelSpaceMDS,ModelSpaceTSNE,DataSpaceList,PredictionSpaceList
     Results.append(featureScoresCon) # Position: 11
     Results.append(json.dumps(ModelSpaceTSNE)) # Position: 12
     Results.append(json.dumps(ModelsIDs)) # Position: 13
+    Results.append(json.dumps(XDataJSONEntireSet)) # Position: 14
+    Results.append(json.dumps(yData)) # Position: 15
 
     return Results
 
@@ -764,12 +815,40 @@ def SendToPlot():
     }
     return jsonify(response)
 
+
+# Retrieve data from client 
+@cross_origin(origin='localhost',headers=['Content-Type','Authorization'])
+@app.route('/data/ServerRemoveFromStack', methods=["GET", "POST"])
+def RetrieveSelClassifiersIDandRemoveFromStack():
+    ClassifierIDsList = request.get_data().decode('utf8').replace("'", '"')
+
+    PredictionProbSelUpdate = PreprocessingPredUpdate(ClassifierIDsList)
+
+    global resultsUpdatePredictionSpace
+    resultsUpdatePredictionSpace = []
+    resultsUpdatePredictionSpace.append(json.dumps(PredictionProbSelUpdate[0])) # Position: 0
+    resultsUpdatePredictionSpace.append(json.dumps(PredictionProbSelUpdate[1]))
+
+    key = 3
+    EnsembleModel(ClassifierIDsList, key)
+
+    return 'Everything Okay'
+
+# Sending the overview classifiers' results to be visualized as a scatterplot
+@app.route('/data/UpdatePredictionsSpace', methods=["GET", "POST"])
+def SendPredBacktobeUpdated():
+    response = {    
+        'UpdatePredictions': resultsUpdatePredictionSpace
+    }
+    return jsonify(response)
+
 # Retrieve data from client 
 @cross_origin(origin='localhost',headers=['Content-Type','Authorization'])
 @app.route('/data/ServerRequestSelPoin', methods=["GET", "POST"])
 def RetrieveSelClassifiersID():
     ClassifierIDsList = request.get_data().decode('utf8').replace("'", '"')
     ComputeMetricsForSel(ClassifierIDsList)
+
     key = 1
     EnsembleModel(ClassifierIDsList, key)
     return 'Everything Okay'
@@ -909,6 +988,7 @@ def RetrieveSelDataPoints():
     ModelSpaceMDSNewComb = [list(a) for a in  zip(ModelSpaceMDS[0], ModelSpaceMDS[1])]
 
     ModelSpaceMDSNewSel = FunMDS(df_concatMetrics)
+
     ModelSpaceMDSNewSelComb = [list(a) for a in  zip(ModelSpaceMDSNewSel[0], ModelSpaceMDSNewSel[1])]
 
     global mt2xFinal
@@ -917,6 +997,7 @@ def RetrieveSelDataPoints():
     a, b = zip(*mtx2)
     mt2xFinal.append(a)
     mt2xFinal.append(b)
+
     return 'Everything Okay'
 
 
@@ -1029,7 +1110,6 @@ def EnsembleModel(Models, keyRetrieved):
     global all_classifiersSelection  
     all_classifiersSelection = []
 
-    sclf = 0
     lr = LogisticRegression()
 
     if (keyRetrieved == 0):
@@ -1055,6 +1135,9 @@ def EnsembleModel(Models, keyRetrieved):
         
         global sclfStack
         sclfStack = 0
+
+        global sclf 
+        sclf = 0
         sclf = StackingCVClassifier(classifiers=all_classifiers,
                             use_probas=True,
                             meta_classifier=lr,
@@ -1078,7 +1161,8 @@ def EnsembleModel(Models, keyRetrieved):
                             meta_classifier=lr,
                             random_state=RANDOM_SEED,
                             n_jobs = -1)
-    else: 
+    elif (keyRetrieved == 2):
+        # fix this part!
         if (len(all_classifiersSelection) == 0):
             all_classifiers = []
             columnsInit = []
@@ -1106,12 +1190,30 @@ def EnsembleModel(Models, keyRetrieved):
                 print(index)
                 print(featureSelection['featureSelection'][index+store])
                 all_classifiers.append(make_pipeline(ColumnSelector(cols=featureSelection['featureSelection'][index+store]), RandomForestClassifier().set_params(**arg)))
-
+                
             sclf = StackingCVClassifier(classifiers=all_classifiers,
                                 use_probas=True,
                                 meta_classifier=lr,
                                 random_state=RANDOM_SEED,
                                 n_jobs = -1)
+    else: 
+        Models = json.loads(Models)
+        ModelsAll = preProceModels()
+        for index, modHere in enumerate(ModelsAll):
+            flag = 0
+            for loop in Models['ClassifiersList']:
+                temp = [int(s) for s in re.findall(r'\b\d+\b', loop)]
+                if (int(temp[0]) == int(modHere)):
+                    flag = 1
+            if (flag is 0):
+                all_classifiersSelection.append(all_classifiers[index])
+
+        sclfStack = StackingCVClassifier(classifiers=all_classifiersSelection,
+                            use_probas=True,
+                            meta_classifier=lr,
+                            random_state=RANDOM_SEED,
+                            n_jobs = -1)
+        
         #else:
         #    for index, eachelem in enumerate(algorithmsWithoutDuplicates):
         #        if (eachelem == 'KNN'):

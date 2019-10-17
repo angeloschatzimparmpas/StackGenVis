@@ -46,7 +46,6 @@ export default {
       this.xaxis.push(this.NumberofExecutions)
 
       // Under Exploration = Current
-      console.log(this.FinalResultsforLinePlot)
       this.scoresMean.push((JSON.parse(this.FinalResultsforLinePlot[0])*100).toFixed(1))
       this.scoresSTD.push((JSON.parse(this.FinalResultsforLinePlot[1])*100).toFixed(1))
 
@@ -106,7 +105,9 @@ export default {
         text: text,
         line: {color: "rgb(127,201,127)"}, 
         mode: "lines+markers", 
-        name: "Current Accuracy", 
+        marker : {
+          symbol: 'pentagon' },
+        name: "Current Accuracy",
         type: "scatter"
       }
 
@@ -182,7 +183,7 @@ export default {
         line: {color: "rgb(190,174,212)"}, 
         mode: "lines+markers", 
         marker : {
-          symbol: 'square' },
+          symbol: 'circle' },
         name: "Stack Accuracy", 
         type: "scatter"
       }
@@ -207,7 +208,7 @@ export default {
         line: {color: "rgb(56,108,176)"}, 
         mode: "lines+markers", 
         marker : {
-          symbol: 'star-triangle-up' },
+          symbol: 'square' },
         name: "Stack Precision", 
         type: "scatter"
       }
@@ -230,9 +231,9 @@ export default {
         y: this.Stack_scoresMean3, 
         text: text,
         line: {color: "rgb(240,2,127)"}, 
-        mode: "lines+markers", 
+        mode: "lines+markers",
         marker : {
-          symbol: 'pentagon' },
+          symbol: 'star-triangle-up' },
         name: "Stack Recall", 
         type: "scatter"
       }

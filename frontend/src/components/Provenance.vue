@@ -26,7 +26,8 @@ export default {
         data: [],
         counter: 0,
         typeCounter: [],
-        typeColumnCounter: []
+        typeColumnCounter: [],
+        KNNModels: 576, //KNN models
 
     }
   },
@@ -38,12 +39,12 @@ export default {
 
       var flagKNN = 0
       var flagRF = 0
-
+      var StackInfo = JSON.parse(this.stackInformation[1])
       // Create a WebGL 2D platform on the canvas:
       var platform = Stardust.platform("webgl-2d", canvas, width, height);
-
-      for (let i = 0; i < this.stackInformation.length; i++) {
-        if (this.stackInformation[i] == 'KNN'){
+    
+      for (let i = 0; i < StackInfo.length; i++) {
+        if (StackInfo[i] < this.KNNModels){
           this.data.push({
             type:0, column:this.counter, height:height
           })
@@ -62,10 +63,12 @@ export default {
         this.typeCounter.push(0)
       }
       this.typeColumnCounter.push(0)
-
+      
   this.data.forEach(d => {
-    d.typeIndex = this.typeCounter[d.type]++;
-    d.typeColumnIndex = this.typeColumnCounter[d.column]++;
+    if (d.column == this.counter) {
+      d.typeIndex = this.typeCounter[d.type]++;
+      d.typeColumnIndex = this.typeColumnCounter[d.column]++;
+    }
   });
 
       // Convert the SVG file to Stardust mark spec.
@@ -80,7 +83,7 @@ export default {
 
       let pScale = Stardust.scale.custom(`
               Vector2(
-                  20 + column * 160 + typeColumnIndex % 5 * 8,
+                  20 + column * 100 + typeColumnIndex % 5 * 8,
                   height - 10 - floor(typeColumnIndex / 5) * 10
               )
           `);
@@ -110,7 +113,7 @@ export default {
       isotypes.data(this.data);
 
       isotypes.render();
-
+      this.counter = this.counter + 1
   }
   },
   mounted () {

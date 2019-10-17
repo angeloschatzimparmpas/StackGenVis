@@ -186,7 +186,7 @@ export default Vue.extend({
       PerformancePerModel: '',
       PerformanceCheck: '',
       firstTimeFlag: 1,
-      selectedAlgorithms_Stack: [],
+      selectedModels_Stack: [],
       selectedAlgorithms: [],
       parametersofModels: [],
       reset: false,
@@ -252,8 +252,9 @@ export default Vue.extend({
           console.log('Server successfully sent all the data related to visualizations!')
           EventBus.$emit('emittedEventCallingScatterPlot', this.OverviewResults)
           if (this.firstTimeFlag == 1) {
-            this.selectedAlgorithms_Stack = this.selectedAlgorithms
-            EventBus.$emit('InitializeProvenance', this.selectedAlgorithms_Stack)
+            this.selectedModels_Stack.push(0)
+            this.selectedModels_Stack.push(JSON.stringify(this.modelsUpdate))
+            EventBus.$emit('InitializeProvenance', this.selectedModels_Stack)
           }
           this.firstTimeFlag = 0
           EventBus.$emit('InitializeMetricsBarChart', this.OverviewResults)
@@ -331,6 +332,53 @@ export default Vue.extend({
             console.log(error)
           })
       }
+    },
+    RemoveFromStackModels () {
+      const path = `http://127.0.0.1:5000/data/ServerRemoveFromStack`
+
+      const postData = {
+        ClassifiersList: this.ClassifierIDsList
+      }
+      const axiosConfig = {
+      headers: {
+      'Content-Type': 'application/json',
+      'Access-Control-Allow-Origin': '*',
+      'Access-Control-Allow-Headers': 'Origin, Content-Type, X-Auth-Token',
+      'Access-Control-Allow-Methods': 'GET, PUT, POST, DELETE, OPTIONS'
+      }
+      }
+      axios.post(path, postData, axiosConfig)
+      .then(response => {
+      console.log('Sent the selected points to the server (scatterplot)!')
+      EventBus.$emit('GrayOutPoints', this.ClassifierIDsList)
+      this.updatePredictionsSpace()
+      this.getFinalResults()
+      })
+      .catch(error => {
+      console.log(error)
+      })
+    },
+    updatePredictionsSpace () {
+      const path = `http://localhost:5000/data/UpdatePredictionsSpace`
+
+      const axiosConfig = {
+        headers: {
+          'Content-Type': 'application/json',
+          'Access-Control-Allow-Origin': '*',
+          'Access-Control-Allow-Headers': 'Origin, Content-Type, X-Auth-Token',
+          'Access-Control-Allow-Methods': 'GET, PUT, POST, DELETE, OPTIONS'
+        }
+      }
+      axios.get(path, axiosConfig)
+        .then(response => {
+          this.UpdatePredictions = response.data.UpdatePredictions
+          console.log('Updating Predictions Space!')
+          EventBus.$emit('updatePredictionsSpace', this.UpdatePredictions)
+          EventBus.$emit('InitializeProvenance', this.UpdatePredictions)
+        })
+        .catch(error => {
+          console.log(error)
+        })
     },
     SendSelectedDataPointsToServer () {
 
@@ -691,6 +739,7 @@ export default Vue.extend({
     EventBus.$on('sendPointsNumber', data => {this.OverSelLength = data})
     EventBus.$on('sendPointsNumber', data => {this.OverAllLength = data})
     EventBus.$on('AllSelModels', data => {this.valueSel = data})
+    EventBus.$on('RemoveFromStack', this.RemoveFromStackModels)
     //Prevent double click to search for a word. 
     document.addEventListener('mousedown', function (event) {
       if (event.detail > 1) {

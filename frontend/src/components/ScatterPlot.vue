@@ -40,7 +40,8 @@ export default {
       parametersAll: [],
       length: 0,
       valueStackRemove: 'Remove from Stack',
-      DataPointsSelUpdate: []
+      DataPointsSelUpdate: [],
+      ModelsIDGray: []
     }
   },
   methods: {
@@ -50,35 +51,9 @@ export default {
       EventBus.$emit('RepresentationSelection', this.representationSelection)
     },
     RemoveStack () {
-      EventBus.$emit('PCPCallDB')
+      EventBus.$emit('RemoveFromStack')
     },
     ScatterPlotView () {
-
-      function isEquivalent(a, b) {
-        // Create arrays of property names
-        var aProps = Object.getOwnPropertyNames(a);
-        var bProps = Object.getOwnPropertyNames(b);
-
-        // If number of properties is different,
-        // objects are not equivalent
-        if (aProps.length != bProps.length) {
-            return false;
-        }
-
-        for (var i = 0; i < aProps.length; i++) {
-            var propName = aProps[i];
-
-            // If values of same property are not equal,
-            // objects are not equivalent
-            if (a[propName] !== b[propName]) {
-                return false;
-            }
-        }
-
-        // If we made it this far, objects
-        // are considered equivalent
-        return true;
-    }
 
       Plotly.purge('OverviewPlotly')
       var colorsforScatterPlot = JSON.parse(this.ScatterPlotResults[0])
@@ -106,6 +81,37 @@ export default {
         classifiersInfoProcessing[i] = 'Model ID: ' + modelId[i] + '; Details: ' + JSON.stringify(parameters[i])
       }
 
+      var listofNumbersModelsIDs = []
+      var StackModelsIDs = []
+      if (this.ModelsIDGray.length != 0) {
+        for (let j = 0; j < this.ModelsIDGray.length; j++){
+          listofNumbersModelsIDs.push(parseInt(this.ModelsIDGray[j].replace(/\D/g, "")))
+        }
+
+        var parametersNew = []
+        var MDSDataNewX = []
+        var MDSDataNewY = []
+        var colorsforScatterPlotNew = []
+        for (let i = 0; i < modelId.length; i++) {
+          if (listofNumbersModelsIDs.includes(modelId[i])) {
+          } else {
+            StackModelsIDs.push(modelId[i])
+            parametersNew.push(parameters[i])
+            colorsforScatterPlotNew.push(colorsforScatterPlot[i])
+            MDSDataNewX.push(MDSData[0][i])
+            MDSDataNewY.push(MDSData[1][i])
+          }
+        }
+        EventBus.$emit('sendPointsNumber', StackModelsIDs.length)
+        var classifiersInfoProcessing = []
+        for (let i = 0; i < StackModelsIDs.length; i++) {
+          classifiersInfoProcessing[i] = 'Model ID: ' + StackModelsIDs[i] + '; Details: ' + JSON.stringify(parametersNew[i])
+        }
+        MDSData[0] = MDSDataNewX
+        MDSData[1] = MDSDataNewY
+        colorsforScatterPlot = colorsforScatterPlotNew
+        EventBus.$emit('NewHeatmapAccordingtoNewStack', StackModelsIDs)
+      }
       var DataGeneral
       var layout
       if (this.representationDef == 'mds') {
@@ -249,6 +255,8 @@ export default {
     }
   },
   mounted() {
+    EventBus.$on('GrayOutPoints', data => { this.ModelsIDGray = data })
+    EventBus.$on('GrayOutPoints', this.ScatterPlotView)
     EventBus.$on('emittedEventCallingBrushedBoxPlot', data => {
       this.brushedBox = data})
     EventBus.$on('emittedEventCallingScatterPlot', data => {

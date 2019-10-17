@@ -21,7 +21,8 @@ export default {
       limitation: 0,
       flag: false,
       classesNumber: 10,
-      cellSize: 20
+      cellSize: 20,
+      ModelsIDHeatStack: []
     }
   },
   methods: {
@@ -30,16 +31,15 @@ export default {
     },
     Heatmap () {
 
-      // Clear Heatmap first
-      var svg = d3.select("#Heatmap");
-      svg.selectAll("*").remove();
+        // Clear Heatmap first
+        var svg = d3.select("#Heatmap");
+        svg.selectAll("*").remove();
       
-      var FeaturesAccuracy = JSON.parse(this.GetResultsAll[5])
-      var Features= JSON.parse(this.GetResultsAll[6])
-      var keepingArrayIndices = this.indicestoRem
-      var PermImpEli = JSON.parse(this.GetResultsAll[10])
-      var featureUni = JSON.parse(this.GetResultsAll[11])
-      var modelIds = JSON.parse(this.GetResultsAll[13])
+        var FeaturesAccuracy = JSON.parse(this.GetResultsAll[5])
+        var Features = JSON.parse(this.GetResultsAll[6])
+        var PermImpEli = JSON.parse(this.GetResultsAll[10])
+        var featureUni = JSON.parse(this.GetResultsAll[11])
+        var modelIds = JSON.parse(this.GetResultsAll[13])
 
         var len2 = modelIds.length
 
@@ -57,6 +57,30 @@ export default {
           temp.push("R")
           temp.push("Model "+modelIds[i].toString())
           indicesXAxis[i] = temp
+        }
+
+        if (this.ModelsIDHeatStack.length != 0) {
+
+            var FeaturesAccuracyNew = []
+            var PermImpEliNew = []
+            indicesXAxis = new Array(len)
+
+            for (let i = 0; i < modelIds.length; i++) {
+                if (this.ModelsIDHeatStack.includes(modelIds[i])) {
+                } else {
+                    FeaturesAccuracyNew.push(FeaturesAccuracy[i])
+                    PermImpEliNew.push(PermImpEli[i])
+                }
+            }
+            FeaturesAccuracy = FeaturesAccuracyNew
+            PermImpEli = PermImpEliNew
+            len2 = this.ModelsIDHeatStack.length
+            for (let i = 0; i < len2; i++) {
+                temp = []
+                temp.push("R")
+                temp.push("Model "+this.ModelsIDHeatStack[i].toString())
+                indicesXAxis[i] = temp
+            }
         }
 
         temp = []
@@ -525,6 +549,8 @@ export default {
     }
   },
   mounted () {
+      EventBus.$on('NewHeatmapAccordingtoNewStack', data => { this.ModelsIDHeatStack = data })
+      EventBus.$on('NewHeatmapAccordingtoNewStack', this.Heatmap)
       EventBus.$on('emittedEventCallingToggles', data => { this.Toggles = data })
       EventBus.$on('emittedEventCallingHeatmapView', data => { this.GetResultsAll = data; this.flag = false })
       EventBus.$on('emittedEventCallingHeatmapView', this.Heatmap)
