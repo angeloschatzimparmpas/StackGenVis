@@ -12,10 +12,20 @@ export default {
   data () {
     return {
         WH: [],
+        storeActiveModels: [],
+        storeParameters: [],
+        FlagKNN: 0,
+        FlagRF: 0,
+        KNNModels: 576, //KNN models
     }
   },
   methods: {
      draw() {
+
+          // Clear Heatmap first
+          var svg = d3.select("#overview");
+          svg.selectAll("*").remove();
+
           var widthinter = this.WH[0]*3 // interactive visualization
           var heightinter = this.WH[1]*1.23 // interactive visualization
           var margin = 0,
@@ -109,14 +119,55 @@ export default {
           svg.append("circle")
             .attr("r", innerRadius)
             .classed("center-circle", true);
+            
+            var n_neighbors = 0
+            var metric = 0
+            var algorithm = 0
+            var weight = 0
+            var n_estimators = 0
+            var criterion = 0
+
+            if (this.FlagKNN == 1) {
+              n_neighbors = 100
+              metric = 100
+              algorithm = 100
+              weight = 100
+            }
+
+            if (this.FlagRF == 1) {
+              n_estimators = 100
+              criterion = 100
+            }
+
+            if (this.storeActiveModels.length != 0) {
+              var countkNNRelated = []
+              var countRFRelated = []
+              for (let i = 0; i < this.storeActiveModels.length; i++) {
+                if (this.storeActiveModels[i] < this.KNNModels) {
+                  countkNNRelated.push(JSON.parse(this.storeParameters[this.storeActiveModels[i]]))
+                } else {
+                  countRFRelated.push(JSON.parse(this.storeParameters[this.storeActiveModels[i]]))
+                }
+              }
+              console.log(countkNNRelated)
+              console.log(countRFRelated)
+              n_neighbors = ([... new Set(countkNNRelated.map(data => data.n_neighbors))].length / 25) * 100
+              metric = ([... new Set(countkNNRelated.map(data => data.metric))].length / 4) * 100
+              algorithm = ([... new Set(countkNNRelated.map(data => data.algorithm))].length / 3) * 100
+              weight = ([... new Set(countkNNRelated.map(data => data.weight))].length / 2) * 100
+              n_estimators = ([... new Set(countRFRelated.map(data => data.n_estimators))].length / 80) * 100
+              criterion = ([... new Set(countRFRelated.map(data => data.criterion))].length / 2) * 100
+
+              console.log(algorithm)
+            }
 
             var data = [
-                { algorithm: 'KNN', parameter: 'n_neighbors', percentage: 70 },
-                { algorithm: 'KNN', parameter: 'metric', percentage: 50 },
-                { algorithm: 'KNN', parameter: 'algorithm', percentage: 75 },
-                { algorithm: 'KNN', parameter: 'weight', percentage: 50 },
-                { algorithm: 'RF', parameter: 'n_estimators', percentage: 80 },
-                { algorithm: 'RF', parameter: 'criterion', percentage: 50 }
+                { algorithm: 'KNN', parameter: 'n_neighbors', percentage: n_neighbors },
+                { algorithm: 'KNN', parameter: 'metric', percentage: metric },
+                { algorithm: 'KNN', parameter: 'algorithm', percentage: algorithm },
+                { algorithm: 'KNN', parameter: 'weight', percentage: weight },
+                { algorithm: 'RF', parameter: 'n_estimators', percentage: n_estimators },
+                { algorithm: 'RF', parameter: 'criterion', percentage: criterion }
             ];
 
             var cats = data.map(function(d, i) {
@@ -448,7 +499,13 @@ export default {
         }
   },
   mounted () {
-    EventBus.$on('emittedEventCallingOverview',this.draw)
+    EventBus.$on('updateFlagKNN', data => { this.FlagKNN = data })
+    EventBus.$on('updateFlagRF', data => { this.FlagRF = data })
+    EventBus.$on('updateFlagKNN', this.draw)
+    EventBus.$on('updateFlagRF', this.draw)
+    EventBus.$on('sendParameters', data => { this.storeParameters = data })
+    EventBus.$on('updateActiveModels', data => { this.storeActiveModels = data })
+    EventBus.$on('updateActiveModels', this.draw)
     EventBus.$on('Responsive', data => {
     this.WH = data})
     EventBus.$on('ResponsiveandChange', data => {

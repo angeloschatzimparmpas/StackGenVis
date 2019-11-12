@@ -296,7 +296,6 @@ export default Vue.extend({
           console.log('Server successfully sent updated per class features!')
           EventBus.$emit('emittedEventCallingAllAlgorithms', this.PerformancePerModel)
           EventBus.$emit('emittedEventCallingBarChart', this.PerformancePerModel)
-          EventBus.$emit('emittedEventCallingOverview')
         })
         .catch(error => {
           console.log(error)

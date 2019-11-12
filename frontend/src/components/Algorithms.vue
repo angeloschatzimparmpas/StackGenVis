@@ -29,7 +29,9 @@ export default {
       parameters: [],
       algorithm1: [],
       algorithm2: [],
-      chart: ''
+      chart: '',
+      flagEmpty: 0,
+      ActiveModels: []
     }
   },
   methods: {
@@ -48,18 +50,18 @@ export default {
       // initialize/instansiate algorithms and parameters
       this.algorithm1 = []
       this.algorithm2 = []
-      var parameters = []
+      this.parameters = []
 
       for (var i = 0; i < Object.keys(PerformAlgor1['0']).length; i++) {
         this.algorithm1.push({'Performance Metrics': Object.values(PerformAlgor1['0'])[i]*100,Algorithm:'KNN',Model:'Model ' + Algor1IDs[i] + '; Parameters '+JSON.stringify(Object.values(PerformAlgor1['params'])[i])+'; Performance Metrics ',ModelID:Algor1IDs[i]})
-        parameters.push(JSON.stringify(Object.values(PerformAlgor1['params'])[i]))
+        this.parameters.push(JSON.stringify(Object.values(PerformAlgor1['params'])[i]))
       }
       for (let j = 0; j < Object.keys(PerformAlgor2['0']).length; j++) {
         this.algorithm2.push({'Performance Metrics': Object.values(PerformAlgor2['0'])[j]*100,Algorithm:'RF',Model:'Model ' + Algor2IDs[j] + '; Parameters '+JSON.stringify(Object.values(PerformAlgor2['params'])[j])+'; Performance Metrics ',ModelID:Algor2IDs[j]})
-        parameters.push(JSON.stringify(Object.values(PerformAlgor2['params'])[j]))
+        this.parameters.push(JSON.stringify(Object.values(PerformAlgor2['params'])[j]))
       }
 
-      EventBus.$emit('ParametersAll', parameters)
+      EventBus.$emit('ParametersAll', this.parameters)
 
       // concat the data
       var data = this.algorithm1.concat(this.algorithm2)
@@ -81,12 +83,24 @@ export default {
       var el = document.getElementsByClassName('d3-exploding-boxplot boxcontent')
       this.brushStatus = document.getElementsByClassName('extent')
       // on clicks
+      
+      var flagEmptyKNN = 0
+      var flagEmptyRF = 0
+
       el[0].onclick = function() {
         var allPoints = document.getElementsByClassName('d3-exploding-boxplot point KNN')
         for (let i = 0; i < allPoints.length; i++) {
           allPoints[i].style.fill = previousColor[0]
           allPoints[i].style.opacity = '1.0'
         } 
+      
+        if (flagEmptyKNN == 0) {
+          flagEmptyKNN = 1
+        } else {
+          flagEmptyKNN = 0
+        }
+
+        EventBus.$emit('updateFlagKNN', flagEmptyKNN)
         EventBus.$emit('PCPCall', 'KNN')
         EventBus.$emit('updateBarChart', [])
       }
@@ -96,6 +110,14 @@ export default {
           allPoints[i].style.fill = previousColor[1]
           allPoints[i].style.opacity = '1.0'
         }
+
+         if (flagEmptyRF == 0) {
+          flagEmptyRF = 1
+        } else {
+          flagEmptyRF = 0
+        }
+
+        EventBus.$emit('updateFlagRF', flagEmptyRF)
         EventBus.$emit('PCPCall', 'RF')
         EventBus.$emit('updateBarChart', [])
       }
@@ -111,11 +133,10 @@ export default {
       var limiter = this.chart.returnBrush()
 
       var algorithm = []
-      const previousColor = ['#8dd3c7','#ffffb3','#bebada','#fb8072','#80b1d3','#fdb462','#b3de69','#fccde5','#d9d9d9','#bc80bd','#ccebc5','#ffed6f']
+      const previousColor = ['#8dd3c7','#8da0cb']
       var modelsActive = []
       for (var j = 0; j < this.AllAlgorithms.length; j++) {
         algorithm = []
-        modelsActive = []
         if (this.AllAlgorithms[j] === 'KNN') {
           var allPoints = document.getElementsByClassName('d3-exploding-boxplot point KNN')
           algorithm = this.algorithm1
@@ -170,6 +191,8 @@ export default {
           }
         }
       }
+      EventBus.$emit('sendParameters', this.parameters)
+      EventBus.$emit('updateActiveModels', modelsActive)
       this.UpdateBarChart()
     },
     brushed () {
@@ -223,6 +246,8 @@ export default {
           }
         }
       }
+      EventBus.$emit('sendParameters', this.parameters)
+      EventBus.$emit('updateActiveModels', modelsActive)
       this.UpdateBarChart()
     },
     UpdateBarChart () {
