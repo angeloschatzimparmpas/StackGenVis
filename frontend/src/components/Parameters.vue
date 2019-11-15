@@ -26,7 +26,7 @@ export default {
           var svg = d3.select("#overview");
           svg.selectAll("*").remove();
 
-          var widthinter = this.WH[0]*3 // interactive visualization
+          var widthinter = this.WH[0]*2 // interactive visualization
           var heightinter = this.WH[1]*1.23 // interactive visualization
           var margin = 0,
             width = widthinter,
@@ -104,12 +104,31 @@ export default {
             .attr("offset", "100%")
             .attr("stop-color", "#AF4427");
 
+          gradients = defs
+            .append("linearGradient")
+            .attr("id", "gradient-categorization")
+            .attr("x1", "0%")
+            .attr("y1", "50%")
+            .attr("x2", "100%")
+            .attr("y2", "50%")
+            .attr("spreadMethod", "pad");
+
+          gradients.append("stop")
+            .attr("offset", "0%")
+            .attr("stop-color", "#8dd3c7")
+            .attr("stop-opacity", 1);
+
+          gradients.append("stop")
+            .attr("offset", "100%")
+            .attr("stop-color", "#8da0cb")
+            .attr("stop-opacity", 1);
+
           svg.append("circle")
-            .attr("r", maxBarHeight + 70)
+            .attr("r", maxBarHeight + 30)
             .classed("category-circle", true);
 
           svg.append("circle")
-            .attr("r", maxBarHeight + 40)
+            .attr("r", maxBarHeight + 15)
             .classed("question-circle", true);
 
           svg.append("circle")
@@ -119,7 +138,7 @@ export default {
           svg.append("circle")
             .attr("r", innerRadius)
             .classed("center-circle", true);
-            
+
             var n_neighbors = 0
             var metric = 0
             var algorithm = 0
@@ -149,8 +168,8 @@ export default {
                   countRFRelated.push(JSON.parse(this.storeParameters[this.storeActiveModels[i]]))
                 }
               }
-              console.log(countkNNRelated)
-              console.log(countRFRelated)
+              //console.log(countkNNRelated)
+              //console.log(countRFRelated)
               n_neighbors = ([... new Set(countkNNRelated.map(data => data.n_neighbors))].length / 25) * 100
               metric = ([... new Set(countkNNRelated.map(data => data.metric))].length / 4) * 100
               algorithm = ([... new Set(countkNNRelated.map(data => data.algorithm))].length / 3) * 100
@@ -158,16 +177,16 @@ export default {
               n_estimators = ([... new Set(countRFRelated.map(data => data.n_estimators))].length / 80) * 100
               criterion = ([... new Set(countRFRelated.map(data => data.criterion))].length / 2) * 100
 
-              console.log(algorithm)
+              //console.log(algorithm)
             }
 
             var data = [
+                { algorithm: 'RF', parameter: 'n_estimators', percentage: n_estimators },
+                { algorithm: 'RF', parameter: 'criterion', percentage: criterion },
                 { algorithm: 'KNN', parameter: 'n_neighbors', percentage: n_neighbors },
                 { algorithm: 'KNN', parameter: 'metric', percentage: metric },
                 { algorithm: 'KNN', parameter: 'algorithm', percentage: algorithm },
                 { algorithm: 'KNN', parameter: 'weight', percentage: weight },
-                { algorithm: 'RF', parameter: 'n_estimators', percentage: n_estimators },
-                { algorithm: 'RF', parameter: 'criterion', percentage: criterion }
             ];
 
             var cats = data.map(function(d, i) {
@@ -207,8 +226,8 @@ export default {
               .endAngle(function(d, i) {
                 return ((i + 1) * 2 * Math.PI) / numCatBars;
               })
-              .innerRadius(maxBarHeight + 40)
-              .outerRadius(maxBarHeight + 64);
+              .innerRadius(maxBarHeight + 32)
+              .outerRadius(maxBarHeight + 0);
 
             var category_text = svg.selectAll("path.category_label_arc")
               .data(cats)
@@ -288,7 +307,7 @@ export default {
                 return d.endAngle;
               })
               //.innerRadius(maxBarHeight + 2)
-              .outerRadius(maxBarHeight + 2);
+              .outerRadius(maxBarHeight - 9);
 
             var question_text = svg.selectAll("path.parameter_arc")
               .data(data)
@@ -426,7 +445,7 @@ export default {
               .enter().append("line")
               .classed("gridlines minor", true)
               .attr("y1", -innerRadius)
-              .attr("y2", -maxBarHeight - 40)
+              .attr("y2", -maxBarHeight - 15)
               .attr("transform", function(d, i) {
                 return "rotate(" + (d.rotate) + ")";
               });
@@ -437,7 +456,7 @@ export default {
               .enter().append("line")
               .classed("gridlines major", true)
               .attr("y1", -innerRadius)
-              .attr("y2", -maxBarHeight - 70)
+              .attr("y2", -maxBarHeight - 100)
               .attr("transform", function(d, i) {
                 return "rotate(" + (i * 360 / numCatBars) + ")";
               });
@@ -518,8 +537,9 @@ export default {
 <style>
 /* Styles go here */
 
+
 .category-circle {
-  fill: #F4A636;
+  fill: url(#gradient-categorization);
 }
 
 .question-circle {

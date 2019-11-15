@@ -22,7 +22,8 @@ export default {
       flag: false,
       classesNumber: 10,
       cellSize: 20,
-      ModelsIDHeatStack: []
+      ModelsIDHeatStack: [],
+      highlighted: []
     }
   },
   methods: {
@@ -546,6 +547,23 @@ export default {
     reset () {
       var svg = d3.select("#Heatmap");
       svg.selectAll("*").remove();
+    },
+    brush () {
+        var columnLabels = document.getElementsByClassName('colLabels')[0];
+        var modelIds = JSON.parse(this.GetResultsAll[13])
+
+        var selectedIds = []
+        for (let i = 0; i < this.highlighted.length; i++) {
+            let looping = this.highlighted[i]
+            selectedIds.push(looping)
+        }
+        for (let i = 0; i < modelIds.length; i++) {
+            columnLabels.childNodes[i].style.fill = "#000";
+        }
+        for (let i = 0; i < selectedIds.length; i++) {
+            let index = modelIds.indexOf(selectedIds[i])
+            columnLabels.childNodes[index].style.fill = "#AF4427";
+        }
     }
   },
   mounted () {
@@ -558,6 +576,8 @@ export default {
       EventBus.$on('emittedEventCallingTogglesUpdate', this.Refresh)
       EventBus.$on('emittedEventCallingTogglesUpdate', this.Heatmap)
       EventBus.$on('resetViews', this.reset)
+      EventBus.$on('SendSelectedPointsToBrushHeatmap', data => { this.highlighted = data; })
+      EventBus.$on('SendSelectedPointsToBrushHeatmap', this.brush)
     }
 }
 </script>

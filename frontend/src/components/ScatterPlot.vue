@@ -213,16 +213,22 @@ export default {
       OverviewPlotly.on('plotly_selected', function (evt) {
         if (typeof evt !== 'undefined') {
           const ClassifierIDsList = []
+          const ClassifierIDsListCleared = []
           for (let i = 0; evt.points.length; i++) {
             if (evt.points[i] === undefined) {
               break
             } else {
               const OnlyId = evt.points[i].text.split(';')
               ClassifierIDsList.push(OnlyId[0])
+              let numb = OnlyId[0].match(/\d/g);
+              numb = numb.join("");
+              let numberNumb = Number(numb)
+              ClassifierIDsListCleared.push(numberNumb)
             }
           }
           if (ClassifierIDsList != '') {
             EventBus.$emit('SendSelectedPointsToServerEvent', ClassifierIDsList)
+            EventBus.$emit('SendSelectedPointsToBrushHeatmap', ClassifierIDsListCleared)
           } else {
             EventBus.$emit('SendSelectedPointsToServerEvent', '')
           }

@@ -15,7 +15,7 @@
             </mdb-card-body>
           </mdb-card>
         <mdb-card style="margin-top: 15px">
-          <mdb-card-header color="primary-color" tag="h5" class="text-center">Parameters Space Exploration Overview</mdb-card-header>
+          <mdb-card-header color="primary-color" tag="h5" class="text-center">HyperParameters Space Exploration Overview and Visual Encoding</mdb-card-header>
             <mdb-card-body>
               <Parameters/>
             </mdb-card-body>
