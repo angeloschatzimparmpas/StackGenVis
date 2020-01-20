@@ -125,13 +125,14 @@ export default {
                 "<extra></extra>",
           text: classifiersInfoProcessing,
           marker: {
-              color: colorsforScatterPlot,
-              size: 12,
-              colorscale: 'Viridis',
-              colorbar: {
-                title: 'Metrics Average',
-                titleside: 'Top'
-              },
+           line: { color: 'rgb(0, 0, 0)', width: 2 },
+            color: colorsforScatterPlot,
+            size: 12,
+            colorscale: 'Viridis',
+            colorbar: {
+              title: 'Metrics Average',
+              titleside: 'Top'
+            },
           }
         
         }]

@@ -380,9 +380,11 @@ export default Vue.extend({
         })
     },
     SendSelectedDataPointsToServer () {
-
+      // set a path from which the server will receive the seleceted predictions points
       const path = `http://127.0.0.1:5000/data/ServerRequestDataPoint`
-    
+      // brushing and linking between predictions space and data space 
+      EventBus.$emit('updateDataSpaceHighlighting', this.DataPointsSel)
+
       const postData = {
         DataPointsSel: this.DataPointsSel
       }

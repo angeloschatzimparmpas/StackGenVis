@@ -229,6 +229,7 @@ def DataSetSelection():
         del dictionary['InstanceID']
         del dictionary[target]
 
+    global AllTargets
     AllTargets = [o[target] for o in DataResultsRaw]
     AllTargetsFloatValues = []
 
@@ -765,6 +766,7 @@ def InitializeEnsemble():
 def ReturnResults(ModelSpaceMDS,ModelSpaceTSNE,DataSpaceList,PredictionSpaceList):
 
     global Results
+    global AllTargets
     Results = []
 
     parametersGen = PreprocessingParam()
@@ -800,6 +802,7 @@ def ReturnResults(ModelSpaceMDS,ModelSpaceTSNE,DataSpaceList,PredictionSpaceList
     Results.append(json.dumps(ModelsIDs)) # Position: 13
     Results.append(json.dumps(XDataJSONEntireSet)) # Position: 14
     Results.append(json.dumps(yData)) # Position: 15
+    Results.append(json.dumps(AllTargets)) # Position: 16
 
     return Results
 

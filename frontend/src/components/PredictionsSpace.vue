@@ -12,84 +12,86 @@ export default {
     return {
       PredictionsData: '',
       UpdatedData: '',
-      WH: []
+      colorsValues: ['#00bbbb','#b15928','#ff7f00'],
+      responsiveWidthHeight: []
     }
   },
   methods: {
     ScatterPlotDataView () {
-        var target_names = JSON.parse(this.PredictionsData[4])
-        const XandYCoordinates = JSON.parse(this.PredictionsData[8])
-        const DataSet = JSON.parse(this.PredictionsData[14])
-        const DataSetY = JSON.parse(this.PredictionsData[15])
-        var DataSetParse = JSON.parse(DataSet)
+      // responsive visualization
+      var width = this.responsiveWidthHeight[0]*3
+      var height = this.responsiveWidthHeight[1]*1.48 
 
-        var result = XandYCoordinates.reduce(function(r, a) {
-            a.forEach(function(s, i) {
-                var key = i === 0 ? 'Xax' : 'Yax';
+      var target_names = JSON.parse(this.PredictionsData[4])
+      const XandYCoordinates = JSON.parse(this.PredictionsData[8])
+      const DataSet = JSON.parse(this.PredictionsData[14])
+      const DataSetY = JSON.parse(this.PredictionsData[15])
+      const originalDataLabels = JSON.parse(this.PredictionsData[16])
+      var DataSetParse = JSON.parse(DataSet)
 
-                r[key] || (r[key] = []); // if key not found on result object, add the key with empty array as the value
+      var result = XandYCoordinates.reduce(function(r, a) {
+          a.forEach(function(s, i) {
+              var key = i === 0 ? 'Xax' : 'Yax';
 
-                r[key].push(s);
-            })
-            return r;
-        }, {})
+              r[key] || (r[key] = []); // if key not found on result object, add the key with empty array as the value
 
-        var dataPointInfo = []
-        for (let i = 0; i < XandYCoordinates.length; i++) {
-          dataPointInfo[i] = 'Data Point ID: ' + i + '; Details: ' + JSON.stringify(DataSetParse[i])
-        }
-        
-        var colors = ['#a6cee3','#1f78b4','#b2df8a','#33a02c','#fb9a99','#e31a1c','#fdbf6f','#ff7f00','#cab2d6','#6a3d9a']
+              r[key].push(s);
+          })
+          return r;
+      }, {})
 
-         var traces = []
-         var countPrev = 0
-         var count = 0
-         for (let i = 0; i < target_names.length; i++) {
-          count = 0
-          for (let j = 0; j < DataSetY.length; j++) {
-            if (i == DataSetY[j]) {
-              count = count + 1
-            }
-          }
+      var IDs = [];
 
-          traces.push({
-            x: result.Xax.slice(countPrev,count+countPrev),
-            y: result.Yax.slice(countPrev,count+countPrev),
+      for (let i = 0; i < result.Xax.length; i++) {
+        IDs.push(i)
+      }
+      result.ID = IDs
+      
+      var traces = []
+
+      for (let i = 0; i < target_names.length; i++) {
+
+        const aux_X = result.Xax.filter((item, index) => originalDataLabels[index] == target_names[i]);
+        const aux_Y = result.Yax.filter((item, index) => originalDataLabels[index] == target_names[i]);
+        const aux_ID = result.ID.filter((item, index) => originalDataLabels[index] == target_names[i]);
+
+        var Text = aux_ID.map((item, index) => {
+          let popup = 'Data Point ID: ' + item + '; Details: ' + JSON.stringify(DataSetParse[item])
+          return popup;
+        });
+
+        traces.push({
+            x: aux_X,
+            y: aux_Y,
             mode: 'markers',
             name: target_names[i],
-            marker: {
-              color: colors[i]
-            },
+            marker: { color: this.colorsValues[i], line: { color: 'rgb(0, 0, 0)', width: 2 }, opacity: 1 },
             hovertemplate: 
                     "<b>%{text}</b><br><br>" +
                     "<extra></extra>",
-            text: dataPointInfo.slice(countPrev,count+countPrev),
+            text: Text,
           })
-          countPrev = count + countPrev
-        }
-     
-        var width = this.WH[0]*3 // interactive visualization
-        var height = this.WH[1]*1.48 // interactive visualization
+      }
 
-        const layout = {
-        title: 'Predictions Space Projection (t-SNE)',
-        xaxis: {
-            visible: false
-        },
-        yaxis: {
-            visible: false
-        },
-        dragmode: 'lasso',
-        hovermode: "closest",
-        autosize: true,
-        width: width,
-        height: height,
-        }
+      const layout = {
+      title: 'Predictions Space Projection (t-SNE)',
+      xaxis: {
+          visible: false
+      },
+      yaxis: {
+          visible: false
+      },
+      dragmode: 'lasso',
+      hovermode: "closest",
+      autosize: true,
+      width: width,
+      height: height,
+      }
 
-        var config = {scrollZoom: true, displaylogo: false, showLink: false, showSendToCloud: false, modeBarButtonsToRemove: ['toImage', 'toggleSpikelines', 'autoScale2d', 'hoverClosestGl2d','hoverCompareCartesian','select2d','hoverClosestCartesian','zoomIn2d','zoomOut2d','zoom2d'], responsive: true}
+      var config = {scrollZoom: true, displaylogo: false, showLink: false, showSendToCloud: false, modeBarButtonsToRemove: ['toImage', 'toggleSpikelines', 'autoScale2d', 'hoverClosestGl2d','hoverCompareCartesian','select2d','hoverClosestCartesian','zoomIn2d','zoomOut2d','zoom2d'], responsive: true}
 
-        Plotly.newPlot('OverviewPredPlotly', traces, layout, config)
-        this.selectedPointsOverview()
+      Plotly.newPlot('OverviewPredPlotly', traces, layout, config)
+      this.selectedPointsOverview()
     },
     UpdateScatterPlot () {
       const XandYCoordinates = JSON.parse(this.UpdatedData[0])

@@ -10,67 +10,91 @@ export default {
   name: 'DataSpace',
   data () {
     return {
-      CollectionData: '',
-      DataSpace: '',
-      WH: []
+      dataPoints: '',
+      highlightedPoints: '',
+      responsiveWidthHeight: [],
+      colorsValues: ['#00bbbb','#b15928','#ff7f00']
     }
   },
   methods: {
-    ScatterPlotDataView () {
-        
-        var target_names = JSON.parse(this.DataSpace[4])
-        const XandYCoordinates = JSON.parse(this.DataSpace[7])
-        const DataSet = JSON.parse(this.DataSpace[14])
-        const DataSetY = JSON.parse(this.DataSpace[15])
+    scatterPlotDataView () {
+        // responsive visualization
+        let width = this.responsiveWidthHeight[0]*3 
+        let height = this.responsiveWidthHeight[1]*2.1
+
+        var target_names = JSON.parse(this.dataPoints[4])
+        const XandYCoordinates = JSON.parse(this.dataPoints[7])
+        const DataSet = JSON.parse(this.dataPoints[14])
+        const DataSetY = JSON.parse(this.dataPoints[15])
+        const originalDataLabels = JSON.parse(this.dataPoints[16])
         var DataSetParse = JSON.parse(DataSet)
 
+        let intData = []
+        if (this.highlightedPoints.length > 0){
+          let removedPuncData = this.highlightedPoints.map(function(x){return x.replace(';', '');})
+          intData = removedPuncData.map(Number)
+        } else {
+          intData = []
+        }
+
         var result = XandYCoordinates.reduce(function(r, a) {
+            var id = 0
             a.forEach(function(s, i) {
-                var key = i === 0 ? 'Xax' : 'Yax';
+                var key = i === 0 ? 'Xax' : 'Yax'
 
-                r[key] || (r[key] = []); // if key not found on result object, add the key with empty array as the value
+                r[key] || (r[key] = []) // if key not found on result object, add the key with empty array as the value
 
-                r[key].push(s);
+                r[key].push(s)
+
             })
-            return r;
+
+            return r
         }, {})
 
-        var dataPointInfo = []
-        for (let i = 0; i < XandYCoordinates.length; i++) {
-          dataPointInfo[i] = 'Data Point ID: ' + i + '; Details: ' + JSON.stringify(DataSetParse[i])
-        }
-        
-        var colors = ['#a6cee3','#1f78b4','#b2df8a','#33a02c','#fb9a99','#e31a1c','#fdbf6f','#ff7f00','#cab2d6','#6a3d9a']
+        var IDs = [];
 
-         var traces = []
-         var countPrev = 0
-         var count = 0
-         for (let i = 0; i < target_names.length; i++) {
-          count = 0
-          for (let j = 0; j < DataSetY.length; j++) {
-            if (i == DataSetY[j]) {
-              count = count + 1
+        for (let i = 0; i < result.Xax.length; i++) {
+          IDs.push(i)
+        }
+        result.ID = IDs
+        
+        var traces = []
+
+        for (let i = 0; i < target_names.length; i++) {
+
+          const aux_X = result.Xax.filter((item, index) => originalDataLabels[index] == target_names[i]);
+          const aux_Y = result.Yax.filter((item, index) => originalDataLabels[index] == target_names[i]);
+          const aux_ID = result.ID.filter((item, index) => originalDataLabels[index] == target_names[i]);
+
+          var Text = aux_ID.map((item, index) => {
+            let popup = 'Data Point ID: ' + item + '; Details: ' + JSON.stringify(DataSetParse[item])
+            return popup;
+          });
+
+          var Opacity = aux_ID.map((item, index) => {
+            let opac
+            if (intData.length == 0) {
+              opac = 1
+            } else if (intData.indexOf(item) > -1) {
+              opac = 1
+            } else {
+              opac = 0.5
             }
-          }
+            return opac;
+          });
 
           traces.push({
-            x: result.Xax.slice(countPrev,count+countPrev),
-            y: result.Yax.slice(countPrev,count+countPrev),
+            x: aux_X,
+            y: aux_Y,
             mode: 'markers',
             name: target_names[i],
-            marker: {
-              color: colors[i]
-            },
+            marker: { color: this.colorsValues[i], line: { color: 'rgb(0, 0, 0)', width: 2 }, opacity: Opacity },
             hovertemplate: 
                     "<b>%{text}</b><br><br>" +
                     "<extra></extra>",
-            text: dataPointInfo.slice(countPrev,count+countPrev),
+            text: Text,
           })
-          countPrev = count + countPrev
         }
-
-        var width = this.WH[0]*3 // interactive visualization
-        var height = this.WH[1]*2.1 // interactive visualization
 
         const layout = {
         title: 'Data Space Projection (t-SNE)',
@@ -93,15 +117,21 @@ export default {
     }
   },
   mounted() {
-    EventBus.$on('emittedEventCallingDataPlot', data => {
-      this.CollectionData = data})
+    // initialize the first data space projection based on the data set 
     EventBus.$on('emittedEventCallingDataSpacePlotView', data => {
-      this.DataSpace = data})
-    EventBus.$on('emittedEventCallingDataSpacePlotView', this.ScatterPlotDataView)
+      this.dataPoints = data})
+    EventBus.$on('emittedEventCallingDataSpacePlotView', this.scatterPlotDataView)
+
+    // linking based on predictions space brushing
+    EventBus.$on('updateDataSpaceHighlighting', data => {
+      this.highlightedPoints = data})
+    EventBus.$on('updateDataSpaceHighlighting', this.scatterPlotDataView)
+
+    // make the view responsive to window changes
     EventBus.$on('Responsive', data => {
-    this.WH = data})
+      this.responsiveWidthHeight = data})
     EventBus.$on('ResponsiveandChange', data => {
-    this.WH = data})
+      this.responsiveWidthHeight = data})
   }
 }
 </script>

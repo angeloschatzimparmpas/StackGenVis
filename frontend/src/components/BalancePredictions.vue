@@ -93,7 +93,7 @@
             svg.append("path")
                 .attr("class", "mypath")
                 .datum(density2)
-                .attr("fill", "#00bbbb")
+                .attr("fill", "#D3D3D3")
                 .attr("opacity", "1")
                 .attr("stroke", "#000")
                 .attr("stroke-width", 1)
@@ -111,7 +111,7 @@
             // Handmade legend
             var heightforText = 175
             svg.append("circle").attr("cx",80).attr("cy",heightforText).attr("r", 6).style("fill", "#000")
-            svg.append("circle").attr("cx",300).attr("cy",heightforText).attr("r", 6).style("fill", "#00bbbb")
+            svg.append("circle").attr("cx",300).attr("cy",heightforText).attr("r", 6).style("fill", "#D3D3D3")
             svg.append("text").attr("x", 100).attr("y", heightforText).text("Entire distribution").style("font-size", "15px").attr("alignment-baseline","middle")
             svg.append("text").attr("x", 320).attr("y", heightforText).text("Selected points").style("font-size", "15px").attr("alignment-baseline","middle")
 

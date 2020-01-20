@@ -44,7 +44,7 @@ export default {
             name: 'Selected points', 
             type: 'bar',
             marker: {
-                color: 'rgb(0, 187, 187)'
+                color: 'rgb(211,211,211)'
             }
             };
             var data = [trace1, trace2];
