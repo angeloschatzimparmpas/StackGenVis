@@ -15,7 +15,7 @@
             </mdb-card-body>
           </mdb-card>
         <mdb-card style="margin-top: 15px">
-          <mdb-card-header color="primary-color" tag="h5" class="text-center">HyperParameters Space Exploration Overview and Visual Encoding</mdb-card-header>
+          <mdb-card-header color="primary-color" tag="h5" class="text-center">HyperParameters Space Exploration Overview</mdb-card-header>
             <mdb-card-body>
               <Parameters/>
             </mdb-card-body>
@@ -49,6 +49,7 @@
             <mdb-card-body>
               <mdb-card-text class="text-center">
                 <DataSpace/>
+                <PCPData/>
               </mdb-card-text>
             </mdb-card-body>
           </mdb-card>
@@ -136,6 +137,7 @@ import ToggleSelection from './ToggleSelection.vue'
 import FinalResultsLinePlot from './FinalResultsLinePlot.vue'
 import Provenance from './Provenance.vue'
 import Parameters from './Parameters.vue'
+import PCPData from './PCPData.vue'
 import axios from 'axios'
 import { loadProgressBar } from 'axios-progress-bar'
 import 'axios-progress-bar/dist/nprogress.css'
@@ -167,6 +169,7 @@ export default Vue.extend({
     ToggleSelection,
     Provenance,
     Parameters,
+    PCPData,
     FinalResultsLinePlot,
     mdbCard,
     mdbCardBody,
@@ -177,6 +180,7 @@ export default Vue.extend({
     return {
       Collection: 0,
       OverviewResults: 0,
+      preDataResults: '',
       RetrieveValueFile: 'IrisC',
       ClassifierIDsList: '',
       SelectedFeaturesPerClassifier: '',
@@ -207,7 +211,12 @@ export default Vue.extend({
       AlgorithmsUpdate: [],
       SelectedMetricsForModels: [],
       DataPointsSel: '',
-      DataPointsModels: ''
+      DataPointsModels: '',
+      dataPointsSelfromDataSpace: '',
+      userSelectedFilterMain: 'mean',
+      actionData: '',
+      filterData: '',
+      provenanceData: ''
     }
   },
   methods: {
@@ -267,7 +276,6 @@ export default Vue.extend({
           EventBus.$emit('emitToggles', this.OverviewResults)
           EventBus.$emit('emittedEventCallingToggles', toggles)
           EventBus.$emit('emittedEventCallingHeatmapView', this.OverviewResults)
-          EventBus.$emit('emittedEventCallingDataSpacePlotView', this.OverviewResults)
           EventBus.$emit('emittedEventCallingPredictionsSpacePlotView', this.OverviewResults)
           EventBus.$emit('emittedEventCallingBalanceView', this.OverviewResults)
           this.getFinalResults()
@@ -421,6 +429,7 @@ export default Vue.extend({
           this.DataPointsModels = response.data.DataPointsModels
           console.log('Server successfully sent the new models for the scatterplot!')
           EventBus.$emit('UpdateModelsScatterplot', this.DataPointsModels)
+          EventBus.$emit('UpdateBalanceView', this.DataPointsModels)
         })
         .catch(error => {
           console.log(error)
@@ -486,11 +495,33 @@ export default Vue.extend({
           axios.post(path, postData, axiosConfig)
             .then(response => {
               console.log('Send request to server! FileName was sent successfully!')
-                this.SendAlgorithmsToServer()
+              this.DataSpaceCall()
+              this.SendAlgorithmsToServer()
             })
             .catch(error => {
               console.log(error)
             })
+    },
+    DataSpaceCall () {
+       const path = `http://localhost:5000/data/requestDataSpaceResults`
+
+      const axiosConfig = {
+        headers: {
+          'Content-Type': 'application/json',
+          'Access-Control-Allow-Origin': '*',
+          'Access-Control-Allow-Headers': 'Origin, Content-Type, X-Auth-Token',
+          'Access-Control-Allow-Methods': 'GET, PUT, POST, DELETE, OPTIONS'
+        }
+      }
+      axios.get(path, axiosConfig)
+        .then(response => {
+          this.preDataResults = response.data.preDataResults
+          EventBus.$emit('emittedEventCallingDataSpacePlotView', this.preDataResults)
+          EventBus.$emit('emittedEventCallingDataPCP', this.preDataResults)
+        })
+        .catch(error => {
+          console.log(error)
+        })
     },
     SendAlgorithmsToServer () {
       const path = `http://127.0.0.1:5000/data/ServerRequestSelParameters`
@@ -682,9 +713,93 @@ export default Vue.extend({
       toggles.push(this.toggle2)
       toggles.push(this.toggle3)
       EventBus.$emit('emittedEventCallingTogglesUpdate', toggles)
-    }
+    },
+    DataSpaceFun () {
+      const path = `http://127.0.0.1:5000/data/SendDataSpacPoints`
+      const postData = {
+        points: this.dataPointsSelfromDataSpace
+      }
+      const axiosConfig = {
+        headers: {
+          'Content-Type': 'application/json',
+          'Access-Control-Allow-Origin': '*',
+          'Access-Control-Allow-Headers': 'Origin, Content-Type, X-Auth-Token',
+          'Access-Control-Allow-Methods': 'GET, PUT, POST, DELETE, OPTIONS'
+        }
+      }
+      axios.post(path, postData, axiosConfig)
+        .then(response => {
+          console.log('Send request to server! Brushed points sent successfully!')
+        })
+        .catch(error => {
+          console.log(error)
+        })
+    },
+    FilterFun () {
+      const path = `http://127.0.0.1:5000/data/UpdateFilter`
+      const postData = {
+        filter: this.filterData
+      }
+      const axiosConfig = {
+        headers: {
+          'Content-Type': 'application/json',
+          'Access-Control-Allow-Origin': '*',
+          'Access-Control-Allow-Headers': 'Origin, Content-Type, X-Auth-Token',
+          'Access-Control-Allow-Methods': 'GET, PUT, POST, DELETE, OPTIONS'
+        }
+      }
+      axios.post(path, postData, axiosConfig)
+        .then(response => {
+          console.log('Send request to server! Updated filter!')
+        })
+        .catch(error => {
+          console.log(error)
+        })
+    },
+    ActionFun () {
+      const path = `http://127.0.0.1:5000/data/UpdateAction`
+      const postData = {
+        action: this.actionData
+      }
+      const axiosConfig = {
+        headers: {
+          'Content-Type': 'application/json',
+          'Access-Control-Allow-Origin': '*',
+          'Access-Control-Allow-Headers': 'Origin, Content-Type, X-Auth-Token',
+          'Access-Control-Allow-Methods': 'GET, PUT, POST, DELETE, OPTIONS'
+        }
+      }
+      axios.post(path, postData, axiosConfig)
+        .then(response => {
+          console.log('Send request to server! Updated action!')
+        })
+        .catch(error => {
+          console.log(error)
+        })
+    },
+    ProvenanceControlFun () {
+      const path = `http://127.0.0.1:5000/data/UpdateProvenanceState`
+      const postData = {
+        provenance: this.provenanceData
+      }
+      const axiosConfig = {
+        headers: {
+          'Content-Type': 'application/json',
+          'Access-Control-Allow-Origin': '*',
+          'Access-Control-Allow-Headers': 'Origin, Content-Type, X-Auth-Token',
+          'Access-Control-Allow-Methods': 'GET, PUT, POST, DELETE, OPTIONS'
+        }
+      }
+      axios.post(path, postData, axiosConfig)
+        .then(response => {
+          console.log('Send request to server! Updated provenance state!')
+        })
+        .catch(error => {
+          console.log(error)
+        })
+    },
   },
-  created() {
+  created () {
     // does the browser support the Navigation Timing API?
     if (window.performance) {
         console.info("window.performance is supported");
@@ -741,6 +856,19 @@ export default Vue.extend({
     EventBus.$on('sendPointsNumber', data => {this.OverAllLength = data})
     EventBus.$on('AllSelModels', data => {this.valueSel = data})
     EventBus.$on('RemoveFromStack', this.RemoveFromStackModels)
+
+    EventBus.$on('SendSelectedPointsToServerEventfromData', data => {this.dataPointsSelfromDataSpace = data})
+    EventBus.$on('SendSelectedPointsToServerEventfromData', this.DataSpaceFun)
+
+    EventBus.$on('SendFilter', data => {this.filterData = data})
+    EventBus.$on('SendFilter', this.FilterFun)
+
+    EventBus.$on('SendAction', data => {this.actionData = data})
+    EventBus.$on('SendAction', this.ActionFun)
+
+    EventBus.$on('SendProvenance', data => {this.provenanceData = data})
+    EventBus.$on('SendProvenance', this.ProvenanceControlFun)
+
     //Prevent double click to search for a word. 
     document.addEventListener('mousedown', function (event) {
       if (event.detail > 1) {

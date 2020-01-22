@@ -1,5 +1,43 @@
 <template>
-  <div id="OverviewDataPlotly" class="OverviewDataPlotly"></div>
+  <div>
+    <div align="center">
+      Filter: <select id="selectFilterID" @change="selectAppliedFilter()">
+        <option value="mean" selected>Mean</option>
+        <option value="median">Median</option>
+      </select>
+      Action: <button
+      id="mergeID"
+      v-on:click="merge">
+      <font-awesome-icon icon="object-group" />
+      {{ mergeData }}
+      </button>
+      <button
+      id="composeID"
+      v-on:click="compose">
+      <font-awesome-icon icon="clone" />
+      {{ composeData }}
+      </button>
+      <button
+      id="removeID"
+      v-on:click="remove">
+      <font-awesome-icon icon="eraser" />
+      {{ removeData }}
+      </button>
+      Provenance Controller: <button
+      id="saveID"
+      v-on:click="save">
+      <font-awesome-icon icon="save" />
+      {{ saveData }}
+      </button>
+      <button
+      id="restoreID"
+      v-on:click="restore">
+      <font-awesome-icon icon="undo" />
+      {{ restoreData }}
+      </button>
+    </div>
+    <div id="OverviewDataPlotly" class="OverviewDataPlotly"></div>
+  </div>
 </template>
 
 <script>
@@ -12,21 +50,47 @@ export default {
     return {
       dataPoints: '',
       highlightedPoints: '',
+      mergeData: 'Merge',
+      removeData: 'Remove',
+      composeData: 'Compose',
+      saveData: 'Save Step',
+      restoreData: 'Restore Step',
+      userSelectedFilter: 'mean',
       responsiveWidthHeight: [],
-      colorsValues: ['#00bbbb','#b15928','#ff7f00']
+      colorsValues: ['#6a3d9a','#b15928','#e31a1c']
     }
   },
   methods: {
+    selectAppliedFilter () {
+      var representationSelectionDocum = document.getElementById('selectFilterID')
+      this.userSelectedFilter = representationSelectionDocum.options[representationSelectionDocum.selectedIndex].value
+      EventBus.$emit('SendFilter', this.userSelectedFilter)
+    },
+    merge() {
+      EventBus.$emit('SendAction', 'merge')
+    },
+    remove () {
+      EventBus.$emit('SendAction', 'remove')
+    },
+    compose () {
+      EventBus.$emit('SendAction', 'compose')
+    },
+    save () {
+      EventBus.$emit('SendProvenance', 'save')
+    },
+    restore () {
+      EventBus.$emit('SendProvenance', 'restore')
+    },
     scatterPlotDataView () {
         // responsive visualization
         let width = this.responsiveWidthHeight[0]*3 
         let height = this.responsiveWidthHeight[1]*2.1
 
-        var target_names = JSON.parse(this.dataPoints[4])
-        const XandYCoordinates = JSON.parse(this.dataPoints[7])
-        const DataSet = JSON.parse(this.dataPoints[14])
-        const DataSetY = JSON.parse(this.dataPoints[15])
-        const originalDataLabels = JSON.parse(this.dataPoints[16])
+        var target_names = JSON.parse(this.dataPoints[0])
+        const XandYCoordinates = JSON.parse(this.dataPoints[1])
+        const DataSet = JSON.parse(this.dataPoints[2])
+        const DataSetY = JSON.parse(this.dataPoints[3])
+        const originalDataLabels = JSON.parse(this.dataPoints[4])
         var DataSetParse = JSON.parse(DataSet)
 
         let intData = []
@@ -88,7 +152,7 @@ export default {
             y: aux_Y,
             mode: 'markers',
             name: target_names[i],
-            marker: { color: this.colorsValues[i], line: { color: 'rgb(0, 0, 0)', width: 2 }, opacity: Opacity },
+            marker: { color: this.colorsValues[i], line: { color: 'rgb(0, 0, 0)', width: 2 }, opacity: Opacity, size: 12 },
             hovertemplate: 
                     "<b>%{text}</b><br><br>" +
                     "<extra></extra>",
@@ -114,6 +178,34 @@ export default {
         var config = {scrollZoom: true, displaylogo: false, showLink: false, showSendToCloud: false, modeBarButtonsToRemove: ['toImage', 'toggleSpikelines', 'autoScale2d', 'hoverClosestGl2d','hoverCompareCartesian','select2d','hoverClosestCartesian','zoomIn2d','zoomOut2d','zoom2d'], responsive: true}
 
         Plotly.newPlot('OverviewDataPlotly', traces, layout, config)
+
+         this.selectedDataPoints()
+    },
+    selectedDataPoints () {
+      const OverviewDataPlotly = document.getElementById('OverviewDataPlotly')
+      OverviewDataPlotly.on('plotly_selected', function (evt) {
+        if (typeof evt !== 'undefined') {
+          const ClassifierIDsList = []
+          const ClassifierIDsListCleared = []
+          for (let i = 0; evt.points.length; i++) {
+            if (evt.points[i] === undefined) {
+              break
+            } else {
+              const OnlyId = evt.points[i].text.split(';')
+              ClassifierIDsList.push(OnlyId[0])
+              let numb = OnlyId[0].match(/\d/g);
+              numb = numb.join("");
+              let numberNumb = Number(numb)
+              ClassifierIDsListCleared.push(numberNumb)
+            }
+          }
+          if (ClassifierIDsList != '') {
+            EventBus.$emit('SendSelectedPointsToServerEventfromData', ClassifierIDsListCleared)
+          } else {
+            EventBus.$emit('SendSelectedPointsToServerEventfromData', '')
+          }
+        }
+      })
     }
   },
   mounted() {

@@ -31,7 +31,7 @@ export default {
     return {
       ScatterPlotResults: '',
       representationDef: 'mds',
-      representationSelection: 'MDS',
+      representationSelection: 'mds',
       colorsforOver: [],
       brushedBox : [],
       max: 0,

@@ -7,6 +7,7 @@ import collections
 import numpy as np
 import re
 from numpy import array
+from statistics import mode
 import pandas as pd  
 import warnings
 import copy
@@ -66,6 +67,12 @@ def Reset():
 
     global yData
     yData = []
+
+    global XDataStored
+    XDataStored = []
+
+    global yDataStored
+    yDataStored = []
     
     global detailsParams
     detailsParams = []
@@ -135,6 +142,15 @@ def RetrieveFileName():
 
     global yData
     yData = []
+
+    global XDataStored
+    XDataStored = []
+
+    global yDataStored
+    yDataStored = []
+
+    global filterDataFinal
+    filterDataFinal = 'mean'
 
     global ClassifierIDsList
     ClassifierIDsList = ''
@@ -223,6 +239,8 @@ def DataSetSelection():
 
     DataResultsRaw.sort(key=lambda x: x[target], reverse=True)
     DataResults.sort(key=lambda x: x[target], reverse=True)
+    
+    dataBefore = copy.deepcopy(DataResults)
 
     for dictionary in DataResults:
         del dictionary['_id']
@@ -251,8 +269,39 @@ def DataSetSelection():
 
     global XData, yData, RANDOM_SEED
     XData, yData = ArrayDataResults, AllTargetsFloatValues
+
+    global XDataStored, yDataStored
+    XDataStored = XData.copy()
+    yDataStored = yData.copy()
+
+    DataSpaceRes = FunTsne(XData)
+    DataSpaceListRes = DataSpaceRes.tolist()
+
+    XDataJSONEntireSetRes = XData.to_json(orient='records')
+
+    global preResults 
+    preResults = []
+
+    preResults.append(json.dumps(target_names)) # Position: 0
+    preResults.append(json.dumps(DataSpaceListRes)) # Position: 1
+    preResults.append(json.dumps(XDataJSONEntireSetRes)) # Position: 2
+    preResults.append(json.dumps(yData)) # Position: 3
+    preResults.append(json.dumps(AllTargets)) # Position: 4
+    preResults.append(json.dumps(dataBefore)) # Position: 5
+    preResults.append(json.dumps(target)) # Position: 6
+
     warnings.simplefilter('ignore')
     return 'Everything is okay'
+
+# Sending each model's results to frontend
+@app.route('/data/requestDataSpaceResults', methods=["GET", "POST"])
+def SendDataSpaceResults():
+    global preResults
+
+    response = {    
+        'preDataResults': preResults,
+    }
+    return jsonify(response)
 
 # Main function 
 if __name__ == '__main__':
@@ -1260,3 +1309,84 @@ def SendToPlotFinalResults():
         'FinalResults': scores
     }
     return jsonify(response)
+
+# Retrieve data from client 
+@cross_origin(origin='localhost',headers=['Content-Type','Authorization'])
+@app.route('/data/UpdateFilter', methods=["GET", "POST"])
+def RetrieveFilter():
+    filterData = request.get_data().decode('utf8').replace("'", '"')
+    filterDataCleared = json.loads(filterData)
+    global filterDataFinal
+    filterDataFinal = filterDataCleared['filter']
+    return 'Done'
+
+# Retrieve data from client 
+@cross_origin(origin='localhost',headers=['Content-Type','Authorization'])
+@app.route('/data/SendDataSpacPoints', methods=["GET", "POST"])
+def RetrieveDataSpacePoints():
+    dataSpacePoints = request.get_data().decode('utf8').replace("'", '"')
+    dataSpacePointsCleared = json.loads(dataSpacePoints)
+    global dataSpacePointsIDs
+    dataSpacePointsIDs = dataSpacePointsCleared['points']
+    return 'Done'
+
+# Retrieve data from client 
+@cross_origin(origin='localhost',headers=['Content-Type','Authorization'])
+@app.route('/data/UpdateAction', methods=["GET", "POST"])
+def RetrieveAction():
+    filterAction = request.get_data().decode('utf8').replace("'", '"')
+    filterActionCleared = json.loads(filterAction)
+
+    global filterActionFinal
+    global dataSpacePointsIDs
+    global filterDataFinal
+    global XData
+    global yData
+
+    filterActionFinal = filterActionCleared['action']
+
+    if (filterActionFinal == 'merge'): # fix merge
+        if (filterDataFinal == 'mean' or filterDataFinal == ''):
+            mean = XData.iloc[dataSpacePointsIDs, :].mean()
+            XData.loc[len(XData)]= mean
+        else:
+            median = XData.iloc[dataSpacePointsIDs, :].median()
+            XData.loc[len(XData)]= median
+    elif (filterActionFinal == 'compose'):
+        if (filterDataFinal == 'mean' or filterDataFinal == ''):
+            mean = XData.iloc[dataSpacePointsIDs, :].mean()
+            XData.loc[len(XData)]= mean
+        else:
+            median = XData.iloc[dataSpacePointsIDs, :].median()
+            XData.loc[len(XData)]= median
+        yDataSelected = [yData[i] for i in dataSpacePointsIDs]
+        storeMode = mode(yDataSelected)
+        yData.append(storeMode)
+    else:
+        XData = XData.drop(dataSpacePointsIDs)
+        yData = [i for j, i in enumerate(yData) if j not in dataSpacePointsIDs]
+
+    print(XData)
+    print(yData)
+    return 'Done'
+
+# Retrieve data from client 
+@cross_origin(origin='localhost',headers=['Content-Type','Authorization'])
+@app.route('/data/UpdateProvenanceState', methods=["GET", "POST"])
+def RetrieveProvenance():
+    filterProvenance = request.get_data().decode('utf8').replace("'", '"')
+    filterProvenanceCleared = json.loads(filterProvenance)
+    global filterProvenanceFinal
+    filterProvenanceFinal = filterProvenanceCleared['provenance']
+
+    global XDataStored
+    global XData
+    global yDataStored
+    global yData
+
+    # fix save and restore
+
+    if (filterProvenanceFinal == 'restore'):
+        XData = XDataStored.copy()
+        yData = yDataStored.copy()
+    return 'Done'

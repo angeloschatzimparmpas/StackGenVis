@@ -12,7 +12,7 @@ export default {
     return {
       PredictionsData: '',
       UpdatedData: '',
-      colorsValues: ['#00bbbb','#b15928','#ff7f00'],
+      colorsValues: ['#6a3d9a','#b15928','#e31a1c'],
       responsiveWidthHeight: []
     }
   },
@@ -65,7 +65,7 @@ export default {
             y: aux_Y,
             mode: 'markers',
             name: target_names[i],
-            marker: { color: this.colorsValues[i], line: { color: 'rgb(0, 0, 0)', width: 2 }, opacity: 1 },
+            marker: { color: this.colorsValues[i], line: { color: 'rgb(0, 0, 0)', width: 2 }, opacity: 1, size: 12 },
             hovertemplate: 
                     "<b>%{text}</b><br><br>" +
                     "<extra></extra>",

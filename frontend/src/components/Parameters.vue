@@ -1,6 +1,14 @@
 <template>
     <div>
-        <div id="overview"></div>
+      <b-row class="md-3">
+        <b-col cols="12">
+          <div id="overview"></div>
+        </b-col>
+        <!--
+        <b-col cols="4"> 
+          <div id="encodings"></div>
+        </b-col>-->
+      </b-row>
     </div>
 </template>
 
@@ -515,7 +523,56 @@ export default {
 
           d3.selectAll("text.temporary-text").remove()
         }
-        }
+      },
+      drawEncodings () {
+        // Clear Heatmap first
+        var svg = d3.select("#encodings");
+        svg.selectAll("*").remove();
+
+        var widthinter = this.WH[0]*0.95 // interactive visualization
+        var heightinter = this.WH[1]*0.5 // interactive visualization
+        /*
+          // Create the SVG element and set its dimensions.
+          var width  = widthinter,
+              height = heightinter,
+              padding = 15;
+
+          var div = d3.select('#encodings'),
+              svg = div.append('svg');
+
+          svg.attr('width', width).attr('height', height);
+
+          // Create the svg:defs element and the main gradient definition.
+          var svgDefs = svg.append('defs');
+
+          var mainGradient = svgDefs.append('linearGradient')
+            .attr("id", "mainGradient")
+            .attr("x1", "0%")
+            .attr("x2", "100%")
+            .attr("y1", "0%")
+            .attr("y2", "100%");
+
+          mainGradient.append("stop")
+            .attr('class', 'start')
+            .attr("offset", "0%")
+            .attr("stop-color", "red")
+            .attr("stop-opacity", 1);
+
+          mainGradient.append("stop")
+            .attr('class', 'end')
+            .attr("offset", "100%")
+            .attr("stop-color", "blue")
+            .attr("stop-opacity", 1);
+
+          // Use the gradient to set the shape fill, via CSS.
+          svg.append('rect')
+              .classed('filled', true)
+              .attr('x', padding)
+              .attr('y', padding)
+              .attr('width', width - 2 * padding)
+              .attr('height', height - 2 * padding);
+          */
+      }
   },
   mounted () {
     EventBus.$on('updateFlagKNN', data => { this.FlagKNN = data })
@@ -525,6 +582,7 @@ export default {
     EventBus.$on('sendParameters', data => { this.storeParameters = data })
     EventBus.$on('updateActiveModels', data => { this.storeActiveModels = data })
     EventBus.$on('updateActiveModels', this.draw)
+    EventBus.$on('updateActiveModels', this.drawEncodings)
     EventBus.$on('Responsive', data => {
     this.WH = data})
     EventBus.$on('ResponsiveandChange', data => {
@@ -601,5 +659,9 @@ export default {
   font-weight: bold;
   font-size: 14px;
   fill: #fff;
+}
+
+.filled {
+  fill: url(#mainGradient);
 }
 </style>

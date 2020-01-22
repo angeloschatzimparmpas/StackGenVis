@@ -18,7 +18,8 @@ export default {
       ClassNamesOverview: '',
       algorithmsinBar: [],
       modelsSelectedinBar: [],
-      KNNModels: 576, //KNN models
+      KNNModels: 576, //KNN models,
+      colorsValues: ['#6a3d9a','#b15928','#e31a1c'],
       WH: []
     }
   },
@@ -136,7 +137,7 @@ export default {
             var traces = []
             var tracesSel = []
             var data = []
-            var colors = ['#a6cee3','#1f78b4','#b2df8a','#33a02c','#fb9a99','#e31a1c','#fdbf6f','#ff7f00','#cab2d6','#6a3d9a']
+           
             for (var i = 0; i < target_names.length; i++) {
                 traces[i] = {
                     x: ['KNN', 'RF'],
@@ -145,7 +146,7 @@ export default {
                     opacity: 0.5,
                     marker: {
                         opacity: 0.5,
-                        color: colors[i]
+                        color: this.colorsValues[i]
                     },
                     type: 'bar'
                     };
@@ -158,7 +159,7 @@ export default {
                     mode: 'markers',
                     marker: {
                         opacity: 1.0,
-                        color: colors[i],
+                        color: this.colorsValues[i],
                     },
                     width: [0.1, 0.1]
                     };

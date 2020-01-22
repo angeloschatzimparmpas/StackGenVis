@@ -7,6 +7,7 @@
 <script>
     import { EventBus } from '../main.js'
     import * as d3Base from 'd3'
+    import { counter } from '@fortawesome/fontawesome-svg-core'
 
     // attach all d3 plugins to the d3 library
     const d3 = Object.assign(d3Base)
@@ -15,19 +16,51 @@
         name: 'BalancePredictions',
         data () {
             return {
-            resultsfromOverview: 0,
-            WH: []
+            resultsfromOverview: '',
+            newResultsFromSelection: '',
+            responsiveWidthHeight: []
             }
         },
         methods: {
             Balance () {
-
-            // Clear Heatmap first
+            // erase histogram
             var svg = d3.select("#my_dataviz");
             svg.selectAll("*").remove();
 
-            var widthInitial = this.WH[0]*3 // interactive visualization
-            var heightInitial = this.WH[1]/1.6 // interactive visualization
+            // responsive visualizations
+            var widthInitial = this.responsiveWidthHeight[0]*3 
+            var heightInitial = this.responsiveWidthHeight[1]/1.6
+
+            var performancePerModel = JSON.parse(this.resultsfromOverview[0])
+            var performancePerModelSelection = []
+            if (this.newResultsFromSelection.length != 0) {
+              var performancePerModelSelection = JSON.parse(this.newResultsFromSelection[0]) 
+            }
+            var modelId = JSON.parse(this.resultsfromOverview[13])
+            var data = []
+
+            performancePerModel.forEach(element => {
+              let el = {}
+              el.type = "variable 1"
+              el.value = element * 100
+              data.push(el)
+            })
+
+            if (performancePerModelSelection.length == 0) {
+              performancePerModel.forEach(element => {
+                let el = {}
+                el.type = "variable 2"
+                el.value = element * 100
+                data.push(el)
+              })
+            } else {
+              performancePerModelSelection.forEach(element => {
+                let el = {}
+                el.type = "variable 2"
+                el.value = element * 100
+                data.push(el)
+              })
+            }
 
             // set the dimensions and margins of the graph
             var margin = {top: 10, right: 30, bottom: 50, left: 60},
@@ -43,77 +76,118 @@
                 .attr("transform",
                     "translate(" + margin.left + "," + margin.top + ")");
 
-            // get the data
-            d3.csv("https://raw.githubusercontent.com/holtzy/D3-graph-gallery/master/DATA/data_doubleHist.csv").then( function(data) {
             // add the x Axis
             var x = d3.scaleLinear()
-                .domain([-10,15])
+                .domain([0,100])
                 .range([0, width]);
             svg.append("g")
                 .attr("transform", "translate(0," + height + ")")
                 .call(d3.axisBottom(x));
 
-            // add the first y Axis
+            // set the parameters for the histogram
+            var histogram = d3.histogram()
+                .value(function(d) { return +d.value; })   // I need to give the vector of value
+                .domain(x.domain())  // then the domain of the graphic
+                .thresholds(x.ticks(40)); // then the numbers of bins
+
+            // And apply twice this function to data to get the bins.
+            var bins1 = histogram(data.filter( function(d){return d.type === "variable 1"} ));
+            var bins2 = histogram(data.filter( function(d){return d.type === "variable 2"} ));
+
+            // Y axis: scale and draw:
             var y1 = d3.scaleLinear()
-                        .range([height/2, 0])
-                        .domain([0, 0.12]);
+                .range([height/2, 0])
+                .domain([0, d3.max(bins1, function(d) { return d.length; })]);   // d3.hist has to be called before the Y axis obviously
             svg.append("g")
                 .attr("transform", "translate(-20,0)")
-                .call(d3.axisLeft(y1).tickValues([0.05, 0.1]));
+                .call(d3.axisLeft(y1));
 
-            // add the first y Axis
+            // Y axis: scale and draw:
             var y2 = d3.scaleLinear()
-                        .range([height/2, height])
-                        .domain([0, 0.12]);
+                .range([height/2, height])
+                .domain([0, d3.max(bins2, function(d) { return d.length; })]);   // d3.hist has to be called before the Y axis obviously
             svg.append("g")
                 .attr("transform", "translate(-20,0)")
-                .call(d3.axisLeft(y2).ticks(2).tickSizeOuter(0));
+                .call(d3.axisLeft(y2));
 
-            // Compute kernel density estimation
-            var kde = kernelDensityEstimator(kernelEpanechnikov(7), x.ticks(60))
-            var density1 =  kde( data.filter( function(d){return d.type === "variable 1"} ).map(function(d){  return d.value; }) )
-            var density2 =  kde( data.filter( function(d){return d.type === "variable 2"} ).map(function(d){  return d.value; }) )
+             // Add a tooltip div. Here I define the general feature of the tooltip: stuff that do not depend on the data point.
+            // Its opacity is set to 0: we don't see it by default.
+            var tooltip = d3.select("#my_dataviz")
+              .append("div")
+              .style("opacity", 0)
+              .attr("class", "tooltip")
+              .style("background-color", "black")
+              .style("color", "white")
+              .style("border-radius", "5px")
+              .style("padding", "10px")
 
-            // Plot the area
-            svg.append("path")
-                .attr("class", "mypath")
-                .datum(density1)
-                .attr("fill", "#000")
-                .attr("opacity", "1")
-                .attr("stroke", "#000")
-                .attr("stroke-width", 1)
-                .attr("stroke-linejoin", "round")
-                .attr("d",  d3.line()
-                    .curve(d3.curveBasis)
-                    .x(function(d) { return x(d[0]); })
-                    .y(function(d) { return y1(d[1]); })
-                );
+            // A function that change this tooltip when the user hover a point.
+            // Its opacity is set to 1: we can now see it. Plus it set the text and position of tooltip depending on the datapoint (d)
+            var showTooltip = function(d) {
+              tooltip
+                .transition()
+                .duration(100)
+                .style("opacity", 1)
+              tooltip
+                .html("Range: " + d.x0 + " - " + d.x1)
+                .style("left", (d3.mouse(this)[0]+20) + "px")
+                .style("top", (d3.mouse(this)[1]) + "px")
+            }
+            var moveTooltip = function(d) {
+              tooltip
+              .style("left", (d3.mouse(this)[0]+20) + "px")
+              .style("top", (d3.mouse(this)[1]) + "px")
+            }
+            // A function that change this tooltip when the leaves a point: just need to set opacity to 0 again
+            var hideTooltip = function(d) {
+              tooltip
+                .transition()
+                .duration(100)
+                .style("opacity", 0)
+            }
 
-            // Plot the area
-            svg.append("path")
-                .attr("class", "mypath")
-                .datum(density2)
-                .attr("fill", "#D3D3D3")
-                .attr("opacity", "1")
-                .attr("stroke", "#000")
-                .attr("stroke-width", 1)
-                .attr("stroke-linejoin", "round")
-                .attr("d",  d3.line()
-                    .curve(d3.curveBasis)
-                    .x(function(d) { return x(d[0]); })
-                    .y(function(d) { return y2(d[1]); })
-                );
+            // append the bars for series 1
+            svg.selectAll("rect")
+                .data(bins1)
+                .enter()
+                .append("rect")
+                  .attr("x", 1)
+                  .attr("transform", function(d) { return "translate(" + x(d.x0) + "," + y1(d.length) + ")"; })
+                  .attr("width", function(d) { return x(d.x1) - x(d.x0) - 1 ; })
+                  .attr("height", function(d) { return height/2 - y1(d.length); })
+                  .attr("stroke-linejoin", "round")
+                  .style("fill", "#000000")
+                  .style("opacity", 1)
+                  .on("mouseover", showTooltip )
+                  .on("mousemove", moveTooltip )
+                  .on("mouseleave", hideTooltip )
 
-            }).catch(function(error){
-                // handle error   
-            })
+            // append the bars for series 2
+           svg.selectAll("rect2")
+                .data(bins2)
+                .enter()
+                .append("rect")
+                  .attr("x", 1)
+                  .attr("transform", function(d) { return "translate(" + x(d.x0) + "," + height/2 + ")"; })
+                  .attr("width", function(d) { return x(d.x1) - x(d.x0) - 1 ; })
+                  .attr("height", function(d) { return y2(d.length) - height/2; })
+                  .attr("stroke-linejoin", "round")
+                  .style("fill", "#D3D3D3")
+                  .style("opacity", 1)
+                  // Show tooltip on hover
+                  .on("mouseover", showTooltip )
+                  .on("mousemove", moveTooltip )
+                  .on("mouseleave", hideTooltip )
+
+                  
 
             // Handmade legend
             var heightforText = 175
-            svg.append("circle").attr("cx",80).attr("cy",heightforText).attr("r", 6).style("fill", "#000")
-            svg.append("circle").attr("cx",300).attr("cy",heightforText).attr("r", 6).style("fill", "#D3D3D3")
-            svg.append("text").attr("x", 100).attr("y", heightforText).text("Entire distribution").style("font-size", "15px").attr("alignment-baseline","middle")
-            svg.append("text").attr("x", 320).attr("y", heightforText).text("Selected points").style("font-size", "15px").attr("alignment-baseline","middle")
+            svg.append("circle").attr("cx",30).attr("cy",heightforText).attr("r", 6).style("fill", "#000")
+            svg.append("circle").attr("cx",350).attr("cy",heightforText).attr("r", 6).style("fill", "#D3D3D3")
+            svg.append("text").attr("x", 50).attr("y", heightforText).text("Entire distribution").style("font-size", "15px").attr("alignment-baseline","middle")
+            svg.append("text").attr("x", 210).attr("y", heightforText).text("Performance").style("font-size", "15px").attr("alignment-baseline","top")
+            svg.append("text").attr("x", 370).attr("y", heightforText).text("Selected points").style("font-size", "15px").attr("alignment-baseline","middle")
 
             // Function to compute density
             function kernelDensityEstimator(kernel, X) {
@@ -133,10 +207,18 @@
         mounted () {
             EventBus.$on('emittedEventCallingBalanceView', data => { this.resultsfromOverview = data} )
             EventBus.$on('emittedEventCallingBalanceView', this.Balance)
+            EventBus.$on('UpdateBalanceView', data => { this.newResultsFromSelection = data} )
+            EventBus.$on('UpdateBalanceView', this.Balance)
             EventBus.$on('Responsive', data => {
-            this.WH = data})
+            this.responsiveWidthHeight = data})
             EventBus.$on('ResponsiveandChange', data => {
-            this.WH = data})
+            this.responsiveWidthHeight = data})
         }
     }
 </script>
+
+<style>
+.hover {
+  fill: #69c;
+}
+</style>
