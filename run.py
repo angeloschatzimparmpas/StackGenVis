@@ -17,6 +17,7 @@ import ast
 
 from sklearn.linear_model import LogisticRegression
 from sklearn.neighbors import KNeighborsClassifier
+from yellowbrick.regressor import CooksDistance
 from sklearn.naive_bayes import GaussianNB 
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.pipeline import make_pipeline
@@ -61,6 +62,9 @@ def Reset():
 
     global factors
     factors = [1,1,1,1,1]
+
+    global restoreClicked 
+    restoreClicked = False
 
     global XData
     XData = []
@@ -133,6 +137,9 @@ def RetrieveFileName():
 
     global DataRawLength
     global DataResultsRaw
+
+    global restoreClicked 
+    restoreClicked = False
 
     global RANDOM_SEED
     RANDOM_SEED = 42
@@ -1162,6 +1169,9 @@ def EnsembleModel(Models, keyRetrieved):
     global all_classifiersSelection  
     all_classifiersSelection = []
 
+    global XData
+    global yData
+
     lr = LogisticRegression()
 
     if (keyRetrieved == 0):
@@ -1282,9 +1292,28 @@ def EnsembleModel(Models, keyRetrieved):
         #                        random_state=RANDOM_SEED,
         #                        n_jobs = -1)
 
+    # parallelize all that 
     temp = model_selection.cross_val_score(sclf, XData, yData, cv=crossValidation, scoring='accuracy', n_jobs=-1)
     scores.append(temp.mean())
     scores.append(temp.std())
+
+    # influence calculation for all the instances
+    #DataHeatmap = []
+
+    #for indexValue, row in XData.iterrows():
+    #    XDataRemove = XData.copy()
+    #    XDataRemove.drop(indexValue, inplace=True)
+    #    yDataRemove = yData.copy()
+    #    del yDataRemove[indexValue]
+    #    tempRemove = model_selection.cross_val_score(sclf, XDataRemove, yDataRemove, cv=crossValidation, scoring='accuracy', n_jobs=-1)
+    #    DataHeatmap.append(abs((tempRemove.mean()+tempRemove.std())-(temp.mean()+temp.std())))
+
+    #print(DataHeatmap)
+
+    #averageValueData = sum(DataHeatmap) / len(DataHeatmap) 
+
+    #print(averageValueData)
+
     temp = model_selection.cross_val_score(sclf, XData, yData, cv=crossValidation, scoring='precision_weighted', n_jobs=-1)
     scores.append(temp.mean())
     scores.append(temp.std())
@@ -1300,6 +1329,7 @@ def EnsembleModel(Models, keyRetrieved):
     temp = model_selection.cross_val_score(sclfStack, XData, yData, cv=crossValidation, scoring='recall_weighted', n_jobs=-1)
     scores.append(temp.mean())
     scores.append(temp.std())
+
     return 'Okay'
 
 # Sending the final results to be visualized as a line plot
@@ -1352,6 +1382,12 @@ def RetrieveAction():
         else:
             median = XData.iloc[dataSpacePointsIDs, :].median()
             XData.loc[len(XData)]= median
+        yDataSelected = [yData[i] for i in dataSpacePointsIDs]
+        storeMode = mode(yDataSelected)
+        yData.append(storeMode)
+        XData = XData.drop(dataSpacePointsIDs)
+        yData = [i for j, i in enumerate(yData) if j not in dataSpacePointsIDs]
+        XData.reset_index(drop=True, inplace=True)
     elif (filterActionFinal == 'compose'):
         if (filterDataFinal == 'mean' or filterDataFinal == ''):
             mean = XData.iloc[dataSpacePointsIDs, :].mean()
@@ -1366,8 +1402,8 @@ def RetrieveAction():
         XData = XData.drop(dataSpacePointsIDs)
         yData = [i for j, i in enumerate(yData) if j not in dataSpacePointsIDs]
 
-    print(XData)
-    print(yData)
+    
+
     return 'Done'
 
 # Retrieve data from client 
@@ -1386,7 +1422,10 @@ def RetrieveProvenance():
 
     # fix save and restore
 
-    if (filterProvenanceFinal == 'restore'):
+    if (filterProvenanceFinal == 'save'):
+        XDataStored = XData
+        yDataStored = yData
+    else:
         XData = XDataStored.copy()
         yData = yDataStored.copy()
     return 'Done'
