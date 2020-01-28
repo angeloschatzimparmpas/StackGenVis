@@ -82,6 +82,9 @@ export default {
       EventBus.$emit('SendProvenance', 'restore')
     },
     scatterPlotDataView () {
+        
+        Plotly.purge('OverviewDataPlotly')
+
         // responsive visualization
         let width = this.responsiveWidthHeight[0]*3 
         let height = this.responsiveWidthHeight[1]*2.1

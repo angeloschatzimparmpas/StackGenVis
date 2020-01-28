@@ -23,15 +23,15 @@ export default {
   methods: {
     PCPView () {
       d3.selectAll("#PCPDataView > *").remove();
+      const DataSetNew = JSON.parse(this.PCPDataReceived[2])
+      var DataSetParse = JSON.parse(DataSetNew)
       const target_names = JSON.parse(this.PCPDataReceived[3])
-      const DataSet = JSON.parse(this.PCPDataReceived[5])
-      const target = JSON.parse(this.PCPDataReceived[6])
       var colors = this.colorsValues
+      console.log(target_names)
 
       this.pc = ParCoords()("#PCPDataView")
-          .data(DataSet)
+          .data(DataSetParse)
           .color(function(d, i) { return colors[target_names[i]] })
-          .hideAxis([target,'_id','InstanceID'])
           .bundlingStrength(0) // set bundling strength
           .smoothness(0)
           .showControlPoints(false)

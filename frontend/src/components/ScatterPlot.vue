@@ -54,7 +54,6 @@ export default {
       EventBus.$emit('RemoveFromStack')
     },
     ScatterPlotView () {
-
       Plotly.purge('OverviewPlotly')
       var colorsforScatterPlot = JSON.parse(this.ScatterPlotResults[0])
       var MDSData = JSON.parse(this.ScatterPlotResults[1])

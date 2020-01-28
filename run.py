@@ -63,9 +63,6 @@ def Reset():
     global factors
     factors = [1,1,1,1,1]
 
-    global restoreClicked 
-    restoreClicked = False
-
     global XData
     XData = []
 
@@ -137,9 +134,6 @@ def RetrieveFileName():
 
     global DataRawLength
     global DataResultsRaw
-
-    global restoreClicked 
-    restoreClicked = False
 
     global RANDOM_SEED
     RANDOM_SEED = 42
@@ -235,7 +229,7 @@ def CollectionData():
     }
     return jsonify(response)
 
-def DataSetSelection():  
+def DataSetSelection():
     DataResults = copy.deepcopy(DataResultsRaw)
     for dictionary in DataResultsRaw:
         for key in dictionary.keys():
@@ -246,8 +240,6 @@ def DataSetSelection():
 
     DataResultsRaw.sort(key=lambda x: x[target], reverse=True)
     DataResults.sort(key=lambda x: x[target], reverse=True)
-    
-    dataBefore = copy.deepcopy(DataResults)
 
     for dictionary in DataResults:
         del dictionary['_id']
@@ -255,6 +247,7 @@ def DataSetSelection():
         del dictionary[target]
 
     global AllTargets
+    global target_names
     AllTargets = [o[target] for o in DataResultsRaw]
     AllTargetsFloatValues = []
 
@@ -281,6 +274,30 @@ def DataSetSelection():
     XDataStored = XData.copy()
     yDataStored = yData.copy()
 
+    callPreResults()
+
+    warnings.simplefilter('ignore')
+    return 'Everything is okay'
+
+# Sending each model's results to frontend
+@app.route('/data/requestDataSpaceResultsAfterDataManipulation', methods=["GET", "POST"])
+def SendDataSpaceResultsAfterDataSpaceManipul():
+
+    callPreResults()
+
+    global preResults
+
+    response = {    
+        'DataResults': preResults,
+    }
+    return jsonify(response)
+
+def callPreResults():
+
+    global XData
+    global yData
+    global target_names
+
     DataSpaceRes = FunTsne(XData)
     DataSpaceListRes = DataSpaceRes.tolist()
 
@@ -294,11 +311,6 @@ def DataSetSelection():
     preResults.append(json.dumps(XDataJSONEntireSetRes)) # Position: 2
     preResults.append(json.dumps(yData)) # Position: 3
     preResults.append(json.dumps(AllTargets)) # Position: 4
-    preResults.append(json.dumps(dataBefore)) # Position: 5
-    preResults.append(json.dumps(target)) # Position: 6
-
-    warnings.simplefilter('ignore')
-    return 'Everything is okay'
 
 # Sending each model's results to frontend
 @app.route('/data/requestDataSpaceResults', methods=["GET", "POST"])
@@ -353,6 +365,9 @@ def RetrieveModel():
     global algorithms
     algorithms = RetrievedModel['Algorithms']
 
+    global XData
+    global yData
+
     # loop through the algorithms
     global allParametersPerformancePerModel
     for eachAlgor in algorithms:
@@ -364,7 +379,7 @@ def RetrieveModel():
             clf = RandomForestClassifier()
             params = {'n_estimators': list(range(40, 120)), 'criterion': ['gini', 'entropy']}
             AlgorithmsIDsEnd = 576
-        allParametersPerformancePerModel = GridSearchForModels(clf, params, eachAlgor, factors, AlgorithmsIDsEnd)
+        allParametersPerformancePerModel = GridSearchForModels(XData, yData, clf, params, eachAlgor, factors, AlgorithmsIDsEnd)
 
     # call the function that sends the results to the frontend 
     SendEachClassifiersPerformanceToVisualize()
@@ -376,7 +391,7 @@ memory = Memory(location, verbose=0)
 
 # calculating for all algorithms and models the performance and other results
 @memory.cache
-def GridSearchForModels(clf, params, eachAlgor, factors, AlgorithmsIDsEnd):
+def GridSearchForModels(XData, yData, clf, params, eachAlgor, factors, AlgorithmsIDsEnd):
 
     # instantiate spark session
     spark = (   
@@ -630,6 +645,7 @@ def PreprocessingPred():
     for column, content in df_concatProbs.items():
         el = [sum(x)/len(x) for x in zip(*content)]
         predictions.append(el)
+
     return predictions
 
 def PreprocessingPredUpdate(Models):
@@ -791,16 +807,14 @@ def FunMDS (data):
     return XTransformed
 
 def FunTsne (data):
-    tsne = TSNE(n_components=2).fit_transform(data)
+    tsne = TSNE(n_components=2, random_state=RANDOM_SEED).fit_transform(data)
     tsne.shape
     return tsne
 
 def InitializeEnsemble(): 
-
     XModels = PreprocessingMetrics()
     DataSpace = FunTsne(XData)
     DataSpaceList = DataSpace.tolist()
-
     global ModelSpaceMDS
     global ModelSpaceTSNE
 
@@ -841,7 +855,7 @@ def ReturnResults(ModelSpaceMDS,ModelSpaceTSNE,DataSpaceList,PredictionSpaceList
     featureScoresCon = featureScoresCon.to_json(orient='records')
     XDataJSONEntireSet = XData.to_json(orient='records')
     XDataJSON = XData.columns.tolist()
-
+    print(XData)
     Results.append(json.dumps(sumPerClassifier)) # Position: 0 
     Results.append(json.dumps(ModelSpaceMDS)) # Position: 1
     Results.append(json.dumps(parametersGenPD)) # Position: 2
@@ -1232,7 +1246,6 @@ def EnsembleModel(Models, keyRetrieved):
             temp = json.loads(allParametersPerformancePerModel[1])
             dfParamKNN = pd.DataFrame.from_dict(temp)
             dfParamKNNFilt = dfParamKNN.iloc[:,1]
-            print(featureSelection)
             flag = 0
             for index, eachelem in enumerate(KNNModels):
                 arg = dfParamKNNFilt[eachelem]
@@ -1249,8 +1262,6 @@ def EnsembleModel(Models, keyRetrieved):
                 store = store + 1               
             for index, eachelem in enumerate(RFModels):
                 arg = dfParamRFFilt[eachelem-576]
-                print(index)
-                print(featureSelection['featureSelection'][index+store])
                 all_classifiers.append(make_pipeline(ColumnSelector(cols=featureSelection['featureSelection'][index+store]), RandomForestClassifier().set_params(**arg)))
                 
             sclf = StackingCVClassifier(classifiers=all_classifiers,
@@ -1402,8 +1413,6 @@ def RetrieveAction():
         XData = XData.drop(dataSpacePointsIDs)
         yData = [i for j, i in enumerate(yData) if j not in dataSpacePointsIDs]
 
-    
-
     return 'Done'
 
 # Retrieve data from client 
@@ -1420,12 +1429,12 @@ def RetrieveProvenance():
     global yDataStored
     global yData
 
-    # fix save and restore
-
+    # save and restore
     if (filterProvenanceFinal == 'save'):
         XDataStored = XData
         yDataStored = yData
     else:
         XData = XDataStored.copy()
         yData = yDataStored.copy()
+
     return 'Done'

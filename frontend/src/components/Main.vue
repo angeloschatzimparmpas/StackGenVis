@@ -147,6 +147,7 @@ import { EventBus } from '../main.js'
 import * as jQuery from 'jquery' 
 import $ from 'jquery'
 import * as d3Base from 'd3'
+import Papa from 'papaparse'
 
 // attach all d3 plugins to the d3 library
 const d3 = Object.assign(d3Base)
@@ -181,6 +182,7 @@ export default Vue.extend({
       Collection: 0,
       OverviewResults: 0,
       preDataResults: '',
+      DataResults: '',
       RetrieveValueFile: 'IrisC',
       ClassifierIDsList: '',
       SelectedFeaturesPerClassifier: '',
@@ -216,7 +218,8 @@ export default Vue.extend({
       userSelectedFilterMain: 'mean',
       actionData: '',
       filterData: '',
-      provenanceData: ''
+      provenanceData: '',
+      localFile: ''
     }
   },
   methods: {
@@ -259,6 +262,8 @@ export default Vue.extend({
         .then(response => {
           this.OverviewResults = response.data.OverviewResults
           console.log('Server successfully sent all the data related to visualizations!')
+          console.log(this.OverviewResults)
+          this.DataSpaceCallAfterDataManipulation()
           EventBus.$emit('emittedEventCallingScatterPlot', this.OverviewResults)
           if (this.firstTimeFlag == 1) {
             this.selectedModels_Stack.push(0)
@@ -308,6 +313,10 @@ export default Vue.extend({
         .catch(error => {
           console.log(error)
         })
+    },
+    SendToServerData () {
+      // fix that for the upload!
+      console.log(this.localFile)
     },
     SendSelectedPointsToServer () {
       if (this.ClassifierIDsList === ''){
@@ -523,6 +532,27 @@ export default Vue.extend({
           console.log(error)
         })
     },
+      DataSpaceCallAfterDataManipulation () {
+       const path = `http://localhost:5000/data/requestDataSpaceResultsAfterDataManipulation`
+
+      const axiosConfig = {
+        headers: {
+          'Content-Type': 'application/json',
+          'Access-Control-Allow-Origin': '*',
+          'Access-Control-Allow-Headers': 'Origin, Content-Type, X-Auth-Token',
+          'Access-Control-Allow-Methods': 'GET, PUT, POST, DELETE, OPTIONS'
+        }
+      }
+      axios.get(path, axiosConfig)
+        .then(response => {
+          this.DataResults = response.data.DataResults
+          EventBus.$emit('emittedEventCallingDataSpacePlotView', this.DataResults)
+          EventBus.$emit('emittedEventCallingDataPCP', this.DataResults)
+        })
+        .catch(error => {
+          console.log(error)
+        })
+    },
     SendAlgorithmsToServer () {
       const path = `http://127.0.0.1:5000/data/ServerRequestSelParameters`
       const postData = {
@@ -645,8 +675,6 @@ export default Vue.extend({
         .catch(error => {
           console.log(error)
         })
-    },
-    UploadProcess () {
     },
     render (flag) {
       this.combineWH = []
@@ -772,6 +800,7 @@ export default Vue.extend({
       axios.post(path, postData, axiosConfig)
         .then(response => {
           console.log('Send request to server! Updated action!')
+          this.getDatafromtheBackEnd()
         })
         .catch(error => {
           console.log(error)
@@ -793,6 +822,9 @@ export default Vue.extend({
       axios.post(path, postData, axiosConfig)
         .then(response => {
           console.log('Send request to server! Updated provenance state!')
+          if (this.provenanceData == 'restore') {
+            this.getDatafromtheBackEnd()
+          }
         })
         .catch(error => {
           console.log(error)
@@ -824,8 +856,6 @@ export default Vue.extend({
     //EventBus.$on('ReturningBrushedPointsIDs',  this.UpdateBarChartFeatures )
     EventBus.$on('ConfirmDataSet', this.fileNameSend)
     EventBus.$on('reset', this.Reset)
-    EventBus.$on('UploadedFile', this.Reset)
-    EventBus.$on('UploadedFile', this.UploadProcess)
     EventBus.$on('ReturningAlgorithms', data => { this.selectedAlgorithms = data })
     EventBus.$on('ReturningBrushedPointsParams', data => { this.parametersofModels = data; })
     EventBus.$on('SendSelectedPointsToServerEvent', data => { this.ClassifierIDsList = data })
@@ -835,6 +865,8 @@ export default Vue.extend({
     EventBus.$on('SendSelectedFeaturesEvent', data => { this.SelectedFeaturesPerClassifier = data })
     EventBus.$on('SendSelectedFeaturesEvent', this.UpdateBasedonFeatures )
     EventBus.$on('SendToServerDataSetConfirmation', data => { this.RetrieveValueFile = data })
+    EventBus.$on('SendToServerLocalFile', data => { this.localFile = data })
+    EventBus.$on('SendToServerLocalFile', this.SendToServerData)
     EventBus.$on('PCPCall', data => { this.selectedAlgorithm = data })
     EventBus.$on('toggle1', data => { this.toggle1 = data })
     EventBus.$on('toggle2', data => { this.toggle2 = data })

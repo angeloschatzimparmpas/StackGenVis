@@ -18,12 +18,15 @@ export default {
   },
   methods: {
     ScatterPlotDataView () {
+       Plotly.purge('OverviewPredPlotly')
+
       // responsive visualization
       var width = this.responsiveWidthHeight[0]*3
       var height = this.responsiveWidthHeight[1]*1.48 
 
       var target_names = JSON.parse(this.PredictionsData[4])
       const XandYCoordinates = JSON.parse(this.PredictionsData[8])
+      console.log(XandYCoordinates)
       const DataSet = JSON.parse(this.PredictionsData[14])
       const DataSetY = JSON.parse(this.PredictionsData[15])
       const originalDataLabels = JSON.parse(this.PredictionsData[16])
