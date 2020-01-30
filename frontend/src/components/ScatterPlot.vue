@@ -45,6 +45,9 @@ export default {
     }
   },
   methods: {
+    reset () {
+      Plotly.purge('OverviewPlotly')
+    },
     selectVisualRepresentation () {
       const representationSelectionDocum = document.getElementById('selectBarChart')
       this.representationSelection = representationSelectionDocum.options[representationSelectionDocum.selectedIndex].value
@@ -280,6 +283,9 @@ export default {
     EventBus.$on('RepresentationSelection', this.ScatterPlotView)
     EventBus.$on('UpdateModelsScatterplot', data => {this.DataPointsSelUpdate = data})
     EventBus.$on('UpdateModelsScatterplot', this.animate)
+
+    // reset view
+    EventBus.$on('resetViews', this.reset)
   }
 }
 </script>

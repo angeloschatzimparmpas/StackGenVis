@@ -696,6 +696,7 @@ export default Vue.extend({
         .then(response => {
           console.log('The server side was reset! Done.')
           this.reset = false
+          EventBus.$emit('resetViews')
         })
         .catch(error => {
           console.log(error)
@@ -733,7 +734,10 @@ export default Vue.extend({
       axios.post(path, postData, axiosConfig)
         .then(response => {
           console.log('The client send the new factors! Done.')
-          this.RetrieveNewColors()
+          // this is if we need to change the factors even before models are there
+          //if (this.OverviewResults != 0) {
+            this.RetrieveNewColors()
+         // }
         })
         .catch(error => {
           console.log(error)

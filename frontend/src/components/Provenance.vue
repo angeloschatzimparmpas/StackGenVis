@@ -28,10 +28,17 @@ export default {
         typeCounter: [],
         typeColumnCounter: [],
         KNNModels: 576, //KNN models
-
+        platform: ''
     }
   },
   methods: {
+    reset () {
+      if (this.platform == '') {
+
+      } else {
+        this.platform.clear();
+      }
+    },
     provenance () {
       var canvas = document.getElementById("main-canvas");
       var width = this.WH[0]*9 // interactive visualization
@@ -41,7 +48,7 @@ export default {
       var flagRF = 0
       var StackInfo = JSON.parse(this.stackInformation[1])
       // Create a WebGL 2D platform on the canvas:
-      var platform = Stardust.platform("webgl-2d", canvas, width, height);
+      this.platform = Stardust.platform("webgl-2d", canvas, width, height);
     
       for (let i = 0; i < StackInfo.length; i++) {
         if (StackInfo[i] < this.KNNModels){
@@ -64,18 +71,18 @@ export default {
       }
       this.typeColumnCounter.push(0)
       
-  this.data.forEach(d => {
-    if (d.column == this.counter) {
-      d.typeIndex = this.typeCounter[d.type]++;
-      d.typeColumnIndex = this.typeColumnCounter[d.column]++;
-    }
-  });
+      this.data.forEach(d => {
+        if (d.column == this.counter) {
+          d.typeIndex = this.typeCounter[d.type]++;
+          d.typeColumnIndex = this.typeColumnCounter[d.column]++;
+        }
+      });
 
       // Convert the SVG file to Stardust mark spec.
       let isotype = new Stardust.mark.circle();
 
       // Create the mark object.
-      let isotypes = Stardust.mark.create(isotype, platform);
+      let isotypes = Stardust.mark.create(isotype, this.platform);
 
       let isotypeHeight = 18;
       let colors = [[141,211,199], [141,160,203]];
@@ -123,6 +130,9 @@ export default {
     this.WH = data})
     EventBus.$on('ResponsiveandChange', data => {
     this.WH = data})
+
+    // reset the views
+    EventBus.$on('resetViews', this.reset)
   }
 
 }

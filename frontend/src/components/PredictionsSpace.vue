@@ -17,6 +17,9 @@ export default {
     }
   },
   methods: {
+    reset () {
+      Plotly.purge('OverviewPredPlotly')
+    },
     ScatterPlotDataView () {
        Plotly.purge('OverviewPredPlotly')
 
@@ -26,7 +29,6 @@ export default {
 
       var target_names = JSON.parse(this.PredictionsData[4])
       const XandYCoordinates = JSON.parse(this.PredictionsData[8])
-      console.log(XandYCoordinates)
       const DataSet = JSON.parse(this.PredictionsData[14])
       const DataSetY = JSON.parse(this.PredictionsData[15])
       const originalDataLabels = JSON.parse(this.PredictionsData[16])
@@ -148,6 +150,9 @@ export default {
     this.WH = data})
     EventBus.$on('ResponsiveandChange', data => {
     this.WH = data})
+
+    // reset the views
+    EventBus.$on('resetViews', this.reset)
   }
 }
 </script>

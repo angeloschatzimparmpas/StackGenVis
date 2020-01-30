@@ -41,6 +41,9 @@ export default {
     }
   },
   methods: {
+    reset () {
+      Plotly.purge('LinePlot')
+    },
     LinePlotView () {
       this.NumberofExecutions ++ 
       this.xaxis.push(this.NumberofExecutions)
@@ -289,6 +292,9 @@ export default {
     EventBus.$on('emittedEventCallingLinePlot', data => {
       this.FinalResultsforLinePlot = data})
     EventBus.$on('emittedEventCallingLinePlot', this.LinePlotView)
+
+    // reset the views
+    EventBus.$on('resetViews', this.reset)
   }
 }
 </script>

@@ -131,7 +131,6 @@ def Reset():
 @cross_origin(origin='localhost',headers=['Content-Type','Authorization'])
 @app.route('/data/ServerRequest', methods=["GET", "POST"])
 def RetrieveFileName():
-
     fileName = request.get_data().decode('utf8').replace("'", '"')
 
     #global featureSelection 
@@ -194,9 +193,6 @@ def RetrieveFileName():
 
     global loopFeatures
     loopFeatures = 2
-
-    global factors
-    factors = [1,1,1,1,1]
 
     # models
     global KNNModels
@@ -438,6 +434,7 @@ def RetrieveModel():
     global algorithms
     algorithms = RetrievedModel['Algorithms']
 
+    global factors
     global XData
     global yData
 
@@ -653,10 +650,16 @@ def RetrieveModelsParam():
 @cross_origin(origin='localhost',headers=['Content-Type','Authorization'])
 @app.route('/data/factors', methods=["GET", "POST"])
 def RetrieveFactors():
+    global factors
+    global allParametersPerformancePerModel
     Factors = request.get_data().decode('utf8').replace("'", '"')
     FactorsInt = json.loads(Factors)
     factors = FactorsInt['Factors']
 
+    # this is if we want to change the factors before running the search
+    #if (len(allParametersPerformancePerModel) == 0):
+    #    pass
+    #else:
     global sumPerClassifierSel
     global ModelSpaceMDSNew
     global ModelSpaceTSNENew
@@ -1459,7 +1462,7 @@ def RetrieveAction():
 
     filterActionFinal = filterActionCleared['action']
 
-    if (filterActionFinal == 'merge'): # fix merge
+    if (filterActionFinal == 'merge'):
         if (filterDataFinal == 'mean' or filterDataFinal == ''):
             mean = XData.iloc[dataSpacePointsIDs, :].mean()
             XData.loc[len(XData)]= mean

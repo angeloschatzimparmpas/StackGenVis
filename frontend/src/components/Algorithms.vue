@@ -31,13 +31,16 @@ export default {
       algorithm2: [],
       chart: '',
       flagEmpty: 0,
-      ActiveModels: []
+      ActiveModels: [],
     }
   },
   methods: {
+    reset () {
+      d3.selectAll("#exploding_boxplot > *").remove()
+    },
     boxplot () {
       // reset the boxplot
-      d3.selectAll("#exploding_boxplot > *").remove(); 
+      d3.selectAll("#exploding_boxplot > *").remove()
 
       // retrieve models ID
       const Algor1IDs = this.PerformanceAllModels[0]
@@ -81,6 +84,7 @@ export default {
       const previousColor = ['#8dd3c7','#8da0cb']
       // check for brushing
       var el = document.getElementsByClassName('d3-exploding-boxplot boxcontent')
+      var overall = document.getElementsByClassName('overall')
       this.brushStatus = document.getElementsByClassName('extent')
       // on clicks
       
@@ -93,7 +97,7 @@ export default {
           allPoints[i].style.fill = previousColor[0]
           allPoints[i].style.opacity = '1.0'
         } 
-      
+
         if (flagEmptyKNN == 0) {
           flagEmptyKNN = 1
         } else {
@@ -116,11 +120,18 @@ export default {
         } else {
           flagEmptyRF = 0
         }
-
+      
         EventBus.$emit('updateFlagRF', flagEmptyRF)
         EventBus.$emit('PCPCall', 'RF')
         EventBus.$emit('updateBarChart', [])
       }
+
+      overall[0].ondblclick = function () {
+        flagEmptyKNN = 0
+        flagEmptyRF = 0
+        EventBus.$emit('alternateFlagLock', flagEmptyKNN)
+      }
+
       // check if brushed through all boxplots and not only one at a time
       const myObserver = new ResizeObserver(entries => {
         EventBus.$emit('brusheAllOn')
@@ -337,6 +348,9 @@ export default {
     EventBus.$on('emittedEventCallingSelectedALgorithm', data => {
       this.selectedAlgorithm = data})
     EventBus.$on('brusheAllOn', this.brushActivationAll)
+
+    // reset the views
+    EventBus.$on('resetViews', this.reset)
   }
 }
 </script>

@@ -21,13 +21,15 @@ export default {
     }
   },
   methods: {
+    reset () {
+      d3.selectAll("#PCPDataView > *").remove();
+    },
     PCPView () {
       d3.selectAll("#PCPDataView > *").remove();
       const DataSetNew = JSON.parse(this.PCPDataReceived[2])
       var DataSetParse = JSON.parse(DataSetNew)
       const target_names = JSON.parse(this.PCPDataReceived[3])
       var colors = this.colorsValues
-      console.log(target_names)
 
       this.pc = ParCoords()("#PCPDataView")
           .data(DataSetParse)
@@ -46,6 +48,9 @@ export default {
     EventBus.$on('emittedEventCallingDataPCP', data => { this.PCPDataReceived = data })
     EventBus.$on('emittedEventCallingDataPCP', this.PCPView)
     EventBus.$on('ResponsiveandChange', this.PCPView)
+
+    // reset the views
+    EventBus.$on('resetViews', this.reset)
   }
 }
 </script>

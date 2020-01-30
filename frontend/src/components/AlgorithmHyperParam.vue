@@ -23,6 +23,9 @@ export default {
     }
   },
   methods: {
+    reset () {
+      d3.selectAll("#PCP > *").remove(); 
+    },
     PCPView () {
       d3.selectAll("#PCP > *").remove(); 
       if (this.selAlgorithm != '') {
@@ -87,6 +90,9 @@ export default {
     EventBus.$on('emittedEventCallingModel', this.PCPView)
     EventBus.$on('ResponsiveandChange', this.PCPView)
     EventBus.$on('emittedEventCallingModelClear', this.clear)
+
+    // reset view
+    EventBus.$on('resetViews', this.reset)
   }
 }
 </script>

@@ -22,7 +22,11 @@
             }
         },
         methods: {
-            Balance () {
+          reset () {
+            var svg = d3.select("#my_dataviz");
+            svg.selectAll("*").remove();
+          },
+          Balance () {
             // erase histogram
             var svg = d3.select("#my_dataviz");
             svg.selectAll("*").remove();
@@ -191,28 +195,31 @@
 
             // Function to compute density
             function kernelDensityEstimator(kernel, X) {
-            return function(V) {
+              return function(V) {
                 return X.map(function(x) {
-                return [x, d3.mean(V, function(v) { return kernel(x - v); })];
+                  return [x, d3.mean(V, function(v) { return kernel(x - v); })];
                 });
-            };
+              };
             }
             function kernelEpanechnikov(k) {
-            return function(v) {
-                return Math.abs(v /= k) <= 1 ? 0.75 * (1 - v * v) / k : 0;
-            };
+              return function(v) {
+                  return Math.abs(v /= k) <= 1 ? 0.75 * (1 - v * v) / k : 0;
+              };
             }
-            }
+          }
         },
         mounted () {
-            EventBus.$on('emittedEventCallingBalanceView', data => { this.resultsfromOverview = data} )
-            EventBus.$on('emittedEventCallingBalanceView', this.Balance)
-            EventBus.$on('UpdateBalanceView', data => { this.newResultsFromSelection = data} )
-            EventBus.$on('UpdateBalanceView', this.Balance)
-            EventBus.$on('Responsive', data => {
-            this.responsiveWidthHeight = data})
-            EventBus.$on('ResponsiveandChange', data => {
-            this.responsiveWidthHeight = data})
+          EventBus.$on('emittedEventCallingBalanceView', data => { this.resultsfromOverview = data} )
+          EventBus.$on('emittedEventCallingBalanceView', this.Balance)
+          EventBus.$on('UpdateBalanceView', data => { this.newResultsFromSelection = data} )
+          EventBus.$on('UpdateBalanceView', this.Balance)
+          EventBus.$on('Responsive', data => {
+          this.responsiveWidthHeight = data})
+          EventBus.$on('ResponsiveandChange', data => {
+          this.responsiveWidthHeight = data})
+
+          // reset view
+          EventBus.$on('resetViews', this.reset)
         }
     }
 </script>

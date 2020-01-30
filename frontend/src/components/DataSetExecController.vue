@@ -78,6 +78,7 @@ export default {
     },
     reset () {
       EventBus.$emit('reset')
+      EventBus.$emit('alternateFlagLock')
     },
     confirm () {
       EventBus.$emit('ConfirmDataSet')
