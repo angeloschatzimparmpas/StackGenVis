@@ -100,6 +100,12 @@ def Reset():
 
     global crossValidation
     crossValidation = 3
+    
+    # models
+    global KNNModels
+    KNNModels = []
+    global RFModels
+    RFModels = []
 
     global scoring
     #scoring = {'accuracy': 'accuracy', 'f1_macro': 'f1_weighted', 'precision': 'precision_weighted', 'recall': 'recall_weighted', 'jaccard': 'jaccard_weighted', 'neg_log_loss': 'neg_log_loss', 'r2': 'r2', 'neg_mean_absolute_error': 'neg_mean_absolute_error', 'neg_mean_absolute_error': 'neg_mean_absolute_error'}
@@ -192,6 +198,12 @@ def RetrieveFileName():
     global factors
     factors = [1,1,1,1,1]
 
+    # models
+    global KNNModels
+    KNNModels = []
+    global RFModels
+    RFModels = []
+
     global results
     results = []
 
@@ -220,6 +232,66 @@ def RetrieveFileName():
     DataSetSelection()
     return 'Everything is okay'
 
+def Convert(lst): 
+    it = iter(lst) 
+    res_dct = dict(zip(it, it)) 
+    return res_dct 
+
+# Retrieve data set from client
+@cross_origin(origin='localhost',headers=['Content-Type','Authorization'])
+@app.route('/data/SendtoSeverDataSet', methods=["GET", "POST"])
+def SendToServerData():
+
+    uploadedData = request.get_data().decode('utf8').replace("'", '"')
+    uploadedDataParsed = json.loads(uploadedData)
+    DataResultsRaw = uploadedDataParsed['uploadedData']
+
+    DataResults = copy.deepcopy(DataResultsRaw)
+
+    for dictionary in DataResultsRaw:
+        for key in dictionary.keys():
+            if (key.find('*') != -1):
+                target = key
+                continue
+        continue
+    DataResultsRaw.sort(key=lambda x: x[target], reverse=True)
+    DataResults.sort(key=lambda x: x[target], reverse=True)
+
+    for dictionary in DataResults:
+        del dictionary[target]
+
+    global AllTargets
+    global target_names
+    AllTargets = [o[target] for o in DataResultsRaw]
+    AllTargetsFloatValues = []
+
+    previous = None
+    Class = 0
+    for i, value in enumerate(AllTargets):
+        if (i == 0):
+            previous = value
+            target_names.append(value)
+        if (value == previous):
+            AllTargetsFloatValues.append(Class)
+        else:
+            Class = Class + 1
+            target_names.append(value)
+            AllTargetsFloatValues.append(Class)
+            previous = value
+
+    ArrayDataResults = pd.DataFrame.from_dict(DataResults)
+
+    global XData, yData, RANDOM_SEED
+    XData, yData = ArrayDataResults, AllTargetsFloatValues
+
+    global XDataStored, yDataStored
+    XDataStored = XData.copy()
+    yDataStored = yData.copy()
+
+    callPreResults()
+    
+    return 'Processed uploaded data set'
+
 # Sent data to client 
 @app.route('/data/ClientRequest', methods=["GET", "POST"])
 def CollectionData(): 
@@ -231,6 +303,7 @@ def CollectionData():
 
 def DataSetSelection():
     DataResults = copy.deepcopy(DataResultsRaw)
+
     for dictionary in DataResultsRaw:
         for key in dictionary.keys():
             if (key.find('*') != -1):
@@ -559,11 +632,11 @@ def RetrieveModelsParam():
 
     counter1 = 0
     counter2 = 0
+
     global KNNModels
-    KNNModels = []
     global RFModels
-    RFModels = []
     global algorithmsList
+
     algorithmsList = RetrieveModelsPar['algorithms']
 
     for index, items in enumerate(algorithmsList):
@@ -855,7 +928,7 @@ def ReturnResults(ModelSpaceMDS,ModelSpaceTSNE,DataSpaceList,PredictionSpaceList
     featureScoresCon = featureScoresCon.to_json(orient='records')
     XDataJSONEntireSet = XData.to_json(orient='records')
     XDataJSON = XData.columns.tolist()
-    print(XData)
+
     Results.append(json.dumps(sumPerClassifier)) # Position: 0 
     Results.append(json.dumps(ModelSpaceMDS)) # Position: 1
     Results.append(json.dumps(parametersGenPD)) # Position: 2

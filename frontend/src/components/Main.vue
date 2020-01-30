@@ -317,6 +317,26 @@ export default Vue.extend({
     SendToServerData () {
       // fix that for the upload!
       console.log(this.localFile)
+      const path = `http://127.0.0.1:5000/data/SendtoSeverDataSet`
+
+      const postData = {
+        uploadedData: this.localFile
+      }
+      const axiosConfig = {
+      headers: {
+      'Content-Type': 'application/json',
+      'Access-Control-Allow-Origin': '*',
+      'Access-Control-Allow-Headers': 'Origin, Content-Type, X-Auth-Token',
+      'Access-Control-Allow-Methods': 'GET, PUT, POST, DELETE, OPTIONS'
+      }
+      }
+      axios.post(path, postData, axiosConfig)
+      .then(response => {
+        console.log('Sent the new uploaded data to the server!')
+      })
+      .catch(error => {
+      console.log(error)
+      })
     },
     SendSelectedPointsToServer () {
       if (this.ClassifierIDsList === ''){
@@ -489,27 +509,32 @@ export default Vue.extend({
         })
     },
     fileNameSend () {
+      if (this.RetrieveValueFile == "local") {
+        this.DataSpaceCall()
+        this.SendAlgorithmsToServer()
+      } else {
         const path = `http://127.0.0.1:5000/data/ServerRequest`
-          const postData = {
-            fileName: this.RetrieveValueFile,
+        const postData = {
+          fileName: this.RetrieveValueFile,
+        }
+        const axiosConfig = {
+          headers: {
+            'Content-Type': 'application/json',
+            'Access-Control-Allow-Origin': '*',
+            'Access-Control-Allow-Headers': 'Origin, Content-Type, X-Auth-Token',
+            'Access-Control-Allow-Methods': 'GET, PUT, POST, DELETE, OPTIONS'
           }
-          const axiosConfig = {
-            headers: {
-              'Content-Type': 'application/json',
-              'Access-Control-Allow-Origin': '*',
-              'Access-Control-Allow-Headers': 'Origin, Content-Type, X-Auth-Token',
-              'Access-Control-Allow-Methods': 'GET, PUT, POST, DELETE, OPTIONS'
-            }
-          }
-          axios.post(path, postData, axiosConfig)
-            .then(response => {
-              console.log('Send request to server! FileName was sent successfully!')
-              this.DataSpaceCall()
-              this.SendAlgorithmsToServer()
-            })
-            .catch(error => {
-              console.log(error)
-            })
+        }
+        axios.post(path, postData, axiosConfig)
+        .then(response => {
+          console.log('Send request to server! FileName was sent successfully!')
+          this.DataSpaceCall()
+          this.SendAlgorithmsToServer()
+        })
+        .catch(error => {
+          console.log(error)
+        })
+      }
     },
     DataSpaceCall () {
        const path = `http://localhost:5000/data/requestDataSpaceResults`

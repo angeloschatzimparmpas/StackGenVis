@@ -53,21 +53,23 @@ export default {
         d3.select("#data").select("input").remove(); // Remove the selection field.
         EventBus.$emit('SendToServerDataSetConfirmation', this.RetrieveValueCSV)
       } else {
+        EventBus.$emit('SendToServerDataSetConfirmation', this.RetrieveValueCSV)
         d3.select("#data").select("input").remove();
         this.dataset = ""
         var data
         d3.select("#data")
           .append("input")
           .attr("type", "file")
-          .style("font-size", "16px")
+          .style("font-size", "18.5px")
           .style("width", "200px")
           .on("change", function() {
             var file = d3.event.target.files[0];
             Papa.parse(file, {
                 header: true,
                 dynamicTyping: true,
+                skipEmptyLines: true,
                 complete: function(results) {
-                  data = results;
+                  data = results.data;
                   EventBus.$emit('SendToServerLocalFile', data)
                 }
               });
