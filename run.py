@@ -1139,7 +1139,6 @@ def RetrieveSelDataPoints():
     ModelSpaceMDSNewSel = FunMDS(df_concatMetrics)
 
     ModelSpaceMDSNewSelComb = [list(a) for a in  zip(ModelSpaceMDSNewSel[0], ModelSpaceMDSNewSel[1])]
-
     global mt2xFinal
     mt2xFinal = []
     mtx1, mtx2, disparity = procrustes(ModelSpaceMDSNewComb, ModelSpaceMDSNewSelComb)

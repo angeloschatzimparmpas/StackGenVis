@@ -129,6 +129,8 @@ export default {
       overall[0].ondblclick = function () {
         flagEmptyKNN = 0
         flagEmptyRF = 0
+        EventBus.$emit('clearPCP')
+        EventBus.$emit('alternateFlagLock', flagEmptyKNN)
         EventBus.$emit('alternateFlagLock', flagEmptyKNN)
       }
 

@@ -93,6 +93,7 @@ export default {
 
     // reset view
     EventBus.$on('resetViews', this.reset)
+    EventBus.$on('clearPCP', this.reset)
   }
 }
 </script>

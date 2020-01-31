@@ -171,6 +171,10 @@ export default {
           criterion = 100
         }
 
+        if (this.FlagKNN == 0 && this.FlagRF == 0) {
+          this.storeActiveModels = []
+        }
+        
         if (this.storeActiveModels.length != 0) {
           var countkNNRelated = []
           var countRFRelated = []

@@ -115,8 +115,19 @@ export default {
         EventBus.$emit('NewHeatmapAccordingtoNewStack', StackModelsIDs)
       }
       var DataGeneral
+
+      var maxX
+      var minX
+      var maxY
+      var minY
+
       var layout
       if (this.representationDef == 'mds') {
+        maxX = Math.max(MDSData[0])
+        minX = Math.min(MDSData[0])
+        maxY = Math.max(MDSData[1])
+        minY = Math.max(MDSData[1])
+
         DataGeneral = [{
           type: 'scatter',
           mode: 'markers',
@@ -143,10 +154,12 @@ export default {
         layout = {
           title: 'Models Performance (MDS)',
           xaxis: {
-              visible: false
+              visible: false,
+              range: [minX, maxX]
           },
           yaxis: {
-              visible: false
+              visible: false,
+              range: [minY, maxY]
           },
           autosize: true,
           width: width,
@@ -167,6 +180,11 @@ export default {
             })
             return r;
         }, {})
+
+        maxX = Math.max(result.Xax)
+        minX = Math.min(result.Xax)
+        maxY = Math.max(result.Yax)
+        minY = Math.max(result.Yax)
 
         DataGeneral = [{
           type: 'scatter',
@@ -190,10 +208,12 @@ export default {
         layout = {
           title: 'Models Performance (t-SNE)',
           xaxis: {
-              visible: false
+              visible: false,
+              range: [minX, maxX]
           },
           yaxis: {
-              visible: false
+              visible: false,
+              range: [minY, maxY]
           },
           dragmode: 'lasso',
           hovermode: "closest",
@@ -242,8 +262,19 @@ export default {
       this.ScatterPlotView()
     },
     animate() {
+      var maxX
+      var minX
+      var maxY
+      var minY
+
       var colorsforScatterPlot = JSON.parse(this.DataPointsSelUpdate[0])
       var MDSData = JSON.parse(this.DataPointsSelUpdate[1])
+
+      maxX = Math.max(MDSData[0])
+      minX = Math.min(MDSData[0])
+      maxY = Math.max(MDSData[1])
+      minY = Math.max(MDSData[1])
+
       Plotly.animate('OverviewPlotly', {
         data: [
           {x: MDSData[0], y: MDSData[1],marker: {
@@ -251,14 +282,23 @@ export default {
               }}
         ],
         traces: [0],
-        layout: {}
+        layout: {
+          xaxis: {
+              visible: false,
+              range: [minX, maxX]
+          },
+          yaxis: {
+              visible: false,
+              range: [minY, maxY]
+          },
+        }
       }, {
         transition: {
-          duration: 1000,
+          duration: 3000,
           easing: 'cubic-in-out'
         },
         frame: {
-          duration: 1000
+          duration: 3000
         }
       })
     }
