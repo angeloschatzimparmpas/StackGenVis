@@ -19,7 +19,6 @@ export default {
   data () {
     return {
       PerformanceAllModels: '',
-      brushedAll: [],
       brushedBoxPl: [],
       previousColor: 0,
       selectedAlgorithm: 0,

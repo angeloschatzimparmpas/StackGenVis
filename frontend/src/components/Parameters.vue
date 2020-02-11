@@ -21,6 +21,8 @@ export default {
     return {
       WH: [],
       storeActiveModels: [],
+      allActiveKNN: [],
+      allActiveRF: [],
       storeParameters: [],
       FlagKNN: 0,
       FlagRF: 0,
@@ -159,22 +161,12 @@ export default {
         var n_estimators = 0
         var criterion = 0
 
-        if (this.FlagKNN == 1) {
-          n_neighbors = 100
-          metric = 100
-          algorithm = 100
-          weight = 100
-        }
-
-        if (this.FlagRF == 1) {
-          n_estimators = 100
-          criterion = 100
-        }
-
         if (this.FlagKNN == 0 && this.FlagRF == 0) {
           this.storeActiveModels = []
+          this.allActiveKNN = []
+          this.allActiveRF = []
         }
-        
+
         if (this.storeActiveModels.length != 0) {
           var countkNNRelated = []
           var countRFRelated = []
@@ -185,13 +177,30 @@ export default {
               countRFRelated.push(JSON.parse(this.storeParameters[this.storeActiveModels[i]]))
             }
           }
+          if (this.storeActiveModels[0] < this.KNNModels) {
+            this.allActiveKNN = countkNNRelated.slice()
+          } else {
+            this.allActiveRF = countRFRelated.slice()
+          }
 
-          n_neighbors = ([... new Set(countkNNRelated.map(data => data.n_neighbors))].length / 25) * 100
-          metric = ([... new Set(countkNNRelated.map(data => data.metric))].length / 4) * 100
-          algorithm = ([... new Set(countkNNRelated.map(data => data.algorithm))].length / 3) * 100
-          weight = ([... new Set(countkNNRelated.map(data => data.weight))].length / 2) * 100
-          n_estimators = ([... new Set(countRFRelated.map(data => data.n_estimators))].length / 80) * 100
-          criterion = ([... new Set(countRFRelated.map(data => data.criterion))].length / 2) * 100
+          n_neighbors = ([... new Set(this.allActiveKNN.map(data => data.n_neighbors))].length / 25) * 100
+          metric = ([... new Set(this.allActiveKNN.map(data => data.metric))].length / 4) * 100
+          algorithm = ([... new Set(this.allActiveKNN.map(data => data.algorithm))].length / 3) * 100
+          weight = ([... new Set(this.allActiveKNN.map(data => data.weight))].length / 2) * 100
+          n_estimators = ([... new Set(this.allActiveRF.map(data => data.n_estimators))].length / 80) * 100
+          criterion = ([... new Set(this.allActiveRF.map(data => data.criterion))].length / 2) * 100
+        }
+
+        if (this.FlagKNN == 1 && this.allActiveKNN.length == 0) {
+          n_neighbors = 100
+          metric = 100
+          algorithm = 100
+          weight = 100
+        }
+
+        if (this.FlagRF == 1 && this.allActiveRF.length == 0) {
+          n_estimators = 100
+          criterion = 100
         }
 
         var data = [
@@ -591,7 +600,8 @@ export default {
     EventBus.$on('sendParameters', data => { this.storeParameters = data })
     EventBus.$on('updateActiveModels', data => { this.storeActiveModels = data })
     EventBus.$on('updateActiveModels', this.draw)
-    EventBus.$on('updateActiveModels', this.drawEncodings)
+    //EventBus.$on('updateActiveModels', this.drawEncodings)
+
     EventBus.$on('Responsive', data => {
     this.WH = data})
     EventBus.$on('ResponsiveandChange', data => {

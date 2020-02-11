@@ -1,6 +1,11 @@
 <template>
   <div>
     <div align="center">
+      Projection Selection: <select id="selectBarChartData" @change="selectVisualRepresentationData()">
+        <option value="mds" selected>MDS Projection</option>
+        <option value="tsne">t-SNE Projection</option>
+        <option value="umap">UMAP Projection</option>
+      </select>
       Filter: <select id="selectFilterID" @change="selectAppliedFilter()">
         <option value="mean" selected>Mean</option>
         <option value="median">Median</option>
@@ -50,6 +55,8 @@ export default {
     return {
       dataPoints: '',
       highlightedPoints: '',
+      representationDef: 'mds',
+      representationSelection: 'mds',
       mergeData: 'Merge',
       removeData: 'Remove',
       composeData: 'Compose',
@@ -61,6 +68,11 @@ export default {
     }
   },
   methods: {
+    selectVisualRepresentationData () {
+      const representationSelectionDocum = document.getElementById('selectBarChartData')
+      this.representationSelection = representationSelectionDocum.options[representationSelectionDocum.selectedIndex].value
+      EventBus.$emit('RepresentationSelectionData', this.representationSelection)
+    },
     reset () {
       Plotly.purge('OverviewDataPlotly')
     },
@@ -92,11 +104,13 @@ export default {
       let height = this.responsiveWidthHeight[1]*2.1
 
       var target_names = JSON.parse(this.dataPoints[0])
-      const XandYCoordinates = JSON.parse(this.dataPoints[1])
+      const XandYCoordinatesMDS = JSON.parse(this.dataPoints[1])
       const DataSet = JSON.parse(this.dataPoints[2])
       const DataSetY = JSON.parse(this.dataPoints[3])
       const originalDataLabels = JSON.parse(this.dataPoints[4])
       var DataSetParse = JSON.parse(DataSet)
+      const XandYCoordinatesTSNE = JSON.parse(this.dataPoints[5])
+      const XandYCoordinatesUMAP = JSON.parse(this.dataPoints[6])
 
       let intData = []
       if (this.highlightedPoints.length > 0){
@@ -106,7 +120,78 @@ export default {
         intData = []
       }
 
-      var result = XandYCoordinates.reduce(function(r, a) {
+      var result = []
+      var IDs = []
+      var Xaxs = []
+      var Yaxs = []
+      var Opacity
+
+      if (this.representationDef == 'mds') {
+        for (let i = 0; i < XandYCoordinatesMDS[0].length; i++) {
+          Xaxs.push(XandYCoordinatesMDS[0][i])
+          Yaxs.push(XandYCoordinatesMDS[1][i])
+          IDs.push(i)
+        }
+        result.Xax = Xaxs
+        result.Yax = Yaxs
+        result.ID = IDs
+
+        var traces = []
+        var layout = []
+
+        for (let i = 0; i < target_names.length; i++) {
+
+          const aux_X = result.Xax.filter((item, index) => originalDataLabels[index] == target_names[i]);
+          const aux_Y = result.Yax.filter((item, index) => originalDataLabels[index] == target_names[i]);
+          const aux_ID = result.ID.filter((item, index) => originalDataLabels[index] == target_names[i]);
+
+          var Text = aux_ID.map((item, index) => {
+            let popup = 'Data Point ID: ' + item + '; Details: ' + JSON.stringify(DataSetParse[item])
+            return popup;
+          });
+
+          Opacity = aux_ID.map((item, index) => {
+            let opac
+            if (intData.length == 0) {
+              opac = 1
+            } else if (intData.indexOf(item) > -1) {
+              opac = 1
+            } else {
+              opac = 0.5
+            }
+            return opac;
+          });
+
+
+          traces.push({
+              x: aux_X,
+              y: aux_Y,
+              mode: 'markers',
+              name: target_names[i],
+              marker: { color: this.colorsValues[i], line: { color: 'rgb(0, 0, 0)', width: 2 }, opacity: Opacity, size: 12 },
+              hovertemplate: 
+                      "<b>%{text}</b><br><br>" +
+                      "<extra></extra>",
+              text: Text,
+            })
+        }
+
+        layout = {
+        title: 'Data Space Projection (MDS)',
+        xaxis: {
+            visible: false
+        },
+        yaxis: {
+            visible: false
+        },
+        dragmode: 'lasso',
+        hovermode: "closest",
+        autosize: true,
+        width: width,
+        height: height,
+        }
+      } else if (this.representationDef == 'tsne') {
+        result = XandYCoordinatesTSNE.reduce(function(r, a) {
           var id = 0
           a.forEach(function(s, i) {
               var key = i === 0 ? 'Xax' : 'Yax'
@@ -117,67 +202,128 @@ export default {
 
           })
 
-          return r
-      }, {})
+            return r
+        }, {})
 
-      var IDs = [];
+        for (let i = 0; i < result.Xax.length; i++) {
+          IDs.push(i)
+        }
+        result.ID = IDs
+        
+        var traces = []
 
-      for (let i = 0; i < result.Xax.length; i++) {
-        IDs.push(i)
-      }
-      result.ID = IDs
-      
-      var traces = []
+        for (let i = 0; i < target_names.length; i++) {
 
-      for (let i = 0; i < target_names.length; i++) {
+          const aux_X = result.Xax.filter((item, index) => originalDataLabels[index] == target_names[i]);
+          const aux_Y = result.Yax.filter((item, index) => originalDataLabels[index] == target_names[i]);
+          const aux_ID = result.ID.filter((item, index) => originalDataLabels[index] == target_names[i]);
 
-        const aux_X = result.Xax.filter((item, index) => originalDataLabels[index] == target_names[i]);
-        const aux_Y = result.Yax.filter((item, index) => originalDataLabels[index] == target_names[i]);
-        const aux_ID = result.ID.filter((item, index) => originalDataLabels[index] == target_names[i]);
+          var Text = aux_ID.map((item, index) => {
+            let popup = 'Data Point ID: ' + item + '; Details: ' + JSON.stringify(DataSetParse[item])
+            return popup;
+          });
 
-        var Text = aux_ID.map((item, index) => {
-          let popup = 'Data Point ID: ' + item + '; Details: ' + JSON.stringify(DataSetParse[item])
-          return popup;
-        });
+          Opacity = aux_ID.map((item, index) => {
+            let opac
+            if (intData.length == 0) {
+              opac = 1
+            } else if (intData.indexOf(item) > -1) {
+              opac = 1
+            } else {
+              opac = 0.5
+            }
+            return opac;
+          });
 
-        var Opacity = aux_ID.map((item, index) => {
-          let opac
-          if (intData.length == 0) {
-            opac = 1
-          } else if (intData.indexOf(item) > -1) {
-            opac = 1
-          } else {
-            opac = 0.5
-          }
-          return opac;
-        });
+          traces.push({
+            x: aux_X,
+            y: aux_Y,
+            mode: 'markers',
+            name: target_names[i],
+            marker: { color: this.colorsValues[i], line: { color: 'rgb(0, 0, 0)', width: 2 }, opacity: Opacity, size: 12 },
+            hovertemplate: 
+                    "<b>%{text}</b><br><br>" +
+                    "<extra></extra>",
+            text: Text,
+          })
+        }
 
-        traces.push({
-          x: aux_X,
-          y: aux_Y,
-          mode: 'markers',
-          name: target_names[i],
-          marker: { color: this.colorsValues[i], line: { color: 'rgb(0, 0, 0)', width: 2 }, opacity: Opacity, size: 12 },
-          hovertemplate: 
-                  "<b>%{text}</b><br><br>" +
-                  "<extra></extra>",
-          text: Text,
-        })
-      }
+        layout = {
+        title: 'Data Space Projection (t-SNE)',
+        xaxis: {
+            visible: false
+        },
+        yaxis: {
+            visible: false
+        },
+        dragmode: 'lasso',
+        hovermode: "closest",
+        autosize: true,
+        width: width,
+        height: height,
+        }
+      } else {
+        for (let i = 0; i < XandYCoordinatesUMAP[0].length; i++) {
+          Xaxs.push(XandYCoordinatesUMAP[0][i])
+          Yaxs.push(XandYCoordinatesUMAP[1][i])
+          IDs.push(i)
+        }
+        result.Xax = Xaxs
+        result.Yax = Yaxs
+        result.ID = IDs
 
-      const layout = {
-      title: 'Data Space Projection (t-SNE)',
-      xaxis: {
-          visible: false
-      },
-      yaxis: {
-          visible: false
-      },
-      dragmode: 'lasso',
-      hovermode: "closest",
-      autosize: true,
-      width: width,
-      height: height,
+        var traces = []
+
+        for (let i = 0; i < target_names.length; i++) {
+
+          const aux_X = result.Xax.filter((item, index) => originalDataLabels[index] == target_names[i]);
+          const aux_Y = result.Yax.filter((item, index) => originalDataLabels[index] == target_names[i]);
+          const aux_ID = result.ID.filter((item, index) => originalDataLabels[index] == target_names[i]);
+
+          var Text = aux_ID.map((item, index) => {
+            let popup = 'Data Point ID: ' + item + '; Details: ' + JSON.stringify(DataSetParse[item])
+            return popup;
+          });
+
+          Opacity = aux_ID.map((item, index) => {
+            let opac
+            if (intData.length == 0) {
+              opac = 1
+            } else if (intData.indexOf(item) > -1) {
+              opac = 1
+            } else {
+              opac = 0.5
+            }
+            return opac;
+          });
+
+          traces.push({
+              x: aux_X,
+              y: aux_Y,
+              mode: 'markers',
+              name: target_names[i],
+              marker: { color: this.colorsValues[i], line: { color: 'rgb(0, 0, 0)', width: 2 }, opacity: Opacity, size: 12 },
+              hovertemplate: 
+                      "<b>%{text}</b><br><br>" +
+                      "<extra></extra>",
+              text: Text,
+            })
+        }
+
+        layout = {
+        title: 'Data Space Projection (UMAP)',
+        xaxis: {
+            visible: false
+        },
+        yaxis: {
+            visible: false
+        },
+        dragmode: 'lasso',
+        hovermode: "closest",
+        autosize: true,
+        width: width,
+        height: height,
+        }
       }
 
       var config = {scrollZoom: true, displaylogo: false, showLink: false, showSendToCloud: false, modeBarButtonsToRemove: ['toImage', 'toggleSpikelines', 'autoScale2d', 'hoverClosestGl2d','hoverCompareCartesian','select2d','hoverClosestCartesian','zoomIn2d','zoomOut2d','zoom2d'], responsive: true}
@@ -229,6 +375,9 @@ export default {
       this.responsiveWidthHeight = data})
     EventBus.$on('ResponsiveandChange', data => {
       this.responsiveWidthHeight = data})
+
+    EventBus.$on('RepresentationSelectionData', data => {this.representationDef = data})
+    EventBus.$on('RepresentationSelectionData', this.scatterPlotDataView)
     
     // reset view
     EventBus.$on('resetViews', this.reset)

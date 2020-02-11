@@ -183,7 +183,7 @@ export default Vue.extend({
       OverviewResults: 0,
       preDataResults: '',
       DataResults: '',
-      RetrieveValueFile: 'IrisC',
+      RetrieveValueFile: 'DiabetesC', // this is for the default data set
       ClassifierIDsList: '',
       SelectedFeaturesPerClassifier: '',
       FinalResults: 0,
@@ -262,7 +262,6 @@ export default Vue.extend({
         .then(response => {
           this.OverviewResults = response.data.OverviewResults
           console.log('Server successfully sent all the data related to visualizations!')
-          console.log(this.OverviewResults)
           this.DataSpaceCallAfterDataManipulation()
           EventBus.$emit('emittedEventCallingScatterPlot', this.OverviewResults)
           if (this.firstTimeFlag == 1) {
@@ -528,7 +527,6 @@ export default Vue.extend({
         axios.post(path, postData, axiosConfig)
         .then(response => {
           console.log('Send request to server! FileName was sent successfully!')
-          this.DataSpaceCall()
           this.SendAlgorithmsToServer()
         })
         .catch(error => {
@@ -573,6 +571,7 @@ export default Vue.extend({
           this.DataResults = response.data.DataResults
           EventBus.$emit('emittedEventCallingDataSpacePlotView', this.DataResults)
           EventBus.$emit('emittedEventCallingDataPCP', this.DataResults)
+          this.DataSpaceCall()
         })
         .catch(error => {
           console.log(error)

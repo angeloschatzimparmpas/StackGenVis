@@ -24,6 +24,7 @@ from sklearn.pipeline import make_pipeline
 from sklearn import model_selection
 from sklearn.manifold import MDS
 from sklearn.manifold import TSNE
+import umap
 from sklearn.metrics import classification_report
 from sklearn.preprocessing import scale
 import eli5
@@ -367,8 +368,10 @@ def callPreResults():
     global yData
     global target_names
 
-    DataSpaceRes = FunTsne(XData)
-    DataSpaceListRes = DataSpaceRes.tolist()
+    DataSpaceResMDS = FunMDS(XData)
+    DataSpaceResTSNE = FunTsne(XData)
+    DataSpaceResTSNE = DataSpaceResTSNE.tolist()
+    DataSpaceUMAP = FunUMAP(XData)
 
     XDataJSONEntireSetRes = XData.to_json(orient='records')
 
@@ -376,10 +379,12 @@ def callPreResults():
     preResults = []
 
     preResults.append(json.dumps(target_names)) # Position: 0
-    preResults.append(json.dumps(DataSpaceListRes)) # Position: 1
+    preResults.append(json.dumps(DataSpaceResMDS)) # Position: 1
     preResults.append(json.dumps(XDataJSONEntireSetRes)) # Position: 2
     preResults.append(json.dumps(yData)) # Position: 3
     preResults.append(json.dumps(AllTargets)) # Position: 4
+    preResults.append(json.dumps(DataSpaceResTSNE)) # Position: 5
+    preResults.append(json.dumps(DataSpaceUMAP)) # Position: 6
 
 # Sending each model's results to frontend
 @app.route('/data/requestDataSpaceResults', methods=["GET", "POST"])
@@ -750,14 +755,14 @@ def PreprocessingPredUpdate(Models):
     listIDsRemaining = df_concatProbsCleared.index.values.tolist()
 
     predictionsAll = PreprocessingPred()
-    PredictionSpaceAll = FunTsne(predictionsAll)
+    PredictionSpaceAll = FunMDS(predictionsAll)
 
     predictionsSel = []
     for column, content in df_concatProbsCleared.items():
         el = [sum(x)/len(x) for x in zip(*content)]
         predictionsSel.append(el)
 
-    PredictionSpaceSel = FunTsne(predictionsSel)
+    PredictionSpaceSel = FunMDS(predictionsSel)
 
     #ModelSpaceMDSNewComb = [list(a) for a in  zip(PredictionSpaceAll[0], ModelSpaceMDS[1])]
 
@@ -887,29 +892,37 @@ def FunTsne (data):
     tsne.shape
     return tsne
 
+def FunUMAP (data):
+    trans = umap.UMAP(n_neighbors=5, random_state=RANDOM_SEED).fit(data)
+    Xpos = trans.embedding_[:, 0].tolist()
+    Ypos = trans.embedding_[:, 1].tolist()
+    return [Xpos,Ypos]
+
 def InitializeEnsemble(): 
     XModels = PreprocessingMetrics()
-    DataSpace = FunTsne(XData)
-    DataSpaceList = DataSpace.tolist()
+
     global ModelSpaceMDS
     global ModelSpaceTSNE
 
     ModelSpaceMDS = FunMDS(XModels)
     ModelSpaceTSNE = FunTsne(XModels)
     ModelSpaceTSNE = ModelSpaceTSNE.tolist()
+    ModelSpaceUMAP = FunUMAP(XModels)
 
     PredictionProbSel = PreprocessingPred()
-    PredictionSpace = FunTsne(PredictionProbSel)
-    PredictionSpaceList = PredictionSpace.tolist()
+    PredictionSpaceMDS = FunMDS(PredictionProbSel)
+    PredictionSpaceTSNE = FunTsne(PredictionProbSel)
+    PredictionSpaceTSNE = PredictionSpaceTSNE.tolist()
+    PredictionSpaceUMAP = FunUMAP(PredictionProbSel)
 
     ModelsIDs = preProceModels()
 
     key = 0
     EnsembleModel(ModelsIDs, key)
 
-    ReturnResults(ModelSpaceMDS,ModelSpaceTSNE,DataSpaceList,PredictionSpaceList)
+    ReturnResults(ModelSpaceMDS,ModelSpaceTSNE,ModelSpaceUMAP,PredictionSpaceMDS,PredictionSpaceTSNE,PredictionSpaceUMAP)
 
-def ReturnResults(ModelSpaceMDS,ModelSpaceTSNE,DataSpaceList,PredictionSpaceList):
+def ReturnResults(ModelSpaceMDS,ModelSpaceTSNE,ModelSpaceUMAP,PredictionSpaceMDS,PredictionSpaceTSNE,PredictionSpaceUMAP):
 
     global Results
     global AllTargets
@@ -939,8 +952,8 @@ def ReturnResults(ModelSpaceMDS,ModelSpaceTSNE,DataSpaceList,PredictionSpaceList
     Results.append(json.dumps(target_names)) # Position: 4 
     Results.append(FeatureAccuracy) # Position: 5
     Results.append(json.dumps(XDataJSON)) # Position: 6 
-    Results.append(json.dumps(DataSpaceList)) # Position: 7
-    Results.append(json.dumps(PredictionSpaceList)) # Position: 8 
+    Results.append(0) # Position: 7
+    Results.append(json.dumps(PredictionSpaceMDS)) # Position: 8 
     Results.append(json.dumps(metricsPerModel)) # Position: 9
     Results.append(perm_imp_eli5PDCon) # Position: 10
     Results.append(featureScoresCon) # Position: 11
@@ -949,6 +962,9 @@ def ReturnResults(ModelSpaceMDS,ModelSpaceTSNE,DataSpaceList,PredictionSpaceList
     Results.append(json.dumps(XDataJSONEntireSet)) # Position: 14
     Results.append(json.dumps(yData)) # Position: 15
     Results.append(json.dumps(AllTargets)) # Position: 16
+    Results.append(json.dumps(ModelSpaceUMAP)) # Position: 17
+    Results.append(json.dumps(PredictionSpaceTSNE)) # Position: 18
+    Results.append(json.dumps(PredictionSpaceUMAP)) # Position: 19
 
     return Results
 

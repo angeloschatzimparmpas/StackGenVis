@@ -2,9 +2,9 @@
 <div>
   <label id="data" for="param-dataset" data-toggle="tooltip" data-placement="right" title="Tip: use one of the data sets already provided or upload a new file.">{{ dataset }}</label>
   <select id="selectFile" @change="selectDataSet()">
-      <option value="DiabetesC.csv">Pima Indian Diabetes</option>
+      <option value="DiabetesC.csv" selected>Pima Indian Diabetes</option>
       <option value="BreastC.csv">Breast Cancer Winconsin</option>
-      <option value="IrisC.csv" selected>Iris</option>
+      <option value="IrisC.csv">Iris</option>
       <option value="local">Upload New File</option>
   </select>
 
@@ -36,7 +36,7 @@ export default {
   name: 'DataSetExecController',
   data () {
     return {
-      RetrieveValueCSV: 'IrisC',
+      RetrieveValueCSV: 'DiabetesC', // default value for the first data set
       value: 'Confirm',
       valueReset: 'Reset',
       dataset: 'Data set'

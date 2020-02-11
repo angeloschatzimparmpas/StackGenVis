@@ -4,6 +4,7 @@
             Projection Selection: <select id="selectBarChart" @change="selectVisualRepresentation()">
               <option value="mds" selected>MDS Projection</option>
               <option value="tsne">t-SNE Projection</option>
+              <option value="umap">UMAP Projection</option>
             </select>
             Action: <button
             id="RemoveStack"
@@ -63,6 +64,7 @@ export default {
       var parameters = JSON.parse(this.ScatterPlotResults[2])
       var TSNEData = JSON.parse(this.ScatterPlotResults[12])
       var modelId = JSON.parse(this.ScatterPlotResults[13])
+      var UMAPData = JSON.parse(this.ScatterPlotResults[17])
 
       EventBus.$emit('sendPointsNumber', modelId.length)
 
@@ -169,7 +171,7 @@ export default {
           hoverlabel: { bgcolor: "#FFF" },
           legend: {orientation: 'h', y: -0.3},
         }
-      } else {
+      } else if (this.representationDef == 'tsne') {
         var result = TSNEData.reduce(function(r, a) {
             a.forEach(function(s, i) {
                 var key = i === 0 ? 'Xax' : 'Yax';
@@ -221,6 +223,53 @@ export default {
           legend: {orientation: 'h', y: -0.3},
         }
 
+      } else {
+        maxX = Math.max(UMAPData[0])
+        minX = Math.min(UMAPData[0])
+        maxY = Math.max(UMAPData[1])
+        minY = Math.max(UMAPData[1])
+
+        DataGeneral = [{
+          type: 'scatter',
+          mode: 'markers',
+          x: UMAPData[0],
+          y: UMAPData[1],
+          hovertemplate: 
+                "<b>%{text}</b><br><br>" +
+                "<extra></extra>",
+          text: classifiersInfoProcessing,
+          marker: {
+           line: { color: 'rgb(0, 0, 0)', width: 2 },
+            color: colorsforScatterPlot,
+            size: 12,
+            colorscale: 'Viridis',
+            colorbar: {
+              title: 'Metrics Average',
+              titleside: 'Top'
+            },
+          }
+        
+        }]
+        var width = this.WH[0]*3 // interactive visualization
+        var height = this.WH[1]*1.5 // interactive visualization
+        layout = {
+          title: 'Models Performance (UMAP)',
+          xaxis: {
+              visible: false,
+              range: [minX, maxX]
+          },
+          yaxis: {
+              visible: false,
+              range: [minY, maxY]
+          },
+          autosize: true,
+          width: width,
+          height: height,
+          dragmode: 'lasso',
+          hovermode: "closest",
+          hoverlabel: { bgcolor: "#FFF" },
+          legend: {orientation: 'h', y: -0.3},
+        }
       }
      
       var config = {scrollZoom: true, displaylogo: false, showLink: false, showSendToCloud: false, modeBarButtonsToRemove: ['toImage', 'toggleSpikelines', 'autoScale2d', 'hoverClosestGl2d','hoverCompareCartesian','select2d','hoverClosestCartesian','zoomIn2d','zoomOut2d','zoom2d'], responsive: true}
