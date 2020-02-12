@@ -1,6 +1,6 @@
 <template>
   <div>
-    <div id="exploding_boxplot" class="exploding_boxplot"></div>
+    <div id="exploding_boxplot" class="exploding_boxplot" style="min-height: 430px;"></div>
   </div>
 </template>
 
@@ -28,6 +28,7 @@ export default {
       parameters: [],
       algorithm1: [],
       algorithm2: [],
+      factors: [1,1,1,1,1],
       chart: '',
       flagEmpty: 0,
       ActiveModels: [],
@@ -44,6 +45,29 @@ export default {
       // retrieve models ID
       const Algor1IDs = this.PerformanceAllModels[0]
       const Algor2IDs = this.PerformanceAllModels[8]
+
+      var factorsLocal = this.factors
+      var divide = 0
+
+      factorsLocal.forEach(element => {
+        divide = element + divide
+      });
+
+      var Mc1 = []
+      const performanceAlg1 = JSON.parse(this.PerformanceAllModels[6])
+      for (let j = 0; j < Object.values(performanceAlg1['mean_test_accuracy']).length; j++) {
+        let sum
+        sum = (factorsLocal[0] * Object.values(performanceAlg1['mean_test_accuracy'])[j]) + (factorsLocal[1] * Object.values(performanceAlg1['mean_test_f1_macro'])[j]) + (factorsLocal[2] * Object.values(performanceAlg1['mean_test_precision'])[j]) + (factorsLocal[3] * Object.values(performanceAlg1['mean_test_recall'])[j]) + (factorsLocal[4] * Object.values(performanceAlg1['mean_test_jaccard'])[j])
+        Mc1.push((sum/divide)*100)
+      }
+
+      var Mc2 = []
+      const performanceAlg2 = JSON.parse(this.PerformanceAllModels[14])
+      for (let j = 0; j < Object.values(performanceAlg2['mean_test_accuracy']).length; j++) {
+        let sum2
+        sum2 = (factorsLocal[0] * Object.values(performanceAlg2['mean_test_accuracy'])[j]) + (factorsLocal[1] * Object.values(performanceAlg2['mean_test_f1_macro'])[j]) + (factorsLocal[2] * Object.values(performanceAlg2['mean_test_precision'])[j]) + (factorsLocal[3] * Object.values(performanceAlg2['mean_test_recall'])[j]) + (factorsLocal[4] * Object.values(performanceAlg2['mean_test_jaccard'])[j])
+        Mc2.push((sum2/divide)*100)
+      }
       
       // retrieve the results like performance
       const PerformAlgor1 = JSON.parse(this.PerformanceAllModels[1])
@@ -53,13 +77,13 @@ export default {
       this.algorithm1 = []
       this.algorithm2 = []
       this.parameters = []
-
+      
       for (var i = 0; i < Object.keys(PerformAlgor1['0']).length; i++) {
-        this.algorithm1.push({'Performance Metrics': Object.values(PerformAlgor1['0'])[i]*100,Algorithm:'KNN',Model:'Model ' + Algor1IDs[i] + '; Parameters '+JSON.stringify(Object.values(PerformAlgor1['params'])[i])+'; Performance Metrics ',ModelID:Algor1IDs[i]})
+        this.algorithm1.push({'Performance Metrics': Mc1[i],Algorithm:'KNN',Model:'Model ' + Algor1IDs[i] + '; Parameters '+JSON.stringify(Object.values(PerformAlgor1['params'])[i])+'; Performance Metrics ',ModelID:Algor1IDs[i]})
         this.parameters.push(JSON.stringify(Object.values(PerformAlgor1['params'])[i]))
       }
       for (let j = 0; j < Object.keys(PerformAlgor2['0']).length; j++) {
-        this.algorithm2.push({'Performance Metrics': Object.values(PerformAlgor2['0'])[j]*100,Algorithm:'RF',Model:'Model ' + Algor2IDs[j] + '; Parameters '+JSON.stringify(Object.values(PerformAlgor2['params'])[j])+'; Performance Metrics ',ModelID:Algor2IDs[j]})
+        this.algorithm2.push({'Performance Metrics': Mc2[j],Algorithm:'RF',Model:'Model ' + Algor2IDs[j] + '; Parameters '+JSON.stringify(Object.values(PerformAlgor2['params'])[j])+'; Performance Metrics ',ModelID:Algor2IDs[j]})
         this.parameters.push(JSON.stringify(Object.values(PerformAlgor2['params'])[j]))
       }
 
@@ -75,7 +99,7 @@ export default {
       // label : displayed text in toolbox
       this.chart = exploding_boxplot(data, {y:'Performance Metrics',group:'Algorithm',color:'Algorithm',label:'Model'})
       this.chart.width(this.WH[0]*3) // interactive visualization
-      this.chart.height(this.WH[1]) // interactive visualization
+      this.chart.height(this.WH[1]*0.9) // interactive visualization
       //call chart on a div
       this.chart('#exploding_boxplot')
 
@@ -349,6 +373,9 @@ export default {
     EventBus.$on('emittedEventCallingSelectedALgorithm', data => {
       this.selectedAlgorithm = data})
     EventBus.$on('brusheAllOn', this.brushActivationAll)
+
+    EventBus.$on('CallFactorsView', data => { this.factors = data })
+    EventBus.$on('CallFactorsView', this.boxplot)
 
     // reset the views
     EventBus.$on('resetViews', this.reset)

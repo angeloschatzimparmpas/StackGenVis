@@ -151,8 +151,8 @@ export default {
           }
         
         }]
-        var width = this.WH[0]*3 // interactive visualization
-        var height = this.WH[1]*1.5 // interactive visualization
+        var width = this.WH[0]*6.5 // interactive visualization
+        var height = this.WH[1]*1.22 // interactive visualization
         layout = {
           title: 'Models Performance (MDS)',
           xaxis: {
@@ -250,8 +250,8 @@ export default {
           }
         
         }]
-        var width = this.WH[0]*3 // interactive visualization
-        var height = this.WH[1]*1.5 // interactive visualization
+        var width = this.WH[0]*6.5 // interactive visualization
+        var height = this.WH[1]*1 // interactive visualization
         layout = {
           title: 'Models Performance (UMAP)',
           xaxis: {

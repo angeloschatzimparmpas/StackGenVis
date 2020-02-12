@@ -6,114 +6,138 @@
       <b-row class="md-3">
         <b-col cols="3">
           <mdb-card>
-            <mdb-card-header color="primary-color" tag="h5" class="text-center">Data and Performance Metrics Selection</mdb-card-header>
-            <mdb-card-body>
-              <mdb-card-text class="text-center" >
-                <DataSetExecController/>
-                <SlidersController/>
-              </mdb-card-text>
-            </mdb-card-body>
-          </mdb-card>
-        <mdb-card style="margin-top: 15px">
-          <mdb-card-header color="primary-color" tag="h5" class="text-center">HyperParameters Space Exploration Overview</mdb-card-header>
-            <mdb-card-body>
-              <Parameters/>
-            </mdb-card-body>
-          </mdb-card>
-        </b-col>
-        <b-col cols="3">
-          <mdb-card>
-             <mdb-card-header color="primary-color" tag="h5" class="text-center">Models Space Visualization
-              [Sel.:{{OverSelLength}}/All:{{OverAllLength}}]
-              </mdb-card-header>
+            <mdb-card-header color="primary-color" tag="h5" class="text-center">Data Set and Validation Metrics Manager</mdb-card-header>
               <mdb-card-body>
-                <ScatterPlot/>
-                <PerMetricBarChart/>
-              </mdb-card-body>
-          </mdb-card>
-        </b-col>
-        <b-col cols="3">
-          <mdb-card>
-            <mdb-card-header color="primary-color" tag="h5" class="text-center">Predictions Space Visualization</mdb-card-header>
-            <mdb-card-body>
-              <mdb-card-text class="text-center">
-                <PredictionsSpace/>
-                <BalancePredictions/>
-              </mdb-card-text>
-            </mdb-card-body>
-          </mdb-card>
-        </b-col>
-        <b-col cols="3">
-           <mdb-card>
-            <mdb-card-header color="primary-color" tag="h5" class="text-center">Data Space Visualization</mdb-card-header>
-            <mdb-card-body>
-              <mdb-card-text class="text-center">
-                <DataSpace/>
-                <PCPData/>
-              </mdb-card-text>
-            </mdb-card-body>
-          </mdb-card>
-        </b-col>
-      </b-row>
-      <b-row class="mb-3 mt-3">
-        <b-col cols="3">
-          <mdb-card>
-            <mdb-card-header color="primary-color" tag="h5" class="text-center">Best Algorithms and HyperParameters Search [Sel.:{{valueSel}}/All:{{valueAll}}]</mdb-card-header>
-              <mdb-card-body>
-                  <Algorithms :width="width" :height="height"/>
-                  <AlgorithmHyperParam/>
-                  <mdb-card-text class="text-center" >
-                    <Controller/>
-                  </mdb-card-text>
+                <mdb-card-text class="text-left">
+                  <DataSetExecController/>
+                  <SlidersController/>
+                </mdb-card-text>
               </mdb-card-body>
           </mdb-card>
         </b-col>
         <b-col cols="6">
           <mdb-card>
-            <mdb-card-header color="primary-color" tag="h5" class="text-center">Models Feature Selection</mdb-card-header>
-            <b-row>
-            <b-col cols="12">  
-              <mdb-card-body>        
-                <Heatmap/>
-              </mdb-card-body>
-            </b-col>
-          </b-row>
-            <mdb-card-text>
-              <mdb-card-body>        
-                <ToggleSelection/>
-              </mdb-card-body>
-            </mdb-card-text>
+            <mdb-card-header color="primary-color" tag="h5" class="text-center">Current Stacking Ensemble</mdb-card-header>
+            <mdb-card-body>
+                <Provenance/>
+            </mdb-card-body>
           </mdb-card>
         </b-col>
         <b-col cols="3">
-          <mdb-card >
             <mdb-card>
               <mdb-card-header color="primary-color" tag="h5" class="text-center">Meta-Model Performance</mdb-card-header>
               <mdb-card-body>
                 <FinalResultsLinePlot/>
               </mdb-card-body>
             </mdb-card>
-          </mdb-card>
         </b-col>
       </b-row>
-      <b-row>
-          <b-col cols="3">
-            <mdb-card>
-              <mdb-card-header color="primary-color" tag="h5" class="text-center">Diverse Algorithms Exploration</mdb-card-header>
-              <mdb-card-body>
-                  <BarChart/>
-              </mdb-card-body>
-            </mdb-card>
-          </b-col>
-          <b-col cols="9">
-            <mdb-card>
-              <mdb-card-header color="primary-color" tag="h5" class="text-center">Current Stacking Ensemble and Provenance Visualization</mdb-card-header>
-              <mdb-card-body>
-                  <Provenance/>
-              </mdb-card-body>
-            </mdb-card>
-          </b-col>
-      </b-row>
+      <ul class="nav nav-tabs" id="myTab" role="tablist" style="margin-top: 15px">
+      <li class="nav-item">
+        <a class="nav-link active" id="home-tab" data-toggle="tab" href="#home" role="tab" aria-controls="home" aria-selected="true">Algorithms</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" id="profile-tab" data-toggle="tab" href="#profile" role="tab" aria-controls="profile" aria-selected="false">Data</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" id="contact-tab" data-toggle="tab" href="#contact" role="tab" aria-controls="contact" aria-selected="false">Models</a>
+      </li>
+      </ul>
+      <div class="tab-content" id="myTabContent">
+        <div class="tab-pane fade show active" id="home" role="tabpanel" aria-labelledby="home-tab">
+          <b-row class="md-3">
+            <b-col cols="3">
+              <mdb-card style="margin-top: 15px">
+                <mdb-card-header color="primary-color" tag="h5" class="text-center">Overview of the Algorithms Space</mdb-card-header>
+                <mdb-card-body class="text-center">
+                  <Parameters/>
+                </mdb-card-body>
+              </mdb-card>
+            </b-col>
+            <b-col cols="9">
+              <mdb-card style="margin-top: 15px;">
+                <mdb-card-header color="primary-color" tag="h5" class="text-center">Performance of the Algorithms [Sel.:{{valueSel}}/All:{{valueAll}}]<small class="float-right"><Controller/></small></mdb-card-header>
+                  <mdb-card-body>
+                      <Algorithms :width="width" :height="height"/>
+                  </mdb-card-body>
+              </mdb-card>
+            </b-col>
+          </b-row>
+          <b-row class="md-3">
+            <b-col cols="3">
+              <mdb-card style="margin-top: 15px">
+                <mdb-card-header color="primary-color" tag="h5" class="text-center">Parameters Manipulation for Each Algorithm</mdb-card-header>
+                <mdb-card-body>
+                  <AlgorithmHyperParam/>
+                </mdb-card-body>
+              </mdb-card>
+            </b-col>
+            <b-col cols="9">
+              <mdb-card style="margin-top: 15px;">
+                <mdb-card-header color="primary-color" tag="h5" class="text-center">Performance of the Algorithms for Each Class</mdb-card-header>
+                <mdb-card-body>
+                    <BarChart/>
+                </mdb-card-body>
+              </mdb-card>
+            </b-col>
+          </b-row>
+        </div>
+        <div class="tab-pane fade" id="profile" role="tabpanel" aria-labelledby="profile-tab">
+          <b-row class="md-3">
+              <b-col cols="6">
+                <mdb-card style="margin-top: 15px;">
+                  <mdb-card-header color="primary-color" tag="h5" class="text-center">Data Space</mdb-card-header>
+                  <mdb-card-body>
+                    <mdb-card-text class="text-center" style="min-height: 825px">
+                      <DataSpace/>
+                      <PCPData/>
+                    </mdb-card-text>
+                  </mdb-card-body>
+                </mdb-card>
+              </b-col>
+              <b-col cols="6">
+                <mdb-card style="margin-top: 15px;">
+                  <mdb-card-header color="primary-color" tag="h5" class="text-center">Features Selection for Each Model</mdb-card-header>
+                    <mdb-card-body>
+                      <mdb-card-text class="text-center" style="min-height: 845px">
+                        <ToggleSelection/>
+                        <Heatmap/>
+                      </mdb-card-text>
+                    </mdb-card-body>
+                </mdb-card>    
+
+              </b-col>
+            </b-row>
+        </div>
+        <div class="tab-pane fade" id="contact" role="tabpanel" aria-labelledby="contact-tab">
+          <b-row class="md-3">
+              <b-col cols="6">
+                <mdb-card style="margin-top: 15px;">
+                  <mdb-card-header color="primary-color" tag="h5" class="text-center">Models Space
+                    [Sel.:{{OverSelLength}}/All:{{OverAllLength}}]
+                    </mdb-card-header>
+                    <mdb-card-body>
+                      <mdb-card-text class="text-center"  style="min-height: 845px">
+                        <ScatterPlot/>
+                        <PerMetricBarChart/>
+                      </mdb-card-text>
+                    </mdb-card-body>
+                </mdb-card>
+              </b-col>
+              <b-col cols="6">
+                <mdb-card style="margin-top: 15px;">
+                  <mdb-card-header color="primary-color" tag="h5" class="text-center">Predictions Space</mdb-card-header>
+                  <mdb-card-body>
+                    <mdb-card-text class="text-center"  style="min-height: 845px">
+                      <PredictionsSpace/>
+                      <BalancePredictions/>
+                    </mdb-card-text>
+                  </mdb-card-body>
+                </mdb-card>
+              </b-col>
+            </b-row>
+        </div>
+      </div>
     </b-container>
   </div>
 </template>
@@ -548,8 +572,8 @@ export default Vue.extend({
       axios.get(path, axiosConfig)
         .then(response => {
           this.preDataResults = response.data.preDataResults
-          EventBus.$emit('emittedEventCallingDataSpacePlotView', this.preDataResults)
           EventBus.$emit('emittedEventCallingDataPCP', this.preDataResults)
+          EventBus.$emit('emittedEventCallingDataSpacePlotView', this.preDataResults)
         })
         .catch(error => {
           console.log(error)

@@ -1,4 +1,4 @@
-# first line: 463
+# first line: 465
 @memory.cache
 def GridSearchForModels(XData, yData, clf, params, eachAlgor, factors, AlgorithmsIDsEnd):
 
@@ -46,12 +46,12 @@ def GridSearchForModels(XData, yData, clf, params, eachAlgor, factors, Algorithm
     # copy and filter in order to get only the metrics
     metrics = df_cv_results_classifiers.copy()
     metrics = metrics.filter(['mean_test_accuracy','mean_test_f1_macro','mean_test_precision','mean_test_recall','mean_test_jaccard']) 
-    
+
     # control the factors
     sumperModel = []
     for index, row in metrics.iterrows():
         rowSum = 0
-        lengthFactors = NumberofscoringMetrics
+        lengthFactors = len(scoring)
         for loop,elements in enumerate(row):
             lengthFactors = lengthFactors -  1 + factors[loop]
             rowSum = elements*factors[loop] + rowSum

@@ -32,8 +32,8 @@
             svg.selectAll("*").remove();
 
             // responsive visualizations
-            var widthInitial = this.responsiveWidthHeight[0]*3 
-            var heightInitial = this.responsiveWidthHeight[1]/1.6
+            var widthInitial = this.responsiveWidthHeight[0]*6.5
+            var heightInitial = this.responsiveWidthHeight[1]*0.5
 
             var performancePerModel = JSON.parse(this.resultsfromOverview[0])
             var performancePerModelSelection = []
@@ -186,12 +186,12 @@
                   
 
             // Handmade legend
-            var heightforText = 175
-            svg.append("circle").attr("cx",30).attr("cy",heightforText).attr("r", 6).style("fill", "#000")
-            svg.append("circle").attr("cx",350).attr("cy",heightforText).attr("r", 6).style("fill", "#D3D3D3")
-            svg.append("text").attr("x", 50).attr("y", heightforText).text("Entire distribution").style("font-size", "15px").attr("alignment-baseline","middle")
-            svg.append("text").attr("x", 210).attr("y", heightforText).text("Performance").style("font-size", "15px").attr("alignment-baseline","top")
-            svg.append("text").attr("x", 370).attr("y", heightforText).text("Selected points").style("font-size", "15px").attr("alignment-baseline","middle")
+            var heightforText = 215
+            svg.append("circle").attr("cx", 215).attr("cy", heightforText-1.5).attr("r", 6).style("fill", "#000")
+            svg.append("circle").attr("cx", 785).attr("cy", heightforText-1.5).attr("r", 6).style("fill", "#D3D3D3")
+            svg.append("text").attr("x", 230).attr("y", heightforText).text("Entire distribution").style("font-size", "15px").attr("alignment-baseline","middle")
+            svg.append("text").attr("x", 515).attr("y", heightforText-10).text("Performance").style("font-size", "15px").attr("alignment-baseline","top")
+            svg.append("text").attr("x", 800).attr("y", heightforText).text("Selected points").style("font-size", "15px").attr("alignment-baseline","middle")
 
             // Function to compute density
             function kernelDensityEstimator(kernel, X) {

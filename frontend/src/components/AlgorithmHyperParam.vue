@@ -1,5 +1,5 @@
 <template>
-  <div id="PCP" class="parcoords" style="height:200px"></div>
+  <div id="PCP" class="parcoords" style="min-height: 307px;"></div>
 </template>
 
 <script>
@@ -19,6 +19,7 @@ export default {
       ModelsPerformance: 0,
       selAlgorithm: 0,
       pc: 0,
+      factors: [1,1,1,1,1],
       KNNModels: 576 //KNN models
     }
   },
@@ -32,6 +33,29 @@ export default {
         var colors = ['#8dd3c7','#8da0cb']
         var colorGiv = 0
         
+        var factorsLocal = this.factors
+        var divide = 0
+
+        factorsLocal.forEach(element => {
+          divide = element + divide
+        });
+
+        var Mc1 = []
+        const performanceAlg1 = JSON.parse(this.ModelsPerformance[6])
+        for (let j = 0; j < Object.values(performanceAlg1['mean_test_accuracy']).length; j++) {
+          let sum
+          sum = (factorsLocal[0] * Object.values(performanceAlg1['mean_test_accuracy'])[j]) + (factorsLocal[1] * Object.values(performanceAlg1['mean_test_f1_macro'])[j]) + (factorsLocal[2] * Object.values(performanceAlg1['mean_test_precision'])[j]) + (factorsLocal[3] * Object.values(performanceAlg1['mean_test_recall'])[j]) + (factorsLocal[4] * Object.values(performanceAlg1['mean_test_jaccard'])[j])
+          Mc1.push((sum/divide)*100)
+        }
+
+        var Mc2 = []
+        const performanceAlg2 = JSON.parse(this.ModelsPerformance[14])
+        for (let j = 0; j < Object.values(performanceAlg2['mean_test_accuracy']).length; j++) {
+          let sum2
+          sum2 = (factorsLocal[0] * Object.values(performanceAlg2['mean_test_accuracy'])[j]) + (factorsLocal[1] * Object.values(performanceAlg2['mean_test_f1_macro'])[j]) + (factorsLocal[2] * Object.values(performanceAlg2['mean_test_precision'])[j]) + (factorsLocal[3] * Object.values(performanceAlg2['mean_test_recall'])[j]) + (factorsLocal[4] * Object.values(performanceAlg2['mean_test_jaccard'])[j])
+          Mc2.push((sum2/divide)*100)
+        }
+
         var Combined = 0
         if (this.selAlgorithm == 'KNN') {    
           Combined = JSON.parse(this.ModelsPerformance[1])
@@ -49,10 +73,10 @@ export default {
         for (var i = 0; i < valuesPerf.length; i++) {
           if (this.selAlgorithm === 'KNN') {
             // There is a problem here!
-            newObjectsParams.push({model: i,'perf_metrics': valuesPerf[i],'n_neighbors':ObjectsParams[i].n_neighbors,'metric':ObjectsParams[i].metric,'algorithm':ObjectsParams[i].algorithm,'weights':ObjectsParams[i].weights})
+            newObjectsParams.push({model: i,'perf_metrics': Mc1[i],'n_neighbors':ObjectsParams[i].n_neighbors,'metric':ObjectsParams[i].metric,'algorithm':ObjectsParams[i].algorithm,'weights':ObjectsParams[i].weights})
             ArrayCombined[i] = newObjectsParams[i]
           } else {
-            newObjectsParams2.push({model: this.KNNModels + i,'perf_metrics': valuesPerf[i],'n_estimators':ObjectsParams[i].n_estimators,'criterion':ObjectsParams[i].criterion})
+            newObjectsParams2.push({model: this.KNNModels + i,'perf_metrics': Mc2[i],'n_estimators':ObjectsParams[i].n_estimators,'criterion':ObjectsParams[i].criterion})
             ArrayCombined[i] = newObjectsParams2[i]
           }
         }
@@ -90,6 +114,9 @@ export default {
     EventBus.$on('emittedEventCallingModel', this.PCPView)
     EventBus.$on('ResponsiveandChange', this.PCPView)
     EventBus.$on('emittedEventCallingModelClear', this.clear)
+
+    EventBus.$on('CallFactorsView', data => { this.factors = data })
+    EventBus.$on('CallFactorsView', this.PCPView)
 
     // reset view
     EventBus.$on('resetViews', this.reset)

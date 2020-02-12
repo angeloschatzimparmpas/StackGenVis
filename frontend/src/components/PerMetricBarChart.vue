@@ -26,8 +26,8 @@ export default {
       } else {
         metricsPerModelSel = this.SelBarChartMetrics
       }
-      var width = this.WH[0]*3 // interactive visualization
-      var height = this.WH[1]/2 // interactive visualization
+      var width = this.WH[0]*6.5 // interactive visualization
+      var height = this.WH[1]*0.5 // interactive visualization
           var trace1 = {
           x: ['Acc','F1s','Pre','Rec','Jac'], 
           y: metricsPerModel, 

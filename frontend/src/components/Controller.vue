@@ -1,12 +1,10 @@
 <template>
-    <div>
-        <button
-        id="Execute"
-        v-on:click="execute">
-        <font-awesome-icon icon="play" />
-        {{ valueExecute }}
-        </button>
-  </div>
+  <button style="floatfloat: right;"
+  id="Execute"
+  v-on:click="execute">
+  <font-awesome-icon icon="play" />
+  {{ valueExecute }}
+  </button>
 </template>
 
 <script>

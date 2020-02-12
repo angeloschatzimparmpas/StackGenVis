@@ -1,10 +1,8 @@
 <template>
-    <div>
-        <div id="toggles" style="visibility:hidden">
-            Univariate Selection:<input type="checkbox" id="toggle-uni" data-toggle="toggle" checked="checked" data-on="Enabled" data-off="Disabled" data-size="small">
-            Permutation Importance:<input type="checkbox" id="toggle-per" data-toggle="toggle" checked="checked" data-on="Enabled" data-off="Disabled" data-size="small">
-            Feature Accuracy Importance:<input type="checkbox" id="toggle-fi" data-toggle="toggle" checked="checked" data-on="Enabled" data-off="Disabled" data-size="small">
-        </div>
+    <div id="toggles" style="visibility:hidden">
+        Univariate Selection:<input type="checkbox" id="toggle-uni" data-toggle="toggle" checked="checked" data-on="Enabled" data-off="Disabled" data-size="small">
+        Permutation Importance:<input type="checkbox" id="toggle-per" data-toggle="toggle" checked="checked" data-on="Enabled" data-off="Disabled" data-size="small">
+        Feature Accuracy Importance:<input type="checkbox" id="toggle-fi" data-toggle="toggle" checked="checked" data-on="Enabled" data-off="Disabled" data-size="small">
     </div>
 </template>
 

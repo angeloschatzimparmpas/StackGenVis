@@ -1,11 +1,17 @@
 <template>
-  <div>Projection Selection: <select id="selectBarChartPred" @change="selectVisualRepresentationPred()">
-    <option value="mds" selected>MDS Projection</option>
-    <option value="tsne">t-SNE Projection</option>
-    <option value="umap">UMAP Projection</option>
-  </select>
-  <div id="OverviewPredPlotly" class="OverviewPredPlotly"></div>
-  </div>
+<div>
+  <b-row class="md-3">
+    <b-col cols="12">
+      <div>Projection Selection: <select id="selectBarChartPred" @change="selectVisualRepresentationPred()">
+        <option value="mds" selected>MDS Projection</option>
+        <option value="tsne">t-SNE Projection</option>
+        <option value="umap">UMAP Projection</option>
+      </select>
+      <div id="OverviewPredPlotly" class="OverviewPredPlotly"></div>
+      </div>
+    </b-col>
+  </b-row>
+</div>
 </template>
 
 <script>
@@ -21,7 +27,7 @@ export default {
       representationDef: 'mds',
       representationSelection: 'mds',
       colorsValues: ['#6a3d9a','#b15928','#e31a1c'],
-      responsiveWidthHeight: []
+      WH: []
     }
   },
   methods: {
@@ -37,8 +43,8 @@ export default {
        Plotly.purge('OverviewPredPlotly')
 
       // responsive visualization
-      var width = this.responsiveWidthHeight[0]*3
-      var height = this.responsiveWidthHeight[1]*1.48 
+      var width = this.WH[0]*6.5 // interactive visualization
+      var height = this.WH[1]*1.22 // interactive visualization
 
       var target_names = JSON.parse(this.PredictionsData[4])
       const XandYCoordinatesMDS = JSON.parse(this.PredictionsData[8])
@@ -124,7 +130,7 @@ export default {
           IDs.push(i)
         }
         result.ID = IDs
-        console.log(result)
+
         var traces = []
 
         for (let i = 0; i < target_names.length; i++) {

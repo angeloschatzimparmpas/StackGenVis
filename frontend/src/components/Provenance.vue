@@ -1,7 +1,7 @@
 <template>
     <div>
-        <div class="squares-container">
-            <canvas id="main-canvas"></canvas>
+        <div class="squares-container" style="min-height: 307px;">
+            <canvas id="main-canvas" ></canvas>
         </div>
     </div>
 </template>
@@ -42,7 +42,7 @@ export default {
     provenance () {
       var canvas = document.getElementById("main-canvas");
       var width = this.WH[0]*9 // interactive visualization
-      var height = this.WH[1]*0.95 // interactive visualization
+      var height = this.WH[1]*0.5 // interactive visualization
 
       var flagKNN = 0
       var flagRF = 0

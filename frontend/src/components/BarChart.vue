@@ -1,7 +1,7 @@
 <template>
 <b-row>
     <b-col cols="12">
-        <div id="barChart" class="barChart"></div>
+        <div id="barChart" class="barChart" style="min-height: 307px;"></div>
     </b-col>
 </b-row>
 </template>
@@ -18,6 +18,7 @@ export default {
       ClassNamesOverview: '',
       algorithmsinBar: [],
       modelsSelectedinBar: [],
+      factors: [1,1,1,1,1],
       KNNModels: 576, //KNN models,
       colorsValues: ['#6a3d9a','#b15928','#e31a1c'],
       WH: []
@@ -31,6 +32,10 @@ export default {
       var KNNModels = []
       var RFModels = []
       
+            
+      var factorsLocal = this.factors
+      var divide = factorsLocal[1] + factorsLocal[2] + factorsLocal[3]
+
       if (this.modelsSelectedinBar.length != 0){
           for (let i=0; i<this.algorithmsinBar.length;i++) {
               if (this.algorithmsinBar[i] === "KNN") {
@@ -51,12 +56,12 @@ export default {
           temp = 0
           temp2 = 0
           for (var j=0;j<Object.keys(PerClassMetrics[target_names[i]]).length;j++){
-              temp = temp + (Object.values(PerClassMetrics)[i][j]['f1-score']+Object.values(PerClassMetrics)[i][j]['precision']+Object.values(PerClassMetrics)[i][j]['recall'])/3
+              temp = temp + ((Object.values(PerClassMetrics)[i][j]['f1-score']*factorsLocal[1])+(Object.values(PerClassMetrics)[i][j]['precision']*factorsLocal[2])+(Object.values(PerClassMetrics)[i][j]['recall']*factorsLocal[3]))/divide
           }
           temp = temp/Object.keys(PerClassMetrics[target_names[i]]).length
           sum.push(temp)
           for (var k=0;k<Object.keys(PerClassMetrics2[target_names[i]]).length;k++){
-              temp2 = temp2 + (Object.values(PerClassMetrics2)[i][k]['f1-score']+Object.values(PerClassMetrics2)[i][k]['precision']+Object.values(PerClassMetrics2)[i][k]['recall'])/3
+            temp2 = temp2 + ((Object.values(PerClassMetrics2)[i][k]['f1-score']*factorsLocal[1])+(Object.values(PerClassMetrics2)[i][k]['precision']*factorsLocal[2])+(Object.values(PerClassMetrics2)[i][k]['recall']*factorsLocal[3]))/divide
           }
           temp2 = temp2/Object.keys(PerClassMetrics2[target_names[i]]).length
           sum.push(temp2)
@@ -71,12 +76,12 @@ export default {
 
           if (KNNModels.length == 0) {
               for (var j=0;j<Object.keys(PerClassMetrics[target_names[i]]).length;j++){
-                  temp = temp + (Object.values(PerClassMetrics)[i][j]['f1-score']+Object.values(PerClassMetrics)[i][j]['precision']+Object.values(PerClassMetrics)[i][j]['recall'])/3
+                temp = temp + ((Object.values(PerClassMetrics)[i][j]['f1-score']*factorsLocal[1])+(Object.values(PerClassMetrics)[i][j]['precision']*factorsLocal[2])+(Object.values(PerClassMetrics)[i][j]['recall']*factorsLocal[3]))/divide
               }
               temp = temp/Object.keys(PerClassMetrics[target_names[i]]).length
           } else {
               for (var j=0;j<KNNModels.length;j++){
-                  temp = temp + (Object.values(PerClassMetrics)[i][KNNModels[j]]['f1-score']+Object.values(PerClassMetrics)[i][KNNModels[j]]['precision']+Object.values(PerClassMetrics)[i][KNNModels[j]]['recall'])/3
+                  temp = temp + ((Object.values(PerClassMetrics)[i][j]['f1-score']*factorsLocal[1])+(Object.values(PerClassMetrics)[i][j]['precision']*factorsLocal[2])+(Object.values(PerClassMetrics)[i][j]['recall']*factorsLocal[3]))/divide
               }
               temp = temp/KNNModels.length
           }
@@ -84,12 +89,12 @@ export default {
 
           if (RFModels.length == 0) {
               for (var k=0;k<Object.keys(PerClassMetrics2[target_names[i]]).length;k++){
-                  temp2 = temp2 + (Object.values(PerClassMetrics2)[i][k]['f1-score']+Object.values(PerClassMetrics2)[i][k]['precision']+Object.values(PerClassMetrics2)[i][k]['recall'])/3
+                  temp2 = temp2 + ((Object.values(PerClassMetrics2)[i][k]['f1-score']*factorsLocal[1])+(Object.values(PerClassMetrics2)[i][k]['precision']*factorsLocal[2])+(Object.values(PerClassMetrics2)[i][k]['recall']*factorsLocal[3]))/divide
               }
               temp2 = temp2/Object.keys(PerClassMetrics2[target_names[i]]).length
           } else {
               for (var k=0;k<RFModels.length;k++){
-                  temp2 = temp2 + (Object.values(PerClassMetrics2)[i][RFModels[k]]['f1-score']+Object.values(PerClassMetrics2)[i][RFModels[k]]['precision']+Object.values(PerClassMetrics2)[i][RFModels[k]]['recall'])/3
+                  temp2 = temp2 + ((Object.values(PerClassMetrics2)[i][k]['f1-score']*factorsLocal[1])+(Object.values(PerClassMetrics2)[i][k]['precision']*factorsLocal[2])+(Object.values(PerClassMetrics2)[i][k]['recall']*factorsLocal[3]))/divide
               }
               temp2 = temp2/RFModels.length
           }
@@ -101,7 +106,7 @@ export default {
       autosize: true,
       barmode: 'group',
       width: this.WH[0]*3,
-      height: this.WH[1],
+      height: this.WH[1]*0.635,
           xaxis: {
               title: 'Algorithm',
               type:"category",
@@ -111,12 +116,7 @@ export default {
               showexponent: 'all'
           },
           yaxis: {
-              title: 'Per Class Performance Metrics',
-              titlefont: {
-              family: 'Arial, sans-serif',
-              size: 18,
-              color: 'grey'
-              }
+              title: 'Performance Metrics',
           },
           xaxis2: {
               overlaying: 'x',
@@ -127,10 +127,10 @@ export default {
               showexponent: 'all'
           },
       margin: {
-          l: 40,
+          l: 50,
           r: 0,
-          b: 40,
-          t: 25,
+          b: 30,
+          t: 30,
           pad: 0
           }
       }
@@ -183,10 +183,14 @@ export default {
       EventBus.$on('emittedEventCallingBarChart', this.BarChartView)
       EventBus.$on('emittedEventCallingUpdateBarChart', data => { this.ModelsChosen = data })
       EventBus.$on('emittedEventCallingUpdateBarChart', this.BarChartView)
+
       EventBus.$on('Responsive', data => {
           this.WH = data})
       EventBus.$on('ResponsiveandChange', data => {
           this.WH = data})
+
+      EventBus.$on('CallFactorsView', data => { this.factors = data })
+      EventBus.$on('CallFactorsView', this.BarChartView)
 
       // reset view
       EventBus.$on('resetViews', this.reset)

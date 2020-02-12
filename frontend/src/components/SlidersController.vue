@@ -1,10 +1,15 @@
 <template>
     <div id="WrapSliders">
-                <p>Acc<b-form-slider ref="basic1" v-model="basicValue1" :min="0" :max="100" trigger-change-event @slide-start="slideStart" @slide-stop="slideStop" style="padding-right: 15px;padding-left:15px"></b-form-slider>{{ basicValue1 }}%&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Met6<b-form-slider ref="basic1" v-model="basicValue6" :min="0" :max="100" trigger-change-event @slide-start="slideStart" @slide-stop="slideStop" style="padding-right: 15px;padding-left:15px"></b-form-slider>{{ basicValue6 }}%</p>
-                <p>F1s<b-form-slider ref="basic2" v-model="basicValue2" :min="0" :max="100" trigger-change-event @slide-start="slideStart" @slide-stop="slideStop" style="padding-right: 15px; padding-left:15px"></b-form-slider >{{ basicValue2 }}%&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Met7<b-form-slider ref="basic1" v-model="basicValue7" :min="0" :max="100" trigger-change-event @slide-start="slideStart" @slide-stop="slideStop" style="padding-right: 15px;padding-left:15px"></b-form-slider>{{ basicValue7 }}%</p>
-                <p>Pre<b-form-slider ref="basic3" v-model="basicValue3" :min="0" :max="100" trigger-change-event @slide-start="slideStart"  @slide-stop="slideStop" style="padding-right: 15px; padding-left:15px"></b-form-slider>{{ basicValue3 }}%&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Met8<b-form-slider ref="basic1" v-model="basicValue8" :min="0" :max="100" trigger-change-event @slide-start="slideStart" @slide-stop="slideStop" style="padding-right: 15px;padding-left:15px"></b-form-slider>{{ basicValue8 }}%</p>
-                <p>Rec<b-form-slider ref="basic4" v-model="basicValue4" :min="0" :max="100" trigger-change-event @slide-start="slideStart" @slide-stop="slideStop" style="padding-right: 15px; padding-left:15px"></b-form-slider>{{ basicValue4 }}%&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Met9<b-form-slider ref="basic1" v-model="basicValue9" :min="0" :max="100" trigger-change-event @slide-start="slideStart" @slide-stop="slideStop" style="padding-right: 15px;padding-left:15px"></b-form-slider>{{ basicValue9 }}%</p>
-                <p>Jac<b-form-slider ref="basic5" v-model="basicValue5" :min="0" :max="100" trigger-change-event @slide-start="slideStart" @slide-stop="slideStop" style="padding-right: 15px; padding-left:15px"></b-form-slider>{{ basicValue5 }}%&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Me10<b-form-slider ref="basic1" v-model="basicValue10" :min="0" :max="100" trigger-change-event @slide-start="slideStart" @slide-stop="slideStop" style="padding-right: 15px;padding-left:15px"></b-form-slider>{{ basicValue10 }}%</p>
+                <p>(1) Accuracy<b-form-slider ref="basic1" v-model="basicValue1" :min="0" :max="100" trigger-change-event @slide-start="slideStart" @slide-stop="slideStop" style="padding-right: 15px;padding-left:15px"></b-form-slider>{{ basicValue1 }}%</p>
+                <p>(2) F1-Score<b-form-slider ref="basic2" v-model="basicValue2" :min="0" :max="100" trigger-change-event @slide-start="slideStart" @slide-stop="slideStop" style="padding-right: 15px; padding-left:15px"></b-form-slider >{{ basicValue2 }}%</p>
+                <p>(3) Precision<b-form-slider ref="basic3" v-model="basicValue3" :min="0" :max="100" trigger-change-event @slide-start="slideStart"  @slide-stop="slideStop" style="padding-right: 15px; padding-left:15px"></b-form-slider>{{ basicValue3 }}%</p>
+                <p>(4) Recall<b-form-slider ref="basic4" v-model="basicValue4" :min="0" :max="100" trigger-change-event @slide-start="slideStart" @slide-stop="slideStop" style="padding-right: 15px; padding-left:15px"></b-form-slider>{{ basicValue4 }}%</p>
+                <p>(5) Jaccard Similarity<b-form-slider ref="basic5" v-model="basicValue5" :min="0" :max="100" trigger-change-event @slide-start="slideStart" @slide-stop="slideStop" style="padding-right: 15px; padding-left:15px"></b-form-slider>{{ basicValue5 }}%</p>
+                <p>(6) Metric 6<b-form-slider ref="basic1" v-model="basicValue6" :min="0" :max="100" trigger-change-event @slide-start="slideStart" @slide-stop="slideStop" style="padding-right: 15px;padding-left:15px"></b-form-slider>{{ basicValue6 }}%</p>
+                <p>(7) Metric 7<b-form-slider ref="basic1" v-model="basicValue7" :min="0" :max="100" trigger-change-event @slide-start="slideStart" @slide-stop="slideStop" style="padding-right: 15px;padding-left:15px"></b-form-slider>{{ basicValue7 }}%</p>
+                <p>(8) Metric 8<b-form-slider ref="basic1" v-model="basicValue8" :min="0" :max="100" trigger-change-event @slide-start="slideStart" @slide-stop="slideStop" style="padding-right: 15px;padding-left:15px"></b-form-slider>{{ basicValue8 }}%</p>
+                <p>(9) Metric 9<b-form-slider ref="basic1" v-model="basicValue9" :min="0" :max="100" trigger-change-event @slide-start="slideStart" @slide-stop="slideStop" style="padding-right: 15px;padding-left:15px"></b-form-slider>{{ basicValue9 }}%</p>
+                <p>(10) Metric 10<b-form-slider ref="basic1" v-model="basicValue10" :min="0" :max="100" trigger-change-event @slide-start="slideStart" @slide-stop="slideStop" style="padding-right: 15px;padding-left:15px"></b-form-slider>{{ basicValue10 }}%</p>
     </div>
 </template>
 
@@ -50,9 +55,11 @@ p {
     margin: 0 !important;
     padding: 0 !important;
 }
-.slider.slider-horizontal {
-    width: 150px !important;
-}
+
+/*.slider.slider-horizontal {
+    width: 300px !important;
+}*/
+
 .slider-handle {
     background: black;
 }

@@ -1,5 +1,5 @@
 <template>
-  <div id="PCPDataView" class="parcoords" style="width: 300px; height:200px"></div>
+  <div id="PCPDataView" class="parcoords" style="width: 1200px; height:280px"></div>
 </template>
 
 <script>
@@ -54,3 +54,9 @@ export default {
   }
 }
 </script>
+
+<style>
+  .parcoords svg {
+    position: relative !important;
+  }
+</style>

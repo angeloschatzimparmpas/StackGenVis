@@ -23,7 +23,8 @@ export default {
       classesNumber: 10,
       cellSize: 20,
       ModelsIDHeatStack: [],
-      highlighted: []
+      highlighted: [],
+      responsiveWidthHeight: []
     }
   },
   methods: {
@@ -177,8 +178,8 @@ export default {
                             svg.attr('transform', d3.event.transform) // updated for d3 v4
                         })
     //==================================================
-    var viewerWidth = $(document).width()/2.2;
-    var viewerHeight = $(document).height()/5.5;
+    var viewerWidth = this.responsiveWidthHeight[0]*6.5
+    var viewerHeight = this.responsiveWidthHeight[1]*1.1
     var viewerPosTop = 125;
     var viewerPosLeft = 100;
 
@@ -388,7 +389,7 @@ export default {
 
       var legend = svg.append("g")
           .attr("class", "legend")
-          .attr("transform", "translate(0,-240)")
+          .attr("transform", "translate(0,0)")
           .selectAll(".legendElement")
           .data([0.0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9])
           .enter().append("g")
@@ -581,6 +582,11 @@ export default {
       EventBus.$on('resetViews', this.reset)
       EventBus.$on('SendSelectedPointsToBrushHeatmap', data => { this.highlighted = data; })
       EventBus.$on('SendSelectedPointsToBrushHeatmap', this.brush)
+
+    EventBus.$on('Responsive', data => {
+    this.responsiveWidthHeight = data})
+    EventBus.$on('ResponsiveandChange', data => {
+    this.responsiveWidthHeight = data})
 
       // reset the views
       EventBus.$on('resetViews', this.reset)

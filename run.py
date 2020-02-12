@@ -189,9 +189,6 @@ def RetrieveFileName():
     scoring = {'accuracy': 'accuracy', 'f1_macro': 'f1_weighted', 'precision': 'precision_weighted', 'recall': 'recall_weighted', 'jaccard': 'jaccard_weighted'}
     #scoring = {'accuracy': 'accuracy', 'f1_macro': 'f1_weighted', 'precision': 'precision_weighted', 'recall': 'recall_weighted', 'jaccard': 'jaccard_weighted', 'neg_log_loss': 'neg_log_loss', 'r2': 'r2', 'neg_mean_absolute_error': 'neg_mean_absolute_error', 'neg_mean_absolute_error': 'neg_mean_absolute_error'}
 
-    global NumberofscoringMetrics
-    NumberofscoringMetrics = len(scoring)
-
     global loopFeatures
     loopFeatures = 2
 
@@ -512,12 +509,12 @@ def GridSearchForModels(XData, yData, clf, params, eachAlgor, factors, Algorithm
     # copy and filter in order to get only the metrics
     metrics = df_cv_results_classifiers.copy()
     metrics = metrics.filter(['mean_test_accuracy','mean_test_f1_macro','mean_test_precision','mean_test_recall','mean_test_jaccard']) 
-    
+
     # control the factors
     sumperModel = []
     for index, row in metrics.iterrows():
         rowSum = 0
-        lengthFactors = NumberofscoringMetrics
+        lengthFactors = len(scoring)
         for loop,elements in enumerate(row):
             lengthFactors = lengthFactors -  1 + factors[loop]
             rowSum = elements*factors[loop] + rowSum

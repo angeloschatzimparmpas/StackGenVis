@@ -100,8 +100,8 @@ export default {
       Plotly.purge('OverviewDataPlotly')
 
       // responsive visualization
-      let width = this.responsiveWidthHeight[0]*3 
-      let height = this.responsiveWidthHeight[1]*2.1
+      let width = this.responsiveWidthHeight[0]*6.5
+      let height = this.responsiveWidthHeight[1]*1.1
 
       var target_names = JSON.parse(this.dataPoints[0])
       const XandYCoordinatesMDS = JSON.parse(this.dataPoints[1])

@@ -1,5 +1,5 @@
 <template>
-  <div id="LinePlot" class="LinePlot"></div>
+  <div id="LinePlot" style="min-height: 307px;"></div>
 </template>
 
 <script>
@@ -93,8 +93,7 @@ export default {
       var xaxisReversed = []
       xaxisReversed = this.xaxis.slice().reverse()
       xaxisReversed = this.xaxis.concat(xaxisReversed)
-      var width = this.WH[0]*3 // interactive visualization
-      var height = this.WH[1]*1.5 // interactive visualization
+
       // fill in 'text' array for hover
       var text = this.scoresSTD.map (function(value, i) {
           return `STD: +/-${value}`
@@ -255,8 +254,11 @@ export default {
       }
 
       const DataforLinePlot = [trace1, trace2, trace7, trace8, trace3, trace4, trace9, trace10, trace5, trace6, trace11, trace12]
-      const layout = {
-        title: 'Stack Ensemble Learning Score',
+
+      var width = this.WH[0]*3 // interactive visualization
+      var height = this.WH[1]*0.6 // interactive visualization
+
+      var layout = {
         paper_bgcolor: "rgb(255,255,255)", 
         plot_bgcolor: "rgb(229,229,229)", 
         xaxis: {
@@ -281,9 +283,16 @@ export default {
             ticks: "outside", 
             zeroline: false
         },
-        autosize: true,
+        autosize: false,
         width: width,
         height: height,
+        margin: {
+          l: 60,
+          r: 40,
+          b: 40,
+          t: 40,
+          pad: 0
+        },
       }
       Plotly.newPlot('LinePlot', DataforLinePlot, layout, {showSendToCloud: true, responsive: true})
     }
@@ -292,6 +301,11 @@ export default {
     EventBus.$on('emittedEventCallingLinePlot', data => {
       this.FinalResultsforLinePlot = data})
     EventBus.$on('emittedEventCallingLinePlot', this.LinePlotView)
+
+    EventBus.$on('Responsive', data => {
+    this.WH = data})
+    EventBus.$on('ResponsiveandChange', data => {
+    this.WH = data})
 
     // reset the views
     EventBus.$on('resetViews', this.reset)
