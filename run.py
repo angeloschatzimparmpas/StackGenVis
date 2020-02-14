@@ -24,6 +24,10 @@ from sklearn.pipeline import make_pipeline
 from sklearn import model_selection
 from sklearn.manifold import MDS
 from sklearn.manifold import TSNE
+from sklearn.metrics import matthews_corrcoef
+from sklearn.metrics import log_loss
+from sklearn.metrics import fbeta_score
+from imblearn.metrics import geometric_mean_score
 import umap
 from sklearn.metrics import classification_report
 from sklearn.preprocessing import scale
@@ -62,7 +66,7 @@ def Reset():
     RANDOM_SEED = 42
 
     global factors
-    factors = [1,1,1,1,1]
+    factors = [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
 
     global XData
     XData = []
@@ -100,7 +104,7 @@ def Reset():
     all_classifiers = []
 
     global crossValidation
-    crossValidation = 3
+    crossValidation = 5
     
     # models
     global KNNModels
@@ -109,9 +113,8 @@ def Reset():
     RFModels = []
 
     global scoring
-    #scoring = {'accuracy': 'accuracy', 'f1_macro': 'f1_weighted', 'precision': 'precision_weighted', 'recall': 'recall_weighted', 'jaccard': 'jaccard_weighted', 'neg_log_loss': 'neg_log_loss', 'r2': 'r2', 'neg_mean_absolute_error': 'neg_mean_absolute_error', 'neg_mean_absolute_error': 'neg_mean_absolute_error'}
-    scoring = {'accuracy': 'accuracy', 'f1_macro': 'f1_weighted', 'precision': 'precision_weighted', 'recall': 'recall_weighted', 'jaccard': 'jaccard_weighted'}
-    
+    scoring = {'accuracy': 'accuracy', 'neg_mean_absolute_error': 'neg_mean_absolute_error', 'neg_root_mean_squared_error': 'neg_root_mean_squared_error', 'precision_micro': 'precision_micro', 'precision_macro': 'precision_macro', 'precision_weighted': 'precision_weighted', 'recall_micro': 'recall_micro', 'recall_macro': 'recall_macro', 'recall_weighted': 'recall_weighted', 'roc_auc_ovo_weighted': 'roc_auc_ovo_weighted'}
+
     global loopFeatures
     loopFeatures = 2
 
@@ -183,11 +186,10 @@ def RetrieveFileName():
     all_classifiers = []
 
     global crossValidation
-    crossValidation = 3
+    crossValidation = 5
 
     global scoring
-    scoring = {'accuracy': 'accuracy', 'f1_macro': 'f1_weighted', 'precision': 'precision_weighted', 'recall': 'recall_weighted', 'jaccard': 'jaccard_weighted'}
-    #scoring = {'accuracy': 'accuracy', 'f1_macro': 'f1_weighted', 'precision': 'precision_weighted', 'recall': 'recall_weighted', 'jaccard': 'jaccard_weighted', 'neg_log_loss': 'neg_log_loss', 'r2': 'r2', 'neg_mean_absolute_error': 'neg_mean_absolute_error', 'neg_mean_absolute_error': 'neg_mean_absolute_error'}
+    scoring = {'accuracy': 'accuracy', 'neg_mean_absolute_error': 'neg_mean_absolute_error', 'neg_root_mean_squared_error': 'neg_root_mean_squared_error', 'precision_micro': 'precision_micro', 'precision_macro': 'precision_macro', 'precision_weighted': 'precision_weighted', 'recall_micro': 'recall_micro', 'recall_macro': 'recall_macro', 'recall_weighted': 'recall_weighted', 'roc_auc_ovo_weighted': 'roc_auc_ovo_weighted'}
 
     global loopFeatures
     loopFeatures = 2
@@ -436,7 +438,6 @@ def RetrieveModel():
     global algorithms
     algorithms = RetrievedModel['Algorithms']
 
-    global factors
     global XData
     global yData
 
@@ -451,7 +452,7 @@ def RetrieveModel():
             clf = RandomForestClassifier()
             params = {'n_estimators': list(range(40, 120)), 'criterion': ['gini', 'entropy']}
             AlgorithmsIDsEnd = 576
-        allParametersPerformancePerModel = GridSearchForModels(XData, yData, clf, params, eachAlgor, factors, AlgorithmsIDsEnd)
+        allParametersPerformancePerModel = GridSearchForModels(XData, yData, clf, params, eachAlgor, AlgorithmsIDsEnd)
 
     # call the function that sends the results to the frontend 
     SendEachClassifiersPerformanceToVisualize()
@@ -463,7 +464,7 @@ memory = Memory(location, verbose=0)
 
 # calculating for all algorithms and models the performance and other results
 @memory.cache
-def GridSearchForModels(XData, yData, clf, params, eachAlgor, factors, AlgorithmsIDsEnd):
+def GridSearchForModels(XData, yData, clf, params, eachAlgor, AlgorithmsIDsEnd):
 
     # instantiate spark session
     spark = (   
@@ -508,30 +509,13 @@ def GridSearchForModels(XData, yData, clf, params, eachAlgor, factors, Algorithm
 
     # copy and filter in order to get only the metrics
     metrics = df_cv_results_classifiers.copy()
-    metrics = metrics.filter(['mean_test_accuracy','mean_test_f1_macro','mean_test_precision','mean_test_recall','mean_test_jaccard']) 
 
-    # control the factors
-    sumperModel = []
-    for index, row in metrics.iterrows():
-        rowSum = 0
-        lengthFactors = len(scoring)
-        for loop,elements in enumerate(row):
-            lengthFactors = lengthFactors -  1 + factors[loop]
-            rowSum = elements*factors[loop] + rowSum
-        if lengthFactors is 0:
-            sumperModel = 0
-        else:
-            sumperModel.append(rowSum/lengthFactors)
-    
-    # summarize all models metrics
-    summarizedMetrics = pd.DataFrame(sumperModel)
-    summarizedMetrics.rename(columns={0:'sum'})
+    metrics = metrics.filter(['mean_test_accuracy','mean_test_neg_mean_absolute_error','mean_test_neg_root_mean_squared_error','mean_test_precision_micro','mean_test_precision_macro','mean_test_precision_weighted','mean_test_recall_micro','mean_test_recall_macro','mean_test_recall_weighted','mean_test_roc_auc_ovo_weighted']) 
 
     # concat parameters and performance
-    parameters = pd.DataFrame(df_cv_results_classifiers['params'])
-    parametersPerformancePerModel = pd.concat([summarizedMetrics, parameters], axis=1)
+    parametersPerformancePerModel = pd.DataFrame(df_cv_results_classifiers['params'])
     parametersPerformancePerModel = parametersPerformancePerModel.to_json()
-    
+
     parametersLocal = json.loads(parametersPerformancePerModel)['params'].copy()
     Models = []
     for index, items in enumerate(parametersLocal):
@@ -544,13 +528,29 @@ def GridSearchForModels(XData, yData, clf, params, eachAlgor, factors, Algorithm
     PerFeatureAccuracyAll = []
     PerClassMetric = []
     perModelProb = []
+    resultsMicro = []
+    resultsMacro = []
+    resultsWeighted = []
+    resultsCorrCoef = []
+    resultsMicroBeta5 = []
+    resultsMacroBeta5 = []
+    resultsWeightedBeta5 = []
+    resultsMicroBeta1 = []
+    resultsMacroBeta1 = []
+    resultsWeightedBeta1 = []
+    resultsMicroBeta2 = []
+    resultsMacroBeta2 = []
+    resultsWeightedBeta2 = []
+    resultsLogLoss = []
+
+    loop = 10
 
     for eachModelParameters in parametersLocalNew:
         clf.set_params(**eachModelParameters)
 
         perm = PermutationImportance(clf, cv = None, refit = True, n_iter = 25).fit(XData, yData)
         permList.append(perm.feature_importances_)
-
+        
         n_feats = XData.shape[1]
         PerFeatureAccuracy = []
         for i in range(n_feats):
@@ -563,6 +563,47 @@ def GridSearchForModels(XData, yData, clf, params, eachAlgor, factors, Algorithm
         PerClassMetric.append(classification_report(yData, yPredict, target_names=target_names, digits=2, output_dict=True))
         yPredictProb = clf.predict_proba(XData)
         perModelProb.append(yPredictProb.tolist())
+
+        resultsMicro.append(geometric_mean_score(yData, yPredict, average='micro'))
+        resultsMacro.append(geometric_mean_score(yData, yPredict, average='macro'))
+        resultsWeighted.append(geometric_mean_score(yData, yPredict, average='weighted'))
+
+        resultsCorrCoef.append(matthews_corrcoef(yData, yPredict))
+
+        resultsMicroBeta5.append(fbeta_score(yData, yPredict, average='micro', beta=0.5))
+        resultsMacroBeta5.append(fbeta_score(yData, yPredict, average='macro', beta=0.5))
+        resultsWeightedBeta5.append(fbeta_score(yData, yPredict, average='weighted', beta=0.5))
+
+        resultsMicroBeta1.append(fbeta_score(yData, yPredict, average='micro', beta=1))
+        resultsMacroBeta1.append(fbeta_score(yData, yPredict, average='macro', beta=1))
+        resultsWeightedBeta1.append(fbeta_score(yData, yPredict, average='weighted', beta=1))
+
+        resultsMicroBeta2.append(fbeta_score(yData, yPredict, average='micro', beta=2))
+        resultsMacroBeta2.append(fbeta_score(yData, yPredict, average='macro', beta=2))
+        resultsWeightedBeta2.append(fbeta_score(yData, yPredict, average='weighted', beta=2))
+
+        resultsLogLoss.append(log_loss(yData, yPredict, normalize = True))
+
+
+    metrics.insert(loop,'geometric_mean_score_micro',resultsMicro)
+    metrics.insert(loop+1,'geometric_mean_score_macro',resultsMacro)
+    metrics.insert(loop+2,'geometric_mean_score_weighted',resultsWeighted)
+
+    metrics.insert(loop+3,'matthews_corrcoef',resultsCorrCoef)
+
+    metrics.insert(loop+4,'f5_micro',resultsMicroBeta5)
+    metrics.insert(loop+5,'f5_macro',resultsMacroBeta5)
+    metrics.insert(loop+6,'f5_weighted',resultsWeightedBeta5)
+    
+    metrics.insert(loop+7,'f1_micro',resultsMicroBeta1)
+    metrics.insert(loop+8,'f1_macro',resultsMacroBeta1)
+    metrics.insert(loop+9,'f1_weighted',resultsWeightedBeta1)
+
+    metrics.insert(loop+10,'f2_micro',resultsMicroBeta2)
+    metrics.insert(loop+11,'f2_macro',resultsMacroBeta2)
+    metrics.insert(loop+12,'f2_weighted',resultsWeightedBeta2)
+
+    metrics.insert(loop+13,'log_loss',resultsLogLoss)
 
     perModelProbPandas = pd.DataFrame(perModelProb)
     perModelProbPandas = perModelProbPandas.to_json()
@@ -849,6 +890,7 @@ def preProcessFeatSc():
 def preProcsumPerMetric(factors):
     sumPerClassifier = []
     loopThroughMetrics = PreprocessingMetrics()
+    print(loopThroughMetrics)
     for row in loopThroughMetrics.iterrows():
         rowSum = 0
         lengthFactors = len(scoring)
@@ -866,9 +908,9 @@ def preProcMetricsAllAndSel():
     loopThroughMetrics = PreprocessingMetrics()
     metricsPerModelColl = []
     metricsPerModelColl.append(loopThroughMetrics['mean_test_accuracy'].sum()/loopThroughMetrics['mean_test_accuracy'].count())
-    metricsPerModelColl.append(loopThroughMetrics['mean_test_f1_macro'].sum()/loopThroughMetrics['mean_test_f1_macro'].count())
-    metricsPerModelColl.append(loopThroughMetrics['mean_test_precision'].sum()/loopThroughMetrics['mean_test_precision'].count())
-    metricsPerModelColl.append(loopThroughMetrics['mean_test_recall'].sum()/loopThroughMetrics['mean_test_recall'].count())
+    metricsPerModelColl.append(loopThroughMetrics['mean_test_neg_mean_absolute_error'].sum()/loopThroughMetrics['mean_test_neg_mean_absolute_error'].count())
+    metricsPerModelColl.append(loopThroughMetrics['mean_test_neg_root_mean_squared_error'].sum()/loopThroughMetrics['mean_test_neg_root_mean_squared_error'].count())
+    metricsPerModelColl.append(loopThroughMetrics['mean_test_precision_micro'].sum()/loopThroughMetrics['mean_test_precision_micro'].count())
     metricsPerModelColl.append(loopThroughMetrics['mean_test_jaccard'].sum()/loopThroughMetrics['mean_test_jaccard'].count())
     for index, metric in enumerate(metricsPerModelColl):
         metricsPerModelColl[index] = metric*factors[index]
@@ -1214,7 +1256,7 @@ def GridSearchSel(clf, params, factors, AlgorithmsIDsEnd, DataPointsSel):
 
         # copy and filter in order to get only the metrics
         metrics = df_cv_results_classifiers.copy()
-        metrics = metrics.filter(['mean_test_accuracy','mean_test_f1_macro','mean_test_precision','mean_test_recall','mean_test_jaccard']) 
+        metrics = metrics.filter(['mean_test_accuracy','mean_test_neg_mean_absolute_error','mean_test_neg_root_mean_squared_error','mean_test_precision_micro','mean_test_precision_macro','mean_test_precision_weighted','mean_test_recall_micro','mean_test_recall_macro','mean_test_recall_weighted','mean_test_roc_auc_ovo_weighted']) 
         metrics = metrics.to_json()
 
         resultsMetrics.append(metrics) # Position: 0 and so on 
@@ -1284,7 +1326,7 @@ def EnsembleModel(Models, keyRetrieved):
 
         temp = json.loads(allParametersPerformancePerModel[1])
         dfParamKNN = pd.DataFrame.from_dict(temp)
-        dfParamKNNFilt = dfParamKNN.iloc[:,1]
+        dfParamKNNFilt = dfParamKNN.iloc[:,0]
 
         for eachelem in KNNModels:
             arg = dfParamKNNFilt[eachelem]
@@ -1292,7 +1334,7 @@ def EnsembleModel(Models, keyRetrieved):
     
         temp = json.loads(allParametersPerformancePerModel[9])
         dfParamRF = pd.DataFrame.from_dict(temp)
-        dfParamRFFilt = dfParamRF.iloc[:,1]
+        dfParamRFFilt = dfParamRF.iloc[:,0]
         for eachelem in RFModels:
             arg = dfParamRFFilt[eachelem-576]
             all_classifiers.append(make_pipeline(ColumnSelector(cols=columnsInit), RandomForestClassifier().set_params(**arg)))

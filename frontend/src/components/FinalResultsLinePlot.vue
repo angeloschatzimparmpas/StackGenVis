@@ -105,11 +105,11 @@ export default {
         x: this.xaxis, 
         y: this.scoresMean, 
         text: text,
-        line: {color: "rgb(127,201,127)"}, 
+        line: {color: "rgb(55,126,184)"}, 
         mode: "lines+markers", 
         marker : {
           symbol: 'pentagon' },
-        name: "Current Accuracy",
+        name: "Active Accuracy",
         type: "scatter"
       }
 
@@ -119,9 +119,9 @@ export default {
         text: '',
         hoverinfo: 'text',
         fill: "tozerox", 
-        fillcolor: "rgba(127,201,127,0)", 
+        fillcolor: "rgba(55,126,184,0)", 
         line: {color: "transparent"}, 
-        name: "Current Accuracy", 
+        name: "Active Accuracy", 
         showlegend: false, 
         type: "scatter"
       }
@@ -130,11 +130,11 @@ export default {
         x: this.xaxis, 
         y: this.scoresMean2, 
         text: text,
-        line: {color: "rgb(191,91,23)"}, 
+        line: {color: "rgb(55,126,184)"}, 
         mode: "lines+markers", 
         marker : {
             symbol: 'x' },
-        name: "Current Precision", 
+        name: "Active Precision", 
         type: "scatter"
       }
 
@@ -144,9 +144,9 @@ export default {
         text: '',
         hoverinfo: 'text',
         fill: "tozerox", 
-        fillcolor: "rgba(191,91,23,0)", 
+        fillcolor: "rgba(55,126,184)", 
         line: {color: "transparent"}, 
-        name: "Current Precision", 
+        name: "Active Precision", 
         showlegend: false, 
         type: "scatter"
       }
@@ -155,11 +155,11 @@ export default {
         x: this.xaxis, 
         y: this.scoresMean3, 
         text: text,
-        line: {color: "rgb(253,192,134)"}, 
+        line: {color: "rgb(55,126,184)"}, 
         mode: "lines+markers", 
         marker : {
             symbol: 'diamond' },
-        name: "Current Recall", 
+        name: "Active Recall", 
         type: "scatter"
       }
 
@@ -169,9 +169,9 @@ export default {
         text: '',
         hoverinfo: 'text',
         fill: "tozerox", 
-        fillcolor: "rgba(253,192,134,0)", 
+        fillcolor: "rgba(55,126,184,0)", 
         line: {color: "transparent"}, 
-        name: "Current Recall", 
+        name: "Active Recall", 
         showlegend: false, 
         type: "scatter"
       }
@@ -182,7 +182,7 @@ export default {
         x: this.xaxis, 
         y: this.Stack_scoresMean, 
         text: text,
-        line: {color: "rgb(190,174,212)"}, 
+        line: {color: "rgb(228,26,28)"}, 
         mode: "lines+markers", 
         marker : {
           symbol: 'circle' },
@@ -196,7 +196,7 @@ export default {
         text: '',
         hoverinfo: 'text',
         fill: "tozerox", 
-        fillcolor: "rgba(190,174,212,0)", 
+        fillcolor: "rgba(228,26,28,0)", 
         line: {color: "transparent"}, 
         name: "Stack Accuracy", 
         showlegend: false, 
@@ -207,7 +207,7 @@ export default {
         x: this.xaxis, 
         y: this.Stack_scoresMean2, 
         text: text,
-        line: {color: "rgb(56,108,176)"}, 
+        line: {color: "rgb(228,26,28)"}, 
         mode: "lines+markers", 
         marker : {
           symbol: 'square' },
@@ -221,7 +221,7 @@ export default {
         text: '',
         hoverinfo: 'text',
         fill: "tozerox", 
-        fillcolor: "rgba(56,108,176,0)", 
+        fillcolor: "rgba(228,26,28,0)", 
         line: {color: "transparent"}, 
         name: "Stack Precision", 
         showlegend: false, 
@@ -232,7 +232,7 @@ export default {
         x: this.xaxis, 
         y: this.Stack_scoresMean3, 
         text: text,
-        line: {color: "rgb(240,2,127)"}, 
+        line: {color: "rgb(228,26,28)"}, 
         mode: "lines+markers",
         marker : {
           symbol: 'star-triangle-up' },
@@ -246,7 +246,7 @@ export default {
         text: '',
         hoverinfo: 'text',
         fill: "tozerox", 
-        fillcolor: "rgba(240,2,127,0)", 
+        fillcolor: "rgba(228,26,28,0)", 
         line: {color: "transparent"}, 
         name: "Stack Recall", 
         showlegend: false, 

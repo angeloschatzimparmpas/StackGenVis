@@ -6,7 +6,7 @@
       <b-row class="md-3">
         <b-col cols="3">
           <mdb-card>
-            <mdb-card-header color="primary-color" tag="h5" class="text-center">Data Set and Validation Metrics Manager</mdb-card-header>
+            <mdb-card-header color="primary-color" tag="h5" class="text-center">Data Sets and Performance Metrics Manager</mdb-card-header>
               <mdb-card-body>
                 <mdb-card-text class="text-left">
                   <DataSetExecController/>
@@ -17,7 +17,7 @@
         </b-col>
         <b-col cols="6">
           <mdb-card>
-            <mdb-card-header color="primary-color" tag="h5" class="text-center">Current Stacking Ensemble</mdb-card-header>
+            <mdb-card-header color="primary-color" tag="h5" class="text-center">Stacking Ensemble Provenance</mdb-card-header>
             <mdb-card-body>
                 <Provenance/>
             </mdb-card-body>
@@ -25,7 +25,7 @@
         </b-col>
         <b-col cols="3">
             <mdb-card>
-              <mdb-card-header color="primary-color" tag="h5" class="text-center">Meta-Model Performance</mdb-card-header>
+              <mdb-card-header color="primary-color" tag="h5" class="text-center"><small class="float-left" style="padding-top: 3px;">Metrics Support: [1, 5, 6]</small>Meta-Model Performance</mdb-card-header>
               <mdb-card-body>
                 <FinalResultsLinePlot/>
               </mdb-card-body>
@@ -49,14 +49,14 @@
             <b-col cols="3">
               <mdb-card style="margin-top: 15px">
                 <mdb-card-header color="primary-color" tag="h5" class="text-center">Overview of the Algorithms Space</mdb-card-header>
-                <mdb-card-body class="text-center">
+                <mdb-card-body class="text-left">
                   <Parameters/>
                 </mdb-card-body>
               </mdb-card>
             </b-col>
             <b-col cols="9">
               <mdb-card style="margin-top: 15px;">
-                <mdb-card-header color="primary-color" tag="h5" class="text-center">Performance of the Algorithms [Sel.:{{valueSel}}/All:{{valueAll}}]<small class="float-right"><Controller/></small></mdb-card-header>
+                <mdb-card-header color="primary-color" tag="h5" class="text-center"><small class="float-left" style="padding-top: 3px;">Metrics Support: [All]</small>Performance of the Algorithms [Sel:{{valueSel}}/All:{{valueAll}}]<small class="float-right"><Controller/></small></mdb-card-header>
                   <mdb-card-body>
                       <Algorithms :width="width" :height="height"/>
                   </mdb-card-body>
@@ -66,7 +66,7 @@
           <b-row class="md-3">
             <b-col cols="3">
               <mdb-card style="margin-top: 15px">
-                <mdb-card-header color="primary-color" tag="h5" class="text-center">Parameters Manipulation for Each Algorithm</mdb-card-header>
+                <mdb-card-header color="primary-color" tag="h5" class="text-center"><small class="float-left" style="padding-top: 3px;">Metrics Support: [All]</small>Parameters Manipulation for Each Algorithm</mdb-card-header>
                 <mdb-card-body>
                   <AlgorithmHyperParam/>
                 </mdb-card-body>
@@ -74,7 +74,7 @@
             </b-col>
             <b-col cols="9">
               <mdb-card style="margin-top: 15px;">
-                <mdb-card-header color="primary-color" tag="h5" class="text-center">Performance of the Algorithms for Each Class</mdb-card-header>
+                <mdb-card-header color="primary-color" tag="h5" class="text-center"><small class="float-left" style="padding-top: 3px;">Metrics Support: [5, 6, 7 (F1)]</small>Performance of the Algorithms for Each Class</mdb-card-header>
                 <mdb-card-body>
                     <BarChart/>
                 </mdb-card-body>
@@ -86,17 +86,6 @@
           <b-row class="md-3">
               <b-col cols="6">
                 <mdb-card style="margin-top: 15px;">
-                  <mdb-card-header color="primary-color" tag="h5" class="text-center">Data Space</mdb-card-header>
-                  <mdb-card-body>
-                    <mdb-card-text class="text-center" style="min-height: 825px">
-                      <DataSpace/>
-                      <PCPData/>
-                    </mdb-card-text>
-                  </mdb-card-body>
-                </mdb-card>
-              </b-col>
-              <b-col cols="6">
-                <mdb-card style="margin-top: 15px;">
                   <mdb-card-header color="primary-color" tag="h5" class="text-center">Features Selection for Each Model</mdb-card-header>
                     <mdb-card-body>
                       <mdb-card-text class="text-center" style="min-height: 845px">
@@ -105,7 +94,17 @@
                       </mdb-card-text>
                     </mdb-card-body>
                 </mdb-card>    
-
+              </b-col>
+              <b-col cols="6">
+              <mdb-card style="margin-top: 15px;">
+                  <mdb-card-header color="primary-color" tag="h5" class="text-center">Data Space</mdb-card-header>
+                  <mdb-card-body>
+                    <mdb-card-text class="text-center" style="min-height: 845px">
+                      <DataSpace/>
+                      <PCPData/>
+                    </mdb-card-text>
+                  </mdb-card-body>
+                </mdb-card>
               </b-col>
             </b-row>
         </div>
@@ -113,8 +112,8 @@
           <b-row class="md-3">
               <b-col cols="6">
                 <mdb-card style="margin-top: 15px;">
-                  <mdb-card-header color="primary-color" tag="h5" class="text-center">Models Space
-                    [Sel.:{{OverSelLength}}/All:{{OverAllLength}}]
+                  <mdb-card-header color="primary-color" tag="h5" class="text-center"><small class="float-left" style="padding-top: 3px;">Metrics Support: [All]</small>Models Space
+                    [Sel:{{OverSelLength}}/All:{{OverAllLength}}]
                     </mdb-card-header>
                     <mdb-card-body>
                       <mdb-card-text class="text-center"  style="min-height: 845px">
@@ -967,6 +966,7 @@ export default Vue.extend({
 </script>
 
 <style>
+
 #nprogress .bar {
 background: red !important;
 }
@@ -981,6 +981,7 @@ border-left-color: red !important;
 }
 
 body {
+  font-family: 'Helvetica', 'Arial', sans-serif !important;
   left: 0px;
   right: 0px;
   top: 0px;

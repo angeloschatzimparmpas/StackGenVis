@@ -28,7 +28,7 @@
       <font-awesome-icon icon="eraser" />
       {{ removeData }}
       </button>
-      Provenance Controller: <button
+      History Controller: <button
       id="saveID"
       v-on:click="save">
       <font-awesome-icon icon="save" />

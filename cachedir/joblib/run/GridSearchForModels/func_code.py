@@ -1,6 +1,6 @@
-# first line: 465
+# first line: 466
 @memory.cache
-def GridSearchForModels(XData, yData, clf, params, eachAlgor, factors, AlgorithmsIDsEnd):
+def GridSearchForModels(XData, yData, clf, params, eachAlgor, AlgorithmsIDsEnd):
 
     # instantiate spark session
     spark = (   
@@ -45,30 +45,13 @@ def GridSearchForModels(XData, yData, clf, params, eachAlgor, factors, Algorithm
 
     # copy and filter in order to get only the metrics
     metrics = df_cv_results_classifiers.copy()
-    metrics = metrics.filter(['mean_test_accuracy','mean_test_f1_macro','mean_test_precision','mean_test_recall','mean_test_jaccard']) 
 
-    # control the factors
-    sumperModel = []
-    for index, row in metrics.iterrows():
-        rowSum = 0
-        lengthFactors = len(scoring)
-        for loop,elements in enumerate(row):
-            lengthFactors = lengthFactors -  1 + factors[loop]
-            rowSum = elements*factors[loop] + rowSum
-        if lengthFactors is 0:
-            sumperModel = 0
-        else:
-            sumperModel.append(rowSum/lengthFactors)
-    
-    # summarize all models metrics
-    summarizedMetrics = pd.DataFrame(sumperModel)
-    summarizedMetrics.rename(columns={0:'sum'})
+    metrics = metrics.filter(['mean_test_accuracy','mean_test_neg_mean_absolute_error','mean_test_neg_root_mean_squared_error','mean_test_precision_micro','mean_test_precision_macro','mean_test_precision_weighted','mean_test_recall_micro','mean_test_recall_macro','mean_test_recall_weighted','mean_test_roc_auc_ovo_weighted']) 
 
     # concat parameters and performance
-    parameters = pd.DataFrame(df_cv_results_classifiers['params'])
-    parametersPerformancePerModel = pd.concat([summarizedMetrics, parameters], axis=1)
+    parametersPerformancePerModel = pd.DataFrame(df_cv_results_classifiers['params'])
     parametersPerformancePerModel = parametersPerformancePerModel.to_json()
-    
+
     parametersLocal = json.loads(parametersPerformancePerModel)['params'].copy()
     Models = []
     for index, items in enumerate(parametersLocal):
@@ -81,13 +64,29 @@ def GridSearchForModels(XData, yData, clf, params, eachAlgor, factors, Algorithm
     PerFeatureAccuracyAll = []
     PerClassMetric = []
     perModelProb = []
+    resultsMicro = []
+    resultsMacro = []
+    resultsWeighted = []
+    resultsCorrCoef = []
+    resultsMicroBeta5 = []
+    resultsMacroBeta5 = []
+    resultsWeightedBeta5 = []
+    resultsMicroBeta1 = []
+    resultsMacroBeta1 = []
+    resultsWeightedBeta1 = []
+    resultsMicroBeta2 = []
+    resultsMacroBeta2 = []
+    resultsWeightedBeta2 = []
+    resultsLogLoss = []
+
+    loop = 10
 
     for eachModelParameters in parametersLocalNew:
         clf.set_params(**eachModelParameters)
 
         perm = PermutationImportance(clf, cv = None, refit = True, n_iter = 25).fit(XData, yData)
         permList.append(perm.feature_importances_)
-
+        
         n_feats = XData.shape[1]
         PerFeatureAccuracy = []
         for i in range(n_feats):
@@ -100,6 +99,47 @@ def GridSearchForModels(XData, yData, clf, params, eachAlgor, factors, Algorithm
         PerClassMetric.append(classification_report(yData, yPredict, target_names=target_names, digits=2, output_dict=True))
         yPredictProb = clf.predict_proba(XData)
         perModelProb.append(yPredictProb.tolist())
+
+        resultsMicro.append(geometric_mean_score(yData, yPredict, average='micro'))
+        resultsMacro.append(geometric_mean_score(yData, yPredict, average='macro'))
+        resultsWeighted.append(geometric_mean_score(yData, yPredict, average='weighted'))
+
+        resultsCorrCoef.append(matthews_corrcoef(yData, yPredict))
+
+        resultsMicroBeta5.append(fbeta_score(yData, yPredict, average='micro', beta=0.5))
+        resultsMacroBeta5.append(fbeta_score(yData, yPredict, average='macro', beta=0.5))
+        resultsWeightedBeta5.append(fbeta_score(yData, yPredict, average='weighted', beta=0.5))
+
+        resultsMicroBeta1.append(fbeta_score(yData, yPredict, average='micro', beta=1))
+        resultsMacroBeta1.append(fbeta_score(yData, yPredict, average='macro', beta=1))
+        resultsWeightedBeta1.append(fbeta_score(yData, yPredict, average='weighted', beta=1))
+
+        resultsMicroBeta2.append(fbeta_score(yData, yPredict, average='micro', beta=2))
+        resultsMacroBeta2.append(fbeta_score(yData, yPredict, average='macro', beta=2))
+        resultsWeightedBeta2.append(fbeta_score(yData, yPredict, average='weighted', beta=2))
+
+        resultsLogLoss.append(log_loss(yData, yPredict, normalize = True))
+
+
+    metrics.insert(loop,'geometric_mean_score_micro',resultsMicro)
+    metrics.insert(loop+1,'geometric_mean_score_macro',resultsMacro)
+    metrics.insert(loop+2,'geometric_mean_score_weighted',resultsWeighted)
+
+    metrics.insert(loop+3,'matthews_corrcoef',resultsCorrCoef)
+
+    metrics.insert(loop+4,'f5_micro',resultsMicroBeta5)
+    metrics.insert(loop+5,'f5_macro',resultsMacroBeta5)
+    metrics.insert(loop+6,'f5_weighted',resultsWeightedBeta5)
+    
+    metrics.insert(loop+7,'f1_micro',resultsMicroBeta1)
+    metrics.insert(loop+8,'f1_macro',resultsMacroBeta1)
+    metrics.insert(loop+9,'f1_weighted',resultsWeightedBeta1)
+
+    metrics.insert(loop+10,'f2_micro',resultsMicroBeta2)
+    metrics.insert(loop+11,'f2_macro',resultsMacroBeta2)
+    metrics.insert(loop+12,'f2_weighted',resultsWeightedBeta2)
+
+    metrics.insert(loop+13,'log_loss',resultsLogLoss)
 
     perModelProbPandas = pd.DataFrame(perModelProb)
     perModelProbPandas = perModelProbPandas.to_json()

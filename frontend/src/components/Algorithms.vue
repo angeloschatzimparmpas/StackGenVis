@@ -28,7 +28,12 @@ export default {
       parameters: [],
       algorithm1: [],
       algorithm2: [],
-      factors: [1,1,1,1,1],
+      factors: [1,1,1,0,0
+      ,1,0,0,1,0
+      ,0,1,0,0,0
+      ,0,0,1,0,0
+      ,0,1,1,1
+      ],
       chart: '',
       flagEmpty: 0,
       ActiveModels: [],
@@ -53,11 +58,32 @@ export default {
         divide = element + divide
       });
 
+      var max
+      var min 
       var Mc1 = []
       const performanceAlg1 = JSON.parse(this.PerformanceAllModels[6])
+      console.log(performanceAlg1)
+
+      for (let j = 0; j < Object.values(performanceAlg1['mean_test_accuracy']).length; j++) {
+        if (j == 0) {
+          max = Object.values(performanceAlg1['log_loss'])[j]
+          min = Object.values(performanceAlg1['log_loss'])[j]
+        }
+        if (Object.values(performanceAlg1['log_loss'])[j] > max) {
+          max = Object.values(performanceAlg1['log_loss'])[j]
+        }
+        if (Object.values(performanceAlg1['log_loss'])[j] < min) {
+          min = Object.values(performanceAlg1['log_loss'])[j]
+        }
+      }
+
       for (let j = 0; j < Object.values(performanceAlg1['mean_test_accuracy']).length; j++) {
         let sum
-        sum = (factorsLocal[0] * Object.values(performanceAlg1['mean_test_accuracy'])[j]) + (factorsLocal[1] * Object.values(performanceAlg1['mean_test_f1_macro'])[j]) + (factorsLocal[2] * Object.values(performanceAlg1['mean_test_precision'])[j]) + (factorsLocal[3] * Object.values(performanceAlg1['mean_test_recall'])[j]) + (factorsLocal[4] * Object.values(performanceAlg1['mean_test_jaccard'])[j])
+        sum = (factorsLocal[0] * Object.values(performanceAlg1['mean_test_accuracy'])[j]) + (factorsLocal[1] * (Object.values(performanceAlg1['mean_test_neg_mean_absolute_error'])[j]) + 1) + (factorsLocal[2] * (Object.values(performanceAlg1['mean_test_neg_root_mean_squared_error'])[j]) + 1) + (factorsLocal[3] * Object.values(performanceAlg1['geometric_mean_score_micro'])[j]) + (factorsLocal[4] * Object.values(performanceAlg1['geometric_mean_score_macro'])[j])
+          + (factorsLocal[5] * Object.values(performanceAlg1['geometric_mean_score_weighted'])[j]) + (factorsLocal[6] * Object.values(performanceAlg1['mean_test_precision_micro'])[j]) + (factorsLocal[7] * Object.values(performanceAlg1['mean_test_precision_macro'])[j]) + (factorsLocal[8] * Object.values(performanceAlg1['mean_test_precision_weighted'])[j]) + (factorsLocal[9] * Object.values(performanceAlg1['mean_test_recall_micro'])[j])
+          + (factorsLocal[10] * Object.values(performanceAlg1['mean_test_recall_macro'])[j]) + (factorsLocal[11] * Object.values(performanceAlg1['mean_test_recall_weighted'])[j]) + (factorsLocal[12] * Object.values(performanceAlg1['f5_micro'])[j]) + (factorsLocal[13] * Object.values(performanceAlg1['f5_macro'])[j]) + (factorsLocal[14] * Object.values(performanceAlg1['f5_weighted'])[j]) + (factorsLocal[15] * Object.values(performanceAlg1['f1_micro'])[j])
+          + (factorsLocal[16] * Object.values(performanceAlg1['f1_macro'])[j]) + (factorsLocal[17] * Object.values(performanceAlg1['f1_weighted'])[j]) + (factorsLocal[18] * Object.values(performanceAlg1['f2_micro'])[j]) + (factorsLocal[19] * Object.values(performanceAlg1['f2_macro'])[j]) + (factorsLocal[20] * Object.values(performanceAlg1['f2_weighted'])[j]) + (factorsLocal[21] * Object.values(performanceAlg1['matthews_corrcoef'])[j])
+          + (factorsLocal[22] * Object.values(performanceAlg1['mean_test_roc_auc_ovo_weighted'])[j]) + (factorsLocal[23] * (1 - ((max - Object.values(performanceAlg1['log_loss'])[j])/(max - min))))
         Mc1.push((sum/divide)*100)
       }
 
@@ -65,7 +91,11 @@ export default {
       const performanceAlg2 = JSON.parse(this.PerformanceAllModels[14])
       for (let j = 0; j < Object.values(performanceAlg2['mean_test_accuracy']).length; j++) {
         let sum2
-        sum2 = (factorsLocal[0] * Object.values(performanceAlg2['mean_test_accuracy'])[j]) + (factorsLocal[1] * Object.values(performanceAlg2['mean_test_f1_macro'])[j]) + (factorsLocal[2] * Object.values(performanceAlg2['mean_test_precision'])[j]) + (factorsLocal[3] * Object.values(performanceAlg2['mean_test_recall'])[j]) + (factorsLocal[4] * Object.values(performanceAlg2['mean_test_jaccard'])[j])
+        sum2 = (factorsLocal[0] * Object.values(performanceAlg2['mean_test_accuracy'])[j]) + (factorsLocal[1] * (Object.values(performanceAlg2['mean_test_neg_mean_absolute_error'])[j]) + 1) + (factorsLocal[2] * (Object.values(performanceAlg2['mean_test_neg_root_mean_squared_error'])[j]) + 1) + (factorsLocal[3] * Object.values(performanceAlg2['geometric_mean_score_micro'])[j]) + (factorsLocal[4] * Object.values(performanceAlg2['geometric_mean_score_macro'])[j])
+          + (factorsLocal[5] * Object.values(performanceAlg2['geometric_mean_score_weighted'])[j]) + (factorsLocal[6] * Object.values(performanceAlg2['mean_test_precision_micro'])[j]) + (factorsLocal[7] * Object.values(performanceAlg2['mean_test_precision_macro'])[j]) + (factorsLocal[8] * Object.values(performanceAlg2['mean_test_precision_weighted'])[j]) + (factorsLocal[9] * Object.values(performanceAlg2['mean_test_recall_micro'])[j])
+          + (factorsLocal[10] * Object.values(performanceAlg2['mean_test_recall_macro'])[j]) + (factorsLocal[11] * Object.values(performanceAlg2['mean_test_recall_weighted'])[j]) + (factorsLocal[12] * Object.values(performanceAlg2['f5_micro'])[j]) + (factorsLocal[13] * Object.values(performanceAlg2['f5_macro'])[j]) + (factorsLocal[14] * Object.values(performanceAlg2['f5_weighted'])[j]) + (factorsLocal[15] * Object.values(performanceAlg2['f1_micro'])[j])
+          + (factorsLocal[16] * Object.values(performanceAlg2['f1_macro'])[j]) + (factorsLocal[17] * Object.values(performanceAlg2['f1_weighted'])[j]) + (factorsLocal[18] * Object.values(performanceAlg2['f2_micro'])[j]) + (factorsLocal[19] * Object.values(performanceAlg2['f2_macro'])[j]) + (factorsLocal[20] * Object.values(performanceAlg2['f2_weighted'])[j]) + (factorsLocal[21] * Object.values(performanceAlg2['matthews_corrcoef'])[j])
+          + (factorsLocal[22] * Object.values(performanceAlg2['mean_test_roc_auc_ovo_weighted'])[j]) + (factorsLocal[23] * (1 - ((max - Object.values(performanceAlg2['log_loss'])[j])/(max - min))))
         Mc2.push((sum2/divide)*100)
       }
       
@@ -78,12 +108,12 @@ export default {
       this.algorithm2 = []
       this.parameters = []
       
-      for (var i = 0; i < Object.keys(PerformAlgor1['0']).length; i++) {
-        this.algorithm1.push({'Performance Metrics': Mc1[i],Algorithm:'KNN',Model:'Model ' + Algor1IDs[i] + '; Parameters '+JSON.stringify(Object.values(PerformAlgor1['params'])[i])+'; Performance Metrics ',ModelID:Algor1IDs[i]})
+      for (var i = 0; i < Object.keys(PerformAlgor1['params']).length; i++) {
+        this.algorithm1.push({'Performance (%)': Mc1[i],Algorithm:'KNN',Model:'Model ' + Algor1IDs[i] + '; Parameters '+JSON.stringify(Object.values(PerformAlgor1['params'])[i])+'; Performance (%) ',ModelID:Algor1IDs[i]})
         this.parameters.push(JSON.stringify(Object.values(PerformAlgor1['params'])[i]))
       }
-      for (let j = 0; j < Object.keys(PerformAlgor2['0']).length; j++) {
-        this.algorithm2.push({'Performance Metrics': Mc2[j],Algorithm:'RF',Model:'Model ' + Algor2IDs[j] + '; Parameters '+JSON.stringify(Object.values(PerformAlgor2['params'])[j])+'; Performance Metrics ',ModelID:Algor2IDs[j]})
+      for (let j = 0; j < Object.keys(PerformAlgor2['params']).length; j++) {
+        this.algorithm2.push({'Performance (%)': Mc2[j],Algorithm:'RF',Model:'Model ' + Algor2IDs[j] + '; Parameters '+JSON.stringify(Object.values(PerformAlgor2['params'])[j])+'; Performance (%) ',ModelID:Algor2IDs[j]})
         this.parameters.push(JSON.stringify(Object.values(PerformAlgor2['params'])[j]))
       }
 
@@ -97,7 +127,7 @@ export default {
       // group : how to group data on x axis
       // color : color of the point / boxplot
       // label : displayed text in toolbox
-      this.chart = exploding_boxplot(data, {y:'Performance Metrics',group:'Algorithm',color:'Algorithm',label:'Model'})
+      this.chart = exploding_boxplot(data, {y:'Performance (%)',group:'Algorithm',color:'Algorithm',label:'Model'})
       this.chart.width(this.WH[0]*3) // interactive visualization
       this.chart.height(this.WH[1]*0.9) // interactive visualization
       //call chart on a div
@@ -181,7 +211,7 @@ export default {
           algorithm = this.algorithm2
         }
         for (let k = 0; k < allPoints.length; k++) {
-          if (algorithm[k]['Performance Metrics'] < limiter[0] && algorithm[k]['Performance Metrics'] > limiter[1]) {
+          if (algorithm[k]['Performance (%)'] < limiter[0] && algorithm[k]['Performance (%)'] > limiter[1]) {
             modelsActive.push(algorithm[k].ModelID)
           }
         }
