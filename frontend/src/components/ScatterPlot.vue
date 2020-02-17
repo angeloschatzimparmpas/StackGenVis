@@ -60,6 +60,7 @@ export default {
     ScatterPlotView () {
       Plotly.purge('OverviewPlotly')
       var colorsforScatterPlot = JSON.parse(this.ScatterPlotResults[0])
+      console.log(colorsforScatterPlot)
       var MDSData = JSON.parse(this.ScatterPlotResults[1])
       var parameters = JSON.parse(this.ScatterPlotResults[2])
       var TSNEData = JSON.parse(this.ScatterPlotResults[12])

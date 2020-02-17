@@ -144,7 +144,7 @@ export default {
         text: '',
         hoverinfo: 'text',
         fill: "tozerox", 
-        fillcolor: "rgba(55,126,184)", 
+        fillcolor: "rgba(55,126,184,0)", 
         line: {color: "transparent"}, 
         name: "Active Precision", 
         showlegend: false, 

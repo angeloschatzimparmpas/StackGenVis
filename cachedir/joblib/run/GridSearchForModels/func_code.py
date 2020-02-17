@@ -1,4 +1,4 @@
-# first line: 466
+# first line: 510
 @memory.cache
 def GridSearchForModels(XData, yData, clf, params, eachAlgor, AlgorithmsIDsEnd):
 
@@ -78,6 +78,7 @@ def GridSearchForModels(XData, yData, clf, params, eachAlgor, AlgorithmsIDsEnd):
     resultsMacroBeta2 = []
     resultsWeightedBeta2 = []
     resultsLogLoss = []
+    resultsLogLossFinal = []
 
     loop = 10
 
@@ -117,9 +118,13 @@ def GridSearchForModels(XData, yData, clf, params, eachAlgor, AlgorithmsIDsEnd):
         resultsMicroBeta2.append(fbeta_score(yData, yPredict, average='micro', beta=2))
         resultsMacroBeta2.append(fbeta_score(yData, yPredict, average='macro', beta=2))
         resultsWeightedBeta2.append(fbeta_score(yData, yPredict, average='weighted', beta=2))
+  
+        resultsLogLoss.append(log_loss(yData, yPredictProb, normalize=True))
 
-        resultsLogLoss.append(log_loss(yData, yPredict, normalize = True))
-
+    maxLog = max(resultsLogLoss)
+    minLog = min(resultsLogLoss)
+    for each in resultsLogLoss:
+        resultsLogLossFinal.append((each-minLog)/(maxLog-minLog))
 
     metrics.insert(loop,'geometric_mean_score_micro',resultsMicro)
     metrics.insert(loop+1,'geometric_mean_score_macro',resultsMacro)
@@ -139,7 +144,7 @@ def GridSearchForModels(XData, yData, clf, params, eachAlgor, AlgorithmsIDsEnd):
     metrics.insert(loop+11,'f2_macro',resultsMacroBeta2)
     metrics.insert(loop+12,'f2_weighted',resultsWeightedBeta2)
 
-    metrics.insert(loop+13,'log_loss',resultsLogLoss)
+    metrics.insert(loop+13,'log_loss',resultsLogLossFinal)
 
     perModelProbPandas = pd.DataFrame(perModelProb)
     perModelProbPandas = perModelProbPandas.to_json()

@@ -15,11 +15,14 @@ from joblib import Memory
 from itertools import chain
 import ast
 
-from sklearn.linear_model import LogisticRegression
-from sklearn.neighbors import KNeighborsClassifier
-from yellowbrick.regressor import CooksDistance
-from sklearn.naive_bayes import GaussianNB 
-from sklearn.ensemble import RandomForestClassifier
+from sklearn.neighbors import KNeighborsClassifier # 1 neighbors
+from sklearn.svm import SVC # 1 svm
+from sklearn.naive_bayes import GaussianNB # 1 naive bayes
+from sklearn.neural_network import MLPClassifier # 1 neural network
+from sklearn.linear_model import LogisticRegression # 1 linear model
+from sklearn.discriminant_analysis import LinearDiscriminantAnalysis, QuadraticDiscriminantAnalysis # 2 discriminant analysis
+from sklearn.ensemble import RandomForestClassifier, ExtraTreesClassifier, BaggingClassifier, AdaBoostClassifier, GradientBoostingClassifier # 5 ensemble models
+from sklearn.calibration import CalibratedClassifierCV
 from sklearn.pipeline import make_pipeline
 from sklearn import model_selection
 from sklearn.manifold import MDS
@@ -66,7 +69,7 @@ def Reset():
     RANDOM_SEED = 42
 
     global factors
-    factors = [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
+    factors = [1,1,1,0,0,1,0,0,1,0,0,1,0,0,0,0,0,1,0,0,0,1,1,1]
 
     global XData
     XData = []
@@ -444,14 +447,55 @@ def RetrieveModel():
     # loop through the algorithms
     global allParametersPerformancePerModel
     for eachAlgor in algorithms:
+        print(eachAlgor)
         if (eachAlgor) == 'KNN':
             clf = KNeighborsClassifier()
-            params = {'n_neighbors': list(range(1, 25)), 'weights': ['uniform', 'distance'], 'algorithm': ['brute', 'kd_tree', 'ball_tree'], 'metric': ['chebyshev', 'manhattan', 'euclidean', 'minkowski']}
+            params = {'n_neighbors': list(range(1, 25)), 'metric': ['chebyshev', 'manhattan', 'euclidean', 'minkowski'], 'algorithm': ['brute', 'kd_tree', 'ball_tree'], 'weights': ['uniform', 'distance']}
             AlgorithmsIDsEnd = 0
-        else: 
-            clf = RandomForestClassifier()
-            params = {'n_estimators': list(range(40, 120)), 'criterion': ['gini', 'entropy']}
+        elif (eachAlgor) == 'SVC':
+            clf = SVC(probability=True)
+            params = {'C': list(np.arange(0.1,4.43,0.11)), 'kernel': ['rbf','linear', 'poly', 'sigmoid']}
             AlgorithmsIDsEnd = 576
+        elif (eachAlgor) == 'GausNB':
+            clf = GaussianNB()
+            params = {'var_smoothing': list(np.arange(0.00000000001,0.0000001,0.0000000001))}
+            AlgorithmsIDsEnd = 736
+        elif (eachAlgor) == 'MLP':
+            clf = MLPClassifier()
+            params = {'alpha': list(np.arange(0.00001,0.001,0.0002)), 'tol': list(np.arange(0.00001,0.001,0.0005)), 'max_iter': list(np.arange(100,200,100)), 'activation': ['relu', 'identity', 'logistic', 'tanh'], 'solver' : ['adam', 'sgd']}
+            AlgorithmsIDsEnd = 1736
+        elif (eachAlgor) == 'LR':
+            clf = LogisticRegression()
+            params = {'C': list(np.arange(0.5,2,0.075)), 'max_iter': list(np.arange(50,250,50)), 'solver': ['lbfgs', 'newton-cg', 'sag', 'saga'], 'penalty': ['l2', 'none']}
+            AlgorithmsIDsEnd = 1816
+        elif (eachAlgor) == 'LDA':
+            clf = LinearDiscriminantAnalysis()
+            params = {'shrinkage': list(np.arange(0,1,0.018)), 'solver': ['lsqr', 'eigen']}
+            AlgorithmsIDsEnd = 2536
+        elif (eachAlgor) == 'QDA':
+            clf = QuadraticDiscriminantAnalysis()
+            params = {'reg_param': list(range(1, 50)), 'tol': list(np.arange(0.00001,0.001,0.0005))}
+            AlgorithmsIDsEnd = 2716
+        elif (eachAlgor) == 'RF':
+            clf = RandomForestClassifier()
+            params = {'n_estimators': list(range(60, 140)), 'criterion': ['gini', 'entropy']}
+            AlgorithmsIDsEnd = 2876
+        elif (eachAlgor) == 'ExtraT':
+            clf = ExtraTreesClassifier()
+            params = {'n_estimators': list(range(60, 140)), 'criterion': ['gini', 'entropy']}
+            AlgorithmsIDsEnd = 3036
+        elif (eachAlgor) == 'BagC':
+            clf = BaggingClassifier()
+            params = {'n_estimators': list(range(90,110)), 'base_estimator': ['KNeighborsClassifier()', 'DummyClassifier()', 'DecisionTreeClassifier()', 'SVC()', 'BernoulliNB()', 'LogisticRegression()', 'Ridge()', 'Perceptron()', 'LDA()','QDA()']}
+            AlgorithmsIDsEnd = 1896
+        elif (eachAlgor) == 'AdaB':
+            clf = AdaBoostClassifier()
+            params = {'n_estimators': list(range(40, 80)), 'learning_rate': list(np.arange(0.1,2.3,1.1)), 'algorithm': ['SAMME.R', 'SAMME']}
+            AlgorithmsIDsEnd = 3196
+        else: 
+            clf = GradientBoostingClassifier()
+            params = {'n_estimators': list(range(90, 110)), 'learning_rate': list(np.arange(0.01,0.34,0.11)), 'criterion': ['friedman_mse', 'mse', 'mae']}
+            AlgorithmsIDsEnd = 3356
         allParametersPerformancePerModel = GridSearchForModels(XData, yData, clf, params, eachAlgor, AlgorithmsIDsEnd)
 
     # call the function that sends the results to the frontend 
@@ -542,6 +586,7 @@ def GridSearchForModels(XData, yData, clf, params, eachAlgor, AlgorithmsIDsEnd):
     resultsMacroBeta2 = []
     resultsWeightedBeta2 = []
     resultsLogLoss = []
+    resultsLogLossFinal = []
 
     loop = 10
 
@@ -581,9 +626,13 @@ def GridSearchForModels(XData, yData, clf, params, eachAlgor, AlgorithmsIDsEnd):
         resultsMicroBeta2.append(fbeta_score(yData, yPredict, average='micro', beta=2))
         resultsMacroBeta2.append(fbeta_score(yData, yPredict, average='macro', beta=2))
         resultsWeightedBeta2.append(fbeta_score(yData, yPredict, average='weighted', beta=2))
+  
+        resultsLogLoss.append(log_loss(yData, yPredictProb, normalize=True))
 
-        resultsLogLoss.append(log_loss(yData, yPredict, normalize = True))
-
+    maxLog = max(resultsLogLoss)
+    minLog = min(resultsLogLoss)
+    for each in resultsLogLoss:
+        resultsLogLossFinal.append((each-minLog)/(maxLog-minLog))
 
     metrics.insert(loop,'geometric_mean_score_micro',resultsMicro)
     metrics.insert(loop+1,'geometric_mean_score_macro',resultsMacro)
@@ -603,7 +652,7 @@ def GridSearchForModels(XData, yData, clf, params, eachAlgor, AlgorithmsIDsEnd):
     metrics.insert(loop+11,'f2_macro',resultsMacroBeta2)
     metrics.insert(loop+12,'f2_weighted',resultsWeightedBeta2)
 
-    metrics.insert(loop+13,'log_loss',resultsLogLoss)
+    metrics.insert(loop+13,'log_loss',resultsLogLossFinal)
 
     perModelProbPandas = pd.DataFrame(perModelProb)
     perModelProbPandas = perModelProbPandas.to_json()
@@ -890,30 +939,52 @@ def preProcessFeatSc():
 def preProcsumPerMetric(factors):
     sumPerClassifier = []
     loopThroughMetrics = PreprocessingMetrics()
-    print(loopThroughMetrics)
     for row in loopThroughMetrics.iterrows():
         rowSum = 0
-        lengthFactors = len(scoring)
         name, values = row
         for loop, elements in enumerate(values):
-            lengthFactors = lengthFactors -  1 + factors[loop]
             rowSum = elements*factors[loop] + rowSum
-        if lengthFactors is 0:
+        if sum(factors) is 0:
             sumPerClassifier = 0
         else:
-            sumPerClassifier.append(rowSum/lengthFactors)
+            sumPerClassifier.append(rowSum/sum(factors))
     return sumPerClassifier
 
 def preProcMetricsAllAndSel():
     loopThroughMetrics = PreprocessingMetrics()
+    global factors
     metricsPerModelColl = []
     metricsPerModelColl.append(loopThroughMetrics['mean_test_accuracy'].sum()/loopThroughMetrics['mean_test_accuracy'].count())
     metricsPerModelColl.append(loopThroughMetrics['mean_test_neg_mean_absolute_error'].sum()/loopThroughMetrics['mean_test_neg_mean_absolute_error'].count())
     metricsPerModelColl.append(loopThroughMetrics['mean_test_neg_root_mean_squared_error'].sum()/loopThroughMetrics['mean_test_neg_root_mean_squared_error'].count())
+    metricsPerModelColl.append(loopThroughMetrics['geometric_mean_score_micro'].sum()/loopThroughMetrics['geometric_mean_score_micro'].count())
+    metricsPerModelColl.append(loopThroughMetrics['geometric_mean_score_macro'].sum()/loopThroughMetrics['geometric_mean_score_macro'].count())
+    metricsPerModelColl.append(loopThroughMetrics['geometric_mean_score_weighted'].sum()/loopThroughMetrics['geometric_mean_score_weighted'].count())
     metricsPerModelColl.append(loopThroughMetrics['mean_test_precision_micro'].sum()/loopThroughMetrics['mean_test_precision_micro'].count())
-    metricsPerModelColl.append(loopThroughMetrics['mean_test_jaccard'].sum()/loopThroughMetrics['mean_test_jaccard'].count())
+    metricsPerModelColl.append(loopThroughMetrics['mean_test_precision_macro'].sum()/loopThroughMetrics['mean_test_precision_macro'].count())
+    metricsPerModelColl.append(loopThroughMetrics['mean_test_precision_weighted'].sum()/loopThroughMetrics['mean_test_precision_weighted'].count())
+    metricsPerModelColl.append(loopThroughMetrics['mean_test_recall_micro'].sum()/loopThroughMetrics['mean_test_recall_micro'].count())
+    metricsPerModelColl.append(loopThroughMetrics['mean_test_recall_macro'].sum()/loopThroughMetrics['mean_test_recall_macro'].count())
+    metricsPerModelColl.append(loopThroughMetrics['mean_test_recall_weighted'].sum()/loopThroughMetrics['mean_test_recall_weighted'].count())
+    metricsPerModelColl.append(loopThroughMetrics['f5_micro'].sum()/loopThroughMetrics['f5_micro'].count())
+    metricsPerModelColl.append(loopThroughMetrics['f5_macro'].sum()/loopThroughMetrics['f5_macro'].count())
+    metricsPerModelColl.append(loopThroughMetrics['f5_weighted'].sum()/loopThroughMetrics['f5_weighted'].count())
+    metricsPerModelColl.append(loopThroughMetrics['f1_micro'].sum()/loopThroughMetrics['f1_micro'].count())
+    metricsPerModelColl.append(loopThroughMetrics['f1_macro'].sum()/loopThroughMetrics['f1_macro'].count())
+    metricsPerModelColl.append(loopThroughMetrics['f1_weighted'].sum()/loopThroughMetrics['f1_weighted'].count())
+    metricsPerModelColl.append(loopThroughMetrics['f2_micro'].sum()/loopThroughMetrics['f2_micro'].count())
+    metricsPerModelColl.append(loopThroughMetrics['f2_macro'].sum()/loopThroughMetrics['f2_macro'].count())
+    metricsPerModelColl.append(loopThroughMetrics['f2_weighted'].sum()/loopThroughMetrics['f2_weighted'].count())
+    metricsPerModelColl.append(loopThroughMetrics['matthews_corrcoef'].sum()/loopThroughMetrics['matthews_corrcoef'].count())
+    metricsPerModelColl.append(loopThroughMetrics['mean_test_roc_auc_ovo_weighted'].sum()/loopThroughMetrics['mean_test_roc_auc_ovo_weighted'].count())
+    metricsPerModelColl.append(loopThroughMetrics['log_loss'].sum()/loopThroughMetrics['log_loss'].count())
     for index, metric in enumerate(metricsPerModelColl):
-        metricsPerModelColl[index] = metric*factors[index]
+        if (index == 1 or index == 2):
+            metricsPerModelColl[index] = (metric + 1)*factors[index]
+        elif (index == 23):
+            metricsPerModelColl[index] = (1 - metric)*factors[index]
+        else:  
+            metricsPerModelColl[index] = metric*factors[index]
     return metricsPerModelColl
 
 def preProceModels():
@@ -932,7 +1003,7 @@ def FunTsne (data):
     return tsne
 
 def FunUMAP (data):
-    trans = umap.UMAP(n_neighbors=5, random_state=RANDOM_SEED).fit(data)
+    trans = umap.UMAP(n_neighbors=15, random_state=RANDOM_SEED).fit(data)
     Xpos = trans.embedding_[:, 0].tolist()
     Ypos = trans.embedding_[:, 1].tolist()
     return [Xpos,Ypos]

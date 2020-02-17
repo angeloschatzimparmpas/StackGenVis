@@ -64,7 +64,7 @@ export default {
       restoreData: 'Restore Step',
       userSelectedFilter: 'mean',
       responsiveWidthHeight: [],
-      colorsValues: ['#6a3d9a','#b15928','#e31a1c']
+      colorsValues: ['#b3e2cd','#fdcdac','#cbd5e8','#f4cae4','#e6f5c9','#fff2ae','#f1e2cc']
     }
   },
   methods: {

@@ -455,7 +455,7 @@ export default {
 			////////////////////////////////////////////////////////////// 
 
 			var color = d3.scale.ordinal()
-				.range(["#b3cde3","#fbb4ae"]);
+				.range(["#808000","#008080"]);
       
 			var radarChartOptions = {
 			  w: width,
