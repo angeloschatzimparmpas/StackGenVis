@@ -21,8 +21,8 @@ from sklearn.naive_bayes import GaussianNB # 1 naive bayes
 from sklearn.neural_network import MLPClassifier # 1 neural network
 from sklearn.linear_model import LogisticRegression # 1 linear model
 from sklearn.discriminant_analysis import LinearDiscriminantAnalysis, QuadraticDiscriminantAnalysis # 2 discriminant analysis
-from sklearn.ensemble import RandomForestClassifier, ExtraTreesClassifier, BaggingClassifier, AdaBoostClassifier, GradientBoostingClassifier # 5 ensemble models
-from sklearn.calibration import CalibratedClassifierCV
+from sklearn.ensemble import RandomForestClassifier, ExtraTreesClassifier, AdaBoostClassifier, GradientBoostingClassifier # 4 ensemble models
+
 from sklearn.pipeline import make_pipeline
 from sklearn import model_selection
 from sklearn.manifold import MDS
@@ -484,17 +484,13 @@ def RetrieveModel():
             clf = ExtraTreesClassifier()
             params = {'n_estimators': list(range(60, 140)), 'criterion': ['gini', 'entropy']}
             AlgorithmsIDsEnd = 3036
-        elif (eachAlgor) == 'BagC':
-            clf = BaggingClassifier()
-            params = {'n_estimators': list(range(90,110)), 'base_estimator': ['KNeighborsClassifier()', 'DummyClassifier()', 'DecisionTreeClassifier()', 'SVC()', 'BernoulliNB()', 'LogisticRegression()', 'Ridge()', 'Perceptron()', 'LDA()','QDA()']}
-            AlgorithmsIDsEnd = 1896
         elif (eachAlgor) == 'AdaB':
             clf = AdaBoostClassifier()
             params = {'n_estimators': list(range(40, 80)), 'learning_rate': list(np.arange(0.1,2.3,1.1)), 'algorithm': ['SAMME.R', 'SAMME']}
             AlgorithmsIDsEnd = 3196
         else: 
             clf = GradientBoostingClassifier()
-            params = {'n_estimators': list(range(90, 110)), 'learning_rate': list(np.arange(0.01,0.34,0.11)), 'criterion': ['friedman_mse', 'mse', 'mae']}
+            params = {'n_estimators': list(range(90, 111)), 'learning_rate': list(np.arange(0.01,0.34,0.11)), 'criterion': ['friedman_mse', 'mse', 'mae']}
             AlgorithmsIDsEnd = 3356
         allParametersPerformancePerModel = GridSearchForModels(XData, yData, clf, params, eachAlgor, AlgorithmsIDsEnd)
 
@@ -509,7 +505,6 @@ memory = Memory(location, verbose=0)
 # calculating for all algorithms and models the performance and other results
 @memory.cache
 def GridSearchForModels(XData, yData, clf, params, eachAlgor, AlgorithmsIDsEnd):
-
     # instantiate spark session
     spark = (   
         SparkSession    

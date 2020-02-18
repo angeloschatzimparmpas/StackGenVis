@@ -210,7 +210,7 @@ export default Vue.extend({
       ClassifierIDsList: '',
       SelectedFeaturesPerClassifier: '',
       FinalResults: 0,
-      Algorithms: ['GPC','KNN','SVC','GausNB','MLP','LR','LDA','QDA','RF','ExtraT','BaggingClassifier','AdaB','GradB'],
+      Algorithms: ['KNN','SVC','GausNB','MLP','LR','LDA','QDA','RF','ExtraT','AdaB','GradB'],
       selectedAlgorithm: '',
       PerformancePerModel: '',
       PerformanceCheck: '',
