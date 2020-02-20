@@ -503,7 +503,6 @@ memory = Memory(location, verbose=0)
 # calculating for all algorithms and models the performance and other results
 @memory.cache
 def GridSearchForModels(XData, yData, clf, params, eachAlgor, AlgorithmsIDsEnd):
-    print('test')
     # instantiate spark session
     spark = (   
         SparkSession    
