@@ -4,10 +4,6 @@
         <b-col cols="12">
           <div id="overview"></div>
         </b-col>
-        <!--
-        <b-col cols="4"> 
-          <div id="encodings"></div>
-        </b-col>-->
       </b-row>
     </div>
 </template>
@@ -24,11 +20,38 @@ export default {
       WH: [],
       storeActiveModels: [],
       allActiveKNN: [],
+      allActiveSVC: [],
+      allActiveGausNB: [],
+      allActiveMLP: [],
+      allActiveLR: [],
+      allActiveLDA: [],
+      allActiveQDA: [],
       allActiveRF: [],
+      allActiveExtraT: [],
+      allActiveAdaB: [],
+      allActiveGradB: [],
       storeParameters: [],
       FlagKNN: 0,
+      FlagSVC: 0,
+      FlagGausNB: 0,
+      FlagMLP: 0,
+      FlagLR: 0,
+      FlagLDA: 0,
+      FlagQDA: 0,
       FlagRF: 0,
-      KNNModels: 576, //KNN models
+      FlagExtraT: 0,
+      FlagAdaB: 0,
+      FlagGradB: 0,
+      SVCModels: 576,
+      GausNBModels: 736, 
+      MLPModels: 1236,
+      LRModels: 1356, 
+      LDAModels: 1996,
+      QDAModels: 2196,
+      RFModels: 2446,
+      ExtraTModels: 2606,
+      AdaBModels: 2766,
+      GradBModels: 2926,
     }
   },
   methods: {
@@ -263,6 +286,8 @@ export default {
         .style("fill", "none")
         .style("pointer-events", "all")
         .on("mouseover", function(d,i) {
+          var newX
+          var newY
           newX =  parseFloat(d3.select(this).attr('cx')) - 10;
           newY =  parseFloat(d3.select(this).attr('cy')) - 10;
               
@@ -365,56 +390,182 @@ export default {
       var widthinter = this.WH[0]*2 // interactive visualization
       var heightinter = this.WH[1]*1.23 // interactive visualization
 
-      const max = 576
+      const max = 640
       const KNNAll = 576
+      const SVCAll = 160
+      const GausNBAll = 500
+      const MLPAll = 120
+      const LRAll = 640
+      const LDAAll = 200
+      const QDAAll = 250
       const RFAll = 160
-      var KNNSelection = 0
-      var RFSelection = 0
+      const ExtraTAll = 160
+      const AdaBAll = 160
+      const GradBAll = 180
 
-      if (this.FlagKNN == 0 && this.FlagRF == 0) {
+      var KNNSelection = 0
+      var SVCSelection = 0
+      var GausNBSelection = 0
+      var MLPSelection = 0
+      var LRSelection = 0
+      var LDASelection = 0
+      var QDASelection = 0
+      var RFSelection = 0
+      var ExtraTSelection = 0
+      var AdaBSelection = 0
+      var GradBSelection = 0
+
+      if (this.FlagKNN == 0 && this.FlagSVC == 0 && this.FlagGausNB == 0 && this.FlagMLP == 0 && this.FlagLR == 0 && this.FlagLDA == 0 && this.FlagQDA == 0 && this.FlagRF == 0 && this.FlagExtraT == 0 && this.FlagAdaB == 0 && this.FlagGradB == 0) {
         this.storeActiveModels = []
         this.allActiveKNN = []
+        this.allActiveSVC = []
+        this.allActiveGausNB = []
+        this.allActiveMLP = []
+        this.allActiveLR = []
+        this.allActiveLDA = []
+        this.allActiveQDA = []
         this.allActiveRF = []
+        this.allActiveExtraT = []
+        this.allActiveAdaB = []
+        this.allActiveGradB = []
       }
 
       if (this.storeActiveModels.length != 0) {
         var countkNNRelated = []
         var countKNN = 0
+        var countSVCRelated = []
+        var countSVC = 0
+        var countGausNBRelated = []
+        var countGausNB = 0
+        var countMLPRelated = []
+        var countMLP = 0
+        var countLRRelated = []
+        var countLR = 0
+        var countLDARelated = []
+        var countLDA = 0
+        var countQDARelated = []
+        var countQDA = 0
         var countRFRelated = []
         var countRF = 0
+        var countExtraTRelated = []
+        var countExtraT = 0
+        var countAdaBRelated = []
+        var countAdaB = 0
+        var countGradBRelated = []
+        var countGradB = 0
         for (let i = 0; i < this.storeActiveModels.length; i++) {
-          if (this.storeActiveModels[i] < this.KNNModels) {
-            countkNNRelated.push(JSON.parse(this.storeParameters[this.storeActiveModels[i]]))
-            countKNN = countKNN + 1
-          } else {
+          if (this.storeActiveModels[i] > this.GradBModels) {
+            countGradBRelated.push(JSON.parse(this.storeParameters[this.storeActiveModels[i]]))
+            countGradB++
+          } else if (this.storeActiveModels[i] > this.AdaBModels) {
+            countAdaBRelated.push(JSON.parse(this.storeParameters[this.storeActiveModels[i]]))
+            countAdaB++
+          } else if (this.storeActiveModels[i] > this.ExtraTModels) {
+            countExtraT.push(JSON.parse(this.storeParameters[this.storeActiveModels[i]]))
+            countExtraT++
+          } else if (this.storeActiveModels[i] > this.RFModels) {
             countRFRelated.push(JSON.parse(this.storeParameters[this.storeActiveModels[i]]))
-            countRF = countRF + 1
+            countRF++
+          } else if (this.storeActiveModels[i] > this.QDAModels) {
+            countQDARelated.push(JSON.parse(this.storeParameters[this.storeActiveModels[i]]))
+            countQDA++
+          } else if (this.storeActiveModels[i] > this.LDAModels) {
+            countLDARelated.push(JSON.parse(this.storeParameters[this.storeActiveModels[i]]))
+            countLDA++
+          } else if (this.storeActiveModels[i] > this.LRModels) {
+            countLRRelated.push(JSON.parse(this.storeParameters[this.storeActiveModels[i]]))
+            countLR++
+          } else if (this.storeActiveModels[i] > this.MLPModels) {
+            countMLPRelated.push(JSON.parse(this.storeParameters[this.storeActiveModels[i]]))
+            countMLP++
+          } else if (this.storeActiveModels[i] > this.GausNBModels) {
+            countGausNBRelated.push(JSON.parse(this.storeParameters[this.storeActiveModels[i]]))
+            countGausNB++
+          } else if (this.storeActiveModels[i] > this.SVCModels) {
+            countSVCRelated.push(JSON.parse(this.storeParameters[this.storeActiveModels[i]]))
+            countSVC++
+          } else {
+            countkNNRelated.push(JSON.parse(this.storeParameters[this.storeActiveModels[i]]))
+            countKNN++
           }
         }
-        if (this.storeActiveModels[0] < this.KNNModels) {
-          this.allActiveKNN = countkNNRelated.slice()
-        } else {
+
+        if (this.storeActiveModels[0] > this.GradBModels) {
+          this.allActiveGradB = countGradBRelated.slice()
+        } else if (this.storeActiveModels[0] > this.AdaBModels) {
+          this.allActiveAdaB = countAdaBRelated.slice()
+        } else if (this.storeActiveModels[0] > this.ExtraTModels) {
+          this.allActiveExtraT = countExtraT.slice()
+        } else if (this.storeActiveModels[0] > this.RFModels) {
           this.allActiveRF = countRFRelated.slice()
+        } else if (this.storeActiveModels[0] > this.QDAModels) {
+          this.allActiveQDA = countQDARelated.slice()
+        } else if (this.storeActiveModels[0] > this.LDAModels) {
+          this.allActiveLDA = countLDARelated.slice()
+        } else if (this.storeActiveModels[0] > this.LRModels) {
+          this.allActiveLR = countLRRelated.slice()
+        } else if (this.storeActiveModels[0] > this.MLPModels) {
+          this.allActiveMLP = countMLPRelated.slice()
+        } else if (this.storeActiveModels[0] > this.GausNBModels) {
+          this.allActiveGausNB = countGausNBRelated.slice()
+        } else if (this.storeActiveModels[0] > this.SVCModels) {
+          this.allActiveSVC = countSVCRelated.slice()
+        } else {
+          this.allActiveKNN = countkNNRelated.slice()
         }
 
         KNNSelection = countKNN
+        SVCSelection = countSVC
+        GausNBSelection = countGausNB
+        MLPSelection = countMLP
+        LRSelection = countLR
+        LDASelection = countLDA
+        QDASelection = countQDA
         RFSelection = countRF
+        ExtraTSelection = countExtraT
+        AdaBSelection = countAdaB
+        GradBSelection = countGradB
       }
-
 
       if (this.FlagKNN == 1 && this.allActiveKNN.length == 0) {
         KNNSelection = 576
       }
-
+      if (this.FlagSVC == 1 && this.allActiveSVC.length == 0) {
+        SVCSelection = 160
+      }
+      if (this.FlagGausNB == 1 && this.allActiveGausNB.length == 0) {
+        GausNBSelection = 500
+      }
+      if (this.FlagMLP == 1 && this.allActiveMLP.length == 0) {
+        MLPSelection = 120
+      }
+      if (this.FlagLR == 1 && this.allActiveLR.length == 0) {
+        LRSelection = 640
+      }
+      if (this.FlagLDA == 1 && this.allActiveLDA.length == 0) {
+        LDASelection = 200
+      }
+      if (this.FlagQDA == 1 && this.allActiveQDA.length == 0) {
+        QDASelection = 250
+      }
       if (this.FlagRF == 1 && this.allActiveRF.length == 0) {
         RFSelection = 160
+      }
+      if (this.FlagExtraT == 1 && this.allActiveExtraT.length == 0) {
+        ExtraTSelection = 160
+      }
+      if (this.FlagAdaB == 1 && this.allActiveAdaB.length == 0) {
+        AdaBSelection = 160
+      }
+      if (this.FlagGradB == 1 && this.allActiveGradB.length == 0) {
+        GradBSelection = 180
       }
 
     ////////////////////////////////////////////////////////////// 
     //////////////////////// Set-Up ////////////////////////////// 
     ////////////////////////////////////////////////////////////// 
 
-      var margin = {top: 50, right: 120, bottom: 50, left: 60},
+      var margin = {top: 50, right: 120, bottom: 55, left: 65},
         legendPosition = {x: 425, y: 185},
 				width = Math.min(510, window.innerWidth - 10) - margin.left - margin.right,
 				height = Math.min(width, window.innerHeight - margin.top - margin.bottom - 20);
@@ -425,29 +576,29 @@ export default {
 
 			var data = [
 					  [
-						{axis:"KNN [Models 576]",legend:"Entire",value:KNNAll/max},
-            {axis:"RF [Models 160]",legend:"Entire",value:RFAll/max},
-            {axis:"Alg3",legend:"Entire",value:0.55},
-            {axis:"Alg4",legend:"Entire",value:0.68},
-            {axis:"Alg5",legend:"Entire",value:0.22},
-            {axis:"Alg6",legend:"Entire",value:0.28},
-            {axis:"Alg7",legend:"Entire",value:0.55},
-            {axis:"Alg8",legend:"Entire",value:0.68},
-            {axis:"Alg9",legend:"Entire",value:0.22},
-            {axis:"Alg10",legend:"Entire",value:0.28},
-            {axis:"Alg11",legend:"Entire",value:0.28},
+						{axis:"KNN [M 576]",legend:"Entire",value:KNNAll/max},
+            {axis:"SVC [M 160]",legend:"Entire",value:SVCAll/max},
+            {axis:"GausNB [M 500]",legend:"Entire",value:GausNBAll/max},
+            {axis:"MLP [M 120]",legend:"Entire",value:MLPAll/max},
+            {axis:"LR [M 640]",legend:"Entire",value:LRAll/max},
+            {axis:"LDA [M 200]",legend:"Entire",value:LDAAll/max},
+            {axis:"QDA [M 250]",legend:"Entire",value:QDAAll/max},
+            {axis:"RF [M 160]",legend:"Entire",value:RFAll/max},
+            {axis:"ExtraT [M 160]",legend:"Entire",value:ExtraTAll/max},
+            {axis:"AdaB [M 160]",legend:"Entire",value:AdaBAll/max},
+            {axis:"GradB [M 180]",legend:"Entire",value:GradBAll/max},
             ],[
-						{axis:"KNN [Models 576]",legend:"Selection",value:KNNSelection/max},
-            {axis:"RF [Models 160]",legend:"Selection",value:RFSelection/max},
-            {axis:"Alg3",legend:"Selection",value:0.25},
-            {axis:"Alg4",legend:"Selection",value:0.28},
-            {axis:"Alg5",legend:"Selection",value:0.22},
-            {axis:"Alg6",legend:"Selection",value:0.18},
-            {axis:"Alg7",legend:"Selection",value:0.45},
-            {axis:"Alg8",legend:"Selectionn",value:0.18},
-            {axis:"Alg9",legend:"Selection",value:0.22},
-            {axis:"Alg10",legend:"Selection",value:0.18},
-            {axis:"Alg11",legend:"Selection",value:0.18},
+						{axis:"KNN [M 576]",legend:"Selection",value:KNNSelection/max},
+            {axis:"SVC [M 160]",legend:"Selection",value:SVCSelection/max},
+            {axis:"GausNB [M 500]",legend:"Selection",value:GausNBSelection/max},
+            {axis:"MLP [M 120]",legend:"Selection",value:MLPSelection/max},
+            {axis:"LR [M 640]",legend:"Selection",value:LRSelection/max},
+            {axis:"LDA [M 200]",legend:"Selection",value:LDASelection/max},
+            {axis:"QDA [M 250]",legend:"Selection",value:QDASelection/max},
+            {axis:"RF [M 160]",legend:"Selectionn",value:RFSelection/max},
+            {axis:"ExtraT [M 160]",legend:"Selection",value:ExtraTSelection/max},
+            {axis:"AdaB [M 160]",legend:"Selection",value:AdaBSelection/max},
+            {axis:"GradB [M 180]",legend:"Selection",value:GradBSelection/max},
 					  ],
 					];
 			////////////////////////////////////////////////////////////// 
@@ -455,7 +606,7 @@ export default {
 			////////////////////////////////////////////////////////////// 
 
 			var color = d3.scale.ordinal()
-				.range(["#808000","#008080"]);
+				.range(["#ffed6f","#b3de69"]);
       
 			var radarChartOptions = {
 			  w: width,
@@ -475,14 +626,43 @@ export default {
     },
       updateFlags () {
         this.FlagKNN = 0
+        this.FlagSVC = 0
+        this.FlagGausNB = 0
+        this.FlagMLP = 0
+        this.FlagLR = 0
+        this.FlagLDA = 0
+        this.FlagQDA = 0
         this.FlagRF = 0
+        this.FlagExtraT = 0
+        this.FlagAdaB = 0
+        this.FlagGradB = 0
       }
   },
   mounted () {
     EventBus.$on('updateFlagKNN', data => { this.FlagKNN = data })
+    EventBus.$on('updateFlagSVC', data => { this.FlagSVC = data })
+    EventBus.$on('updateFlagGausNB', data => { this.FlagGausNB = data })
+    EventBus.$on('updateFlagMLP', data => { this.FlagMLP = data })
+    EventBus.$on('updateFlagLR', data => { this.FlagLR = data })
+    EventBus.$on('updateFlagLDA', data => { this.FlagLDA = data })
+    EventBus.$on('updateFlagQDA', data => { this.FlagQDA = data })
     EventBus.$on('updateFlagRF', data => { this.FlagRF = data })
+    EventBus.$on('updateFlagExtraT', data => { this.FlagExtraT = data })
+    EventBus.$on('updateFlagAdaB', data => { this.FlagAdaB = data })
+    EventBus.$on('updateFlagGradB', data => { this.FlagGradB = data })
+
     EventBus.$on('updateFlagKNN', this.overview)
+    EventBus.$on('updateFlagSVC', this.overview)
+    EventBus.$on('updateFlagGausNB', this.overview)
+    EventBus.$on('updateFlagMLP', this.overview)
+    EventBus.$on('updateFlagLR', this.overview)
+    EventBus.$on('updateFlagLDA', this.overview)
+    EventBus.$on('updateFlagQDA', this.overview)
     EventBus.$on('updateFlagRF', this.overview)
+    EventBus.$on('updateFlagExtraT', this.overview)
+    EventBus.$on('updateFlagAdaB', this.overview)
+    EventBus.$on('updateFlagGradB', this.overview)
+
     EventBus.$on('sendParameters', data => { this.storeParameters = data })
     EventBus.$on('updateActiveModels', data => { this.storeActiveModels = data })
     EventBus.$on('updateActiveModels', this.overview)

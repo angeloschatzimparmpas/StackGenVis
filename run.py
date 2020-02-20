@@ -447,7 +447,6 @@ def RetrieveModel():
     # loop through the algorithms
     global allParametersPerformancePerModel
     for eachAlgor in algorithms:
-        print(eachAlgor)
         if (eachAlgor) == 'KNN':
             clf = KNeighborsClassifier()
             params = {'n_neighbors': list(range(1, 25)), 'metric': ['chebyshev', 'manhattan', 'euclidean', 'minkowski'], 'algorithm': ['brute', 'kd_tree', 'ball_tree'], 'weights': ['uniform', 'distance']}
@@ -458,42 +457,41 @@ def RetrieveModel():
             AlgorithmsIDsEnd = 576
         elif (eachAlgor) == 'GausNB':
             clf = GaussianNB()
-            params = {'var_smoothing': list(np.arange(0.00000000001,0.0000001,0.0000000001))}
+            params = {'var_smoothing': list(np.arange(0.00000000001,0.0000001,0.0000000002))}
             AlgorithmsIDsEnd = 736
         elif (eachAlgor) == 'MLP':
             clf = MLPClassifier()
-            params = {'alpha': list(np.arange(0.00001,0.001,0.0002)), 'tol': list(np.arange(0.00001,0.001,0.0005)), 'max_iter': list(np.arange(100,200,100)), 'activation': ['relu', 'identity', 'logistic', 'tanh'], 'solver' : ['adam', 'sgd']}
-            AlgorithmsIDsEnd = 1736
+            params = {'alpha': list(np.arange(0.00001,0.001,0.0002)), 'tol': list(np.arange(0.00001,0.001,0.0004)), 'max_iter': list(np.arange(100,200,100)), 'activation': ['relu', 'identity', 'logistic', 'tanh'], 'solver' : ['adam', 'sgd']}
+            AlgorithmsIDsEnd = 1236
         elif (eachAlgor) == 'LR':
             clf = LogisticRegression()
             params = {'C': list(np.arange(0.5,2,0.075)), 'max_iter': list(np.arange(50,250,50)), 'solver': ['lbfgs', 'newton-cg', 'sag', 'saga'], 'penalty': ['l2', 'none']}
-            AlgorithmsIDsEnd = 1816
+            AlgorithmsIDsEnd = 1356
         elif (eachAlgor) == 'LDA':
             clf = LinearDiscriminantAnalysis()
-            params = {'shrinkage': list(np.arange(0,1,0.018)), 'solver': ['lsqr', 'eigen']}
-            AlgorithmsIDsEnd = 2536
+            params = {'shrinkage': list(np.arange(0,1,0.01)), 'solver': ['lsqr', 'eigen']}
+            AlgorithmsIDsEnd = 1996
         elif (eachAlgor) == 'QDA':
             clf = QuadraticDiscriminantAnalysis()
-            params = {'reg_param': list(range(1, 50)), 'tol': list(np.arange(0.00001,0.001,0.0005))}
-            AlgorithmsIDsEnd = 2716
+            params = {'reg_param': list(range(1, 51)), 'tol': list(np.arange(0.00001,0.001,0.0002))}
+            AlgorithmsIDsEnd = 2196
         elif (eachAlgor) == 'RF':
             clf = RandomForestClassifier()
             params = {'n_estimators': list(range(60, 140)), 'criterion': ['gini', 'entropy']}
-            AlgorithmsIDsEnd = 2876
+            AlgorithmsIDsEnd = 2446
         elif (eachAlgor) == 'ExtraT':
             clf = ExtraTreesClassifier()
             params = {'n_estimators': list(range(60, 140)), 'criterion': ['gini', 'entropy']}
-            AlgorithmsIDsEnd = 3036
+            AlgorithmsIDsEnd = 2606
         elif (eachAlgor) == 'AdaB':
             clf = AdaBoostClassifier()
             params = {'n_estimators': list(range(40, 80)), 'learning_rate': list(np.arange(0.1,2.3,1.1)), 'algorithm': ['SAMME.R', 'SAMME']}
-            AlgorithmsIDsEnd = 3196
+            AlgorithmsIDsEnd = 2766
         else: 
             clf = GradientBoostingClassifier()
-            params = {'n_estimators': list(range(90, 111)), 'learning_rate': list(np.arange(0.01,0.34,0.11)), 'criterion': ['friedman_mse', 'mse', 'mae']}
-            AlgorithmsIDsEnd = 3356
+            params = {'n_estimators': list(range(85, 115)), 'learning_rate': list(np.arange(0.01,0.23,0.11)), 'criterion': ['friedman_mse', 'mse', 'mae']}
+            AlgorithmsIDsEnd = 2926
         allParametersPerformancePerModel = GridSearchForModels(XData, yData, clf, params, eachAlgor, AlgorithmsIDsEnd)
-
     # call the function that sends the results to the frontend 
     SendEachClassifiersPerformanceToVisualize()
 
@@ -505,6 +503,7 @@ memory = Memory(location, verbose=0)
 # calculating for all algorithms and models the performance and other results
 @memory.cache
 def GridSearchForModels(XData, yData, clf, params, eachAlgor, AlgorithmsIDsEnd):
+    print('test')
     # instantiate spark session
     spark = (   
         SparkSession    

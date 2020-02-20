@@ -26,7 +26,7 @@ export default {
       UpdatedData: '',
       representationDef: 'mds',
       representationSelection: 'mds',
-      colorsValues: ['#b3e2cd','#fdcdac','#cbd5e8','#f4cae4','#e6f5c9','#fff2ae','#f1e2cc'],
+      colorsValues: ['#808000','#008080','#bebada','#fccde5','#d9d9d9','#bc80bd','#ccebc5'],
       WH: []
     }
   },
