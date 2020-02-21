@@ -42,6 +42,7 @@ export default {
       FlagExtraT: 0,
       FlagAdaB: 0,
       FlagGradB: 0,
+      FlagBrushAll: 0,
       SVCModels: 576,
       GausNBModels: 736, 
       MLPModels: 1236,
@@ -415,7 +416,7 @@ export default {
       var AdaBSelection = 0
       var GradBSelection = 0
 
-      if (this.FlagKNN == 0 && this.FlagSVC == 0 && this.FlagGausNB == 0 && this.FlagMLP == 0 && this.FlagLR == 0 && this.FlagLDA == 0 && this.FlagQDA == 0 && this.FlagRF == 0 && this.FlagExtraT == 0 && this.FlagAdaB == 0 && this.FlagGradB == 0) {
+      if (this.FlagBrushAll == 0 && this.FlagKNN == 0 && this.FlagSVC == 0 && this.FlagGausNB == 0 && this.FlagMLP == 0 && this.FlagLR == 0 && this.FlagLDA == 0 && this.FlagQDA == 0 && this.FlagRF == 0 && this.FlagExtraT == 0 && this.FlagAdaB == 0 && this.FlagGradB == 0) {
         this.storeActiveModels = []
         this.allActiveKNN = []
         this.allActiveSVC = []
@@ -461,7 +462,7 @@ export default {
             countAdaBRelated.push(JSON.parse(this.storeParameters[this.storeActiveModels[i]]))
             countAdaB++
           } else if (this.storeActiveModels[i] > this.ExtraTModels) {
-            countExtraT.push(JSON.parse(this.storeParameters[this.storeActiveModels[i]]))
+            countExtraTRelated.push(JSON.parse(this.storeParameters[this.storeActiveModels[i]]))
             countExtraT++
           } else if (this.storeActiveModels[i] > this.RFModels) {
             countRFRelated.push(JSON.parse(this.storeParameters[this.storeActiveModels[i]]))
@@ -650,6 +651,8 @@ export default {
     EventBus.$on('updateFlagExtraT', data => { this.FlagExtraT = data })
     EventBus.$on('updateFlagAdaB', data => { this.FlagAdaB = data })
     EventBus.$on('updateFlagGradB', data => { this.FlagGradB = data })
+
+    EventBus.$on('flagBrushedAll', data => { this.FlagBrushAll = data })
 
     EventBus.$on('updateFlagKNN', this.overview)
     EventBus.$on('updateFlagSVC', this.overview)

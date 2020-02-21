@@ -74,7 +74,7 @@
             </b-col>
             <b-col cols="9">
               <mdb-card style="margin-top: 15px;">
-                <mdb-card-header color="primary-color" tag="h5" class="text-center"><small class="float-left" style="padding-top: 3px;">Metrics Support: [5, 6, 7 (F1)]</small>Performance of the Algorithms for Each Class</mdb-card-header>
+                <mdb-card-header color="primary-color" tag="h5" class="text-center"><small class="float-left" style="padding-top: 3px;">Metrics Support: [5, 6, 7 (F1)]</small>Performance of the Algorithms for Each Class<small class="float-right"><ResetClass/></small></mdb-card-header>
                 <mdb-card-body>
                     <BarChart/>
                 </mdb-card-body>
@@ -148,6 +148,7 @@ import DataSetExecController from './DataSetExecController.vue'
 import Algorithms from './Algorithms.vue'
 import AlgorithmHyperParam from './AlgorithmHyperParam.vue'
 import Controller from './Controller.vue'
+import ResetClass from './ResetClass.vue'
 import SlidersController from './SlidersController.vue'
 import ScatterPlot from './ScatterPlot.vue'
 import PerMetricBarChart from './PerMetricBarChart.vue'
@@ -182,6 +183,7 @@ export default Vue.extend({
     Algorithms,
     AlgorithmHyperParam,
     Controller,
+    ResetClass,
     SlidersController,
     ScatterPlot,
     PerMetricBarChart,

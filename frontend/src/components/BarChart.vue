@@ -140,6 +140,19 @@ export default {
       var tempExtraT = 0
       var tempAdaB = 0
       var tempGradB = 0
+
+      var storeKNN = []
+      var storeSVC = []
+      var storeGausNB = []
+      var storeMLP = []
+      var storeLR = []
+      var storeLDA = []
+      var storeQDA = []
+      var storeRF = []
+      var storeExtraT = []
+      var storeAdaB = []
+      var storeGradB = []
+
       for (var i=0;i<target_names.length;i++) {
         tempKNN = 0
         tempSVC = 0
@@ -152,58 +165,80 @@ export default {
         tempExtraT = 0
         tempAdaB = 0
         tempGradB = 0
-        for (var j=0;j<Object.keys(PerClassMetricsKNN[target_names[i]]).length;j++){
-            tempKNN = tempKNN + ((Object.values(PerClassMetricsKNN)[i][j]['f1-score']*factorF1)+(Object.values(PerClassMetricsKNN)[i][j]['precision']*factorPrec)+(Object.values(PerClassMetricsKNN)[i][j]['recall']*factorRecall))/divide
+        storeKNN[target_names[i]] = []
+        storeSVC[target_names[i]] = []
+        storeGausNB[target_names[i]] = []
+        storeMLP[target_names[i]] = []
+        storeLR[target_names[i]] = []
+        storeLDA[target_names[i]] = []
+        storeQDA[target_names[i]] = []
+        storeRF[target_names[i]] = []
+        storeExtraT[target_names[i]] = []
+        storeAdaB[target_names[i]] = []
+        storeGradB[target_names[i]] = []
+        for (var k=0;k<Object.keys(PerClassMetricsKNN[target_names[i]]).length;k++){
+          tempKNN = tempKNN + ((Object.values(PerClassMetricsKNN)[i][k]['f1-score']*factorF1)+(Object.values(PerClassMetricsKNN)[i][k]['precision']*factorPrec)+(Object.values(PerClassMetricsKNN)[i][k]['recall']*factorRecall))/divide
+          storeKNN[target_names[i]][k] = 100*((Object.values(PerClassMetricsKNN)[i][k]['f1-score']*factorF1)+(Object.values(PerClassMetricsKNN)[i][k]['precision']*factorPrec)+(Object.values(PerClassMetricsKNN)[i][k]['recall']*factorRecall))/divide
         }
         tempKNN = tempKNN/Object.keys(PerClassMetricsKNN[target_names[i]]).length
         sum.push(tempKNN)
         for (var k=0;k<Object.keys(PerClassMetricsSVC[target_names[i]]).length;k++){
           tempSVC = tempSVC + ((Object.values(PerClassMetricsSVC)[i][k]['f1-score']*factorF1)+(Object.values(PerClassMetricsSVC)[i][k]['precision']*factorPrec)+(Object.values(PerClassMetricsSVC)[i][k]['recall']*factorRecall))/divide
+          storeSVC[target_names[i]][k] = 100*((Object.values(PerClassMetricsSVC)[i][k]['f1-score']*factorF1)+(Object.values(PerClassMetricsSVC)[i][k]['precision']*factorPrec)+(Object.values(PerClassMetricsSVC)[i][k]['recall']*factorRecall))/divide
         }
         tempSVC = tempSVC/Object.keys(PerClassMetricsSVC[target_names[i]]).length
         sum.push(tempSVC)
         for (var k=0;k<Object.keys(PerClassMetricsGausNB[target_names[i]]).length;k++){
           tempGausNB = tempGausNB + ((Object.values(PerClassMetricsGausNB)[i][k]['f1-score']*factorF1)+(Object.values(PerClassMetricsGausNB)[i][k]['precision']*factorPrec)+(Object.values(PerClassMetricsGausNB)[i][k]['recall']*factorRecall))/divide
+          storeGausNB[target_names[i]][k] = 100*((Object.values(PerClassMetricsGausNB)[i][k]['f1-score']*factorF1)+(Object.values(PerClassMetricsGausNB)[i][k]['precision']*factorPrec)+(Object.values(PerClassMetricsGausNB)[i][k]['recall']*factorRecall))/divide
         }
         tempGausNB = tempGausNB/Object.keys(PerClassMetricsGausNB[target_names[i]]).length
         sum.push(tempGausNB)
         for (var k=0;k<Object.keys(PerClassMetricsMLP[target_names[i]]).length;k++){
           tempMLP = tempMLP + ((Object.values(PerClassMetricsMLP)[i][k]['f1-score']*factorF1)+(Object.values(PerClassMetricsMLP)[i][k]['precision']*factorPrec)+(Object.values(PerClassMetricsMLP)[i][k]['recall']*factorRecall))/divide
+          storeMLP[target_names[i]][k] = 100*((Object.values(PerClassMetricsMLP)[i][k]['f1-score']*factorF1)+(Object.values(PerClassMetricsMLP)[i][k]['precision']*factorPrec)+(Object.values(PerClassMetricsMLP)[i][k]['recall']*factorRecall))/divide
         }
         tempMLP = tempMLP/Object.keys(PerClassMetricsMLP[target_names[i]]).length
         sum.push(tempMLP)
         for (var k=0;k<Object.keys(PerClassMetricsLR[target_names[i]]).length;k++){
           tempLR = tempLR + ((Object.values(PerClassMetricsLR)[i][k]['f1-score']*factorF1)+(Object.values(PerClassMetricsLR)[i][k]['precision']*factorPrec)+(Object.values(PerClassMetricsLR)[i][k]['recall']*factorRecall))/divide
+          storeLR[target_names[i]][k] = 100*((Object.values(PerClassMetricsLR)[i][k]['f1-score']*factorF1)+(Object.values(PerClassMetricsLR)[i][k]['precision']*factorPrec)+(Object.values(PerClassMetricsLR)[i][k]['recall']*factorRecall))/divide
         }
         tempLR = tempLR/Object.keys(PerClassMetricsLR[target_names[i]]).length
         sum.push(tempLR)
         for (var k=0;k<Object.keys(PerClassMetricsLDA[target_names[i]]).length;k++){
           tempLDA = tempLDA + ((Object.values(PerClassMetricsLDA)[i][k]['f1-score']*factorF1)+(Object.values(PerClassMetricsLDA)[i][k]['precision']*factorPrec)+(Object.values(PerClassMetricsLDA)[i][k]['recall']*factorRecall))/divide
+          storeLDA[target_names[i]][k] = 100*((Object.values(PerClassMetricsLDA)[i][k]['f1-score']*factorF1)+(Object.values(PerClassMetricsLDA)[i][k]['precision']*factorPrec)+(Object.values(PerClassMetricsLDA)[i][k]['recall']*factorRecall))/divide
         }
         tempLDA = tempLDA/Object.keys(PerClassMetricsLDA[target_names[i]]).length
         sum.push(tempLDA)
         for (var k=0;k<Object.keys(PerClassMetricsQDA[target_names[i]]).length;k++){
           tempQDA = tempQDA + ((Object.values(PerClassMetricsQDA)[i][k]['f1-score']*factorF1)+(Object.values(PerClassMetricsQDA)[i][k]['precision']*factorPrec)+(Object.values(PerClassMetricsQDA)[i][k]['recall']*factorRecall))/divide
-        }
+          storeQDA[target_names[i]][k] = 100*((Object.values(PerClassMetricsQDA)[i][k]['f1-score']*factorF1)+(Object.values(PerClassMetricsQDA)[i][k]['precision']*factorPrec)+(Object.values(PerClassMetricsQDA)[i][k]['recall']*factorRecall))/divide
+        }      
         tempQDA = tempQDA/Object.keys(PerClassMetricsQDA[target_names[i]]).length
         sum.push(tempQDA)
         for (var k=0;k<Object.keys(PerClassMetricsRF[target_names[i]]).length;k++){
           tempRF = tempRF + ((Object.values(PerClassMetricsRF)[i][k]['f1-score']*factorF1)+(Object.values(PerClassMetricsRF)[i][k]['precision']*factorPrec)+(Object.values(PerClassMetricsRF)[i][k]['recall']*factorRecall))/divide
+          storeRF[target_names[i]][k] = 100*((Object.values(PerClassMetricsRF)[i][k]['f1-score']*factorF1)+(Object.values(PerClassMetricsRF)[i][k]['precision']*factorPrec)+(Object.values(PerClassMetricsRF)[i][k]['recall']*factorRecall))/divide
         }
         tempRF = tempRF/Object.keys(PerClassMetricsRF[target_names[i]]).length
         sum.push(tempRF)
         for (var k=0;k<Object.keys(PerClassMetricsExtraT[target_names[i]]).length;k++){
           tempExtraT = tempExtraT + ((Object.values(PerClassMetricsExtraT)[i][k]['f1-score']*factorF1)+(Object.values(PerClassMetricsExtraT)[i][k]['precision']*factorPrec)+(Object.values(PerClassMetricsExtraT)[i][k]['recall']*factorRecall))/divide
+          storeExtraT[target_names[i]][k] = 100*((Object.values(PerClassMetricsExtraT)[i][k]['f1-score']*factorF1)+(Object.values(PerClassMetricsExtraT)[i][k]['precision']*factorPrec)+(Object.values(PerClassMetricsExtraT)[i][k]['recall']*factorRecall))/divide
         }
         tempExtraT = tempExtraT/Object.keys(PerClassMetricsExtraT[target_names[i]]).length
         sum.push(tempExtraT)
         for (var k=0;k<Object.keys(PerClassMetricsAdaB[target_names[i]]).length;k++){
           tempAdaB = tempAdaB + ((Object.values(PerClassMetricsAdaB)[i][k]['f1-score']*factorF1)+(Object.values(PerClassMetricsAdaB)[i][k]['precision']*factorPrec)+(Object.values(PerClassMetricsAdaB)[i][k]['recall']*factorRecall))/divide
+          storeAdaB[target_names[i]][k] =  100*((Object.values(PerClassMetricsAdaB)[i][k]['f1-score']*factorF1)+(Object.values(PerClassMetricsAdaB)[i][k]['precision']*factorPrec)+(Object.values(PerClassMetricsAdaB)[i][k]['recall']*factorRecall))/divide
         }
         tempAdaB = tempAdaB/Object.keys(PerClassMetricsAdaB[target_names[i]]).length
         sum.push(tempAdaB)
         for (var k=0;k<Object.keys(PerClassMetricsGradB[target_names[i]]).length;k++){
           tempGradB = tempGradB + ((Object.values(PerClassMetricsGradB)[i][k]['f1-score']*factorF1)+(Object.values(PerClassMetricsGradB)[i][k]['precision']*factorPrec)+(Object.values(PerClassMetricsGradB)[i][k]['recall']*factorRecall))/divide
+          storeGradB[target_names[i]][k] = 100*((Object.values(PerClassMetricsGradB)[i][k]['f1-score']*factorF1)+(Object.values(PerClassMetricsGradB)[i][k]['precision']*factorPrec)+(Object.values(PerClassMetricsGradB)[i][k]['recall']*factorRecall))/divide
         }
         tempGradB = tempGradB/Object.keys(PerClassMetricsGradB[target_names[i]]).length
         sum.push(tempGradB)
@@ -234,133 +269,133 @@ export default {
         tempAdaB = 0
         tempGradB = 0
         if (KNNModels.length == 0) {
-            for (var j=0;j<Object.keys(PerClassMetricsKNN[target_names[i]]).length;j++){
-              tempKNN = tempKNN + ((Object.values(PerClassMetricsKNN)[i][j]['f1-score']*factorF1)+(Object.values(PerClassMetricsKNN)[i][j]['precision']*factorPrec)+(Object.values(PerClassMetricsKNN)[i][j]['recall']*factorRecall))/divide
+            for (var k=0;k<Object.keys(PerClassMetricsKNN[target_names[i]]).length;k++){
+              tempKNN = tempKNN + ((Object.values(PerClassMetricsKNN)[i][k]['f1-score']*factorF1)+(Object.values(PerClassMetricsKNN)[i][k]['precision']*factorPrec)+(Object.values(PerClassMetricsKNN)[i][k]['recall']*factorRecall))/divide
             }
             tempKNN = tempKNN/Object.keys(PerClassMetricsKNN[target_names[i]]).length
         } else {
-            for (var j=0;j<KNNModels.length;j++){
-              tempKNN = tempKNN + ((Object.values(PerClassMetricsKNN)[i][j]['f1-score']*factorF1)+(Object.values(PerClassMetricsKNN)[i][j]['precision']*factorPrec)+(Object.values(PerClassMetricsKNN)[i][j]['recall']*factorRecall))/divide
+            for (var k=0;k<KNNModels.length;k++){
+              tempKNN = tempKNN + ((Object.values(PerClassMetricsKNN)[i][k]['f1-score']*factorF1)+(Object.values(PerClassMetricsKNN)[i][k]['precision']*factorPrec)+(Object.values(PerClassMetricsKNN)[i][k]['recall']*factorRecall))/divide
             }
             tempKNN = tempKNN/KNNModels.length
         }
         sumLine.push(tempKNN)
         if (SVCModels.length == 0) {
-            for (var j=0;j<Object.keys(PerClassMetricsSVC[target_names[i]]).length;j++){
-              tempSVC = tempSVC + ((Object.values(PerClassMetricsSVC)[i][j]['f1-score']*factorF1)+(Object.values(PerClassMetricsSVC)[i][j]['precision']*factorPrec)+(Object.values(PerClassMetricsSVC)[i][j]['recall']*factorRecall))/divide
+            for (var k=0;k<Object.keys(PerClassMetricsSVC[target_names[i]]).length;k++){
+              tempSVC = tempSVC + ((Object.values(PerClassMetricsSVC)[i][k]['f1-score']*factorF1)+(Object.values(PerClassMetricsSVC)[i][k]['precision']*factorPrec)+(Object.values(PerClassMetricsSVC)[i][k]['recall']*factorRecall))/divide
             }
             tempSVC = tempSVC/Object.keys(PerClassMetricsSVC[target_names[i]]).length
         } else {
-            for (var j=0;j<SVCModels.length;j++){
-              tempSVC = tempSVC + ((Object.values(PerClassMetricsSVC)[i][j]['f1-score']*factorF1)+(Object.values(PerClassMetricsSVC)[i][j]['precision']*factorPrec)+(Object.values(PerClassMetricsSVC)[i][j]['recall']*factorRecall))/divide
+            for (var k=0;k<SVCModels.length;k++){
+              tempSVC = tempSVC + ((Object.values(PerClassMetricsSVC)[i][k]['f1-score']*factorF1)+(Object.values(PerClassMetricsSVC)[i][k]['precision']*factorPrec)+(Object.values(PerClassMetricsSVC)[i][k]['recall']*factorRecall))/divide
             }
             tempSVC = tempSVC/SVCModels.length
         }
         sumLine.push(tempSVC)
         if (GausNBModels.length == 0) {
-            for (var j=0;j<Object.keys(PerClassMetricsGausNB[target_names[i]]).length;j++){
-              tempGausNB = tempGausNB + ((Object.values(PerClassMetricsGausNB)[i][j]['f1-score']*factorF1)+(Object.values(PerClassMetricsGausNB)[i][j]['precision']*factorPrec)+(Object.values(PerClassMetricsGausNB)[i][j]['recall']*factorRecall))/divide
+            for (var k=0;k<Object.keys(PerClassMetricsGausNB[target_names[i]]).length;k++){
+              tempGausNB = tempGausNB + ((Object.values(PerClassMetricsGausNB)[i][k]['f1-score']*factorF1)+(Object.values(PerClassMetricsGausNB)[i][k]['precision']*factorPrec)+(Object.values(PerClassMetricsGausNB)[i][k]['recall']*factorRecall))/divide
             }
             tempGausNB = tempGausNB/Object.keys(PerClassMetricsGausNB[target_names[i]]).length
         } else {
-            for (var j=0;j<GausNBModels.length;j++){
-              tempGausNB = tempGausNB + ((Object.values(PerClassMetricsGausNB)[i][j]['f1-score']*factorF1)+(Object.values(PerClassMetricsGausNB)[i][j]['precision']*factorPrec)+(Object.values(PerClassMetricsGausNB)[i][j]['recall']*factorRecall))/divide
+            for (var k=0;k<GausNBModels.length;k++){
+              tempGausNB = tempGausNB + ((Object.values(PerClassMetricsGausNB)[i][k]['f1-score']*factorF1)+(Object.values(PerClassMetricsGausNB)[i][k]['precision']*factorPrec)+(Object.values(PerClassMetricsGausNB)[i][k]['recall']*factorRecall))/divide
             }
             tempGausNB = tempGausNB/GausNBModels.length
         }
         sumLine.push(tempGausNB)
         if (MLPModels.length == 0) {
-            for (var j=0;j<Object.keys(PerClassMetricsMLP[target_names[i]]).length;j++){
-              tempMLP = tempMLP + ((Object.values(PerClassMetricsMLP)[i][j]['f1-score']*factorF1)+(Object.values(PerClassMetricsMLP)[i][j]['precision']*factorPrec)+(Object.values(PerClassMetricsMLP)[i][j]['recall']*factorRecall))/divide
+            for (var k=0;k<Object.keys(PerClassMetricsMLP[target_names[i]]).length;k++){
+              tempMLP = tempMLP + ((Object.values(PerClassMetricsMLP)[i][k]['f1-score']*factorF1)+(Object.values(PerClassMetricsMLP)[i][k]['precision']*factorPrec)+(Object.values(PerClassMetricsMLP)[i][k]['recall']*factorRecall))/divide
             }
             tempMLP = tempMLP/Object.keys(PerClassMetricsMLP[target_names[i]]).length
         } else {
-            for (var j=0;j<MLPModels.length;j++){
-              tempMLP = tempMLP + ((Object.values(PerClassMetricsMLP)[i][j]['f1-score']*factorF1)+(Object.values(PerClassMetricsMLP)[i][j]['precision']*factorPrec)+(Object.values(PerClassMetricsMLP)[i][j]['recall']*factorRecall))/divide
+            for (var k=0;k<MLPModels.length;k++){
+              tempMLP = tempMLP + ((Object.values(PerClassMetricsMLP)[i][k]['f1-score']*factorF1)+(Object.values(PerClassMetricsMLP)[i][k]['precision']*factorPrec)+(Object.values(PerClassMetricsMLP)[i][k]['recall']*factorRecall))/divide
             }
             tempMLP = tempMLP/MLPModels.length
         }
         sumLine.push(tempMLP)
         if (LRModels.length == 0) {
-            for (var j=0;j<Object.keys(PerClassMetricsLR[target_names[i]]).length;j++){
-              tempLR = tempLR + ((Object.values(PerClassMetricsLR)[i][j]['f1-score']*factorF1)+(Object.values(PerClassMetricsLR)[i][j]['precision']*factorPrec)+(Object.values(PerClassMetricsLR)[i][j]['recall']*factorRecall))/divide
+            for (var k=0;k<Object.keys(PerClassMetricsLR[target_names[i]]).length;k++){
+              tempLR = tempLR + ((Object.values(PerClassMetricsLR)[i][k]['f1-score']*factorF1)+(Object.values(PerClassMetricsLR)[i][k]['precision']*factorPrec)+(Object.values(PerClassMetricsLR)[i][k]['recall']*factorRecall))/divide
             }
             tempLR = tempLR/Object.keys(PerClassMetricsLR[target_names[i]]).length
         } else {
-            for (var j=0;j<LRModels.length;j++){
-              tempLR = tempLR + ((Object.values(PerClassMetricsLR)[i][j]['f1-score']*factorF1)+(Object.values(PerClassMetricsLR)[i][j]['precision']*factorPrec)+(Object.values(PerClassMetricsLR)[i][j]['recall']*factorRecall))/divide
+            for (var k=0;k<LRModels.length;k++){
+              tempLR = tempLR + ((Object.values(PerClassMetricsLR)[i][k]['f1-score']*factorF1)+(Object.values(PerClassMetricsLR)[i][k]['precision']*factorPrec)+(Object.values(PerClassMetricsLR)[i][k]['recall']*factorRecall))/divide
             }
             tempLR = tempLR/LRModels.length
         }
         sumLine.push(tempLR)
         if (LDAModels.length == 0) {
-            for (var j=0;j<Object.keys(PerClassMetricsLDA[target_names[i]]).length;j++){
-              tempLDA = tempLDA + ((Object.values(PerClassMetricsLDA)[i][j]['f1-score']*factorF1)+(Object.values(PerClassMetricsLDA)[i][j]['precision']*factorPrec)+(Object.values(PerClassMetricsLDA)[i][j]['recall']*factorRecall))/divide
+            for (var k=0;k<Object.keys(PerClassMetricsLDA[target_names[i]]).length;k++){
+              tempLDA = tempLDA + ((Object.values(PerClassMetricsLDA)[i][k]['f1-score']*factorF1)+(Object.values(PerClassMetricsLDA)[i][k]['precision']*factorPrec)+(Object.values(PerClassMetricsLDA)[i][k]['recall']*factorRecall))/divide
             }
             tempLDA = tempLDA/Object.keys(PerClassMetricsLDA[target_names[i]]).length
         } else {
-            for (var j=0;j<LDAModels.length;j++){
-              tempLDA = tempLDA + ((Object.values(PerClassMetricsLDA)[i][j]['f1-score']*factorF1)+(Object.values(PerClassMetricsLDA)[i][j]['precision']*factorPrec)+(Object.values(PerClassMetricsLDA)[i][j]['recall']*factorRecall))/divide
+            for (var k=0;k<LDAModels.length;k++){
+              tempLDA = tempLDA + ((Object.values(PerClassMetricsLDA)[i][k]['f1-score']*factorF1)+(Object.values(PerClassMetricsLDA)[i][k]['precision']*factorPrec)+(Object.values(PerClassMetricsLDA)[i][k]['recall']*factorRecall))/divide
             }
             tempLDA = tempLDA/LDAModels.length
         }
         sumLine.push(tempLDA)
         if (QDAModels.length == 0) {
-            for (var j=0;j<Object.keys(PerClassMetricsQDA[target_names[i]]).length;j++){
-              tempQDA = tempQDA + ((Object.values(PerClassMetricsQDA)[i][j]['f1-score']*factorF1)+(Object.values(PerClassMetricsQDA)[i][j]['precision']*factorPrec)+(Object.values(PerClassMetricsQDA)[i][j]['recall']*factorRecall))/divide
+            for (var k=0;k<Object.keys(PerClassMetricsQDA[target_names[i]]).length;k++){
+              tempQDA = tempQDA + ((Object.values(PerClassMetricsQDA)[i][k]['f1-score']*factorF1)+(Object.values(PerClassMetricsQDA)[i][k]['precision']*factorPrec)+(Object.values(PerClassMetricsQDA)[i][k]['recall']*factorRecall))/divide
             }
             tempQDA = tempQDA/Object.keys(PerClassMetricsQDA[target_names[i]]).length
         } else {
-            for (var j=0;j<QDAModels.length;j++){
-              tempQDA = tempQDA + ((Object.values(PerClassMetricsQDA)[i][j]['f1-score']*factorF1)+(Object.values(PerClassMetricsQDA)[i][j]['precision']*factorPrec)+(Object.values(PerClassMetricsQDA)[i][j]['recall']*factorRecall))/divide
+            for (var k=0;k<QDAModels.length;k++){
+              tempQDA = tempQDA + ((Object.values(PerClassMetricsQDA)[i][k]['f1-score']*factorF1)+(Object.values(PerClassMetricsQDA)[i][k]['precision']*factorPrec)+(Object.values(PerClassMetricsQDA)[i][k]['recall']*factorRecall))/divide
             }
             tempQDA = tempQDA/QDAModels.length
         }
         sumLine.push(tempQDA)
         if (RFModels.length == 0) {
-            for (var j=0;j<Object.keys(PerClassMetricsRF[target_names[i]]).length;j++){
-              tempRF = tempRF + ((Object.values(PerClassMetricsRF)[i][j]['f1-score']*factorF1)+(Object.values(PerClassMetricsRF)[i][j]['precision']*factorPrec)+(Object.values(PerClassMetricsRF)[i][j]['recall']*factorRecall))/divide
+            for (var k=0;k<Object.keys(PerClassMetricsRF[target_names[i]]).length;k++){
+              tempRF = tempRF + ((Object.values(PerClassMetricsRF)[i][k]['f1-score']*factorF1)+(Object.values(PerClassMetricsRF)[i][k]['precision']*factorPrec)+(Object.values(PerClassMetricsRF)[i][k]['recall']*factorRecall))/divide
             }
             tempRF = tempRF/Object.keys(PerClassMetricsRF[target_names[i]]).length
         } else {
-            for (var j=0;j<RFModels.length;j++){
-              tempRF = tempRF + ((Object.values(PerClassMetricsRF)[i][j]['f1-score']*factorF1)+(Object.values(PerClassMetricsRF)[i][j]['precision']*factorPrec)+(Object.values(PerClassMetricsRF)[i][j]['recall']*factorRecall))/divide
+            for (var k=0;k<RFModels.length;k++){
+              tempRF = tempRF + ((Object.values(PerClassMetricsRF)[i][k]['f1-score']*factorF1)+(Object.values(PerClassMetricsRF)[i][k]['precision']*factorPrec)+(Object.values(PerClassMetricsRF)[i][k]['recall']*factorRecall))/divide
             }
             tempRF = tempRF/RFModels.length
         }
         sumLine.push(tempRF)
         if (ExtraTModels.length == 0) {
-            for (var j=0;j<Object.keys(PerClassMetricsExtraT[target_names[i]]).length;j++){
-              tempExtraT = tempExtraT + ((Object.values(PerClassMetricsExtraT)[i][j]['f1-score']*factorF1)+(Object.values(PerClassMetricsExtraT)[i][j]['precision']*factorPrec)+(Object.values(PerClassMetricsExtraT)[i][j]['recall']*factorRecall))/divide
+            for (var k=0;k<Object.keys(PerClassMetricsExtraT[target_names[i]]).length;k++){
+              tempExtraT = tempExtraT + ((Object.values(PerClassMetricsExtraT)[i][k]['f1-score']*factorF1)+(Object.values(PerClassMetricsExtraT)[i][k]['precision']*factorPrec)+(Object.values(PerClassMetricsExtraT)[i][k]['recall']*factorRecall))/divide
             }
             tempExtraT = tempExtraT/Object.keys(PerClassMetricsExtraT[target_names[i]]).length
         } else {
-            for (var j=0;j<ExtraTModels.length;j++){
-              tempExtraT = tempExtraT + ((Object.values(PerClassMetricsExtraT)[i][j]['f1-score']*factorF1)+(Object.values(PerClassMetricsExtraT)[i][j]['precision']*factorPrec)+(Object.values(PerClassMetricsExtraT)[i][j]['recall']*factorRecall))/divide
+            for (var k=0;k<ExtraTModels.length;k++){
+              tempExtraT = tempExtraT + ((Object.values(PerClassMetricsExtraT)[i][k]['f1-score']*factorF1)+(Object.values(PerClassMetricsExtraT)[i][k]['precision']*factorPrec)+(Object.values(PerClassMetricsExtraT)[i][k]['recall']*factorRecall))/divide
             }
             tempExtraT = tempExtraT/ExtraTModels.length
         }
         sumLine.push(tempExtraT)
         if (AdaBModels.length == 0) {
-            for (var j=0;j<Object.keys(PerClassMetricsAdaB[target_names[i]]).length;j++){
-              tempAdaB = tempAdaB + ((Object.values(PerClassMetricsAdaB)[i][j]['f1-score']*factorF1)+(Object.values(PerClassMetricsAdaB)[i][j]['precision']*factorPrec)+(Object.values(PerClassMetricsAdaB)[i][j]['recall']*factorRecall))/divide
+            for (var k=0;k<Object.keys(PerClassMetricsAdaB[target_names[i]]).length;k++){
+              tempAdaB = tempAdaB + ((Object.values(PerClassMetricsAdaB)[i][k]['f1-score']*factorF1)+(Object.values(PerClassMetricsAdaB)[i][k]['precision']*factorPrec)+(Object.values(PerClassMetricsAdaB)[i][k]['recall']*factorRecall))/divide
             }
             tempAdaB = tempAdaB/Object.keys(PerClassMetricsAdaB[target_names[i]]).length
         } else {
-            for (var j=0;j<AdaBModels.length;j++){
-              tempAdaB = tempAdaB + ((Object.values(PerClassMetricsAdaB)[i][j]['f1-score']*factorF1)+(Object.values(PerClassMetricsAdaB)[i][j]['precision']*factorPrec)+(Object.values(PerClassMetricsAdaB)[i][j]['recall']*factorRecall))/divide
+            for (var k=0;k<AdaBModels.length;k++){
+              tempAdaB = tempAdaB + ((Object.values(PerClassMetricsAdaB)[i][k]['f1-score']*factorF1)+(Object.values(PerClassMetricsAdaB)[i][k]['precision']*factorPrec)+(Object.values(PerClassMetricsAdaB)[i][k]['recall']*factorRecall))/divide
             }
             tempAdaB = tempAdaB/AdaBModels.length
         }
         sumLine.push(tempAdaB)
         if (GradBModels.length == 0) {
-            for (var j=0;j<Object.keys(PerClassMetricsGradB[target_names[i]]).length;j++){
-              tempGradB = tempGradB + ((Object.values(PerClassMetricsGradB)[i][j]['f1-score']*factorF1)+(Object.values(PerClassMetricsGradB)[i][j]['precision']*factorPrec)+(Object.values(PerClassMetricsGradB)[i][j]['recall']*factorRecall))/divide
+            for (var k=0;k<Object.keys(PerClassMetricsGradB[target_names[i]]).length;k++){
+              tempGradB = tempGradB + ((Object.values(PerClassMetricsGradB)[i][k]['f1-score']*factorF1)+(Object.values(PerClassMetricsGradB)[i][k]['precision']*factorPrec)+(Object.values(PerClassMetricsGradB)[i][k]['recall']*factorRecall))/divide
             }
             tempGradB = tempGradB/Object.keys(PerClassMetricsGradB[target_names[i]]).length
         } else {
-            for (var j=0;j<GradBModels.length;j++){
-              tempGradB = tempGradB + ((Object.values(PerClassMetricsGradB)[i][j]['f1-score']*factorF1)+(Object.values(PerClassMetricsGradB)[i][j]['precision']*factorPrec)+(Object.values(PerClassMetricsGradB)[i][j]['recall']*factorRecall))/divide
+            for (var k=0;k<GradBModels.length;k++){
+              tempGradB = tempGradB + ((Object.values(PerClassMetricsGradB)[i][k]['f1-score']*factorF1)+(Object.values(PerClassMetricsGradB)[i][k]['precision']*factorPrec)+(Object.values(PerClassMetricsGradB)[i][k]['recall']*factorRecall))/divide
             }
             tempGradB = tempGradB/GradBModels.length
         }
@@ -392,6 +427,7 @@ export default {
                 tickangle: 'auto',
                 exponentformat: 'e',
                 showexponent: 'all',
+                side: 'top'
             },
         bargap:0.1,
         bargroupgap: 0.2,
@@ -402,7 +438,8 @@ export default {
             t: 30,
             pad: 0
             },
-        legend: {"orientation": "h"}
+        legend: {orientation: 'h', xanchor: 'center', x: 0.5},
+        hovermode: 'closest'
       }
         var traces = []
         var tracesSel = []
@@ -411,16 +448,18 @@ export default {
         var sumLineList = []
         var keepSum
         var keepSumLine
+        var loopStartUntil = sum.length/target_names.length
         for (var i = 0; i < target_names.length; i++) {
           keepSum = []
           keepSumLine = []
-          for (var j = i; j < sum.length; j+=target_names.length) {
-            keepSum.push(sum[j]*100)
-            keepSumLine.push(sumLine[j]*100)
+          for (var k = i*loopStartUntil; k < (i+1)*loopStartUntil; k++) {
+            keepSum.push(sum[k]*100)
+            keepSumLine.push(sumLine[k]*100)
           }
           sumList[i] = keepSum
           sumLineList[i] = keepSumLine
         }
+
         for (var i = 0; i < target_names.length; i++) {
           traces[i] = {
             x: ['KNN','SVC','GausNB','MLP','LR','LDA','QDA','RF','ExtraT','AdaB','GradB'],
@@ -449,7 +488,22 @@ export default {
               data.push(traces[i])
               data.push(tracesSel[i])
           }
-          Plotly.newPlot('barChart', data, layout)
+          var barc = document.getElementById('barChart');
+
+          Plotly.newPlot(barc, data, layout)
+          var X, Y;
+
+          barc.on('plotly_click', (eventData) => {
+            var tName 
+            eventData.points.forEach((e) => {
+              tName = e.data.name.replace(/ *\([^)]*\) */g, "")
+            });
+
+            EventBus.$emit('clearPCP')
+            EventBus.$emit('alternateFlagLock')
+            EventBus.$emit('boxplotSet', [storeKNN[tName],storeSVC[tName],storeGausNB[tName],storeMLP[tName],storeLR[tName],storeLDA[tName],storeQDA[tName],storeRF[tName],storeExtraT[tName],storeAdaB[tName],storeGradB[tName]])
+            EventBus.$emit('boxplotCall', false)
+          });
       },
       reset () 
       {

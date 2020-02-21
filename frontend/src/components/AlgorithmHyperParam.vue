@@ -18,6 +18,8 @@ export default {
     return {
       ModelsPerformance: 0,
       selAlgorithm: 0,
+      keyAllOrClass: true,
+      listClassPerf: [],
       pc: 0,
       factors: [1,1,1,0,0
       ,1,0,0,1,0
@@ -133,8 +135,8 @@ export default {
             + (factorsLocal[10] * Object.values(performanceAlgLDA['mean_test_recall_macro'])[j]) + (factorsLocal[11] * Object.values(performanceAlgLDA['mean_test_recall_weighted'])[j]) + (factorsLocal[12] * Object.values(performanceAlgLDA['f5_micro'])[j]) + (factorsLocal[13] * Object.values(performanceAlgLDA['f5_macro'])[j]) + (factorsLocal[14] * Object.values(performanceAlgLDA['f5_weighted'])[j]) + (factorsLocal[15] * Object.values(performanceAlgLDA['f1_micro'])[j])
             + (factorsLocal[16] * Object.values(performanceAlgLDA['f1_macro'])[j]) + (factorsLocal[17] * Object.values(performanceAlgLDA['f1_weighted'])[j]) + (factorsLocal[18] * Object.values(performanceAlgLDA['f2_micro'])[j]) + (factorsLocal[19] * Object.values(performanceAlgLDA['f2_macro'])[j]) + (factorsLocal[20] * Object.values(performanceAlgLDA['f2_weighted'])[j]) + (factorsLocal[21] * Object.values(performanceAlgLDA['matthews_corrcoef'])[j])
             + (factorsLocal[22] * Object.values(performanceAlgLDA['mean_test_roc_auc_ovo_weighted'])[j]) + (factorsLocal[23] * (1 - Object.values(performanceAlgLDA['log_loss'])[j]))
-          if (sumLR <= 0) {
-            sumLR = 0
+          if (sumLDA <= 0) {
+            sumLDA = 0
           }
           McLDA.push((sumLDA/divide)*100)
         }
@@ -261,46 +263,88 @@ export default {
         var ArrayCombined = []
         var temp
         for (var i = 0; i < valuesPerf.length; i++) {
-          if (this.selAlgorithm === 'KNN') {
-            // There is a problem here!
-            newObjectsParamsΚΝΝ.push({model: i,'# performance (%) #': McKNN[i],'n_neighbors':ObjectsParams[i].n_neighbors,'metric':ObjectsParams[i].metric,'algorithm':ObjectsParams[i].algorithm,'weights':ObjectsParams[i].weights})
-            ArrayCombined[i] = newObjectsParamsΚΝΝ[i]
-          } else if (this.selAlgorithm === 'SVC') {
-            newObjectsParamsSVC.push({model: this.SVCModels + i,'# performance (%) #': McSVC[i],'C':ObjectsParams[i].C,'kernel':ObjectsParams[i].kernel})
-            ArrayCombined[i] = newObjectsParamsSVC[i]
-          } else if (this.selAlgorithm === 'GausNB') {
-            newObjectsParamsGausNB.push({model: this.GausNBModels + i,'# performance (%) #': McGausNB[i],'var_smoothing':ObjectsParams[i].var_smoothing})
-            ArrayCombined[i] = newObjectsParamsGausNB[i]
-          } else if (this.selAlgorithm === 'MLP') {
-            newObjectsParamsMLP.push({model: this.MLPModels + i,'# performance (%) #': McMLP[i],'alpha':ObjectsParams[i].alpha,'tol':ObjectsParams[i].tol,'activation':ObjectsParams[i].activation,'max_iter':ObjectsParams[i].max_iter,'solver':ObjectsParams[i].solver})
-            ArrayCombined[i] = newObjectsParamsMLP[i]
-          } else if (this.selAlgorithm === 'LR') {
-            newObjectsParamsLR.push({model: this.LRModels + i,'# performance (%) #': McLR[i],'C':ObjectsParams[i].C,'max_iter':ObjectsParams[i].max_iter,'solver':ObjectsParams[i].solver,'penalty':ObjectsParams[i].penalty})
-            ArrayCombined[i] = newObjectsParamsLR[i]
-          } else if (this.selAlgorithm === 'LDA') {
-            newObjectsParamsLDA.push({model: this.LDAModels + i,'# performance (%) #': McLDA[i],'shrinkage':ObjectsParams[i].shrinkage,'solver':ObjectsParams[i].solver})
-            ArrayCombined[i] = newObjectsParamsLDA[i]
-          } else if (this.selAlgorithm === 'QDA') {
-            newObjectsParamsQDA.push({model: this.QDAModels + i,'# performance (%) #': McQDA[i],'reg_param':ObjectsParams[i].reg_param,'tol':ObjectsParams[i].tol})
-            ArrayCombined[i] = newObjectsParamsQDA[i]
-          } else if (this.selAlgorithm === 'RF') {
-            newObjectsParamsRF.push({model: this.RFModels + i,'# performance (%) #': McRF[i],'n_estimators':ObjectsParams[i].n_estimators,'criterion':ObjectsParams[i].criterion})
-            ArrayCombined[i] = newObjectsParamsRF[i]
-          } else if (this.selAlgorithm === 'ExtraT') {
-            newObjectsParamsExtraT.push({model: this.ExtraTModels + i,'# performance (%) #': McExtraT[i],'n_estimators':ObjectsParams[i].n_estimators,'criterion':ObjectsParams[i].criterion})
-            ArrayCombined[i] = newObjectsParamsExtraT[i]
-          } else if (this.selAlgorithm === 'AdaB') {
-            newObjectsParamsAdaB.push({model: this.AdaBModels + i,'# performance (%) #': McAdaB[i],'n_estimators':ObjectsParams[i].n_estimators,'learning_rate':ObjectsParams[i].learning_rate,'algorithm':ObjectsParams[i].algorithm})
-            ArrayCombined[i] = newObjectsParamsAdaB[i]
+          if (this.keyAllOrClass) {
+            if (this.selAlgorithm === 'KNN') {
+              newObjectsParamsΚΝΝ.push({model: i,'# performance (%) #': McKNN[i],'n_neighbors':ObjectsParams[i].n_neighbors,'metric':ObjectsParams[i].metric,'algorithm':ObjectsParams[i].algorithm,'weights':ObjectsParams[i].weights})
+              ArrayCombined[i] = newObjectsParamsΚΝΝ[i]
+            } else if (this.selAlgorithm === 'SVC') {
+              newObjectsParamsSVC.push({model: this.SVCModels + i,'# performance (%) #': McSVC[i],'C':ObjectsParams[i].C,'kernel':ObjectsParams[i].kernel})
+              ArrayCombined[i] = newObjectsParamsSVC[i]
+            } else if (this.selAlgorithm === 'GausNB') {
+              newObjectsParamsGausNB.push({model: this.GausNBModels + i,'# performance (%) #': McGausNB[i],'var_smoothing':ObjectsParams[i].var_smoothing})
+              ArrayCombined[i] = newObjectsParamsGausNB[i]
+            } else if (this.selAlgorithm === 'MLP') {
+              newObjectsParamsMLP.push({model: this.MLPModels + i,'# performance (%) #': McMLP[i],'alpha':ObjectsParams[i].alpha,'tol':ObjectsParams[i].tol,'activation':ObjectsParams[i].activation,'max_iter':ObjectsParams[i].max_iter,'solver':ObjectsParams[i].solver})
+              ArrayCombined[i] = newObjectsParamsMLP[i]
+            } else if (this.selAlgorithm === 'LR') {
+              newObjectsParamsLR.push({model: this.LRModels + i,'# performance (%) #': McLR[i],'C':ObjectsParams[i].C,'max_iter':ObjectsParams[i].max_iter,'solver':ObjectsParams[i].solver,'penalty':ObjectsParams[i].penalty})
+              ArrayCombined[i] = newObjectsParamsLR[i]
+            } else if (this.selAlgorithm === 'LDA') {
+              newObjectsParamsLDA.push({model: this.LDAModels + i,'# performance (%) #': McLDA[i],'shrinkage':ObjectsParams[i].shrinkage,'solver':ObjectsParams[i].solver})
+              ArrayCombined[i] = newObjectsParamsLDA[i]
+            } else if (this.selAlgorithm === 'QDA') {
+              newObjectsParamsQDA.push({model: this.QDAModels + i,'# performance (%) #': McQDA[i],'reg_param':ObjectsParams[i].reg_param,'tol':ObjectsParams[i].tol})
+              ArrayCombined[i] = newObjectsParamsQDA[i]
+            } else if (this.selAlgorithm === 'RF') {
+              newObjectsParamsRF.push({model: this.RFModels + i,'# performance (%) #': McRF[i],'n_estimators':ObjectsParams[i].n_estimators,'criterion':ObjectsParams[i].criterion})
+              ArrayCombined[i] = newObjectsParamsRF[i]
+            } else if (this.selAlgorithm === 'ExtraT') {
+              newObjectsParamsExtraT.push({model: this.ExtraTModels + i,'# performance (%) #': McExtraT[i],'n_estimators':ObjectsParams[i].n_estimators,'criterion':ObjectsParams[i].criterion})
+              ArrayCombined[i] = newObjectsParamsExtraT[i]
+            } else if (this.selAlgorithm === 'AdaB') {
+              newObjectsParamsAdaB.push({model: this.AdaBModels + i,'# performance (%) #': McAdaB[i],'n_estimators':ObjectsParams[i].n_estimators,'learning_rate':ObjectsParams[i].learning_rate,'algorithm':ObjectsParams[i].algorithm})
+              ArrayCombined[i] = newObjectsParamsAdaB[i]
+            } else {
+              newObjectsParamsGradB.push({model: this.GradBModels + i,'# performance (%) #': McGradB[i],'n_estimators':ObjectsParams[i].n_estimators,'criterion':ObjectsParams[i].criterion,'learning_rate':ObjectsParams[i].learning_rate})
+              ArrayCombined[i] = newObjectsParamsGradB[i]
+            }
           } else {
-            newObjectsParamsGradB.push({model: this.GradBModels + i,'# performance (%) #': McGradB[i],'n_estimators':ObjectsParams[i].n_estimators,'criterion':ObjectsParams[i].criterion,'learning_rate':ObjectsParams[i].learning_rate})
-            ArrayCombined[i] = newObjectsParamsGradB[i]
+            if (this.selAlgorithm === 'KNN') {
+              newObjectsParamsΚΝΝ.push({model: i,'# performance (%) #': this.listClassPerf[0][i],'n_neighbors':ObjectsParams[i].n_neighbors,'metric':ObjectsParams[i].metric,'algorithm':ObjectsParams[i].algorithm,'weights':ObjectsParams[i].weights})
+              ArrayCombined[i] = newObjectsParamsΚΝΝ[i]
+            } else if (this.selAlgorithm === 'SVC') {
+              newObjectsParamsSVC.push({model: this.SVCModels + i,'# performance (%) #': this.listClassPerf[1][i],'C':ObjectsParams[i].C,'kernel':ObjectsParams[i].kernel})
+              ArrayCombined[i] = newObjectsParamsSVC[i]
+            } else if (this.selAlgorithm === 'GausNB') {
+              newObjectsParamsGausNB.push({model: this.GausNBModels + i,'# performance (%) #': this.listClassPerf[2][i],'var_smoothing':ObjectsParams[i].var_smoothing})
+              ArrayCombined[i] = newObjectsParamsGausNB[i]
+            } else if (this.selAlgorithm === 'MLP') {
+              newObjectsParamsMLP.push({model: this.MLPModels + i,'# performance (%) #': this.listClassPerf[3][i],'alpha':ObjectsParams[i].alpha,'tol':ObjectsParams[i].tol,'activation':ObjectsParams[i].activation,'max_iter':ObjectsParams[i].max_iter,'solver':ObjectsParams[i].solver})
+              ArrayCombined[i] = newObjectsParamsMLP[i]
+            } else if (this.selAlgorithm === 'LR') {
+              newObjectsParamsLR.push({model: this.LRModels + i,'# performance (%) #': this.listClassPerf[4][i],'C':ObjectsParams[i].C,'max_iter':ObjectsParams[i].max_iter,'solver':ObjectsParams[i].solver,'penalty':ObjectsParams[i].penalty})
+              ArrayCombined[i] = newObjectsParamsLR[i]
+            } else if (this.selAlgorithm === 'LDA') {
+              newObjectsParamsLDA.push({model: this.LDAModels + i,'# performance (%) #': this.listClassPerf[5][i],'shrinkage':ObjectsParams[i].shrinkage,'solver':ObjectsParams[i].solver})
+              ArrayCombined[i] = newObjectsParamsLDA[i]
+            } else if (this.selAlgorithm === 'QDA') {
+              newObjectsParamsQDA.push({model: this.QDAModels + i,'# performance (%) #': this.listClassPerf[6][i],'reg_param':ObjectsParams[i].reg_param,'tol':ObjectsParams[i].tol})
+              ArrayCombined[i] = newObjectsParamsQDA[i]
+            } else if (this.selAlgorithm === 'RF') {
+              newObjectsParamsRF.push({model: this.RFModels + i,'# performance (%) #': this.listClassPerf[7][i],'n_estimators':ObjectsParams[i].n_estimators,'criterion':ObjectsParams[i].criterion})
+              ArrayCombined[i] = newObjectsParamsRF[i]
+            } else if (this.selAlgorithm === 'ExtraT') {
+              newObjectsParamsExtraT.push({model: this.ExtraTModels + i,'# performance (%) #': this.listClassPerf[8][i],'n_estimators':ObjectsParams[i].n_estimators,'criterion':ObjectsParams[i].criterion})
+              ArrayCombined[i] = newObjectsParamsExtraT[i]
+            } else if (this.selAlgorithm === 'AdaB') {
+              newObjectsParamsAdaB.push({model: this.AdaBModels + i,'# performance (%) #': this.listClassPerf[9][i],'n_estimators':ObjectsParams[i].n_estimators,'learning_rate':ObjectsParams[i].learning_rate,'algorithm':ObjectsParams[i].algorithm})
+              ArrayCombined[i] = newObjectsParamsAdaB[i]
+            } else {
+              newObjectsParamsGradB.push({model: this.GradBModels + i,'# performance (%) #': this.listClassPerf[10][i],'n_estimators':ObjectsParams[i].n_estimators,'criterion':ObjectsParams[i].criterion,'learning_rate':ObjectsParams[i].learning_rate})
+              ArrayCombined[i] = newObjectsParamsGradB[i]
+            }
           }
         }
         EventBus.$emit('AllAlModels', ArrayCombined.length)
         this.pc = ParCoords()("#PCP")
             .data(ArrayCombined)
             .color(colorGiv)
+            .margin({
+              top: 25,
+              left: 25,
+              right: 25,
+              bottom: 25
+            })
             .hideAxis(['model'])
             .bundlingStrength(0) // set bundling strength
             .smoothness(0)
@@ -334,6 +378,9 @@ export default {
 
     EventBus.$on('CallFactorsView', data => { this.factors = data })
     EventBus.$on('CallFactorsView', this.PCPView)
+
+    EventBus.$on('boxplotSet', data => { this.listClassPerf = data })
+    EventBus.$on('boxplotCall', data => { this.keyAllOrClass = data })
 
     // reset view
     EventBus.$on('resetViews', this.reset)
