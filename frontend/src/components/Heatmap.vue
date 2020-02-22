@@ -1,5 +1,8 @@
 <template>
-  <div id="Heatmap"></div>
+  <div>
+    <div id="Heatmap"></div>
+    <div id="LegendHeat"></div>
+  </div>
 </template>
 
 <script>
@@ -120,8 +123,11 @@ export default {
               else if (this.Toggles[0] == 0 && this.Toggles[1] == 0 && this.Toggles[2] == 1) {
                 values[j] = FeaturesAccuracy[j][i]*100
               } else {
-                alert('Please, keep at least one metric active') // Fix this!
-                values[j] = ((((featureUni[i].Score-minUni)/(maxUni-minUni))*100)+(PermImpEli[j][i]*100+(FeaturesAccuracy[j][i]*100)))/3
+                alert('Please, keep at least one toggle active! The states of the toggles are being reset.') // Fix this!
+                this.Toggles[0] = 1
+                this.Toggles[1] = 1
+                this.Toggles[2] = 1
+                EventBus.$emit('resetToggles')
               }
               data.push(values[j]/100)
           }
@@ -162,28 +168,20 @@ export default {
         .append("div")
         .style("position", "absolute")
         .style("visibility", "hidden");
-
-    //==================================================
-    // http://bl.ocks.org/mbostock/3680958
-    /* function zoom() {
-      console.log(d3.event.translate)
-      console.log(d3.event.scale)
-      svg.attr("transform", "translate(" + d3.event.translate + ")scale(" + d3.event.scale + ")");
-    }*/
-
     // define the zoomListener which calls the zoom function on the "zoom" event constrained within the scaleExtents
     const zoom = d3.zoom()
                         .scaleExtent([0.1, 3]) //zoom limit
                         .on('zoom', () => {
                             svg.attr('transform', d3.event.transform) // updated for d3 v4
                         })
+
     //==================================================
     var viewerWidth = this.responsiveWidthHeight[0]*6.5
-    var viewerHeight = this.responsiveWidthHeight[1]*1.1
-    var viewerPosTop = 125;
-    var viewerPosLeft = 100;
+    var viewerHeight = this.responsiveWidthHeight[1]*1.46
+    var viewerPosTop = viewerHeight * 0.1;
+    var viewerPosLeft = viewerWidth*0.1;
 
-    var legendElementWidth = cellSize * 2;
+    var legendElementWidth = cellSize * 3;
 
     // http://bl.ocks.org/mbostock/5577023
     var colors = colorbrewer.RdYlGn[this.classesNumber];
@@ -386,8 +384,11 @@ export default {
             }
             EventBus.$emit('SendSelectedFeaturesEvent', finalresults)
           });
+      var svgLeg = d3.select("#LegendHeat").append("svg")
+        .attr("width", viewerWidth/2)
+        .attr("height", viewerHeight*0.13)
 
-      var legend = svg.append("g")
+      var legend = svgLeg.append('g')
           .attr("class", "legend")
           .attr("transform", "translate(0,0)")
           .selectAll(".legendElement")

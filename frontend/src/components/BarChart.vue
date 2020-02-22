@@ -435,7 +435,7 @@ export default {
             l: 50,
             r: 0,
             b: 30,
-            t: 30,
+            t: 40,
             pad: 0
             },
         legend: {orientation: 'h', xanchor: 'center', x: 0.5},
@@ -462,7 +462,7 @@ export default {
 
         for (var i = 0; i < target_names.length; i++) {
           traces[i] = {
-            x: ['KNN','SVC','GausNB','MLP','LR','LDA','QDA','RF','ExtraT','AdaB','GradB'],
+            x:  ['K-Nearest Neighbors','C-Support Vector Classifier','Gaussian Naive Bayes','Multilayer Perceptron','Logistic Regression','Linear Discrim Analysis','Quadratic Discrim Analysis','Random Forest','Extra Trees','AdaBoost','Gradient Boosting'],
             y: sumList[i],
             name: target_names[i],
             opacity: 0.5,
@@ -474,7 +474,7 @@ export default {
             };
           tracesSel[i] = {
               type: 'bar',
-              x: ['KNN','SVC','GausNB','MLP','LR','LDA','QDA','RF','ExtraT','AdaB','GradB'],
+              x: ['K-Nearest Neighbors','C-Support Vector Classifier','Gaussian Naive Bayes','Multilayer Perceptron','Logistic Regression','Linear Discrim Analysis','Quadratic Discrim Analysis','Random Forest','Extra Trees','AdaBoost','Gradient Boosting'],
               y: sumLineList[i],
               name: target_names[i]+' (Sel)',
               xaxis: 'x2',
@@ -491,14 +491,12 @@ export default {
           var barc = document.getElementById('barChart');
 
           Plotly.newPlot(barc, data, layout)
-          var X, Y;
 
           barc.on('plotly_click', (eventData) => {
             var tName 
             eventData.points.forEach((e) => {
               tName = e.data.name.replace(/ *\([^)]*\) */g, "")
             });
-
             EventBus.$emit('clearPCP')
             EventBus.$emit('alternateFlagLock')
             EventBus.$emit('boxplotSet', [storeKNN[tName],storeSVC[tName],storeGausNB[tName],storeMLP[tName],storeLR[tName],storeLDA[tName],storeQDA[tName],storeRF[tName],storeExtraT[tName],storeAdaB[tName],storeGradB[tName]])

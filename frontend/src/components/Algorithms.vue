@@ -261,92 +261,92 @@ export default {
       this.parameters = []
       if (this.keyAllOrClass) {
         for (var j = 0; j < Object.keys(PerformAlgorKNN['params']).length; j++) {
-          this.algorithmKNN.push({'# Performance (%) #': McKNN[j],Algorithm:'KNN',Model:'Model ' + AlgorKNNIDs[j] + '; Parameters '+JSON.stringify(Object.values(PerformAlgorKNN['params'])[j])+'; # Performance (%) # ',ModelID:AlgorKNNIDs[j]})
+          this.algorithmKNN.push({'# Performance (%) #': McKNN[j],Algorithm:'K-Nearest Neighbors',Model:'Model ' + AlgorKNNIDs[j] + '; Parameters '+JSON.stringify(Object.values(PerformAlgorKNN['params'])[j])+'; # Performance (%) # ',ModelID:AlgorKNNIDs[j]})
           this.parameters.push(JSON.stringify(Object.values(PerformAlgorKNN['params'])[j]))
         }
         for (let j = 0; j < Object.keys(PerformAlgorSVC['params']).length; j++) {
-          this.algorithmSVC.push({'# Performance (%) #': McSVC[j],Algorithm:'SVC',Model:'Model ' + AlgorSVCIDs[j] + '; Parameters '+JSON.stringify(Object.values(PerformAlgorSVC['params'])[j])+'; # Performance (%) # ',ModelID:AlgorSVCIDs[j]})
+          this.algorithmSVC.push({'# Performance (%) #': McSVC[j],Algorithm:'C-Support Vector Classification',Model:'Model ' + AlgorSVCIDs[j] + '; Parameters '+JSON.stringify(Object.values(PerformAlgorSVC['params'])[j])+'; # Performance (%) # ',ModelID:AlgorSVCIDs[j]})
           this.parameters.push(JSON.stringify(Object.values(PerformAlgorSVC['params'])[j]))
         }
         for (let j = 0; j < Object.keys(PerformAlgorGausNB['params']).length; j++) {
-          this.algorithmGausNB.push({'# Performance (%) #': McGausNB[j],Algorithm:'GausNB',Model:'Model ' + AlgorGausNBIDs[j] + '; Parameters '+JSON.stringify(Object.values(PerformAlgorGausNB['params'])[j])+'; # Performance (%) # ',ModelID:AlgorGausNBIDs[j]})
+          this.algorithmGausNB.push({'# Performance (%) #': McGausNB[j],Algorithm:'Gaussian Naive Bayes',Model:'Model ' + AlgorGausNBIDs[j] + '; Parameters '+JSON.stringify(Object.values(PerformAlgorGausNB['params'])[j])+'; # Performance (%) # ',ModelID:AlgorGausNBIDs[j]})
           this.parameters.push(JSON.stringify(Object.values(PerformAlgorGausNB['params'])[j]))
         }
         for (let j = 0; j < Object.keys(PerformAlgorMLP['params']).length; j++) {
-          this.algorithmMLP.push({'# Performance (%) #': McMLP[j],Algorithm:'MLP',Model:'Model ' + AlgorMLPIDs[j] + '; Parameters '+JSON.stringify(Object.values(PerformAlgorMLP['params'])[j])+'; # Performance (%) # ',ModelID:AlgorMLPIDs[j]})
+          this.algorithmMLP.push({'# Performance (%) #': McMLP[j],Algorithm:'Multilayer Perceptron',Model:'Model ' + AlgorMLPIDs[j] + '; Parameters '+JSON.stringify(Object.values(PerformAlgorMLP['params'])[j])+'; # Performance (%) # ',ModelID:AlgorMLPIDs[j]})
           this.parameters.push(JSON.stringify(Object.values(PerformAlgorMLP['params'])[j]))
         }
         for (let j = 0; j < Object.keys(PerformAlgorLR['params']).length; j++) {
-          this.algorithmLR.push({'# Performance (%) #': McLR[j],Algorithm:'LR',Model:'Model ' + AlgorLRIDs[j] + '; Parameters '+JSON.stringify(Object.values(PerformAlgorLR['params'])[j])+'; # Performance (%) # ',ModelID:AlgorLRIDs[j]})
+          this.algorithmLR.push({'# Performance (%) #': McLR[j],Algorithm:'Logistic Regression',Model:'Model ' + AlgorLRIDs[j] + '; Parameters '+JSON.stringify(Object.values(PerformAlgorLR['params'])[j])+'; # Performance (%) # ',ModelID:AlgorLRIDs[j]})
           this.parameters.push(JSON.stringify(Object.values(PerformAlgorLR['params'])[j]))
         }
         for (let j = 0; j < Object.keys(PerformAlgorLDA['params']).length; j++) {
-          this.algorithmLDA.push({'# Performance (%) #': McLDA[j],Algorithm:'LDA',Model:'Model ' + AlgorLDAIDs[j] + '; Parameters '+JSON.stringify(Object.values(PerformAlgorLDA['params'])[j])+'; # Performance (%) # ',ModelID:AlgorLDAIDs[j]})
+          this.algorithmLDA.push({'# Performance (%) #': McLDA[j],Algorithm:'Linear Discrim Analysis',Model:'Model ' + AlgorLDAIDs[j] + '; Parameters '+JSON.stringify(Object.values(PerformAlgorLDA['params'])[j])+'; # Performance (%) # ',ModelID:AlgorLDAIDs[j]})
           this.parameters.push(JSON.stringify(Object.values(PerformAlgorLDA['params'])[j]))
         }
         for (let j = 0; j < Object.keys(PerformAlgorQDA['params']).length; j++) {
-          this.algorithmQDA.push({'# Performance (%) #': McQDA[j],Algorithm:'QDA',Model:'Model ' + AlgorQDAIDs[j] + '; Parameters '+JSON.stringify(Object.values(PerformAlgorQDA['params'])[j])+'; # Performance (%) # ',ModelID:AlgorQDAIDs[j]})
+          this.algorithmQDA.push({'# Performance (%) #': McQDA[j],Algorithm:'Quadratic Discrim Analysis',Model:'Model ' + AlgorQDAIDs[j] + '; Parameters '+JSON.stringify(Object.values(PerformAlgorQDA['params'])[j])+'; # Performance (%) # ',ModelID:AlgorQDAIDs[j]})
           this.parameters.push(JSON.stringify(Object.values(PerformAlgorQDA['params'])[j]))
         }
         for (let j = 0; j < Object.keys(PerformAlgorRF['params']).length; j++) {
-          this.algorithmRF.push({'# Performance (%) #': McRF[j],Algorithm:'RF',Model:'Model ' + AlgorRFIDs[j] + '; Parameters '+JSON.stringify(Object.values(PerformAlgorRF['params'])[j])+'; # Performance (%) # ',ModelID:AlgorRFIDs[j]})
+          this.algorithmRF.push({'# Performance (%) #': McRF[j],Algorithm:'Random Forest',Model:'Model ' + AlgorRFIDs[j] + '; Parameters '+JSON.stringify(Object.values(PerformAlgorRF['params'])[j])+'; # Performance (%) # ',ModelID:AlgorRFIDs[j]})
           this.parameters.push(JSON.stringify(Object.values(PerformAlgorRF['params'])[j]))
         }
         for (let j = 0; j < Object.keys(PerformAlgorExtraT['params']).length; j++) {
-          this.algorithmExtraT.push({'# Performance (%) #': McExtraT[j],Algorithm:'ExtraT',Model:'Model ' + AlgorExtraTIDs[j] + '; Parameters '+JSON.stringify(Object.values(PerformAlgorExtraT['params'])[j])+'; # Performance (%) # ',ModelID:AlgorExtraTIDs[j]})
+          this.algorithmExtraT.push({'# Performance (%) #': McExtraT[j],Algorithm:'Extra Trees',Model:'Model ' + AlgorExtraTIDs[j] + '; Parameters '+JSON.stringify(Object.values(PerformAlgorExtraT['params'])[j])+'; # Performance (%) # ',ModelID:AlgorExtraTIDs[j]})
           this.parameters.push(JSON.stringify(Object.values(PerformAlgorExtraT['params'])[j]))
         }
         for (let j = 0; j < Object.keys(PerformAlgorAdaB['params']).length; j++) {
-          this.algorithmAdaB.push({'# Performance (%) #': McAdaB[j],Algorithm:'AdaB',Model:'Model ' + AlgorAdaBIDs[j] + '; Parameters '+JSON.stringify(Object.values(PerformAlgorAdaB['params'])[j])+'; # Performance (%) # ',ModelID:AlgorAdaBIDs[j]})
+          this.algorithmAdaB.push({'# Performance (%) #': McAdaB[j],Algorithm:'AdaBoost',Model:'Model ' + AlgorAdaBIDs[j] + '; Parameters '+JSON.stringify(Object.values(PerformAlgorAdaB['params'])[j])+'; # Performance (%) # ',ModelID:AlgorAdaBIDs[j]})
           this.parameters.push(JSON.stringify(Object.values(PerformAlgorAdaB['params'])[j]))
         }
         for (let j = 0; j < Object.keys(PerformAlgorGradB['params']).length; j++) {
-          this.algorithmGradB.push({'# Performance (%) #': McGradB[j],Algorithm:'GradB',Model:'Model ' + AlgorGradBIDs[j] + '; Parameters '+JSON.stringify(Object.values(PerformAlgorGradB['params'])[j])+'; # Performance (%) # ',ModelID:AlgorGradBIDs[j]})
+          this.algorithmGradB.push({'# Performance (%) #': McGradB[j],Algorithm:'Gradient Boosting',Model:'Model ' + AlgorGradBIDs[j] + '; Parameters '+JSON.stringify(Object.values(PerformAlgorGradB['params'])[j])+'; # Performance (%) # ',ModelID:AlgorGradBIDs[j]})
           this.parameters.push(JSON.stringify(Object.values(PerformAlgorGradB['params'])[j]))
         }
       } else {
         for (var j = 0; j < Object.keys(PerformAlgorKNN['params']).length; j++) {
-          this.algorithmKNN.push({'# Performance (%) #': this.listClassPerf[0][j],Algorithm:'KNN',Model:'Model ' + AlgorKNNIDs[j] + '; Parameters '+JSON.stringify(Object.values(PerformAlgorKNN['params'])[j])+'; # Performance (%) # ',ModelID:AlgorKNNIDs[j]})
+          this.algorithmKNN.push({'# Performance (%) #': this.listClassPerf[0][j],Algorithm:'K-Nearest Neighbors',Model:'Model ' + AlgorKNNIDs[j] + '; Parameters '+JSON.stringify(Object.values(PerformAlgorKNN['params'])[j])+'; # Performance (%) # ',ModelID:AlgorKNNIDs[j]})
           this.parameters.push(JSON.stringify(Object.values(PerformAlgorKNN['params'])[j]))
         }
         for (let j = 0; j < Object.keys(PerformAlgorSVC['params']).length; j++) {
-          this.algorithmSVC.push({'# Performance (%) #': this.listClassPerf[1][j],Algorithm:'SVC',Model:'Model ' + AlgorSVCIDs[j] + '; Parameters '+JSON.stringify(Object.values(PerformAlgorSVC['params'])[j])+'; # Performance (%) # ',ModelID:AlgorSVCIDs[j]})
+          this.algorithmSVC.push({'# Performance (%) #': this.listClassPerf[1][j],Algorithm:'C-Support Vector Classification',Model:'Model ' + AlgorSVCIDs[j] + '; Parameters '+JSON.stringify(Object.values(PerformAlgorSVC['params'])[j])+'; # Performance (%) # ',ModelID:AlgorSVCIDs[j]})
           this.parameters.push(JSON.stringify(Object.values(PerformAlgorSVC['params'])[j]))
         }
         for (let j = 0; j < Object.keys(PerformAlgorGausNB['params']).length; j++) {
-          this.algorithmGausNB.push({'# Performance (%) #': this.listClassPerf[2][j],Algorithm:'GausNB',Model:'Model ' + AlgorGausNBIDs[j] + '; Parameters '+JSON.stringify(Object.values(PerformAlgorGausNB['params'])[j])+'; # Performance (%) # ',ModelID:AlgorGausNBIDs[j]})
+          this.algorithmGausNB.push({'# Performance (%) #': this.listClassPerf[2][j],Algorithm:'Gaussian Naive Bayes',Model:'Model ' + AlgorGausNBIDs[j] + '; Parameters '+JSON.stringify(Object.values(PerformAlgorGausNB['params'])[j])+'; # Performance (%) # ',ModelID:AlgorGausNBIDs[j]})
           this.parameters.push(JSON.stringify(Object.values(PerformAlgorGausNB['params'])[j]))
         }
         for (let j = 0; j < Object.keys(PerformAlgorMLP['params']).length; j++) {
-          this.algorithmMLP.push({'# Performance (%) #': this.listClassPerf[3][j],Algorithm:'MLP',Model:'Model ' + AlgorMLPIDs[j] + '; Parameters '+JSON.stringify(Object.values(PerformAlgorMLP['params'])[j])+'; # Performance (%) # ',ModelID:AlgorMLPIDs[j]})
+          this.algorithmMLP.push({'# Performance (%) #': this.listClassPerf[3][j],Algorithm:'Multilayer Perceptron',Model:'Model ' + AlgorMLPIDs[j] + '; Parameters '+JSON.stringify(Object.values(PerformAlgorMLP['params'])[j])+'; # Performance (%) # ',ModelID:AlgorMLPIDs[j]})
           this.parameters.push(JSON.stringify(Object.values(PerformAlgorMLP['params'])[j]))
         }
         for (let j = 0; j < Object.keys(PerformAlgorLR['params']).length; j++) {
-          this.algorithmLR.push({'# Performance (%) #': this.listClassPerf[4][j],Algorithm:'LR',Model:'Model ' + AlgorLRIDs[j] + '; Parameters '+JSON.stringify(Object.values(PerformAlgorLR['params'])[j])+'; # Performance (%) # ',ModelID:AlgorLRIDs[j]})
+          this.algorithmLR.push({'# Performance (%) #': this.listClassPerf[4][j],Algorithm:'Logistic Regression',Model:'Model ' + AlgorLRIDs[j] + '; Parameters '+JSON.stringify(Object.values(PerformAlgorLR['params'])[j])+'; # Performance (%) # ',ModelID:AlgorLRIDs[j]})
           this.parameters.push(JSON.stringify(Object.values(PerformAlgorLR['params'])[j]))
         }
         for (let j = 0; j < Object.keys(PerformAlgorLDA['params']).length; j++) {
-          this.algorithmLDA.push({'# Performance (%) #': this.listClassPerf[5][j],Algorithm:'LDA',Model:'Model ' + AlgorLDAIDs[j] + '; Parameters '+JSON.stringify(Object.values(PerformAlgorLDA['params'])[j])+'; # Performance (%) # ',ModelID:AlgorLDAIDs[j]})
+          this.algorithmLDA.push({'# Performance (%) #': this.listClassPerf[5][j],Algorithm:'Linear Discrim Analysis',Model:'Model ' + AlgorLDAIDs[j] + '; Parameters '+JSON.stringify(Object.values(PerformAlgorLDA['params'])[j])+'; # Performance (%) # ',ModelID:AlgorLDAIDs[j]})
           this.parameters.push(JSON.stringify(Object.values(PerformAlgorLDA['params'])[j]))
         }
         for (let j = 0; j < Object.keys(PerformAlgorQDA['params']).length; j++) {
-          this.algorithmQDA.push({'# Performance (%) #': this.listClassPerf[6][j],Algorithm:'QDA',Model:'Model ' + AlgorQDAIDs[j] + '; Parameters '+JSON.stringify(Object.values(PerformAlgorQDA['params'])[j])+'; # Performance (%) # ',ModelID:AlgorQDAIDs[j]})
+          this.algorithmQDA.push({'# Performance (%) #': this.listClassPerf[6][j],Algorithm:'Quadratic Discrim Analysis',Model:'Model ' + AlgorQDAIDs[j] + '; Parameters '+JSON.stringify(Object.values(PerformAlgorQDA['params'])[j])+'; # Performance (%) # ',ModelID:AlgorQDAIDs[j]})
           this.parameters.push(JSON.stringify(Object.values(PerformAlgorQDA['params'])[j]))
         }
         for (let j = 0; j < Object.keys(PerformAlgorRF['params']).length; j++) {
-          this.algorithmRF.push({'# Performance (%) #': this.listClassPerf[7][j],Algorithm:'RF',Model:'Model ' + AlgorRFIDs[j] + '; Parameters '+JSON.stringify(Object.values(PerformAlgorRF['params'])[j])+'; # Performance (%) # ',ModelID:AlgorRFIDs[j]})
+          this.algorithmRF.push({'# Performance (%) #': this.listClassPerf[7][j],Algorithm:'Random Forest',Model:'Model ' + AlgorRFIDs[j] + '; Parameters '+JSON.stringify(Object.values(PerformAlgorRF['params'])[j])+'; # Performance (%) # ',ModelID:AlgorRFIDs[j]})
           this.parameters.push(JSON.stringify(Object.values(PerformAlgorRF['params'])[j]))
         }
         for (let j = 0; j < Object.keys(PerformAlgorExtraT['params']).length; j++) {
-          this.algorithmExtraT.push({'# Performance (%) #': this.listClassPerf[8][j],Algorithm:'ExtraT',Model:'Model ' + AlgorExtraTIDs[j] + '; Parameters '+JSON.stringify(Object.values(PerformAlgorExtraT['params'])[j])+'; # Performance (%) # ',ModelID:AlgorExtraTIDs[j]})
+          this.algorithmExtraT.push({'# Performance (%) #': this.listClassPerf[8][j],Algorithm:'Extra Trees',Model:'Model ' + AlgorExtraTIDs[j] + '; Parameters '+JSON.stringify(Object.values(PerformAlgorExtraT['params'])[j])+'; # Performance (%) # ',ModelID:AlgorExtraTIDs[j]})
           this.parameters.push(JSON.stringify(Object.values(PerformAlgorExtraT['params'])[j]))
         }
         for (let j = 0; j < Object.keys(PerformAlgorAdaB['params']).length; j++) {
-          this.algorithmAdaB.push({'# Performance (%) #': this.listClassPerf[9][j],Algorithm:'AdaB',Model:'Model ' + AlgorAdaBIDs[j] + '; Parameters '+JSON.stringify(Object.values(PerformAlgorAdaB['params'])[j])+'; # Performance (%) # ',ModelID:AlgorAdaBIDs[j]})
+          this.algorithmAdaB.push({'# Performance (%) #': this.listClassPerf[9][j],Algorithm:'AdaBoost',Model:'Model ' + AlgorAdaBIDs[j] + '; Parameters '+JSON.stringify(Object.values(PerformAlgorAdaB['params'])[j])+'; # Performance (%) # ',ModelID:AlgorAdaBIDs[j]})
           this.parameters.push(JSON.stringify(Object.values(PerformAlgorAdaB['params'])[j]))
         }
         for (let j = 0; j < Object.keys(PerformAlgorGradB['params']).length; j++) {
-          this.algorithmGradB.push({'# Performance (%) #': this.listClassPerf[10][j],Algorithm:'GradB',Model:'Model ' + AlgorGradBIDs[j] + '; Parameters '+JSON.stringify(Object.values(PerformAlgorGradB['params'])[j])+'; # Performance (%) # ',ModelID:AlgorGradBIDs[j]})
+          this.algorithmGradB.push({'# Performance (%) #': this.listClassPerf[10][j],Algorithm:'Gradient Boosting',Model:'Model ' + AlgorGradBIDs[j] + '; Parameters '+JSON.stringify(Object.values(PerformAlgorGradB['params'])[j])+'; # Performance (%) # ',ModelID:AlgorGradBIDs[j]})
           this.parameters.push(JSON.stringify(Object.values(PerformAlgorGradB['params'])[j]))
         }
       }
@@ -395,7 +395,7 @@ export default {
       var flagEmptyGradB = 0
 
       el[0].onclick = function() {
-        var allPoints = document.getElementsByClassName('d3-exploding-boxplot point KNN')
+        var allPoints = document.getElementsByClassName('d3-exploding-boxplot point K-Nearest Neighbors')
         for (let i = 0; i < allPoints.length; i++) {
           allPoints[i].style.fill = previousColor[0]
           allPoints[i].style.opacity = '1.0'
@@ -413,7 +413,7 @@ export default {
         EventBus.$emit('updateBarChart', [])
       }
       el[1].onclick = function() {
-        var allPoints = document.getElementsByClassName('d3-exploding-boxplot point SVC')
+        var allPoints = document.getElementsByClassName('d3-exploding-boxplot point C-Support Vector Classification')
         for (let i = 0; i < allPoints.length; i++) {
           allPoints[i].style.fill = previousColor[1]
           allPoints[i].style.opacity = '1.0'
@@ -431,7 +431,7 @@ export default {
         EventBus.$emit('updateBarChart', [])
       }
       el[2].onclick = function() {
-        var allPoints = document.getElementsByClassName('d3-exploding-boxplot point GausNB')
+        var allPoints = document.getElementsByClassName('d3-exploding-boxplot point Gaussian Naive Bayes')
         for (let i = 0; i < allPoints.length; i++) {
           allPoints[i].style.fill = previousColor[2]
           allPoints[i].style.opacity = '1.0'
@@ -449,7 +449,7 @@ export default {
         EventBus.$emit('updateBarChart', [])
       }
       el[3].onclick = function() {
-        var allPoints = document.getElementsByClassName('d3-exploding-boxplot point MLP')
+        var allPoints = document.getElementsByClassName('d3-exploding-boxplot point Multilayer Perceptron')
         for (let i = 0; i < allPoints.length; i++) {
           allPoints[i].style.fill = previousColor[3]
           allPoints[i].style.opacity = '1.0'
@@ -467,7 +467,7 @@ export default {
         EventBus.$emit('updateBarChart', [])
       }
       el[4].onclick = function() {
-        var allPoints = document.getElementsByClassName('d3-exploding-boxplot point LR')
+        var allPoints = document.getElementsByClassName('d3-exploding-boxplot point Logistic Regression')
         for (let i = 0; i < allPoints.length; i++) {
           allPoints[i].style.fill = previousColor[4]
           allPoints[i].style.opacity = '1.0'
@@ -485,7 +485,7 @@ export default {
         EventBus.$emit('updateBarChart', [])
       }
       el[5].onclick = function() {
-        var allPoints = document.getElementsByClassName('d3-exploding-boxplot point LDA')
+        var allPoints = document.getElementsByClassName('d3-exploding-boxplot point Linear Discrim Analysis')
         for (let i = 0; i < allPoints.length; i++) {
           allPoints[i].style.fill = previousColor[5]
           allPoints[i].style.opacity = '1.0'
@@ -503,7 +503,7 @@ export default {
         EventBus.$emit('updateBarChart', [])
       }
       el[6].onclick = function() {
-        var allPoints = document.getElementsByClassName('d3-exploding-boxplot point QDA')
+        var allPoints = document.getElementsByClassName('d3-exploding-boxplot point Quadratic Discrim Analysis')
         for (let i = 0; i < allPoints.length; i++) {
           allPoints[i].style.fill = previousColor[6]
           allPoints[i].style.opacity = '1.0'
@@ -521,7 +521,7 @@ export default {
         EventBus.$emit('updateBarChart', [])
       }
       el[7].onclick = function() {
-        var allPoints = document.getElementsByClassName('d3-exploding-boxplot point RF')
+        var allPoints = document.getElementsByClassName('d3-exploding-boxplot point Random Forest')
         for (let i = 0; i < allPoints.length; i++) {
           allPoints[i].style.fill = previousColor[7]
           allPoints[i].style.opacity = '1.0'
@@ -539,7 +539,7 @@ export default {
         EventBus.$emit('updateBarChart', [])
       }
       el[8].onclick = function() {
-        var allPoints = document.getElementsByClassName('d3-exploding-boxplot point ExtraT')
+        var allPoints = document.getElementsByClassName('d3-exploding-boxplot point Extra Trees')
         for (let i = 0; i < allPoints.length; i++) {
           allPoints[i].style.fill = previousColor[8]
           allPoints[i].style.opacity = '1.0'
@@ -557,7 +557,7 @@ export default {
         EventBus.$emit('updateBarChart', [])
       }
       el[9].onclick = function() {
-        var allPoints = document.getElementsByClassName('d3-exploding-boxplot point AdaB')
+        var allPoints = document.getElementsByClassName('d3-exploding-boxplot point AdaBoost')
         for (let i = 0; i < allPoints.length; i++) {
           allPoints[i].style.fill = previousColor[9]
           allPoints[i].style.opacity = '1.0'
@@ -575,7 +575,7 @@ export default {
         EventBus.$emit('updateBarChart', [])
       }
       el[10].onclick = function() {
-        var allPoints = document.getElementsByClassName('d3-exploding-boxplot point GradB')
+        var allPoints = document.getElementsByClassName('d3-exploding-boxplot point Gradient Boosting')
         for (let i = 0; i < allPoints.length; i++) {
           allPoints[i].style.fill = previousColor[10]
           allPoints[i].style.opacity = '1.0'
@@ -627,37 +627,37 @@ export default {
       for (var j = 0; j < this.AllAlgorithms.length; j++) {
         algorithm = []
         if (this.AllAlgorithms[j] === 'KNN') {
-          var allPoints = document.getElementsByClassName('d3-exploding-boxplot point KNN')
+          var allPoints = document.getElementsByClassName('d3-exploding-boxplot point K-Nearest Neighbors')
           algorithm = this.algorithmKNN
         } else if (this.AllAlgorithms[j] === 'SVC') {
-          var allPoints = document.getElementsByClassName('d3-exploding-boxplot point SVC')
+          var allPoints = document.getElementsByClassName('d3-exploding-boxplot point C-Support Vector Classification')
           algorithm = this.algorithmSVC
         } else if (this.AllAlgorithms[j] === 'GausNB') {
-          var allPoints = document.getElementsByClassName('d3-exploding-boxplot point GausNB')
+          var allPoints = document.getElementsByClassName('d3-exploding-boxplot point Gaussian Naive Bayes')
           algorithm = this.algorithmGausNB
         } else if (this.AllAlgorithms[j] === 'MLP') {
-          var allPoints = document.getElementsByClassName('d3-exploding-boxplot point MLP')
+          var allPoints = document.getElementsByClassName('d3-exploding-boxplot point Multilayer Perceptron')
           algorithm = this.algorithmMLP
         } else if (this.AllAlgorithms[j] === 'LR') {
-          var allPoints = document.getElementsByClassName('d3-exploding-boxplot point LR')
+          var allPoints = document.getElementsByClassName('d3-exploding-boxplot point Logistic Regression')
           algorithm = this.algorithmLR
         } else if (this.AllAlgorithms[j] === 'LDA') {
-          var allPoints = document.getElementsByClassName('d3-exploding-boxplot point LDA')
+          var allPoints = document.getElementsByClassName('d3-exploding-boxplot point Linear Discrim Analysis')
           algorithm = this.algorithmLDA
         } else if (this.AllAlgorithms[j] === 'QDA') {
-          var allPoints = document.getElementsByClassName('d3-exploding-boxplot point QDA')
+          var allPoints = document.getElementsByClassName('d3-exploding-boxplot point Quadratic Discrim Analysis')
           algorithm = this.algorithmQDA
         } else if (this.AllAlgorithms[j] === 'RF') {
-          var allPoints = document.getElementsByClassName('d3-exploding-boxplot point RF')
+          var allPoints = document.getElementsByClassName('d3-exploding-boxplot point Random Forest')
           algorithm = this.algorithmRF
         } else if (this.AllAlgorithms[j] === 'ExtraT') {
-          var allPoints = document.getElementsByClassName('d3-exploding-boxplot point ExtraT')
+          var allPoints = document.getElementsByClassName('d3-exploding-boxplot point Extra Trees')
           algorithm = this.algorithmExtraT
         } else if (this.AllAlgorithms[j] === 'AdaB') {
-          var allPoints = document.getElementsByClassName('d3-exploding-boxplot point AdaB')
+          var allPoints = document.getElementsByClassName('d3-exploding-boxplot point AdaBoost')
           algorithm = this.algorithmAdaB
         } else {
-          var allPoints = document.getElementsByClassName('d3-exploding-boxplot point GradB')
+          var allPoints = document.getElementsByClassName('d3-exploding-boxplot point Gradient Boosting')
           algorithm = this.algorithmGradB
         }
         for (let k = 0; k < allPoints.length; k++) {
@@ -803,27 +803,27 @@ export default {
     },
     brushed () {
       if (this.selectedAlgorithm === 'KNN') {
-        var allPoints = document.getElementsByClassName('d3-exploding-boxplot point KNN')
+        var allPoints = document.getElementsByClassName('d3-exploding-boxplot point K-Nearest Neighbors')
       } else if (this.selectedAlgorithm === 'SVC') {
-        var allPoints = document.getElementsByClassName('d3-exploding-boxplot point SVC')
+        var allPoints = document.getElementsByClassName('d3-exploding-boxplot point C-Support Vector Classification')
       } else if (this.selectedAlgorithm === 'GausNB') {
-        var allPoints = document.getElementsByClassName('d3-exploding-boxplot point GausNB')
+        var allPoints = document.getElementsByClassName('d3-exploding-boxplot point Gaussian Naive Bayes')
       } else if (this.selectedAlgorithm === 'MLP') {
-        var allPoints = document.getElementsByClassName('d3-exploding-boxplot point MLP')
+        var allPoints = document.getElementsByClassName('d3-exploding-boxplot point Multilayer Perceptron')
       } else if (this.selectedAlgorithm === 'LR') {
-        var allPoints = document.getElementsByClassName('d3-exploding-boxplot point LR')
+        var allPoints = document.getElementsByClassName('d3-exploding-boxplot point Logistic Regression')
       } else if (this.selectedAlgorithm === 'LDA') {
-        var allPoints = document.getElementsByClassName('d3-exploding-boxplot point LDA')
+        var allPoints = document.getElementsByClassName('d3-exploding-boxplot point Linear Discrim Analysis')
       } else if (this.selectedAlgorithm === 'QDA') {
-        var allPoints = document.getElementsByClassName('d3-exploding-boxplot point QDA')
+        var allPoints = document.getElementsByClassName('d3-exploding-boxplot point Quadratic Discrim Analysis')
       } else if (this.selectedAlgorithm === 'RF') {
-        var allPoints = document.getElementsByClassName('d3-exploding-boxplot point RF')
+        var allPoints = document.getElementsByClassName('d3-exploding-boxplot point Random Forest')
       } else if (this.selectedAlgorithm === 'ExtraT') {
         var allPoints = document.getElementsByClassName('d3-exploding-boxplot point ExtraT')
       } else if (this.selectedAlgorithm === 'AdaB') {
-        var allPoints = document.getElementsByClassName('d3-exploding-boxplot point AdaB')
+        var allPoints = document.getElementsByClassName('d3-exploding-boxplot point Extra Trees')
       } else {
-        var allPoints = document.getElementsByClassName('d3-exploding-boxplot point GradB')
+        var allPoints = document.getElementsByClassName('d3-exploding-boxplot point Gradient Boosting')
       }
       const previousColor = ['#a6cee3','#1f78b4','#b2df8a','#33a02c','#fb9a99','#e31a1c','#fdbf6f','#ff7f00','#cab2d6','#6a3d9a','#b15928']
       var modelsActive = []
@@ -973,25 +973,25 @@ export default {
       for (let i = 0; i < allPoints.length; i++) {
         if (allPoints[i].style.fill != "rgb(211, 211, 211)") {
           activeModels.push(allPoints[i].__data__.Model)
-          if (allPoints[i].__data__.Algorithm === 'KNN') {
+          if (allPoints[i].__data__.Algorithm === 'K-Nearest Neighbors') {
             algorithmsSelected.push('KNN')
-          } else if (allPoints[i].__data__.Algorithm === 'SVC') {
+          } else if (allPoints[i].__data__.Algorithm === 'C-Support Vector Classification') {
             algorithmsSelected.push('SVC')
-          } else if (allPoints[i].__data__.Algorithm === 'GausNB') {
+          } else if (allPoints[i].__data__.Algorithm === 'Gaussian Naive Bayes') {
             algorithmsSelected.push('GausNB')
-          } else if (allPoints[i].__data__.Algorithm === 'MLP') {
+          } else if (allPoints[i].__data__.Algorithm === 'Multilayer Perceptron') {
             algorithmsSelected.push('MLP')
-          } else if (allPoints[i].__data__.Algorithm === 'LR') {
+          } else if (allPoints[i].__data__.Algorithm === 'Logistic Regression') {
             algorithmsSelected.push('LR')
-          } else if (allPoints[i].__data__.Algorithm === 'LDA') {
+          } else if (allPoints[i].__data__.Algorithm === 'Linear Discrim Analysis') {
             algorithmsSelected.push('LDA')
-          } else if (allPoints[i].__data__.Algorithm === 'QDA') {
+          } else if (allPoints[i].__data__.Algorithm === 'Quadratic Discrim Analysis') {
             algorithmsSelected.push('QDA')
-          } else if (allPoints[i].__data__.Algorithm === 'RF') {
+          } else if (allPoints[i].__data__.Algorithm === 'Random Forest') {
             algorithmsSelected.push('RF')
-          } else if (allPoints[i].__data__.Algorithm === 'ExtraT') {
+          } else if (allPoints[i].__data__.Algorithm === 'Extra Trees') {
             algorithmsSelected.push('ExtraT')
-          } else if (allPoints[i].__data__.Algorithm === 'AdaB') {
+          } else if (allPoints[i].__data__.Algorithm === 'AdaBoost') {
             algorithmsSelected.push('AdaB')
           } else {
             algorithmsSelected.push('GradB')
@@ -1017,25 +1017,25 @@ export default {
       for (let i = 0; i < allPoints.length; i++) {
         if (allPoints[i].style.fill != "rgb(211, 211, 211)") {
           activeModels.push(allPoints[i].__data__.Model)
-          if (allPoints[i].__data__.Algorithm === 'KNN') {
+          if (allPoints[i].__data__.Algorithm === 'K-Nearest Neighbors') {
             algorithmsSelected.push('KNN')
-          } else if (allPoints[i].__data__.Algorithm === 'SVC') {
+          } else if (allPoints[i].__data__.Algorithm === 'C-Support Vector Classification') {
             algorithmsSelected.push('SVC')
-          } else if (allPoints[i].__data__.Algorithm === 'GausNB') {
+          } else if (allPoints[i].__data__.Algorithm === 'Gaussian Naive Bayes') {
             algorithmsSelected.push('GausNB')
-          } else if (allPoints[i].__data__.Algorithm === 'MLP') {
+          } else if (allPoints[i].__data__.Algorithm === 'Multilayer Perceptron') {
             algorithmsSelected.push('MLP')
-          } else if (allPoints[i].__data__.Algorithm === 'LR') {
+          } else if (allPoints[i].__data__.Algorithm === 'Logistic Regression') {
             algorithmsSelected.push('LR')
-          } else if (allPoints[i].__data__.Algorithm === 'LDA') {
+          } else if (allPoints[i].__data__.Algorithm === 'Linear Discrim Analysis') {
             algorithmsSelected.push('LDA')
-          } else if (allPoints[i].__data__.Algorithm === 'QDA') {
+          } else if (allPoints[i].__data__.Algorithm === 'Quadratic Discrim Analysis') {
             algorithmsSelected.push('QDA')
-          } else if (allPoints[i].__data__.Algorithm === 'RF') {
+          } else if (allPoints[i].__data__.Algorithm === 'Random Forest') {
             algorithmsSelected.push('RF')
-          } else if (allPoints[i].__data__.Algorithm === 'ExtraT') {
+          } else if (allPoints[i].__data__.Algorithm === 'Extra Trees') {
             algorithmsSelected.push('ExtraT')
-          } else if (allPoints[i].__data__.Algorithm === 'AdaB') {
+          } else if (allPoints[i].__data__.Algorithm === 'AdaBoost') {
             algorithmsSelected.push('AdaB')
           } else {
             algorithmsSelected.push('GradB')

@@ -26,10 +26,12 @@ export default {
       } else {
         metricsPerModelSel = this.SelBarChartMetrics
       }
+      console.log(metricsPerModel)
+      console.log(metricsPerModelSel)
       var width = this.WH[0]*6.5 // interactive visualization
       var height = this.WH[1]*0.5 // interactive visualization
           var trace1 = {
-          x: ['Acc','F1s','Pre','Rec','Jac'], 
+          x: ['Accuracy','MAE','RMSE','G-Mean','Precision','Recall','F-Beta Sc','MCC','ROC AUC','Log Loss'], 
           y: metricsPerModel, 
           name: 'Projection average', 
           type: 'bar',
@@ -38,7 +40,7 @@ export default {
           }
           };
           var trace2 = {
-          x: ['Acc','F1s','Pre','Rec','Jac'], 
+          x: ['Accuracy','MAE','RMSE','G-Mean','Precision','Recall','F-Beta Sc','MCC','ROC AUC','Log Loss'],
           y: metricsPerModelSel, 
           name: 'Selected points', 
           type: 'bar',
@@ -54,7 +56,7 @@ export default {
           margin: {
               l: 50,
               r: 30,
-              b: 30,
+              b: 35,
               t: 5,
               pad: 4
           },

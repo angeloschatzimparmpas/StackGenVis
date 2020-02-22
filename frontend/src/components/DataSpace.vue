@@ -28,7 +28,7 @@
       <font-awesome-icon icon="eraser" />
       {{ removeData }}
       </button>
-      History Controller: <button
+      History Manager: <button
       id="saveID"
       v-on:click="save">
       <font-awesome-icon icon="save" />
@@ -62,6 +62,7 @@ export default {
       composeData: 'Compose',
       saveData: 'Save Step',
       restoreData: 'Restore Step',
+      instanceImpSize: '',
       userSelectedFilter: 'mean',
       responsiveWidthHeight: [],
       colorsValues: ['#808000','#008080','#bebada','#fccde5','#d9d9d9','#bc80bd','#ccebc5'],
@@ -98,7 +99,7 @@ export default {
     },
     scatterPlotDataView () {
       Plotly.purge('OverviewDataPlotly')
-
+  
       // responsive visualization
       let width = this.responsiveWidthHeight[0]*6.5
       let height = this.responsiveWidthHeight[1]*1.1
@@ -125,6 +126,13 @@ export default {
       var Xaxs = []
       var Yaxs = []
       var Opacity
+      var impSizeArray 
+
+      if (this.instanceImpSize.length != 0) {
+        impSizeArray = JSON.parse(this.instanceImpSize)
+      }
+      
+      console.log(impSizeArray)
 
       if (this.representationDef == 'mds') {
         for (let i = 0; i < XandYCoordinatesMDS[0].length; i++) {
@@ -168,7 +176,7 @@ export default {
               y: aux_Y,
               mode: 'markers',
               name: target_names[i],
-              marker: { color: this.colorsValues[i], line: { color: 'rgb(0, 0, 0)', width: 2 }, opacity: Opacity, size: 12 },
+              marker: { color: this.colorsValues[i], line: { color: 'rgb(0, 0, 0)', width: 2 }, opacity: Opacity, size: impSizeArray },
               hovertemplate: 
                       "<b>%{text}</b><br><br>" +
                       "<extra></extra>",
@@ -240,7 +248,7 @@ export default {
             y: aux_Y,
             mode: 'markers',
             name: target_names[i],
-            marker: { color: this.colorsValues[i], line: { color: 'rgb(0, 0, 0)', width: 2 }, opacity: Opacity, size: 12 },
+            marker: { color: this.colorsValues[i], line: { color: 'rgb(0, 0, 0)', width: 2 }, opacity: Opacity, size: impSizeArray },
             hovertemplate: 
                     "<b>%{text}</b><br><br>" +
                     "<extra></extra>",
@@ -302,7 +310,7 @@ export default {
               y: aux_Y,
               mode: 'markers',
               name: target_names[i],
-              marker: { color: this.colorsValues[i], line: { color: 'rgb(0, 0, 0)', width: 2 }, opacity: Opacity, size: 12 },
+              marker: { color: this.colorsValues[i], line: { color: 'rgb(0, 0, 0)', width: 2 }, opacity: Opacity, size: impSizeArray },
               hovertemplate: 
                       "<b>%{text}</b><br><br>" +
                       "<extra></extra>",
@@ -360,6 +368,8 @@ export default {
     }
   },
   mounted() {
+    EventBus.$on('emittedEventCallingDataSpaceImportance', data => { this.instanceImpSize = data })
+
     // initialize the first data space projection based on the data set 
     EventBus.$on('emittedEventCallingDataSpacePlotView', data => {
       this.dataPoints = data})

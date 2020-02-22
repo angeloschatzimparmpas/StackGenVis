@@ -1,14 +1,14 @@
 <!-- Main Visualization View -->
 
 <template>
-  <div>
+<body>
     <b-container fluid class="bv-example-row">
       <b-row class="md-3">
         <b-col cols="3">
           <mdb-card>
             <mdb-card-header color="primary-color" tag="h5" class="text-center">Data Sets and Performance Metrics Manager</mdb-card-header>
               <mdb-card-body>
-                <mdb-card-text class="text-left">
+                <mdb-card-text class="text-left" style="font-size: 18px;">
                   <DataSetExecController/>
                   <SlidersController/>
                 </mdb-card-text>
@@ -17,7 +17,7 @@
         </b-col>
         <b-col cols="6">
           <mdb-card>
-            <mdb-card-header color="primary-color" tag="h5" class="text-center">Stacking Ensemble Provenance</mdb-card-header>
+            <mdb-card-header color="primary-color" tag="h5" class="text-center">Provenance of the Stacking Ensemble<small class="float-right"><knowledge/></small></mdb-card-header>
             <mdb-card-body>
                 <Provenance/>
             </mdb-card-body>
@@ -25,7 +25,7 @@
         </b-col>
         <b-col cols="3">
             <mdb-card>
-              <mdb-card-header color="primary-color" tag="h5" class="text-center"><small class="float-left" style="padding-top: 3px;">Metrics Support: [1, 5, 6]</small>Meta-Model Performance</mdb-card-header>
+              <mdb-card-header color="primary-color" tag="h5" class="text-center"><small class="float-left" style="padding-top: 3px;">Metrics Support: [1, 5, 6]</small>Performance of the Metamodel</mdb-card-header>
               <mdb-card-body>
                 <FinalResultsLinePlot/>
               </mdb-card-body>
@@ -90,6 +90,7 @@
                     <mdb-card-body>
                       <mdb-card-text class="text-center" style="min-height: 845px">
                         <ToggleSelection/>
+                        <br/>
                         <Heatmap/>
                       </mdb-card-text>
                     </mdb-card-body>
@@ -138,7 +139,25 @@
         </div>
       </div>
     </b-container>
-  </div>
+  <div class="w3-container">
+    <div id="myModal" class="w3-modal" style="position: fixed;">
+      <div class="w3-modal-content w3-card-4 w3-animate-zoom">
+        <header class="w3-container w3-blue"> 
+        <h3 style="display:inline-block; font-size: 16px; margin-top: 15px; margin-bottom:15px">Serialized Ensemble Learning Models Using Pickling</h3>
+        </header>
+        <Export/>
+        <div class="w3-container w3-light-grey w3-padding">
+        <button style="float: right; margin-top: -3px; margin-bottom: -3px"
+          id="closeModal" class="w3-button w3-right w3-white w3-border" 
+          v-on:click="closeModalFun">
+          <font-awesome-icon icon="window-close" />
+          {{ valuePickled }}
+          </button>
+        </div>
+        </div>
+      </div>
+    </div>
+  </body>
 </template>
 
 <script>
@@ -149,6 +168,8 @@ import Algorithms from './Algorithms.vue'
 import AlgorithmHyperParam from './AlgorithmHyperParam.vue'
 import Controller from './Controller.vue'
 import ResetClass from './ResetClass.vue'
+import Knowledge from './Knowledge.vue'
+import Export from './Export.vue'
 import SlidersController from './SlidersController.vue'
 import ScatterPlot from './ScatterPlot.vue'
 import PerMetricBarChart from './PerMetricBarChart.vue'
@@ -181,9 +202,11 @@ export default Vue.extend({
   components: {
     DataSetExecController,
     Algorithms,
+    Export,
     AlgorithmHyperParam,
     Controller,
     ResetClass,
+    Knowledge,
     SlidersController,
     ScatterPlot,
     PerMetricBarChart,
@@ -204,10 +227,12 @@ export default Vue.extend({
   },
   data () {
     return {
+      valuePickled: 'Close',
       Collection: 0,
       OverviewResults: 0,
       preDataResults: '',
       DataResults: '',
+      instancesImportance: '',
       RetrieveValueFile: 'DiabetesC', // this is for the default data set
       ClassifierIDsList: '',
       SelectedFeaturesPerClassifier: '',
@@ -248,6 +273,12 @@ export default Vue.extend({
     }
   },
   methods: {
+    openModalFun () {
+      $('#myModal').modal('show')
+    },
+    closeModalFun () {
+      $('#myModal').modal('hide')
+    },
     getCollection () {
       this.Collection = this.getCollectionFromBackend()
     },
@@ -339,8 +370,6 @@ export default Vue.extend({
         })
     },
     SendToServerData () {
-      // fix that for the upload!
-      console.log(this.localFile)
       const path = `http://127.0.0.1:5000/data/SendtoSeverDataSet`
 
       const postData = {
@@ -526,6 +555,8 @@ export default Vue.extend({
       axios.get(path, axiosConfig)
         .then(response => {
           this.FinalResults = response.data.FinalResults
+
+          this.DataSpaceImportance()
           EventBus.$emit('emittedEventCallingLinePlot', this.FinalResults)
         })
         .catch(error => {
@@ -580,8 +611,8 @@ export default Vue.extend({
           console.log(error)
         })
     },
-      DataSpaceCallAfterDataManipulation () {
-       const path = `http://localhost:5000/data/requestDataSpaceResultsAfterDataManipulation`
+    DataSpaceImportance () {
+       const path = `http://localhost:5000/data/SendInstancesImportance`
 
       const axiosConfig = {
         headers: {
@@ -593,10 +624,28 @@ export default Vue.extend({
       }
       axios.get(path, axiosConfig)
         .then(response => {
-          this.DataResults = response.data.DataResults
-          EventBus.$emit('emittedEventCallingDataSpacePlotView', this.DataResults)
-          EventBus.$emit('emittedEventCallingDataPCP', this.DataResults)
+          this.instancesImportance = response.data.instancesImportance
+          EventBus.$emit('emittedEventCallingDataSpaceImportance', this.instancesImportance)
           this.DataSpaceCall()
+        })
+        .catch(error => {
+          console.log(error)
+        })
+    },
+    DataSpaceCallAfterDataManipulation () {
+      const path = `http://localhost:5000/data/requestDataSpaceResultsAfterDataManipulation`
+
+      const axiosConfig = {
+        headers: {
+          'Content-Type': 'application/json',
+          'Access-Control-Allow-Origin': '*',
+          'Access-Control-Allow-Headers': 'Origin, Content-Type, X-Auth-Token',
+          'Access-Control-Allow-Methods': 'GET, PUT, POST, DELETE, OPTIONS'
+        }
+      }
+      axios.get(path, axiosConfig)
+        .then(response => {
+          this.DataSpaceImportance()
         })
         .catch(error => {
           console.log(error)
@@ -897,6 +946,13 @@ export default Vue.extend({
     window.addEventListener('resize', this.change)
   },
   mounted() {
+    var modal = document.getElementById('myModal')
+    window.onclick = function(event) {
+      //alert(event.target)
+        if (event.target == modal) {
+            modal.style.display = "none";
+        } 
+    }
     this.render(true)
     loadProgressBar()
     window.onbeforeunload = function(e) {
@@ -942,6 +998,8 @@ export default Vue.extend({
     EventBus.$on('AllSelModels', data => {this.valueSel = data})
     EventBus.$on('RemoveFromStack', this.RemoveFromStackModels)
 
+    EventBus.$on('OpenModal', this.openModalFun)
+
     EventBus.$on('SendSelectedPointsToServerEventfromData', data => {this.dataPointsSelfromDataSpace = data})
     EventBus.$on('SendSelectedPointsToServerEventfromData', this.DataSpaceFun)
 
@@ -967,7 +1025,7 @@ export default Vue.extend({
 })
 </script>
 
-<style>
+<style lang="scss">
 
 #nprogress .bar {
 background: red !important;
@@ -988,6 +1046,12 @@ body {
   right: 0px;
   top: 0px;
   bottom: 0px;
-  margin: 0px;
+  margin-top: 18px !important;
 }
+
+.modal-backdrop {
+  z-index: -1 !important;
+}
+
+@import './../assets/w3.css';
 </style>

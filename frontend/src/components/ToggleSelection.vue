@@ -1,8 +1,8 @@
 <template>
     <div id="toggles" style="visibility:hidden">
-        Univariate Selection:<input type="checkbox" id="toggle-uni" data-toggle="toggle" checked="checked" data-on="Enabled" data-off="Disabled" data-size="small">
-        Permutation Importance:<input type="checkbox" id="toggle-per" data-toggle="toggle" checked="checked" data-on="Enabled" data-off="Disabled" data-size="small">
-        Feature Accuracy Importance:<input type="checkbox" id="toggle-fi" data-toggle="toggle" checked="checked" data-on="Enabled" data-off="Disabled" data-size="small">
+        Univariate Feature Selection:&nbsp;<input type="checkbox" id="toggle-uni" data-toggle="toggle" checked="checked" data-on="Enabled" data-off="Disabled" data-size="small">&nbsp;&nbsp;&nbsp;
+        Permutation Feature Importance:&nbsp;<input type="checkbox" id="toggle-per" data-toggle="toggle" checked="checked" data-on="Enabled" data-off="Disabled" data-size="small">&nbsp;&nbsp;&nbsp;
+        Accuracy Feature Importance:&nbsp;<input type="checkbox" id="toggle-fi" data-toggle="toggle" checked="checked" data-on="Enabled" data-off="Disabled" data-size="small">
     </div>
 </template>
 
@@ -19,6 +19,11 @@ export default {
     }
   },
   methods: {
+      ResetPosition () {
+        $('input[type=checkbox]').each(function() { 
+                $(this).bootstrapToggle('on'); //you can set "on" or "off" 
+        });
+      },
       ToggleSelection () { 
       },
       ToggleShow () { 
@@ -26,13 +31,17 @@ export default {
       }
   },
   mounted () {
+    EventBus.$on('resetToggles', this.ResetPosition)
     $('#toggle-uni').bootstrapToggle({
         on: 'Enabled',
-        off: 'Disabled'
+        off: 'Disabled',
+        width: '8%',
     });
     $('#toggle-uni').change(function() {
-        var toggleID = document.getElementById('toggle-uni')
-        if (toggleID.checked === false) {
+        var toggleIDUni = document.getElementById('toggle-uni')
+        var toggleIDPer = document.getElementById('toggle-per')
+        var toggleIDFi = document.getElementById('toggle-per')
+        if (toggleIDUni.checked === false) {
             EventBus.$emit('toggle1', 0)
         } else {
             EventBus.$emit('toggle1', 1)
@@ -40,11 +49,14 @@ export default {
     })
     $('#toggle-per').bootstrapToggle({
         on: 'Enabled',
-        off: 'Disabled'
+        off: 'Disabled',
+        width: '8%',
     });
     $('#toggle-per').change(function() {
-        var toggleID = document.getElementById('toggle-per')
-        if (toggleID.checked === false) {
+        var toggleIDUni = document.getElementById('toggle-uni')
+        var toggleIDPer = document.getElementById('toggle-per')
+        var toggleIDFi = document.getElementById('toggle-per')
+        if (toggleIDPer.checked === false) {
             EventBus.$emit('toggle2', 0)
         } else {
             EventBus.$emit('toggle2', 1)
@@ -52,11 +64,14 @@ export default {
     })
     $('#toggle-fi').bootstrapToggle({
         on: 'Enabled',
-        off: 'Disabled'
+        off: 'Disabled',
+        width: '8%',
     });
     $('#toggle-fi').change(function() {
-        var toggleID = document.getElementById('toggle-fi')
-        if (toggleID.checked === false) {
+        var toggleIDUni = document.getElementById('toggle-uni')
+        var toggleIDPer = document.getElementById('toggle-per')
+        var toggleIDFi = document.getElementById('toggle-per')
+        if (toggleIDFi.checked === false) {
             EventBus.$emit('toggle3', 0)
         } else {
             EventBus.$emit('toggle3', 1)

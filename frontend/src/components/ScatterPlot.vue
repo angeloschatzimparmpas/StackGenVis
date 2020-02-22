@@ -60,7 +60,7 @@ export default {
     ScatterPlotView () {
       Plotly.purge('OverviewPlotly')
       var colorsforScatterPlot = JSON.parse(this.ScatterPlotResults[0])
-      console.log(colorsforScatterPlot)
+
       var MDSData = JSON.parse(this.ScatterPlotResults[1])
       var parameters = JSON.parse(this.ScatterPlotResults[2])
       var TSNEData = JSON.parse(this.ScatterPlotResults[12])
@@ -218,6 +218,9 @@ export default {
               visible: false,
               range: [minY, maxY]
           },
+          autosize: true,
+          width: width,
+          height: height,
           dragmode: 'lasso',
           hovermode: "closest",
           hoverlabel: { bgcolor: "#FFF" },

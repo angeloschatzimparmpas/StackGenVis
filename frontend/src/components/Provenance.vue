@@ -21,14 +21,23 @@ export default {
   name: 'Provenance',
   data () {
     return {
-        stackInformation: '',
-        WH: [],
-        data: [],
-        counter: 0,
-        typeCounter: [],
-        typeColumnCounter: [],
-        KNNModels: 576, //KNN models
-        platform: ''
+      stackInformation: '',
+      WH: [],
+      data: [],
+      counter: 0,
+      typeCounter: [],
+      typeColumnCounter: [],
+      SVCModels: 576,
+      GausNBModels: 736, 
+      MLPModels: 1236,
+      LRModels: 1356, 
+      LDAModels: 1996,
+      QDAModels: 2196,
+      RFModels: 2446,
+      ExtraTModels: 2606,
+      AdaBModels: 2766,
+      GradBModels: 2926,
+      platform: ''
     }
   },
   methods: {
@@ -45,28 +54,111 @@ export default {
       var height = this.WH[1]*0.5 // interactive visualization
 
       var flagKNN = 0
+      var flagSVC = 0
+      var flagGausNB = 0
+      var flagMLP = 0
+      var flagLR = 0
+      var flagLDA = 0
+      var flagQDA = 0
       var flagRF = 0
+      var flagExtraT = 0
+      var flagAdaB = 0
+      var flagGradB = 0
+
       var StackInfo = JSON.parse(this.stackInformation[1])
       // Create a WebGL 2D platform on the canvas:
       this.platform = Stardust.platform("webgl-2d", canvas, width, height);
     
       for (let i = 0; i < StackInfo.length; i++) {
-        if (StackInfo[i] < this.KNNModels){
+        if (StackInfo[i] < this.SVCModels){
           this.data.push({
             type:0, column:this.counter, height:height
           })
           flagKNN = 1
-        } else {
+        } else if (StackInfo[i] < this.GausNBModels){
           this.data.push({
             type:1, column:this.counter, height:height
           })
+          flagSVC = 1
+        } else if (StackInfo[i] < this.MLPModels){
+          this.data.push({
+            type:2, column:this.counter, height:height
+          })
+          flagGausNB = 1
+        } else if (StackInfo[i] < this.LRModels){
+          this.data.push({
+            type:3, column:this.counter, height:height
+          })
+          flagMLP = 1
+        } else if (StackInfo[i] < this.LDAModels){
+          this.data.push({
+            type:4, column:this.counter, height:height
+          })
+          flagLR = 1
+        } else if (StackInfo[i] < this.QDAModels){
+          this.data.push({
+            type:5, column:this.counter, height:height
+          })
+          flagLDA = 1
+        } else if (StackInfo[i] < this.RFModels){
+          this.data.push({
+            type:6, column:this.counter, height:height
+          })
+          flagQDA = 1
+        } else if (StackInfo[i] < this.ExtraTModels){
+          this.data.push({
+            type:7, column:this.counter, height:height
+          })
           flagRF = 1
+        } else if (StackInfo[i] < this.AdaBModels){
+          this.data.push({
+            type:8, column:this.counter, height:height
+          })
+          flagExtraT = 1
+        } else if (StackInfo[i] < this.GradBModels){
+          this.data.push({
+            type:9, column:this.counter, height:height
+          })
+          flagAdaB = 1
+        } else {
+          this.data.push({
+            type:10, column:this.counter, height:height
+          })
+          flagGradB = 1
         }
       }
+
       if (flagKNN == 1) {
         this.typeCounter.push(0)
       }
+      if (flagSVC == 1) {
+        this.typeCounter.push(0)
+      }
+      if (flagGausNB == 1) {
+        this.typeCounter.push(0)
+      }
+      if (flagMLP == 1) {
+        this.typeCounter.push(0)
+      }
+      if (flagLR == 1) {
+        this.typeCounter.push(0)
+      }
+      if (flagLDA == 1) {
+        this.typeCounter.push(0)
+      }
+      if (flagQDA == 1) {
+        this.typeCounter.push(0)
+      }
       if (flagRF == 1) {
+        this.typeCounter.push(0)
+      }
+      if (flagExtraT == 1) {
+        this.typeCounter.push(0)
+      }
+      if (flagAdaB == 1) {
+        this.typeCounter.push(0)
+      }
+      if (flagGradB == 1) {
         this.typeCounter.push(0)
       }
       this.typeColumnCounter.push(0)

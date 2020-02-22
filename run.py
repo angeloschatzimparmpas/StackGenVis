@@ -65,21 +65,44 @@ cors = CORS(app, resources={r"/data/*": {"origins": "*"}})
 def Reset():
     global DataRawLength
     global DataResultsRaw
+
     global RANDOM_SEED
     RANDOM_SEED = 42
 
     global factors
     factors = [1,1,1,0,0,1,0,0,1,0,0,1,0,0,0,0,0,1,0,0,0,1,1,1]
 
+    global KNNModelsCount
+    global SVCModelsCount
+    global GausNBModelsCount
+    global MLPModelsCount
+    global LRModelsCount
+    global LDAModelsCount
+    global QDAModelsCount
+    global RFModelsCount
+    global ExtraTModelsCount
+    global AdaBModelsCount
+    global GradBModelsCount
+
+    KNNModelsCount = 0
+    SVCModelsCount = 576
+    GausNBModelsCount = 736
+    MLPModelsCount = 1236
+    LRModelsCount = 1356
+    LDAModelsCount = 1996
+    QDAModelsCount = 2196
+    RFModelsCount = 2446
+    ExtraTModelsCount = 2606
+    AdaBModelsCount = 2766
+    GradBModelsCount = 2926
+
     global XData
     XData = []
-
     global yData
     yData = []
 
     global XDataStored
     XDataStored = []
-
     global yDataStored
     yDataStored = []
     
@@ -138,14 +161,10 @@ def Reset():
 @cross_origin(origin='localhost',headers=['Content-Type','Authorization'])
 @app.route('/data/ServerRequest', methods=["GET", "POST"])
 def RetrieveFileName():
-    fileName = request.get_data().decode('utf8').replace("'", '"')
-
-    #global featureSelection 
-    #featureSelection = request.get_data().decode('utf8').replace("'", '"')
-    #featureSelection = json.loads(featureSelection)
-
     global DataRawLength
     global DataResultsRaw
+
+    fileName = request.get_data().decode('utf8').replace("'", '"')
 
     global RANDOM_SEED
     RANDOM_SEED = 42
@@ -199,9 +218,28 @@ def RetrieveFileName():
 
     # models
     global KNNModels
-    KNNModels = []
+    global SVCModels
+    global GausNBModels
+    global MLPModels
+    global LRModels
+    global LDAModels
+    global QDAModels 
     global RFModels
+    global ExtraTModels
+    global AdaBModels
+    global GradBModels
+
+    KNNModels = []
+    SVCModels = []
+    GausNBModels = []
+    MLPModels = []
+    LRModels = []
+    LDAModels = []
+    QDAModels = []
     RFModels = []
+    ExtraTModels = []
+    AdaBModels = []
+    GradBModels = []
 
     global results
     results = []
@@ -443,6 +481,16 @@ def RetrieveModel():
 
     global XData
     global yData
+    global SVCModelsCount
+    global GausNBModelsCount
+    global MLPModelsCount
+    global LRModelsCount
+    global LDAModelsCount
+    global QDAModelsCount
+    global RFModelsCount
+    global ExtraTModelsCount
+    global AdaBModelsCount
+    global GradBModelsCount
 
     # loop through the algorithms
     global allParametersPerformancePerModel
@@ -454,43 +502,43 @@ def RetrieveModel():
         elif (eachAlgor) == 'SVC':
             clf = SVC(probability=True)
             params = {'C': list(np.arange(0.1,4.43,0.11)), 'kernel': ['rbf','linear', 'poly', 'sigmoid']}
-            AlgorithmsIDsEnd = 576
+            AlgorithmsIDsEnd = SVCModelsCount
         elif (eachAlgor) == 'GausNB':
             clf = GaussianNB()
             params = {'var_smoothing': list(np.arange(0.00000000001,0.0000001,0.0000000002))}
-            AlgorithmsIDsEnd = 736
+            AlgorithmsIDsEnd = GausNBModelsCount
         elif (eachAlgor) == 'MLP':
             clf = MLPClassifier()
             params = {'alpha': list(np.arange(0.00001,0.001,0.0002)), 'tol': list(np.arange(0.00001,0.001,0.0004)), 'max_iter': list(np.arange(100,200,100)), 'activation': ['relu', 'identity', 'logistic', 'tanh'], 'solver' : ['adam', 'sgd']}
-            AlgorithmsIDsEnd = 1236
+            AlgorithmsIDsEnd = MLPModelsCount
         elif (eachAlgor) == 'LR':
             clf = LogisticRegression()
             params = {'C': list(np.arange(0.5,2,0.075)), 'max_iter': list(np.arange(50,250,50)), 'solver': ['lbfgs', 'newton-cg', 'sag', 'saga'], 'penalty': ['l2', 'none']}
-            AlgorithmsIDsEnd = 1356
+            AlgorithmsIDsEnd = LRModelsCount
         elif (eachAlgor) == 'LDA':
             clf = LinearDiscriminantAnalysis()
             params = {'shrinkage': list(np.arange(0,1,0.01)), 'solver': ['lsqr', 'eigen']}
-            AlgorithmsIDsEnd = 1996
+            AlgorithmsIDsEnd = LDAModelsCount
         elif (eachAlgor) == 'QDA':
             clf = QuadraticDiscriminantAnalysis()
             params = {'reg_param': list(range(1, 51)), 'tol': list(np.arange(0.00001,0.001,0.0002))}
-            AlgorithmsIDsEnd = 2196
+            AlgorithmsIDsEnd = QDAModelsCount
         elif (eachAlgor) == 'RF':
             clf = RandomForestClassifier()
             params = {'n_estimators': list(range(60, 140)), 'criterion': ['gini', 'entropy']}
-            AlgorithmsIDsEnd = 2446
+            AlgorithmsIDsEnd = RFModelsCount
         elif (eachAlgor) == 'ExtraT':
             clf = ExtraTreesClassifier()
             params = {'n_estimators': list(range(60, 140)), 'criterion': ['gini', 'entropy']}
-            AlgorithmsIDsEnd = 2606
+            AlgorithmsIDsEnd = ExtraTModelsCount
         elif (eachAlgor) == 'AdaB':
             clf = AdaBoostClassifier()
             params = {'n_estimators': list(range(40, 80)), 'learning_rate': list(np.arange(0.1,2.3,1.1)), 'algorithm': ['SAMME.R', 'SAMME']}
-            AlgorithmsIDsEnd = 2766
+            AlgorithmsIDsEnd = AdaBModelsCount
         else: 
             clf = GradientBoostingClassifier()
             params = {'n_estimators': list(range(85, 115)), 'learning_rate': list(np.arange(0.01,0.23,0.11)), 'criterion': ['friedman_mse', 'mse', 'mae']}
-            AlgorithmsIDsEnd = 2926
+            AlgorithmsIDsEnd = GradBModelsCount
         allParametersPerformancePerModel = GridSearchForModels(XData, yData, clf, params, eachAlgor, AlgorithmsIDsEnd)
     # call the function that sends the results to the frontend 
     SendEachClassifiersPerformanceToVisualize()
@@ -503,6 +551,7 @@ memory = Memory(location, verbose=0)
 # calculating for all algorithms and models the performance and other results
 @memory.cache
 def GridSearchForModels(XData, yData, clf, params, eachAlgor, AlgorithmsIDsEnd):
+    print('test')
     # instantiate spark session
     spark = (   
         SparkSession    
@@ -712,22 +761,67 @@ def RetrieveModelsParam():
     RetrieveModelsPar = request.get_data().decode('utf8').replace("'", '"')
     RetrieveModelsPar = json.loads(RetrieveModelsPar)
 
-    counter1 = 0
-    counter2 = 0
+    counterKNN = 0
+    counterSVC = 0
+    counterGausNB = 0
+    counterMLP = 0
+    counterLR = 0
+    counterLDA = 0
+    counterQDA = 0
+    counterRF = 0
+    counterExtraT = 0
+    counterAdaB = 0
+    counterGradB = 0
 
     global KNNModels
+    global SVCModels
+    global GausNBModels
+    global MLPModels
+    global LRModels
+    global LDAModels
+    global QDAModels
     global RFModels
+    global ExtraTModels
+    global AdaBModels
+    global GradBModels
+
     global algorithmsList
 
     algorithmsList = RetrieveModelsPar['algorithms']
-
     for index, items in enumerate(algorithmsList):
         if (items == 'KNN'):
-            counter1 = counter1 + 1
+            counterKNN += 1
             KNNModels.append(int(RetrieveModelsPar['models'][index]))
-        else:
-            counter2 = counter2 + 1
+        elif (items == 'SVC'):
+            counterSVC += 1
+            SVCModels.append(int(RetrieveModelsPar['models'][index]))
+        elif (items == 'GausNB'):
+            counterGausNB += 1
+            GausNBModels.append(int(RetrieveModelsPar['models'][index]))
+        elif (items == 'MLP'):
+            counterMLP += 1
+            MLPModels.append(int(RetrieveModelsPar['models'][index]))
+        elif (items == 'LR'):
+            counterLR += 1
+            LRModels.append(int(RetrieveModelsPar['models'][index]))
+        elif (items == 'LDA'):
+            counterLDA += 1
+            LDAModels.append(int(RetrieveModelsPar['models'][index]))
+        elif (items == 'QDA'):
+            counterQDA += 1
+            QDAModels.append(int(RetrieveModelsPar['models'][index]))
+        elif (items == 'RF'):
+            counterRF += 1
             RFModels.append(int(RetrieveModelsPar['models'][index]))
+        elif (items == 'ExtraT'):
+            counterExtraT += 1
+            ExtraTModels.append(int(RetrieveModelsPar['models'][index]))
+        elif (items == 'AdaB'):
+            counterAdaB += 1
+            AdaBModels.append(int(RetrieveModelsPar['models'][index]))
+        else:
+            counterGradB += 1
+            GradBModels.append(int(RetrieveModelsPar['models'][index]))
 
     return 'Everything Okay'
 
@@ -782,26 +876,105 @@ def UpdateOverview():
 
 def PreprocessingMetrics():
     dicKNN = json.loads(allParametersPerformancePerModel[6])
-    dicRF = json.loads(allParametersPerformancePerModel[14])
+    dicSVC = json.loads(allParametersPerformancePerModel[14])
+    dicGausNB = json.loads(allParametersPerformancePerModel[22])
+    dicMLP = json.loads(allParametersPerformancePerModel[30])
+    dicLR = json.loads(allParametersPerformancePerModel[38])
+    dicLDA = json.loads(allParametersPerformancePerModel[46])
+    dicQDA = json.loads(allParametersPerformancePerModel[54])
+    dicRF = json.loads(allParametersPerformancePerModel[62])
+    dicExtraT = json.loads(allParametersPerformancePerModel[70])
+    dicAdaB = json.loads(allParametersPerformancePerModel[78])
+    dicGradB = json.loads(allParametersPerformancePerModel[86])
+
     dfKNN = pd.DataFrame.from_dict(dicKNN)
-    dfKNN.index = dfKNN.index.astype(int)
-    dfKNNFiltered = dfKNN.loc[KNNModels, :]
+    dfSVC = pd.DataFrame.from_dict(dicSVC)
+    dfGausNB = pd.DataFrame.from_dict(dicGausNB)
+    dfMLP = pd.DataFrame.from_dict(dicMLP)
+    dfLR = pd.DataFrame.from_dict(dicLR)
+    dfLDA = pd.DataFrame.from_dict(dicLDA)
+    dfQDA = pd.DataFrame.from_dict(dicQDA)
     dfRF = pd.DataFrame.from_dict(dicRF)
-    dfRF.index = dfRF.index.astype(int) + 576
+    dfExtraT = pd.DataFrame.from_dict(dicExtraT)
+    dfAdaB = pd.DataFrame.from_dict(dicAdaB)
+    dfGradB = pd.DataFrame.from_dict(dicGradB)
+
+    dfKNN.index = dfKNN.index.astype(int)
+    dfSVC.index = dfSVC.index.astype(int) + SVCModelsCount
+    dfGausNB.index = dfGausNB.index.astype(int) + GausNBModelsCount
+    dfMLP.index = dfMLP.index.astype(int) + MLPModelsCount
+    dfLR.index = dfLR.index.astype(int) + LRModelsCount
+    dfLDA.index = dfLDA.index.astype(int) + LDAModelsCount
+    dfQDA.index = dfQDA.index.astype(int) + QDAModelsCount
+    dfRF.index = dfRF.index.astype(int) + RFModelsCount
+    dfExtraT.index = dfExtraT.index.astype(int) + ExtraTModelsCount
+    dfAdaB.index = dfAdaB.index.astype(int) + AdaBModelsCount
+    dfGradB.index = dfGradB.index.astype(int) + GradBModelsCount
+    dfKNNFiltered = dfKNN.loc[KNNModels, :]
+    dfSVCFiltered = dfSVC.loc[SVCModels, :]
+    dfGausNBFiltered = dfGausNB.loc[GausNBModels, :]
+    dfMLPFiltered = dfMLP.loc[MLPModels, :]
+    dfLRFiltered = dfLR.loc[LRModels, :]
+    dfLDAFiltered = dfLDA.loc[LDAModels, :]
+    dfQDAFiltered = dfQDA.loc[QDAModels, :]
     dfRFFiltered = dfRF.loc[RFModels, :]
-    df_concatMetrics = pd.concat([dfKNNFiltered, dfRFFiltered])
+    dfExtraTFiltered = dfExtraT.loc[ExtraTModels, :]
+    dfAdaBFiltered = dfAdaB.loc[AdaBModels, :]
+    dfGradBFiltered = dfGradB.loc[GradBModels, :]
+
+    df_concatMetrics = pd.concat([dfKNNFiltered, dfSVCFiltered, dfGausNBFiltered, dfMLPFiltered, dfLRFiltered, dfLDAFiltered, dfQDAFiltered, dfRFFiltered, dfExtraTFiltered, dfAdaBFiltered, dfGradBFiltered])
     return df_concatMetrics
 
 def PreprocessingPred():
     dicKNN = json.loads(allParametersPerformancePerModel[7])
-    dicRF = json.loads(allParametersPerformancePerModel[15])
+    dicSVC = json.loads(allParametersPerformancePerModel[15])
+    dicGausNB = json.loads(allParametersPerformancePerModel[23])
+    dicMLP = json.loads(allParametersPerformancePerModel[31])
+    dicLR = json.loads(allParametersPerformancePerModel[39])
+    dicLDA = json.loads(allParametersPerformancePerModel[47])
+    dicQDA = json.loads(allParametersPerformancePerModel[55])
+    dicRF = json.loads(allParametersPerformancePerModel[63])
+    dicExtraT = json.loads(allParametersPerformancePerModel[71])
+    dicAdaB = json.loads(allParametersPerformancePerModel[79])
+    dicGradB = json.loads(allParametersPerformancePerModel[87])
+
     dfKNN = pd.DataFrame.from_dict(dicKNN)
-    dfKNN.index = dfKNN.index.astype(int)
-    dfKNNFiltered = dfKNN.loc[KNNModels, :]
+    dfSVC = pd.DataFrame.from_dict(dicSVC)
+    dfGausNB = pd.DataFrame.from_dict(dicGausNB)
+    dfMLP = pd.DataFrame.from_dict(dicMLP)
+    dfLR = pd.DataFrame.from_dict(dicLR)
+    dfLDA = pd.DataFrame.from_dict(dicLDA)
+    dfQDA = pd.DataFrame.from_dict(dicQDA)
     dfRF = pd.DataFrame.from_dict(dicRF)
-    dfRF.index = dfRF.index.astype(int) + 576
+    dfExtraT = pd.DataFrame.from_dict(dicExtraT)
+    dfAdaB = pd.DataFrame.from_dict(dicAdaB)
+    dfGradB = pd.DataFrame.from_dict(dicGradB)
+
+    dfKNN.index = dfKNN.index.astype(int)
+    dfSVC.index = dfSVC.index.astype(int) + SVCModelsCount
+    dfGausNB.index = dfGausNB.index.astype(int) + GausNBModelsCount
+    dfMLP.index = dfMLP.index.astype(int) + MLPModelsCount
+    dfLR.index = dfLR.index.astype(int) + LRModelsCount
+    dfLDA.index = dfLDA.index.astype(int) + LDAModelsCount
+    dfQDA.index = dfQDA.index.astype(int) + QDAModelsCount
+    dfRF.index = dfRF.index.astype(int) + RFModelsCount
+    dfExtraT.index = dfExtraT.index.astype(int) + ExtraTModelsCount
+    dfAdaB.index = dfAdaB.index.astype(int) + AdaBModelsCount
+    dfGradB.index = dfGradB.index.astype(int) + GradBModelsCount
+    
+    dfKNNFiltered = dfKNN.loc[KNNModels, :]
+    dfSVCFiltered = dfSVC.loc[SVCModels, :]
+    dfGausNBFiltered = dfGausNB.loc[GausNBModels, :]
+    dfMLPFiltered = dfMLP.loc[MLPModels, :]
+    dfLRFiltered = dfLR.loc[LRModels, :]
+    dfLDAFiltered = dfLDA.loc[LDAModels, :]
+    dfQDAFiltered = dfQDA.loc[QDAModels, :]
     dfRFFiltered = dfRF.loc[RFModels, :]
-    df_concatProbs = pd.concat([dfKNNFiltered, dfRFFiltered])
+    dfExtraTFiltered = dfExtraT.loc[ExtraTModels, :]
+    dfAdaBFiltered = dfAdaB.loc[AdaBModels, :]
+    dfGradBFiltered = dfGradB.loc[GradBModels, :]
+
+    df_concatProbs = pd.concat([dfKNNFiltered, dfSVCFiltered, dfGausNBFiltered, dfMLPFiltered, dfLRFiltered, dfLDAFiltered, dfQDAFiltered, dfRFFiltered, dfExtraTFiltered, dfAdaBFiltered, dfGradBFiltered])
     predictions = []
     for column, content in df_concatProbs.items():
         el = [sum(x)/len(x) for x in zip(*content)]
@@ -815,15 +988,57 @@ def PreprocessingPredUpdate(Models):
     for loop in Models['ClassifiersList']:
         temp = [int(s) for s in re.findall(r'\b\d+\b', loop)]
         ModelsList.append(temp[0])
+
     dicKNN = json.loads(allParametersPerformancePerModel[7])
-    dicRF = json.loads(allParametersPerformancePerModel[15])
+    dicSVC = json.loads(allParametersPerformancePerModel[15])
+    dicGausNB = json.loads(allParametersPerformancePerModel[23])
+    dicMLP = json.loads(allParametersPerformancePerModel[31])
+    dicLR = json.loads(allParametersPerformancePerModel[39])
+    dicLDA = json.loads(allParametersPerformancePerModel[47])
+    dicQDA = json.loads(allParametersPerformancePerModel[55])
+    dicRF = json.loads(allParametersPerformancePerModel[63])
+    dicExtraT = json.loads(allParametersPerformancePerModel[71])
+    dicAdaB = json.loads(allParametersPerformancePerModel[79])
+    dicGradB = json.loads(allParametersPerformancePerModel[87])
+
     dfKNN = pd.DataFrame.from_dict(dicKNN)
-    dfKNN.index = dfKNN.index.astype(int)
-    dfKNNFiltered = dfKNN.loc[KNNModels, :]
+    dfSVC = pd.DataFrame.from_dict(dicSVC)
+    dfGausNB = pd.DataFrame.from_dict(dicGausNB)
+    dfMLP = pd.DataFrame.from_dict(dicMLP)
+    dfLR = pd.DataFrame.from_dict(dicLR)
+    dfLDA = pd.DataFrame.from_dict(dicLDA)
+    dfQDA = pd.DataFrame.from_dict(dicQDA)
     dfRF = pd.DataFrame.from_dict(dicRF)
-    dfRF.index = dfRF.index.astype(int) + 576
+    dfExtraT = pd.DataFrame.from_dict(dicExtraT)
+    dfAdaB = pd.DataFrame.from_dict(dicAdaB)
+    dfGradB = pd.DataFrame.from_dict(dicGradB)
+
+    dfKNN.index = dfKNN.index.astype(int)
+    dfSVC.index = dfSVC.index.astype(int) + SVCModelsCount
+    dfGausNB.index = dfGausNB.index.astype(int) + GausNBModelsCount
+    dfMLP.index = dfMLP.index.astype(int) + MLPModelsCount
+    dfLR.index = dfLR.index.astype(int) + LRModelsCount
+    dfLDA.index = dfLDA.index.astype(int) + LDAModelsCount
+    dfQDA.index = dfQDA.index.astype(int) + QDAModelsCount
+    dfRF.index = dfRF.index.astype(int) + RFModelsCount
+    dfExtraT.index = dfExtraT.index.astype(int) + ExtraTModelsCount
+    dfAdaB.index = dfAdaB.index.astype(int) + AdaBModelsCount
+    dfGradB.index = dfGradB.index.astype(int) + GradBModelsCount
+    
+    dfKNNFiltered = dfKNN.loc[KNNModels, :]
+    dfSVCFiltered = dfSVC.loc[SVCModels, :]
+    dfGausNBFiltered = dfGausNB.loc[GausNBModels, :]
+    dfMLPFiltered = dfMLP.loc[MLPModels, :]
+    dfLRFiltered = dfLR.loc[LRModels, :]
+    dfLDAFiltered = dfLDA.loc[LDAModels, :]
+    dfQDAFiltered = dfQDA.loc[QDAModels, :]
     dfRFFiltered = dfRF.loc[RFModels, :]
-    df_concatProbs = pd.concat([dfKNNFiltered, dfRFFiltered])
+    dfExtraTFiltered = dfExtraT.loc[ExtraTModels, :]
+    dfAdaBFiltered = dfAdaB.loc[AdaBModels, :]
+    dfGradBFiltered = dfGradB.loc[GradBModels, :]
+
+    df_concatProbs = pd.concat([dfKNNFiltered, dfSVCFiltered, dfGausNBFiltered, dfMLPFiltered, dfLRFiltered, dfLDAFiltered, dfQDAFiltered, dfRFFiltered, dfExtraTFiltered, dfAdaBFiltered, dfGradBFiltered])
+
     listProbs = df_concatProbs.index.values.tolist()
     deletedElements = 0
     for index, element in enumerate(listProbs):
@@ -859,69 +1074,309 @@ def PreprocessingPredUpdate(Models):
 
 def PreprocessingParam():
     dicKNN = json.loads(allParametersPerformancePerModel[1])
-    dicRF = json.loads(allParametersPerformancePerModel[9])
+    dicSVC = json.loads(allParametersPerformancePerModel[9])
+    dicGausNB = json.loads(allParametersPerformancePerModel[17])
+    dicMLP = json.loads(allParametersPerformancePerModel[25])
+    dicLR = json.loads(allParametersPerformancePerModel[33])
+    dicLDA = json.loads(allParametersPerformancePerModel[41])
+    dicQDA = json.loads(allParametersPerformancePerModel[49])
+    dicRF = json.loads(allParametersPerformancePerModel[57])
+    dicExtraT = json.loads(allParametersPerformancePerModel[65])
+    dicAdaB = json.loads(allParametersPerformancePerModel[73])
+    dicGradB = json.loads(allParametersPerformancePerModel[81])
+
     dicKNN = dicKNN['params']
+    dicSVC = dicSVC['params']
+    dicGausNB = dicGausNB['params']
+    dicMLP = dicMLP['params']
+    dicLR = dicLR['params']
+    dicLDA = dicLDA['params']
+    dicQDA = dicQDA['params']
     dicRF = dicRF['params']
+    dicExtraT = dicExtraT['params']
+    dicAdaB = dicAdaB['params']
+    dicGradB = dicGradB['params']
+
     dfKNN = pd.DataFrame.from_dict(dicKNN)
-    dfKNN = dfKNN.T
-    dfKNN.index = dfKNN.index.astype(int)
-    dfKNNFiltered = dfKNN.loc[KNNModels, :]
+    dfSVC = pd.DataFrame.from_dict(dicSVC)
+    dfGausNB = pd.DataFrame.from_dict(dicGausNB)
+    dfMLP = pd.DataFrame.from_dict(dicMLP)
+    dfLR = pd.DataFrame.from_dict(dicLR)
+    dfLDA = pd.DataFrame.from_dict(dicLDA)
+    dfQDA = pd.DataFrame.from_dict(dicQDA)
     dfRF = pd.DataFrame.from_dict(dicRF)
+    dfExtraT = pd.DataFrame.from_dict(dicExtraT)
+    dfAdaB = pd.DataFrame.from_dict(dicAdaB)
+    dfGradB = pd.DataFrame.from_dict(dicGradB)
+
+    dfKNN = dfKNN.T
+    dfSVC = dfSVC.T
+    dfGausNB = dfGausNB.T
+    dfMLP = dfMLP.T
+    dfLR = dfLR.T
+    dfLDA = dfLDA.T
+    dfQDA = dfQDA.T
     dfRF = dfRF.T
-    dfRF.index = dfRF.index.astype(int) + 576
+    dfExtraT = dfExtraT.T
+    dfAdaB = dfAdaB.T
+    dfGradB = dfGradB.T
+
+    dfKNN.index = dfKNN.index.astype(int)
+    dfSVC.index = dfSVC.index.astype(int) + SVCModelsCount
+    dfGausNB.index = dfGausNB.index.astype(int) + GausNBModelsCount
+    dfMLP.index = dfMLP.index.astype(int) + MLPModelsCount
+    dfLR.index = dfLR.index.astype(int) + LRModelsCount
+    dfLDA.index = dfLDA.index.astype(int) + LDAModelsCount
+    dfQDA.index = dfQDA.index.astype(int) + QDAModelsCount
+    dfRF.index = dfRF.index.astype(int) + RFModelsCount
+    dfExtraT.index = dfExtraT.index.astype(int) + ExtraTModelsCount
+    dfAdaB.index = dfAdaB.index.astype(int) + AdaBModelsCount
+    dfGradB.index = dfGradB.index.astype(int) + GradBModelsCount
+    
+    dfKNNFiltered = dfKNN.loc[KNNModels, :]
+    dfSVCFiltered = dfSVC.loc[SVCModels, :]
+    dfGausNBFiltered = dfGausNB.loc[GausNBModels, :]
+    dfMLPFiltered = dfMLP.loc[MLPModels, :]
+    dfLRFiltered = dfLR.loc[LRModels, :]
+    dfLDAFiltered = dfLDA.loc[LDAModels, :]
+    dfQDAFiltered = dfQDA.loc[QDAModels, :]
     dfRFFiltered = dfRF.loc[RFModels, :]
-    df_params = pd.concat([dfKNNFiltered, dfRFFiltered])
+    dfExtraTFiltered = dfExtraT.loc[ExtraTModels, :]
+    dfAdaBFiltered = dfAdaB.loc[AdaBModels, :]
+    dfGradBFiltered = dfGradB.loc[GradBModels, :]
+
+    df_params = pd.concat([dfKNNFiltered, dfSVCFiltered, dfGausNBFiltered, dfMLPFiltered, dfLRFiltered, dfLDAFiltered, dfQDAFiltered, dfRFFiltered, dfExtraTFiltered, dfAdaBFiltered, dfGradBFiltered])
     return df_params
 
 def PreprocessingParamSep():
     dicKNN = json.loads(allParametersPerformancePerModel[1])
-    dicRF = json.loads(allParametersPerformancePerModel[9])
+    dicSVC = json.loads(allParametersPerformancePerModel[9])
+    dicGausNB = json.loads(allParametersPerformancePerModel[17])
+    dicMLP = json.loads(allParametersPerformancePerModel[25])
+    dicLR = json.loads(allParametersPerformancePerModel[33])
+    dicLDA = json.loads(allParametersPerformancePerModel[41])
+    dicQDA = json.loads(allParametersPerformancePerModel[49])
+    dicRF = json.loads(allParametersPerformancePerModel[57])
+    dicExtraT = json.loads(allParametersPerformancePerModel[65])
+    dicAdaB = json.loads(allParametersPerformancePerModel[73])
+    dicGradB = json.loads(allParametersPerformancePerModel[81])
+
     dicKNN = dicKNN['params']
+    dicSVC = dicSVC['params']
+    dicGausNB = dicGausNB['params']
+    dicMLP = dicMLP['params']
+    dicLR = dicLR['params']
+    dicLDA = dicLDA['params']
+    dicQDA = dicQDA['params']
     dicRF = dicRF['params']
+    dicExtraT = dicExtraT['params']
+    dicAdaB = dicAdaB['params']
+    dicGradB = dicGradB['params']
+
     dfKNN = pd.DataFrame.from_dict(dicKNN)
-    dfKNN = dfKNN.T
-    dfKNN.index = dfKNN.index.astype(int)
-    dfKNNFiltered = dfKNN.loc[KNNModels, :]
+    dfSVC = pd.DataFrame.from_dict(dicSVC)
+    dfGausNB = pd.DataFrame.from_dict(dicGausNB)
+    dfMLP = pd.DataFrame.from_dict(dicMLP)
+    dfLR = pd.DataFrame.from_dict(dicLR)
+    dfLDA = pd.DataFrame.from_dict(dicLDA)
+    dfQDA = pd.DataFrame.from_dict(dicQDA)
     dfRF = pd.DataFrame.from_dict(dicRF)
+    dfExtraT = pd.DataFrame.from_dict(dicExtraT)
+    dfAdaB = pd.DataFrame.from_dict(dicAdaB)
+    dfGradB = pd.DataFrame.from_dict(dicGradB)
+
+    dfKNN = dfKNN.T
+    dfSVC = dfSVC.T
+    dfGausNB = dfGausNB.T
+    dfMLP = dfMLP.T
+    dfLR = dfLR.T
+    dfLDA = dfLDA.T
+    dfQDA = dfQDA.T
     dfRF = dfRF.T
-    dfRF.index = dfRF.index.astype(int) + 576
+    dfExtraT = dfExtraT.T
+    dfAdaB = dfAdaB.T
+    dfGradB = dfGradB.T
+
+    dfKNN.index = dfKNN.index.astype(int)
+    dfSVC.index = dfSVC.index.astype(int) + SVCModelsCount
+    dfGausNB.index = dfGausNB.index.astype(int) + GausNBModelsCount
+    dfMLP.index = dfMLP.index.astype(int) + MLPModelsCount
+    dfLR.index = dfLR.index.astype(int) + LRModelsCount
+    dfLDA.index = dfLDA.index.astype(int) + LDAModelsCount
+    dfQDA.index = dfQDA.index.astype(int) + QDAModelsCount
+    dfRF.index = dfRF.index.astype(int) + RFModelsCount
+    dfExtraT.index = dfExtraT.index.astype(int) + ExtraTModelsCount
+    dfAdaB.index = dfAdaB.index.astype(int) + AdaBModelsCount
+    dfGradB.index = dfGradB.index.astype(int) + GradBModelsCount
+    
+    dfKNNFiltered = dfKNN.loc[KNNModels, :]
+    dfSVCFiltered = dfSVC.loc[SVCModels, :]
+    dfGausNBFiltered = dfGausNB.loc[GausNBModels, :]
+    dfMLPFiltered = dfMLP.loc[MLPModels, :]
+    dfLRFiltered = dfLR.loc[LRModels, :]
+    dfLDAFiltered = dfLDA.loc[LDAModels, :]
+    dfQDAFiltered = dfQDA.loc[QDAModels, :]
     dfRFFiltered = dfRF.loc[RFModels, :]
-    return [dfKNNFiltered,dfRFFiltered]
+    dfExtraTFiltered = dfExtraT.loc[ExtraTModels, :]
+    dfAdaBFiltered = dfAdaB.loc[AdaBModels, :]
+    dfGradBFiltered = dfGradB.loc[GradBModels, :]
+
+    return [dfKNNFiltered, dfSVCFiltered, dfGausNBFiltered, dfMLPFiltered, dfLRFiltered, dfLDAFiltered, dfQDAFiltered, dfRFFiltered, dfExtraTFiltered, dfAdaBFiltered, dfGradBFiltered]
 
 def preProcessPerClassM():
     dicKNN = json.loads(allParametersPerformancePerModel[2])
-    dicRF = json.loads(allParametersPerformancePerModel[10])
+    dicSVC = json.loads(allParametersPerformancePerModel[10])
+    dicGausNB = json.loads(allParametersPerformancePerModel[18])
+    dicMLP = json.loads(allParametersPerformancePerModel[26])
+    dicLR = json.loads(allParametersPerformancePerModel[34])
+    dicLDA = json.loads(allParametersPerformancePerModel[42])
+    dicQDA = json.loads(allParametersPerformancePerModel[50])
+    dicRF = json.loads(allParametersPerformancePerModel[58])
+    dicExtraT = json.loads(allParametersPerformancePerModel[66])
+    dicAdaB = json.loads(allParametersPerformancePerModel[74])
+    dicGradB = json.loads(allParametersPerformancePerModel[82])
+
     dfKNN = pd.DataFrame.from_dict(dicKNN)
-    dfKNN.index = dfKNN.index.astype(int)
-    dfKNNFiltered = dfKNN.loc[KNNModels, :]
+    dfSVC = pd.DataFrame.from_dict(dicSVC)
+    dfGausNB = pd.DataFrame.from_dict(dicGausNB)
+    dfMLP = pd.DataFrame.from_dict(dicMLP)
+    dfLR = pd.DataFrame.from_dict(dicLR)
+    dfLDA = pd.DataFrame.from_dict(dicLDA)
+    dfQDA = pd.DataFrame.from_dict(dicQDA)
     dfRF = pd.DataFrame.from_dict(dicRF)
-    dfRF.index = dfRF.index.astype(int) + 576
+    dfExtraT = pd.DataFrame.from_dict(dicExtraT)
+    dfAdaB = pd.DataFrame.from_dict(dicAdaB)
+    dfGradB = pd.DataFrame.from_dict(dicGradB)
+
+    dfKNN.index = dfKNN.index.astype(int)
+    dfSVC.index = dfSVC.index.astype(int) + SVCModelsCount
+    dfGausNB.index = dfGausNB.index.astype(int) + GausNBModelsCount
+    dfMLP.index = dfMLP.index.astype(int) + MLPModelsCount
+    dfLR.index = dfLR.index.astype(int) + LRModelsCount
+    dfLDA.index = dfLDA.index.astype(int) + LDAModelsCount
+    dfQDA.index = dfQDA.index.astype(int) + QDAModelsCount
+    dfRF.index = dfRF.index.astype(int) + RFModelsCount
+    dfExtraT.index = dfExtraT.index.astype(int) + ExtraTModelsCount
+    dfAdaB.index = dfAdaB.index.astype(int) + AdaBModelsCount
+    dfGradB.index = dfGradB.index.astype(int) + GradBModelsCount
+    
+    dfKNNFiltered = dfKNN.loc[KNNModels, :]
+    dfSVCFiltered = dfSVC.loc[SVCModels, :]
+    dfGausNBFiltered = dfGausNB.loc[GausNBModels, :]
+    dfMLPFiltered = dfMLP.loc[MLPModels, :]
+    dfLRFiltered = dfLR.loc[LRModels, :]
+    dfLDAFiltered = dfLDA.loc[LDAModels, :]
+    dfQDAFiltered = dfQDA.loc[QDAModels, :]
     dfRFFiltered = dfRF.loc[RFModels, :]
-    df_concatParams = pd.concat([dfKNNFiltered, dfRFFiltered])
+    dfExtraTFiltered = dfExtraT.loc[ExtraTModels, :]
+    dfAdaBFiltered = dfAdaB.loc[AdaBModels, :]
+    dfGradBFiltered = dfGradB.loc[GradBModels, :]
+
+    df_concatParams = pd.concat([dfKNNFiltered, dfSVCFiltered, dfGausNBFiltered, dfMLPFiltered, dfLRFiltered, dfLDAFiltered, dfQDAFiltered, dfRFFiltered, dfExtraTFiltered, dfAdaBFiltered, dfGradBFiltered])
     return df_concatParams
 
 def preProcessFeatAcc():
     dicKNN = json.loads(allParametersPerformancePerModel[3])
-    dicRF = json.loads(allParametersPerformancePerModel[11])
+    dicSVC = json.loads(allParametersPerformancePerModel[11])
+    dicGausNB = json.loads(allParametersPerformancePerModel[19])
+    dicMLP = json.loads(allParametersPerformancePerModel[27])
+    dicLR = json.loads(allParametersPerformancePerModel[35])
+    dicLDA = json.loads(allParametersPerformancePerModel[43])
+    dicQDA = json.loads(allParametersPerformancePerModel[51])
+    dicRF = json.loads(allParametersPerformancePerModel[59])
+    dicExtraT = json.loads(allParametersPerformancePerModel[67])
+    dicAdaB = json.loads(allParametersPerformancePerModel[75])
+    dicGradB = json.loads(allParametersPerformancePerModel[83])
+
     dfKNN = pd.DataFrame.from_dict(dicKNN)
-    dfKNN.index = dfKNN.index.astype(int)
-    dfKNNFiltered = dfKNN.loc[KNNModels, :]
+    dfSVC = pd.DataFrame.from_dict(dicSVC)
+    dfGausNB = pd.DataFrame.from_dict(dicGausNB)
+    dfMLP = pd.DataFrame.from_dict(dicMLP)
+    dfLR = pd.DataFrame.from_dict(dicLR)
+    dfLDA = pd.DataFrame.from_dict(dicLDA)
+    dfQDA = pd.DataFrame.from_dict(dicQDA)
     dfRF = pd.DataFrame.from_dict(dicRF)
-    dfRF.index = dfRF.index.astype(int) + 576
+    dfExtraT = pd.DataFrame.from_dict(dicExtraT)
+    dfAdaB = pd.DataFrame.from_dict(dicAdaB)
+    dfGradB = pd.DataFrame.from_dict(dicGradB)
+
+    dfKNN.index = dfKNN.index.astype(int)
+    dfSVC.index = dfSVC.index.astype(int) + SVCModelsCount
+    dfGausNB.index = dfGausNB.index.astype(int) + GausNBModelsCount
+    dfMLP.index = dfMLP.index.astype(int) + MLPModelsCount
+    dfLR.index = dfLR.index.astype(int) + LRModelsCount
+    dfLDA.index = dfLDA.index.astype(int) + LDAModelsCount
+    dfQDA.index = dfQDA.index.astype(int) + QDAModelsCount
+    dfRF.index = dfRF.index.astype(int) + RFModelsCount
+    dfExtraT.index = dfExtraT.index.astype(int) + ExtraTModelsCount
+    dfAdaB.index = dfAdaB.index.astype(int) + AdaBModelsCount
+    dfGradB.index = dfGradB.index.astype(int) + GradBModelsCount
+    
+    dfKNNFiltered = dfKNN.loc[KNNModels, :]
+    dfSVCFiltered = dfSVC.loc[SVCModels, :]
+    dfGausNBFiltered = dfGausNB.loc[GausNBModels, :]
+    dfMLPFiltered = dfMLP.loc[MLPModels, :]
+    dfLRFiltered = dfLR.loc[LRModels, :]
+    dfLDAFiltered = dfLDA.loc[LDAModels, :]
+    dfQDAFiltered = dfQDA.loc[QDAModels, :]
     dfRFFiltered = dfRF.loc[RFModels, :]
-    df_featAcc = pd.concat([dfKNNFiltered, dfRFFiltered])
+    dfExtraTFiltered = dfExtraT.loc[ExtraTModels, :]
+    dfAdaBFiltered = dfAdaB.loc[AdaBModels, :]
+    dfGradBFiltered = dfGradB.loc[GradBModels, :]
+
+    df_featAcc = pd.concat([dfKNNFiltered, dfSVCFiltered, dfGausNBFiltered, dfMLPFiltered, dfLRFiltered, dfLDAFiltered, dfQDAFiltered, dfRFFiltered, dfExtraTFiltered, dfAdaBFiltered, dfGradBFiltered])
     return df_featAcc
 
 def preProcessPerm():
     dicKNN = json.loads(allParametersPerformancePerModel[4])
-    dicRF = json.loads(allParametersPerformancePerModel[12])
+    dicSVC = json.loads(allParametersPerformancePerModel[12])
+    dicGausNB = json.loads(allParametersPerformancePerModel[20])
+    dicMLP = json.loads(allParametersPerformancePerModel[28])
+    dicLR = json.loads(allParametersPerformancePerModel[36])
+    dicLDA = json.loads(allParametersPerformancePerModel[44])
+    dicQDA = json.loads(allParametersPerformancePerModel[52])
+    dicRF = json.loads(allParametersPerformancePerModel[60])
+    dicExtraT = json.loads(allParametersPerformancePerModel[68])
+    dicAdaB = json.loads(allParametersPerformancePerModel[76])
+    dicGradB = json.loads(allParametersPerformancePerModel[84])
+
     dfKNN = pd.DataFrame.from_dict(dicKNN)
-    dfKNN.index = dfKNN.index.astype(int)
-    dfKNNFiltered = dfKNN.loc[KNNModels, :]
+    dfSVC = pd.DataFrame.from_dict(dicSVC)
+    dfGausNB = pd.DataFrame.from_dict(dicGausNB)
+    dfMLP = pd.DataFrame.from_dict(dicMLP)
+    dfLR = pd.DataFrame.from_dict(dicLR)
+    dfLDA = pd.DataFrame.from_dict(dicLDA)
+    dfQDA = pd.DataFrame.from_dict(dicQDA)
     dfRF = pd.DataFrame.from_dict(dicRF)
-    dfRF.index = dfRF.index.astype(int) + 576
+    dfExtraT = pd.DataFrame.from_dict(dicExtraT)
+    dfAdaB = pd.DataFrame.from_dict(dicAdaB)
+    dfGradB = pd.DataFrame.from_dict(dicGradB)
+
+    dfKNN.index = dfKNN.index.astype(int)
+    dfSVC.index = dfSVC.index.astype(int) + SVCModelsCount
+    dfGausNB.index = dfGausNB.index.astype(int) + GausNBModelsCount
+    dfMLP.index = dfMLP.index.astype(int) + MLPModelsCount
+    dfLR.index = dfLR.index.astype(int) + LRModelsCount
+    dfLDA.index = dfLDA.index.astype(int) + LDAModelsCount
+    dfQDA.index = dfQDA.index.astype(int) + QDAModelsCount
+    dfRF.index = dfRF.index.astype(int) + RFModelsCount
+    dfExtraT.index = dfExtraT.index.astype(int) + ExtraTModelsCount
+    dfAdaB.index = dfAdaB.index.astype(int) + AdaBModelsCount
+    dfGradB.index = dfGradB.index.astype(int) + GradBModelsCount
+    
+    dfKNNFiltered = dfKNN.loc[KNNModels, :]
+    dfSVCFiltered = dfSVC.loc[SVCModels, :]
+    dfGausNBFiltered = dfGausNB.loc[GausNBModels, :]
+    dfMLPFiltered = dfMLP.loc[MLPModels, :]
+    dfLRFiltered = dfLR.loc[LRModels, :]
+    dfLDAFiltered = dfLDA.loc[LDAModels, :]
+    dfQDAFiltered = dfQDA.loc[QDAModels, :]
     dfRFFiltered = dfRF.loc[RFModels, :]
-    df_perm = pd.concat([dfKNNFiltered, dfRFFiltered])
+    dfExtraTFiltered = dfExtraT.loc[ExtraTModels, :]
+    dfAdaBFiltered = dfAdaB.loc[AdaBModels, :]
+    dfGradBFiltered = dfGradB.loc[GradBModels, :]
+
+    df_perm = pd.concat([dfKNNFiltered, dfSVCFiltered, dfGausNBFiltered, dfMLPFiltered, dfLRFiltered, dfLDAFiltered, dfQDAFiltered, dfRFFiltered, dfExtraTFiltered, dfAdaBFiltered, dfGradBFiltered])
     return df_perm
 
 def preProcessFeatSc():
@@ -929,6 +1384,7 @@ def preProcessFeatSc():
     dfKNN = pd.DataFrame.from_dict(dicKNN)
     return dfKNN
 
+# remove that maybe!
 def preProcsumPerMetric(factors):
     sumPerClassifier = []
     loopThroughMetrics = PreprocessingMetrics()
@@ -981,7 +1437,7 @@ def preProcMetricsAllAndSel():
     return metricsPerModelColl
 
 def preProceModels():
-    models = KNNModels + RFModels
+    models = KNNModels + SVCModels + GausNBModels + MLPModels + LRModels + LDAModels + QDAModels + RFModels + ExtraTModels + AdaBModels + GradBModels
     return models
 
 def FunMDS (data):
@@ -1003,7 +1459,6 @@ def FunUMAP (data):
 
 def InitializeEnsemble(): 
     XModels = PreprocessingMetrics()
-
     global ModelSpaceMDS
     global ModelSpaceTSNE
 
@@ -1019,7 +1474,6 @@ def InitializeEnsemble():
     PredictionSpaceUMAP = FunUMAP(PredictionProbSel)
 
     ModelsIDs = preProceModels()
-
     key = 0
     EnsembleModel(ModelsIDs, key)
 
@@ -1166,7 +1620,16 @@ def RetrieveSelDataPoints():
     paramsListSepPD = PreprocessingParamSep()
 
     paramsListSeptoDicKNN = paramsListSepPD[0].to_dict(orient='list')
-    paramsListSeptoDicRF = paramsListSepPD[1].to_dict(orient='list')
+    paramsListSeptoDicSVC = paramsListSepPD[1].to_dict(orient='list')
+    paramsListSeptoDicGausNB = paramsListSepPD[2].to_dict(orient='list')
+    paramsListSeptoDicMLP = paramsListSepPD[3].to_dict(orient='list')
+    paramsListSeptoDicLR = paramsListSepPD[4].to_dict(orient='list')
+    paramsListSeptoDicLDA = paramsListSepPD[5].to_dict(orient='list')
+    paramsListSeptoDicQDA = paramsListSepPD[6].to_dict(orient='list')
+    paramsListSeptoDicRF = paramsListSepPD[7].to_dict(orient='list')
+    paramsListSeptoDicExtraT = paramsListSepPD[8].to_dict(orient='list')
+    paramsListSeptoDicAdaB = paramsListSepPD[9].to_dict(orient='list')
+    paramsListSeptoDicGradB = paramsListSepPD[10].to_dict(orient='list')
 
     RetrieveParamsCleared = {}
     RetrieveParamsClearedListKNN = []
@@ -1176,32 +1639,156 @@ def RetrieveSelDataPoints():
     RetrieveParamsClearedListKNN.append(RetrieveParamsCleared)
 
     RetrieveParamsCleared = {}
+    RetrieveParamsClearedListSVC = []
+    for key, value in paramsListSeptoDicSVC.items():
+        withoutDuplicates = Remove(value)
+        RetrieveParamsCleared[key] = withoutDuplicates
+    RetrieveParamsClearedListSVC.append(RetrieveParamsCleared)
+    
+    RetrieveParamsCleared = {}
+    RetrieveParamsClearedListGausNB = []
+    for key, value in paramsListSeptoDicGausNB.items():
+        withoutDuplicates = Remove(value)
+        RetrieveParamsCleared[key] = withoutDuplicates
+    RetrieveParamsClearedListGausNB.append(RetrieveParamsCleared)
+
+    RetrieveParamsCleared = {}
+    RetrieveParamsClearedListMLP = []
+    for key, value in paramsListSeptoDicMLP.items():
+        withoutDuplicates = Remove(value)
+        RetrieveParamsCleared[key] = withoutDuplicates
+    RetrieveParamsClearedListMLP.append(RetrieveParamsCleared)
+
+    RetrieveParamsCleared = {}
+    RetrieveParamsClearedListLR = []
+    for key, value in paramsListSeptoDicLR.items():
+        withoutDuplicates = Remove(value)
+        RetrieveParamsCleared[key] = withoutDuplicates
+    RetrieveParamsClearedListLR.append(RetrieveParamsCleared)
+
+    RetrieveParamsCleared = {}
+    RetrieveParamsClearedListLDA = []
+    for key, value in paramsListSeptoDicLDA.items():
+        withoutDuplicates = Remove(value)
+        RetrieveParamsCleared[key] = withoutDuplicates
+    RetrieveParamsClearedListLDA.append(RetrieveParamsCleared)
+
+    RetrieveParamsCleared = {}
+    RetrieveParamsClearedListQDA = []
+    for key, value in paramsListSeptoDicQDA.items():
+        withoutDuplicates = Remove(value)
+        RetrieveParamsCleared[key] = withoutDuplicates
+    RetrieveParamsClearedListQDA.append(RetrieveParamsCleared)
+
+    RetrieveParamsCleared = {}
     RetrieveParamsClearedListRF = []
     for key, value in paramsListSeptoDicRF.items():
         withoutDuplicates = Remove(value)
         RetrieveParamsCleared[key] = withoutDuplicates
     RetrieveParamsClearedListRF.append(RetrieveParamsCleared)
 
+    RetrieveParamsCleared = {}
+    RetrieveParamsClearedListExtraT = []
+    for key, value in paramsListSeptoDicExtraT.items():
+        withoutDuplicates = Remove(value)
+        RetrieveParamsCleared[key] = withoutDuplicates
+    RetrieveParamsClearedListExtraT.append(RetrieveParamsCleared)
+
+    RetrieveParamsCleared = {}
+    RetrieveParamsClearedListAdaB = []
+    for key, value in paramsListSeptoDicAdaB.items():
+        withoutDuplicates = Remove(value)
+        RetrieveParamsCleared[key] = withoutDuplicates
+    RetrieveParamsClearedListAdaB.append(RetrieveParamsCleared)
+
+    RetrieveParamsCleared = {}
+    RetrieveParamsClearedListGradB = []
+    for key, value in paramsListSeptoDicGradB.items():
+        withoutDuplicates = Remove(value)
+        RetrieveParamsCleared[key] = withoutDuplicates
+    RetrieveParamsClearedListGradB.append(RetrieveParamsCleared)
+
     if (len(paramsListSeptoDicKNN['n_neighbors']) is 0):
         RetrieveParamsClearedListKNN = []
 
+    if (len(paramsListSeptoDicSVC['C']) is 0):
+        RetrieveParamsClearedListSVC = []
+
+    if (len(paramsListSeptoDicGausNB['var_smoothing']) is 0):
+        RetrieveParamsClearedListGausNB = []
+
+    if (len(paramsListSeptoDicMLP['alpha']) is 0):
+        RetrieveParamsClearedListMLP = []
+
+    if (len(paramsListSeptoDicLR['C']) is 0):
+        RetrieveParamsClearedListLR = []
+
+    if (len(paramsListSeptoDicLDA['shrinkage']) is 0):
+        RetrieveParamsClearedListLDA = []
+
+    if (len(paramsListSeptoDicQDA['reg_param']) is 0):
+        RetrieveParamsClearedListQDA = []
+
     if (len(paramsListSeptoDicRF['n_estimators']) is 0):
         RetrieveParamsClearedListRF = []
+
+    if (len(paramsListSeptoDicExtraT['n_estimators']) is 0):
+        RetrieveParamsClearedListExtraT = []
+
+    if (len(paramsListSeptoDicAdaB['n_estimators']) is 0):
+        RetrieveParamsClearedListAdaB = []
+
+    if (len(paramsListSeptoDicGradB['n_estimators']) is 0):
+        RetrieveParamsClearedListGradB = []
     
     for eachAlgor in algorithms:
         if (eachAlgor) == 'KNN':
             clf = KNeighborsClassifier()
-            #params = {'n_neighbors': list(range(1, 25)), 'weights': ['uniform', 'distance'], 'algorithm': ['brute', 'kd_tree', 'ball_tree'], 'metric': ['chebyshev', 'manhattan', 'euclidean', 'minkowski']}
             params = RetrieveParamsClearedListKNN
             AlgorithmsIDsEnd = 0
-        else: 
+        elif (eachAlgor) == 'SVC':
+            clf = SVC(probability=True)
+            params = RetrieveParamsClearedListSVC
+            AlgorithmsIDsEnd = SVCModelsCount
+        elif (eachAlgor) == 'GausNB':
+            clf = GaussianNB()
+            params = RetrieveParamsClearedListGausNB
+            AlgorithmsIDsEnd = GausNBModelsCount
+        elif (eachAlgor) == 'MLP':
+            clf = MLPClassifier()
+            params = RetrieveParamsClearedListMLP
+            AlgorithmsIDsEnd = MLPModelsCount
+        elif (eachAlgor) == 'LR':
+            clf = LogisticRegression()
+            params = RetrieveParamsClearedListLR
+            AlgorithmsIDsEnd = LRModelsCount
+        elif (eachAlgor) == 'LDA':
+            clf = LinearDiscriminantAnalysis()
+            params = RetrieveParamsClearedListLDA
+            AlgorithmsIDsEnd = LDAModelsCount
+        elif (eachAlgor) == 'QDA':
+            clf = QuadraticDiscriminantAnalysis()
+            params = RetrieveParamsClearedListQDA
+            AlgorithmsIDsEnd = QDAModelsCount
+        elif (eachAlgor) == 'RF':
             clf = RandomForestClassifier()
-            #params = {'n_estimators': list(range(40, 120)), 'criterion': ['gini', 'entropy']}
             params = RetrieveParamsClearedListRF
-            AlgorithmsIDsEnd = 576
+            AlgorithmsIDsEnd = RFModelsCount
+        elif (eachAlgor) == 'ExtraT':
+            clf = ExtraTreesClassifier()
+            params = RetrieveParamsClearedListExtraT
+            AlgorithmsIDsEnd = ExtraTModelsCount
+        elif (eachAlgor) == 'AdaB':
+            clf = AdaBoostClassifier()
+            params = RetrieveParamsClearedListGradB
+            AlgorithmsIDsEnd = AdaBModelsCount
+        else: 
+            clf = GradientBoostingClassifier()
+            params = RetrieveParamsClearedListGradB
+            AlgorithmsIDsEnd = GradBModelsCount
         metricsSelList = GridSearchSel(clf, params, factors, AlgorithmsIDsEnd, listofDataPoints)
-    if (len(metricsSelList[0]) != 0 and len(metricsSelList[1]) != 0):
 
+    if (len(metricsSelList[0]) != 0 and len(metricsSelList[1]) != 0 and len(metricsSelList[2]) != 0 and len(metricsSelList[3]) != 0 and len(metricsSelList[4]) != 0 and len(metricsSelList[5]) != 0 and len(metricsSelList[6]) != 0 and len(metricsSelList[7]) != 0 and len(metricsSelList[8]) != 0 and len(metricsSelList[9]) != 0 and len(metricsSelList[10])):
         dicKNN = json.loads(metricsSelList[0])
         dfKNN = pd.DataFrame.from_dict(dicKNN)
         parametersSelDataPD = parametersSelData[0].apply(pd.Series)
@@ -1212,17 +1799,107 @@ def RetrieveSelDataPoints():
         else:
             dfKNNCleared = dfKNN.drop(dfKNN.index[set_diff_df])
 
-        dicRF = json.loads(metricsSelList[1])
-        dfRF = pd.DataFrame.from_dict(dicRF)
+        dicSVC = json.loads(metricsSelList[1])
+        dfSVC = pd.DataFrame.from_dict(dicSVC)
         parametersSelDataPD = parametersSelData[1].apply(pd.Series)
         set_diff_df = pd.concat([parametersSelDataPD, paramsListSepPD[1], paramsListSepPD[1]]).drop_duplicates(keep=False)
+        set_diff_df = set_diff_df.index.tolist()
+        if (len(set_diff_df) == 0):
+            dfSVCCleared = dfSVC
+        else:
+            dfSVCCleared = dfSVC.drop(dfSVC.index[set_diff_df])
+
+        dicGausNB = json.loads(metricsSelList[2])
+        dfGausNB = pd.DataFrame.from_dict(dicGausNB)
+        parametersSelDataPD = parametersSelData[2].apply(pd.Series)
+        set_diff_df = pd.concat([parametersSelDataPD, paramsListSepPD[2], paramsListSepPD[2]]).drop_duplicates(keep=False)
+        set_diff_df = set_diff_df.index.tolist()
+        if (len(set_diff_df) == 0):
+            dfGausNBCleared = dfGausNB
+        else:
+            dfGausNBCleared = dfGausNB.drop(dfGausNB.index[set_diff_df])
+
+        dicMLP = json.loads(metricsSelList[3])
+        dfMLP = pd.DataFrame.from_dict(dicMLP)
+        parametersSelDataPD = parametersSelData[3].apply(pd.Series)
+        set_diff_df = pd.concat([parametersSelDataPD, paramsListSepPD[3], paramsListSepPD[3]]).drop_duplicates(keep=False)
+        set_diff_df = set_diff_df.index.tolist()
+        if (len(set_diff_df) == 0):
+            dfMLPCleared = dfMLP
+        else:
+            dfMLPCleared = dfMLP.drop(dfMLP.index[set_diff_df])
+
+        dicLR = json.loads(metricsSelList[4])
+        dfLR = pd.DataFrame.from_dict(dicLR)
+        parametersSelDataPD = parametersSelData[4].apply(pd.Series)
+        set_diff_df = pd.concat([parametersSelDataPD, paramsListSepPD[4], paramsListSepPD[4]]).drop_duplicates(keep=False)
+        set_diff_df = set_diff_df.index.tolist()
+        if (len(set_diff_df) == 0):
+            dfLRCleared = dfLR
+        else:
+            dfLRCleared = dfLR.drop(dfLR.index[set_diff_df])
+
+        dicLDA = json.loads(metricsSelList[5])
+        dfLDA = pd.DataFrame.from_dict(dicLDA)
+        parametersSelDataPD = parametersSelData[5].apply(pd.Series)
+        set_diff_df = pd.concat([parametersSelDataPD, paramsListSepPD[5], paramsListSepPD[5]]).drop_duplicates(keep=False)
+        set_diff_df = set_diff_df.index.tolist()
+        if (len(set_diff_df) == 0):
+            dfLDACleared = dfLDA
+        else:
+            dfLDACleared = dfLDA.drop(dfLDA.index[set_diff_df])
+
+        dicQDA = json.loads(metricsSelList[6])
+        dfQDA = pd.DataFrame.from_dict(dicQDA)
+        parametersSelDataPD = parametersSelData[6].apply(pd.Series)
+        set_diff_df = pd.concat([parametersSelDataPD, paramsListSepPD[6], paramsListSepPD[6]]).drop_duplicates(keep=False)
+        set_diff_df = set_diff_df.index.tolist()
+        if (len(set_diff_df) == 0):
+            dfQDACleared = dfQDA
+        else:
+            dfQDACleared = dfQDA.drop(dfQDA.index[set_diff_df])
+
+        dicRF = json.loads(metricsSelList[7])
+        dfRF = pd.DataFrame.from_dict(dicRF)
+        parametersSelDataPD = parametersSelData[7].apply(pd.Series)
+        set_diff_df = pd.concat([parametersSelDataPD, paramsListSepPD[7], paramsListSepPD[7]]).drop_duplicates(keep=False)
         set_diff_df = set_diff_df.index.tolist()
         if (len(set_diff_df) == 0):
             dfRFCleared = dfRF
         else:
             dfRFCleared = dfRF.drop(dfRF.index[set_diff_df])
 
-        df_concatMetrics = pd.concat([dfKNNCleared, dfRFCleared])
+        dicExtraT = json.loads(metricsSelList[8])
+        dfExtraT = pd.DataFrame.from_dict(dicExtraT)
+        parametersSelDataPD = parametersSelData[8].apply(pd.Series)
+        set_diff_df = pd.concat([parametersSelDataPD, paramsListSepPD[8], paramsListSepPD[8]]).drop_duplicates(keep=False)
+        set_diff_df = set_diff_df.index.tolist()
+        if (len(set_diff_df) == 0):
+            dfExtraTCleared = dfExtraT
+        else:
+            dfExtraTCleared = dfExtraT.drop(dfExtraT.index[set_diff_df])
+
+        dicAdaB = json.loads(metricsSelList[9])
+        dfAdaB = pd.DataFrame.from_dict(dicAdaB)
+        parametersSelDataPD = parametersSelData[9].apply(pd.Series)
+        set_diff_df = pd.concat([parametersSelDataPD, paramsListSepPD[9], paramsListSepPD[9]]).drop_duplicates(keep=False)
+        set_diff_df = set_diff_df.index.tolist()
+        if (len(set_diff_df) == 0):
+            dfAdaBCleared = dfAdaB
+        else:
+            dfAdaBCleared = dfAdaB.drop(dfAdaB.index[set_diff_df])
+
+        dicGradB = json.loads(metricsSelList[10])
+        dfGradB = pd.DataFrame.from_dict(dicGradB)
+        parametersSelDataPD = parametersSelData[10].apply(pd.Series)
+        set_diff_df = pd.concat([parametersSelDataPD, paramsListSepPD[10], paramsListSepPD[10]]).drop_duplicates(keep=False)
+        set_diff_df = set_diff_df.index.tolist()
+        if (len(set_diff_df) == 0):
+            dfGradBCleared = dfGradB
+        else:
+            dfGradBCleared = dfGradB.drop(dfGradB.index[set_diff_df])
+
+        df_concatMetrics = pd.concat([dfKNNCleared, dfSVCCleared, dfGausNBCleared, dfMLPCleared, dfLRCleared, dfLDACleared, dfQDACleared, dfRFCleared, dfExtraTCleared, dfAdaBCleared, dfGradBCleared])
     else:
         if (len(metricsSelList[0]) != 0):
             dicKNN = json.loads(metricsSelList[0])
@@ -1235,19 +1912,116 @@ def RetrieveSelDataPoints():
             else:
                 dfKNNCleared = dfKNN.drop(dfKNN.index[set_diff_df])
             df_concatMetrics = dfKNNCleared
-        else:
-            dicRF = json.loads(metricsSelList[1])
-            dfRF = pd.DataFrame.from_dict(dicRF)
+        elif (len(metricsSelList[1]) != 0):
+            dicSVC = json.loads(metricsSelList[1])
+            dfSVC = pd.DataFrame.from_dict(dicSVC)
             parametersSelDataPD = parametersSelData[1].apply(pd.Series)
             set_diff_df = pd.concat([parametersSelDataPD, paramsListSepPD[1], paramsListSepPD[1]]).drop_duplicates(keep=False)
+            set_diff_df = set_diff_df.index.tolist()
+            if (len(set_diff_df) == 0):
+                dfSVCCleared = dfSVC
+            else:
+                dfSVCCleared = dfSVC.drop(dfSVC.index[set_diff_df])
+            df_concatMetrics = dfSVCCleared
+        elif (len(metricsSelList[2]) != 0):
+            dicGausNB = json.loads(metricsSelList[2])
+            dfGausNB = pd.DataFrame.from_dict(dicGausNB)
+            parametersSelDataPD = parametersSelData[2].apply(pd.Series)
+            set_diff_df = pd.concat([parametersSelDataPD, paramsListSepPD[2], paramsListSepPD[2]]).drop_duplicates(keep=False)
+            set_diff_df = set_diff_df.index.tolist()
+            if (len(set_diff_df) == 0):
+                dfGausNBCleared = dfGausNB
+            else:
+                dfGausNBCleared = dfGausNB.drop(dfGausNB.index[set_diff_df])
+            df_concatMetrics = dfGausNBCleared
+        elif (len(metricsSelList[3]) != 0):
+            dicMLP = json.loads(metricsSelList[3])
+            dfMLP = pd.DataFrame.from_dict(dicMLP)
+            parametersSelDataPD = parametersSelData[3].apply(pd.Series)
+            set_diff_df = pd.concat([parametersSelDataPD, paramsListSepPD[3], paramsListSepPD[3]]).drop_duplicates(keep=False)
+            set_diff_df = set_diff_df.index.tolist()
+            if (len(set_diff_df) == 0):
+                dfMLPCleared = dfMLP
+            else:
+                dfMLPCleared = dfMLP.drop(dfMLP.index[set_diff_df])
+            df_concatMetrics = dfMLPCleared
+        elif (len(metricsSelList[4]) != 0):
+            dicLR = json.loads(metricsSelList[4])
+            dfLR = pd.DataFrame.from_dict(dicLR)
+            parametersSelDataPD = parametersSelData[4].apply(pd.Series)
+            set_diff_df = pd.concat([parametersSelDataPD, paramsListSepPD[4], paramsListSepPD[4]]).drop_duplicates(keep=False)
+            set_diff_df = set_diff_df.index.tolist()
+            if (len(set_diff_df) == 0):
+                dfLRCleared = dfLR
+            else:
+                dfLRCleared = dfLR.drop(dfLR.index[set_diff_df])
+            df_concatMetrics = dfLRCleared
+        elif (len(metricsSelList[5]) != 0):
+            dicLDA = json.loads(metricsSelList[5])
+            dfLDA = pd.DataFrame.from_dict(dicLDA)
+            parametersSelDataPD = parametersSelData[5].apply(pd.Series)
+            set_diff_df = pd.concat([parametersSelDataPD, paramsListSepPD[5], paramsListSepPD[5]]).drop_duplicates(keep=False)
+            set_diff_df = set_diff_df.index.tolist()
+            if (len(set_diff_df) == 0):
+                dfLDACleared = dfLDA
+            else:
+                dfLDACleared = dfLDA.drop(dfLDA.index[set_diff_df])
+            df_concatMetrics = dfLDACleared
+        elif (len(metricsSelList[6]) != 0):
+            dicQDA = json.loads(metricsSelList[6])
+            dfQDA = pd.DataFrame.from_dict(dicQDA)
+            parametersSelDataPD = parametersSelData[6].apply(pd.Series)
+            set_diff_df = pd.concat([parametersSelDataPD, paramsListSepPD[6], paramsListSepPD[6]]).drop_duplicates(keep=False)
+            set_diff_df = set_diff_df.index.tolist()
+            if (len(set_diff_df) == 0):
+                dfQDACleared = dfQDA
+            else:
+                dfQDACleared = dfQDA.drop(dfQDA.index[set_diff_df])
+            df_concatMetrics = dfQDACleared
+        elif (len(metricsSelList[7]) != 0):
+            dicRF = json.loads(metricsSelList[7])
+            dfRF = pd.DataFrame.from_dict(dicRF)
+            parametersSelDataPD = parametersSelData[7].apply(pd.Series)
+            set_diff_df = pd.concat([parametersSelDataPD, paramsListSepPD[7], paramsListSepPD[7]]).drop_duplicates(keep=False)
             set_diff_df = set_diff_df.index.tolist()
             if (len(set_diff_df) == 0):
                 dfRFCleared = dfRF
             else:
                 dfRFCleared = dfRF.drop(dfRF.index[set_diff_df])
             df_concatMetrics = dfRFCleared
-
-
+        elif (len(metricsSelList[8]) != 0):
+            dicExtraT = json.loads(metricsSelList[8])
+            dfExtraT = pd.DataFrame.from_dict(dicExtraT)
+            parametersSelDataPD = parametersSelData[8].apply(pd.Series)
+            set_diff_df = pd.concat([parametersSelDataPD, paramsListSepPD[8], paramsListSepPD[8]]).drop_duplicates(keep=False)
+            set_diff_df = set_diff_df.index.tolist()
+            if (len(set_diff_df) == 0):
+                dfExtraTCleared = dfExtraT
+            else:
+                dfExtraTCleared = dfExtraT.drop(dfExtraT.index[set_diff_df])
+            df_concatMetrics = dfExtraTCleared
+        elif (len(metricsSelList[9]) != 0):
+            dicAdaB = json.loads(metricsSelList[9])
+            dfAdaB = pd.DataFrame.from_dict(dicAdaB)
+            parametersSelDataPD = parametersSelData[9].apply(pd.Series)
+            set_diff_df = pd.concat([parametersSelDataPD, paramsListSepPD[9], paramsListSepPD[9]]).drop_duplicates(keep=False)
+            set_diff_df = set_diff_df.index.tolist()
+            if (len(set_diff_df) == 0):
+                dfAdaBCleared = dfAdaB
+            else:
+                dfAdaBCleared = dfAdaB.drop(dfAdaB.index[set_diff_df])
+            df_concatMetrics = dfAdaBCleared
+        else:
+            dicGradB = json.loads(metricsSelList[10])
+            dfGradB = pd.DataFrame.from_dict(dicGradB)
+            parametersSelDataPD = parametersSelData[10].apply(pd.Series)
+            set_diff_df = pd.concat([parametersSelDataPD, paramsListSepPD[10], paramsListSepPD[10]]).drop_duplicates(keep=False)
+            set_diff_df = set_diff_df.index.tolist()
+            if (len(set_diff_df) == 0):
+                dfAdaBCleared = dfGradB
+            else:
+                dfAdaBCleared = dfGradB.drop(dfGradB.index[set_diff_df])
+            df_concatMetrics = dfAdaBCleared
     
     global sumPerClassifierSelUpdate
     sumPerClassifierSelUpdate = []
@@ -1321,6 +2095,95 @@ def GridSearchSel(clf, params, factors, AlgorithmsIDsEnd, DataPointsSel):
         # copy and filter in order to get only the metrics
         metrics = df_cv_results_classifiers.copy()
         metrics = metrics.filter(['mean_test_accuracy','mean_test_neg_mean_absolute_error','mean_test_neg_root_mean_squared_error','mean_test_precision_micro','mean_test_precision_macro','mean_test_precision_weighted','mean_test_recall_micro','mean_test_recall_macro','mean_test_recall_weighted','mean_test_roc_auc_ovo_weighted']) 
+        
+        # concat parameters and performance
+        parametersPerformancePerModel = pd.DataFrame(df_cv_results_classifiers['params'])
+        parametersPerformancePerModel = parametersPerformancePerModel.to_json()
+
+        parametersLocal = json.loads(parametersPerformancePerModel)['params'].copy()
+        Models = []
+        for index, items in enumerate(parametersLocal):
+            Models.append(str(index))
+
+        parametersLocalNew = [ parametersLocal[your_key] for your_key in Models ]
+
+        permList = []
+        PerFeatureAccuracy = []
+        PerFeatureAccuracyAll = []
+        PerClassMetric = []
+        perModelProb = []
+        resultsMicro = []
+        resultsMacro = []
+        resultsWeighted = []
+        resultsCorrCoef = []
+        resultsMicroBeta5 = []
+        resultsMacroBeta5 = []
+        resultsWeightedBeta5 = []
+        resultsMicroBeta1 = []
+        resultsMacroBeta1 = []
+        resultsWeightedBeta1 = []
+        resultsMicroBeta2 = []
+        resultsMacroBeta2 = []
+        resultsWeightedBeta2 = []
+        resultsLogLoss = []
+        resultsLogLossFinal = []
+
+        loop = 10
+
+        for eachModelParameters in parametersLocalNew:
+            clf.set_params(**eachModelParameters)
+
+            #perm = PermutationImportance(clf, cv = None, refit = True, n_iter = 25).fit(XData, yData)
+            
+            clf.fit(XData, yData) 
+            yPredict = clf.predict(XData)
+            yPredictProb = clf.predict_proba(XData)
+
+            resultsMicro.append(geometric_mean_score(yData, yPredict, average='micro'))
+            resultsMacro.append(geometric_mean_score(yData, yPredict, average='macro'))
+            resultsWeighted.append(geometric_mean_score(yData, yPredict, average='weighted'))
+
+            resultsCorrCoef.append(matthews_corrcoef(yData, yPredict))
+
+            resultsMicroBeta5.append(fbeta_score(yData, yPredict, average='micro', beta=0.5))
+            resultsMacroBeta5.append(fbeta_score(yData, yPredict, average='macro', beta=0.5))
+            resultsWeightedBeta5.append(fbeta_score(yData, yPredict, average='weighted', beta=0.5))
+
+            resultsMicroBeta1.append(fbeta_score(yData, yPredict, average='micro', beta=1))
+            resultsMacroBeta1.append(fbeta_score(yData, yPredict, average='macro', beta=1))
+            resultsWeightedBeta1.append(fbeta_score(yData, yPredict, average='weighted', beta=1))
+
+            resultsMicroBeta2.append(fbeta_score(yData, yPredict, average='micro', beta=2))
+            resultsMacroBeta2.append(fbeta_score(yData, yPredict, average='macro', beta=2))
+            resultsWeightedBeta2.append(fbeta_score(yData, yPredict, average='weighted', beta=2))
+    
+            resultsLogLoss.append(log_loss(yData, yPredictProb, normalize=True))
+
+        maxLog = max(resultsLogLoss)
+        minLog = min(resultsLogLoss)
+        for each in resultsLogLoss:
+            resultsLogLossFinal.append((each-minLog)/(maxLog-minLog))
+
+        metrics.insert(loop,'geometric_mean_score_micro',resultsMicro)
+        metrics.insert(loop+1,'geometric_mean_score_macro',resultsMacro)
+        metrics.insert(loop+2,'geometric_mean_score_weighted',resultsWeighted)
+
+        metrics.insert(loop+3,'matthews_corrcoef',resultsCorrCoef)
+
+        metrics.insert(loop+4,'f5_micro',resultsMicroBeta5)
+        metrics.insert(loop+5,'f5_macro',resultsMacroBeta5)
+        metrics.insert(loop+6,'f5_weighted',resultsWeightedBeta5)
+        
+        metrics.insert(loop+7,'f1_micro',resultsMicroBeta1)
+        metrics.insert(loop+8,'f1_macro',resultsMacroBeta1)
+        metrics.insert(loop+9,'f1_weighted',resultsWeightedBeta1)
+
+        metrics.insert(loop+10,'f2_micro',resultsMicroBeta2)
+        metrics.insert(loop+11,'f2_macro',resultsMacroBeta2)
+        metrics.insert(loop+12,'f2_weighted',resultsWeightedBeta2)
+
+        metrics.insert(loop+13,'log_loss',resultsLogLossFinal)
+        
         metrics = metrics.to_json()
 
         resultsMetrics.append(metrics) # Position: 0 and so on 
@@ -1391,18 +2254,80 @@ def EnsembleModel(Models, keyRetrieved):
         temp = json.loads(allParametersPerformancePerModel[1])
         dfParamKNN = pd.DataFrame.from_dict(temp)
         dfParamKNNFilt = dfParamKNN.iloc[:,0]
-
         for eachelem in KNNModels:
             arg = dfParamKNNFilt[eachelem]
             all_classifiers.append(make_pipeline(ColumnSelector(cols=columnsInit), KNeighborsClassifier().set_params(**arg)))
     
         temp = json.loads(allParametersPerformancePerModel[9])
+        dfParamSVC = pd.DataFrame.from_dict(temp)
+        dfParamSVCFilt = dfParamSVC.iloc[:,0]
+        for eachelem in SVCModels:
+            arg = dfParamSVCFilt[eachelem-SVCModelsCount]
+            all_classifiers.append(make_pipeline(ColumnSelector(cols=columnsInit), SVC(probability=True).set_params(**arg)))
+        
+        temp = json.loads(allParametersPerformancePerModel[17])
+        dfParamGauNB = pd.DataFrame.from_dict(temp)
+        dfParamGauNBFilt = dfParamGauNB.iloc[:,0]
+        for eachelem in GausNBModels:
+            arg = dfParamGauNBFilt[eachelem-GausNBModelsCount]
+            all_classifiers.append(make_pipeline(ColumnSelector(cols=columnsInit), GaussianNB().set_params(**arg)))
+
+        temp = json.loads(allParametersPerformancePerModel[25])
+        dfParamMLP = pd.DataFrame.from_dict(temp)
+        dfParamMLPFilt = dfParamMLP.iloc[:,0]
+        for eachelem in MLPModels:
+            arg = dfParamMLPFilt[eachelem-MLPModelsCount]
+            all_classifiers.append(make_pipeline(ColumnSelector(cols=columnsInit), MLPClassifier().set_params(**arg)))
+
+        temp = json.loads(allParametersPerformancePerModel[33])
+        dfParamLR = pd.DataFrame.from_dict(temp)
+        dfParamLRFilt = dfParamLR.iloc[:,0]
+        for eachelem in LRModels:
+            arg = dfParamLRFilt[eachelem-LRModelsCount]
+            all_classifiers.append(make_pipeline(ColumnSelector(cols=columnsInit), LogisticRegression().set_params(**arg)))
+
+        temp = json.loads(allParametersPerformancePerModel[41])
+        dfParamLDA = pd.DataFrame.from_dict(temp)
+        dfParamLDAFilt = dfParamLDA.iloc[:,0]
+        for eachelem in LDAModels:
+            arg = dfParamLDAFilt[eachelem-LDAModelsCount]
+            all_classifiers.append(make_pipeline(ColumnSelector(cols=columnsInit), LinearDiscriminantAnalysis().set_params(**arg)))
+
+        temp = json.loads(allParametersPerformancePerModel[49])
+        dfParamQDA = pd.DataFrame.from_dict(temp)
+        dfParamQDAFilt = dfParamQDA.iloc[:,0]
+        for eachelem in QDAModels:
+            arg = dfParamQDAFilt[eachelem-QDAModelsCount]
+            all_classifiers.append(make_pipeline(ColumnSelector(cols=columnsInit), QuadraticDiscriminantAnalysis().set_params(**arg)))
+
+        temp = json.loads(allParametersPerformancePerModel[57])
         dfParamRF = pd.DataFrame.from_dict(temp)
         dfParamRFFilt = dfParamRF.iloc[:,0]
         for eachelem in RFModels:
-            arg = dfParamRFFilt[eachelem-576]
+            arg = dfParamRFFilt[eachelem-RFModelsCount]
             all_classifiers.append(make_pipeline(ColumnSelector(cols=columnsInit), RandomForestClassifier().set_params(**arg)))
-        
+
+        temp = json.loads(allParametersPerformancePerModel[65])
+        dfParamExtraT = pd.DataFrame.from_dict(temp)
+        dfParamExtraTFilt = dfParamExtraT.iloc[:,0]
+        for eachelem in ExtraTModels:
+            arg = dfParamExtraTFilt[eachelem-ExtraTModelsCount]
+            all_classifiers.append(make_pipeline(ColumnSelector(cols=columnsInit), ExtraTreesClassifier().set_params(**arg)))
+
+        temp = json.loads(allParametersPerformancePerModel[73])
+        dfParamAdaB = pd.DataFrame.from_dict(temp)
+        dfParamAdaBFilt = dfParamAdaB.iloc[:,0]
+        for eachelem in AdaBModels:
+            arg = dfParamAdaBFilt[eachelem-AdaBModelsCount]
+            all_classifiers.append(make_pipeline(ColumnSelector(cols=columnsInit), AdaBoostClassifier().set_params(**arg)))
+
+        temp = json.loads(allParametersPerformancePerModel[81])
+        dfParamGradB = pd.DataFrame.from_dict(temp)
+        dfParamGradBFilt = dfParamGradB.iloc[:,0]
+        for eachelem in GradBModels:
+            arg = dfParamGradBFilt[eachelem-GradBModelsCount]
+            all_classifiers.append(make_pipeline(ColumnSelector(cols=columnsInit), GradientBoostingClassifier().set_params(**arg)))
+
         global sclfStack
         sclfStack = 0
 
@@ -1439,25 +2364,144 @@ def EnsembleModel(Models, keyRetrieved):
 
             temp = json.loads(allParametersPerformancePerModel[1])
             dfParamKNN = pd.DataFrame.from_dict(temp)
-            dfParamKNNFilt = dfParamKNN.iloc[:,1]
+            dfParamKNNFilt = dfParamKNN.iloc[:,0]
             flag = 0
             for index, eachelem in enumerate(KNNModels):
                 arg = dfParamKNNFilt[eachelem]
                 all_classifiers.append(make_pipeline(ColumnSelector(cols=featureSelection['featureSelection'][index]), KNeighborsClassifier().set_params(**arg)))
                 store = index
                 flag = 1
-            
-            temp = json.loads(allParametersPerformancePerModel[9])
-            dfParamRF = pd.DataFrame.from_dict(temp)
-            dfParamRFFilt = dfParamRF.iloc[:,1]
+        
             if (flag == 0):
                 store = 0  
             else:
-                store = store + 1               
+                store = store + 1          
+            temp = json.loads(allParametersPerformancePerModel[9])
+            dfParamSVC = pd.DataFrame.from_dict(temp)
+            dfParamSVCFilt = dfParamSVC.iloc[:,0]
+            for index, eachelem in enumerate(SVCModels):
+                arg = dfParamRFFilt[eachelem-SVCModelsCount]
+                all_classifiers.append(make_pipeline(ColumnSelector(cols=featureSelection['featureSelection'][index+store]), SVC(probability=True).set_params(**arg)))
+                store = index
+                flag = 1
+
+            if (flag == 0):
+                store = 0  
+            else:
+                store = store + 1        
+            temp = json.loads(allParametersPerformancePerModel[17])
+            dfParamGauNB = pd.DataFrame.from_dict(temp)
+            dfParamGauNBFilt = dfParamGauNB.iloc[:,0]
+            for index, eachelem in enumerate(GausNBModels):
+                arg = dfParamGauNBFilt[eachelem-GausNBModelsCount]
+                all_classifiers.append(make_pipeline(ColumnSelector(cols=featureSelection['featureSelection'][index+store]), GaussianNB().set_params(**arg)))
+                store = index
+                flag = 1
+
+            if (flag == 0):
+                store = 0  
+            else:
+                store = store + 1   
+            temp = json.loads(allParametersPerformancePerModel[25])
+            dfParamMLP = pd.DataFrame.from_dict(temp)
+            dfParamMLPFilt = dfParamMLP.iloc[:,0]
+            for index, eachelem in enumerate(MLPModels):
+                arg = dfParamMLPFilt[eachelem-MLPModelsCount]
+                all_classifiers.append(make_pipeline(ColumnSelector(cols=featureSelection['featureSelection'][index+store]), MLPClassifier().set_params(**arg)))
+                store = index
+                flag = 1
+
+            if (flag == 0):
+                store = 0  
+            else:
+                store = store + 1   
+            temp = json.loads(allParametersPerformancePerModel[33])
+            dfParamLR = pd.DataFrame.from_dict(temp)
+            dfParamLRFilt = dfParamLR.iloc[:,0]
+            for index, eachelem in enumerate(LRModels):
+                arg = dfParamLRFilt[eachelem-LRModelsCount]
+                all_classifiers.append(make_pipeline(ColumnSelector(cols=featureSelection['featureSelection'][index+store]), LogisticRegression().set_params(**arg)))
+                store = index
+                flag = 1
+
+            if (flag == 0):
+                store = 0  
+            else:
+                store = store + 1   
+            temp = json.loads(allParametersPerformancePerModel[41])
+            dfParamLDA = pd.DataFrame.from_dict(temp)
+            dfParamLDAFilt = dfParamLDA.iloc[:,0]
+            for index, eachelem in enumerate(LDAModels):
+                arg = dfParamLDAFilt[eachelem-LDAModelsCount]
+                all_classifiers.append(make_pipeline(ColumnSelector(cols=featureSelection['featureSelection'][index+store]), LinearDiscriminantAnalysis().set_params(**arg)))
+                store = index
+                flag = 1
+
+            if (flag == 0):
+                store = 0  
+            else:
+                store = store + 1   
+            temp = json.loads(allParametersPerformancePerModel[49])
+            dfParamQDA = pd.DataFrame.from_dict(temp)
+            dfParamQDAFilt = dfParamQDA.iloc[:,0]
+            for index, eachelem in enumerate(QDAModels):
+                arg = dfParamQDAFilt[eachelem-QDAModelsCount]
+                all_classifiers.append(make_pipeline(ColumnSelector(cols=featureSelection['featureSelection'][index+store]), QuadraticDiscriminantAnalysis().set_params(**arg)))
+                store = index
+                flag = 1
+
+            if (flag == 0):
+                store = 0  
+            else:
+                store = store + 1   
+            temp = json.loads(allParametersPerformancePerModel[57])
+            dfParamRF = pd.DataFrame.from_dict(temp)
+            dfParamRFFilt = dfParamRF.iloc[:,0]
             for index, eachelem in enumerate(RFModels):
-                arg = dfParamRFFilt[eachelem-576]
+                arg = dfParamRFFilt[eachelem-RFModelsCount]
                 all_classifiers.append(make_pipeline(ColumnSelector(cols=featureSelection['featureSelection'][index+store]), RandomForestClassifier().set_params(**arg)))
-                
+                store = index
+                flag = 1
+
+            if (flag == 0):
+                store = 0  
+            else:
+                store = store + 1   
+            temp = json.loads(allParametersPerformancePerModel[65])
+            dfParamExtraT = pd.DataFrame.from_dict(temp)
+            dfParamExtraTFilt = dfParamExtraT.iloc[:,0]
+            for index, eachelem in enumerate(ExtraTModels):
+                arg = dfParamExtraTFilt[eachelem-ExtraTModelsCount]
+                all_classifiers.append(make_pipeline(ColumnSelector(cols=featureSelection['featureSelection'][index+store]), ExtraTreesClassifier().set_params(**arg)))
+                store = index
+                flag = 1
+
+            if (flag == 0):
+                store = 0  
+            else:
+                store = store + 1   
+            temp = json.loads(allParametersPerformancePerModel[73])
+            dfParamAdaB = pd.DataFrame.from_dict(temp)
+            dfParamAdaBFilt = dfParamAdaB.iloc[:,0]
+            for index, eachelem in enumerate(AdaBModels):
+                arg = dfParamAdaBFilt[eachelem-AdaBModelsCount]
+                all_classifiers.append(make_pipeline(ColumnSelector(cols=featureSelection['featureSelection'][index+store]), AdaBoostClassifier().set_params(**arg)))
+                store = index
+                flag = 1
+
+            if (flag == 0):
+                store = 0  
+            else:
+                store = store + 1   
+            temp = json.loads(allParametersPerformancePerModel[81])
+            dfParamGradB = pd.DataFrame.from_dict(temp)
+            dfParamGradBFilt = dfParamGradB.iloc[:,0]
+            for index, eachelem in enumerate(GradBModels):
+                arg = dfParamGradBFilt[eachelem-GradBModelsCount]
+                all_classifiers.append(make_pipeline(ColumnSelector(cols=featureSelection['featureSelection'][index+store]), GradientBoostingClassifier().set_params(**arg)))
+                store = index
+                flag = 1          
+
             sclf = StackingCVClassifier(classifiers=all_classifiers,
                                 use_probas=True,
                                 meta_classifier=lr,
@@ -1503,6 +2547,7 @@ def EnsembleModel(Models, keyRetrieved):
     scores.append(temp.std())
 
     # influence calculation for all the instances
+    #global DataHeatmap
     #DataHeatmap = []
 
     #for indexValue, row in XData.iterrows():
@@ -1511,13 +2556,7 @@ def EnsembleModel(Models, keyRetrieved):
     #    yDataRemove = yData.copy()
     #    del yDataRemove[indexValue]
     #    tempRemove = model_selection.cross_val_score(sclf, XDataRemove, yDataRemove, cv=crossValidation, scoring='accuracy', n_jobs=-1)
-    #    DataHeatmap.append(abs((tempRemove.mean()+tempRemove.std())-(temp.mean()+temp.std())))
-
-    #print(DataHeatmap)
-
-    #averageValueData = sum(DataHeatmap) / len(DataHeatmap) 
-
-    #print(averageValueData)
+    #    DataHeatmap.append(tempRemove.mean())
 
     temp = model_selection.cross_val_score(sclf, XData, yData, cv=crossValidation, scoring='precision_weighted', n_jobs=-1)
     scores.append(temp.mean())
@@ -1542,6 +2581,15 @@ def EnsembleModel(Models, keyRetrieved):
 def SendToPlotFinalResults():
     response = {    
         'FinalResults': scores
+    }
+    return jsonify(response)
+
+# Sending the final results to be visualized as a line plot
+@app.route('/data/SendInstancesImportance', methods=["GET", "POST"])
+def SendImportInstances():
+    global DataHeatmap
+    response = {    
+        'instancesImportance': DataHeatmap
     }
     return jsonify(response)
 

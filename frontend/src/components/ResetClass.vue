@@ -1,5 +1,5 @@
 <template>
-  <button style="floatfloat: right;"
+  <button style="float: right;"
   id="ResetClass"
   v-on:click="resetClass">
   <font-awesome-icon icon="sync-alt" />
