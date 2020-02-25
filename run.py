@@ -22,6 +22,8 @@ from sklearn.neural_network import MLPClassifier # 1 neural network
 from sklearn.linear_model import LogisticRegression # 1 linear model
 from sklearn.discriminant_analysis import LinearDiscriminantAnalysis, QuadraticDiscriminantAnalysis # 2 discriminant analysis
 from sklearn.ensemble import RandomForestClassifier, ExtraTreesClassifier, AdaBoostClassifier, GradientBoostingClassifier # 4 ensemble models
+from joblib import Parallel, delayed
+import multiprocessing
 
 from sklearn.pipeline import make_pipeline
 from sklearn import model_selection
@@ -407,6 +409,7 @@ def callPreResults():
     global XData
     global yData
     global target_names
+    global allParametersPerformancePerModel
 
     DataSpaceResMDS = FunMDS(XData)
     DataSpaceResTSNE = FunTsne(XData)
@@ -425,6 +428,7 @@ def callPreResults():
     preResults.append(json.dumps(AllTargets)) # Position: 4
     preResults.append(json.dumps(DataSpaceResTSNE)) # Position: 5
     preResults.append(json.dumps(DataSpaceUMAP)) # Position: 6
+    preResults.append(json.dumps(allParametersPerformancePerModel)) # Position: 7
 
 # Sending each model's results to frontend
 @app.route('/data/requestDataSpaceResults', methods=["GET", "POST"])
@@ -551,7 +555,7 @@ memory = Memory(location, verbose=0)
 # calculating for all algorithms and models the performance and other results
 @memory.cache
 def GridSearchForModels(XData, yData, clf, params, eachAlgor, AlgorithmsIDsEnd):
-    print('test')
+    print('start')
     # instantiate spark session
     spark = (   
         SparkSession    
@@ -631,6 +635,12 @@ def GridSearchForModels(XData, yData, clf, params, eachAlgor, AlgorithmsIDsEnd):
     resultsLogLossFinal = []
 
     loop = 10
+
+    # influence calculation for all the instances
+    inputs = range(len(XData))
+    num_cores = multiprocessing.cpu_count()
+    
+    impDataInst = Parallel(n_jobs=num_cores)(delayed(processInput)(i,XData,yData,crossValidation,clf) for i in inputs)
 
     for eachModelParameters in parametersLocalNew:
         clf.set_params(**eachModelParameters)
@@ -727,9 +737,11 @@ def GridSearchForModels(XData, yData, clf, params, eachAlgor, AlgorithmsIDsEnd):
     results.append(PerFeatureAccuracyPandas) # Position: 3 and so on
     results.append(perm_imp_eli5PD) # Position: 4 and so on
     results.append(featureScores) # Position: 5 and so on
+    metrics = metrics.clip(lower=0)
     metrics = metrics.to_json()
     results.append(metrics) # Position: 6 and so on
     results.append(perModelProbPandas) # Position: 7 and so on
+    results.append(json.dumps(impDataInst)) # Position: 8 and so on
 
     return results
 
@@ -749,7 +761,7 @@ def Remove(duplicate):
                 if np.isnan(num):
                     pass
                 else:
-                    final_list.append(int(num)) 
+                    final_list.append(float(num)) 
             else:
                 final_list.append(num) 
     return final_list 
@@ -876,16 +888,16 @@ def UpdateOverview():
 
 def PreprocessingMetrics():
     dicKNN = json.loads(allParametersPerformancePerModel[6])
-    dicSVC = json.loads(allParametersPerformancePerModel[14])
-    dicGausNB = json.loads(allParametersPerformancePerModel[22])
-    dicMLP = json.loads(allParametersPerformancePerModel[30])
-    dicLR = json.loads(allParametersPerformancePerModel[38])
-    dicLDA = json.loads(allParametersPerformancePerModel[46])
-    dicQDA = json.loads(allParametersPerformancePerModel[54])
-    dicRF = json.loads(allParametersPerformancePerModel[62])
-    dicExtraT = json.loads(allParametersPerformancePerModel[70])
-    dicAdaB = json.loads(allParametersPerformancePerModel[78])
-    dicGradB = json.loads(allParametersPerformancePerModel[86])
+    dicSVC = json.loads(allParametersPerformancePerModel[15])
+    dicGausNB = json.loads(allParametersPerformancePerModel[24])
+    dicMLP = json.loads(allParametersPerformancePerModel[33])
+    dicLR = json.loads(allParametersPerformancePerModel[42])
+    dicLDA = json.loads(allParametersPerformancePerModel[51])
+    dicQDA = json.loads(allParametersPerformancePerModel[60])
+    dicRF = json.loads(allParametersPerformancePerModel[69])
+    dicExtraT = json.loads(allParametersPerformancePerModel[78])
+    dicAdaB = json.loads(allParametersPerformancePerModel[87])
+    dicGradB = json.loads(allParametersPerformancePerModel[96])
 
     dfKNN = pd.DataFrame.from_dict(dicKNN)
     dfSVC = pd.DataFrame.from_dict(dicSVC)
@@ -927,16 +939,16 @@ def PreprocessingMetrics():
 
 def PreprocessingPred():
     dicKNN = json.loads(allParametersPerformancePerModel[7])
-    dicSVC = json.loads(allParametersPerformancePerModel[15])
-    dicGausNB = json.loads(allParametersPerformancePerModel[23])
-    dicMLP = json.loads(allParametersPerformancePerModel[31])
-    dicLR = json.loads(allParametersPerformancePerModel[39])
-    dicLDA = json.loads(allParametersPerformancePerModel[47])
-    dicQDA = json.loads(allParametersPerformancePerModel[55])
-    dicRF = json.loads(allParametersPerformancePerModel[63])
-    dicExtraT = json.loads(allParametersPerformancePerModel[71])
-    dicAdaB = json.loads(allParametersPerformancePerModel[79])
-    dicGradB = json.loads(allParametersPerformancePerModel[87])
+    dicSVC = json.loads(allParametersPerformancePerModel[16])
+    dicGausNB = json.loads(allParametersPerformancePerModel[25])
+    dicMLP = json.loads(allParametersPerformancePerModel[34])
+    dicLR = json.loads(allParametersPerformancePerModel[43])
+    dicLDA = json.loads(allParametersPerformancePerModel[52])
+    dicQDA = json.loads(allParametersPerformancePerModel[61])
+    dicRF = json.loads(allParametersPerformancePerModel[70])
+    dicExtraT = json.loads(allParametersPerformancePerModel[79])
+    dicAdaB = json.loads(allParametersPerformancePerModel[88])
+    dicGradB = json.loads(allParametersPerformancePerModel[97])
 
     dfKNN = pd.DataFrame.from_dict(dicKNN)
     dfSVC = pd.DataFrame.from_dict(dicSVC)
@@ -986,20 +998,19 @@ def PreprocessingPredUpdate(Models):
     Models = json.loads(Models)
     ModelsList= []
     for loop in Models['ClassifiersList']:
-        temp = [int(s) for s in re.findall(r'\b\d+\b', loop)]
-        ModelsList.append(temp[0])
+        ModelsList.append(loop)
 
     dicKNN = json.loads(allParametersPerformancePerModel[7])
-    dicSVC = json.loads(allParametersPerformancePerModel[15])
-    dicGausNB = json.loads(allParametersPerformancePerModel[23])
-    dicMLP = json.loads(allParametersPerformancePerModel[31])
-    dicLR = json.loads(allParametersPerformancePerModel[39])
-    dicLDA = json.loads(allParametersPerformancePerModel[47])
-    dicQDA = json.loads(allParametersPerformancePerModel[55])
-    dicRF = json.loads(allParametersPerformancePerModel[63])
-    dicExtraT = json.loads(allParametersPerformancePerModel[71])
-    dicAdaB = json.loads(allParametersPerformancePerModel[79])
-    dicGradB = json.loads(allParametersPerformancePerModel[87])
+    dicSVC = json.loads(allParametersPerformancePerModel[16])
+    dicGausNB = json.loads(allParametersPerformancePerModel[25])
+    dicMLP = json.loads(allParametersPerformancePerModel[34])
+    dicLR = json.loads(allParametersPerformancePerModel[43])
+    dicLDA = json.loads(allParametersPerformancePerModel[52])
+    dicQDA = json.loads(allParametersPerformancePerModel[61])
+    dicRF = json.loads(allParametersPerformancePerModel[70])
+    dicExtraT = json.loads(allParametersPerformancePerModel[79])
+    dicAdaB = json.loads(allParametersPerformancePerModel[88])
+    dicGradB = json.loads(allParametersPerformancePerModel[97])
 
     dfKNN = pd.DataFrame.from_dict(dicKNN)
     dfSVC = pd.DataFrame.from_dict(dicSVC)
@@ -1047,8 +1058,7 @@ def PreprocessingPredUpdate(Models):
             df_concatProbs = df_concatProbs.drop(df_concatProbs.index[index])
             deletedElements = deletedElements + 1
     df_concatProbsCleared = df_concatProbs
-    listIDsRemaining = df_concatProbsCleared.index.values.tolist()
-
+    listIDsRemoved = df_concatProbsCleared.index.values.tolist()
     predictionsAll = PreprocessingPred()
     PredictionSpaceAll = FunMDS(predictionsAll)
 
@@ -1059,31 +1069,27 @@ def PreprocessingPredUpdate(Models):
 
     PredictionSpaceSel = FunMDS(predictionsSel)
 
-    #ModelSpaceMDSNewComb = [list(a) for a in  zip(PredictionSpaceAll[0], ModelSpaceMDS[1])]
-
-    #ModelSpaceMDSNewSel = FunMDS(df_concatMetrics)
-    #ModelSpaceMDSNewSelComb = [list(a) for a in  zip(ModelSpaceMDSNewSel[0], ModelSpaceMDSNewSel[1])]
-
     mtx2PredFinal = []
     mtx1Pred, mtx2Pred, disparity2 = procrustes(PredictionSpaceAll, PredictionSpaceSel)
 
-    a1, b1 = zip(*mtx2Pred)
+    a1 = [i[1] for i in mtx2Pred]
+    b1 = [i[0] for i in mtx2Pred]
     mtx2PredFinal.append(a1)
     mtx2PredFinal.append(b1)
-    return [mtx2PredFinal,listIDsRemaining]
+    return [mtx2PredFinal,listIDsRemoved]
 
 def PreprocessingParam():
     dicKNN = json.loads(allParametersPerformancePerModel[1])
-    dicSVC = json.loads(allParametersPerformancePerModel[9])
-    dicGausNB = json.loads(allParametersPerformancePerModel[17])
-    dicMLP = json.loads(allParametersPerformancePerModel[25])
-    dicLR = json.loads(allParametersPerformancePerModel[33])
-    dicLDA = json.loads(allParametersPerformancePerModel[41])
-    dicQDA = json.loads(allParametersPerformancePerModel[49])
-    dicRF = json.loads(allParametersPerformancePerModel[57])
-    dicExtraT = json.loads(allParametersPerformancePerModel[65])
-    dicAdaB = json.loads(allParametersPerformancePerModel[73])
-    dicGradB = json.loads(allParametersPerformancePerModel[81])
+    dicSVC = json.loads(allParametersPerformancePerModel[10])
+    dicGausNB = json.loads(allParametersPerformancePerModel[19])
+    dicMLP = json.loads(allParametersPerformancePerModel[28])
+    dicLR = json.loads(allParametersPerformancePerModel[37])
+    dicLDA = json.loads(allParametersPerformancePerModel[46])
+    dicQDA = json.loads(allParametersPerformancePerModel[55])
+    dicRF = json.loads(allParametersPerformancePerModel[64])
+    dicExtraT = json.loads(allParametersPerformancePerModel[73])
+    dicAdaB = json.loads(allParametersPerformancePerModel[82])
+    dicGradB = json.loads(allParametersPerformancePerModel[91])
 
     dicKNN = dicKNN['params']
     dicSVC = dicSVC['params']
@@ -1150,16 +1156,16 @@ def PreprocessingParam():
 
 def PreprocessingParamSep():
     dicKNN = json.loads(allParametersPerformancePerModel[1])
-    dicSVC = json.loads(allParametersPerformancePerModel[9])
-    dicGausNB = json.loads(allParametersPerformancePerModel[17])
-    dicMLP = json.loads(allParametersPerformancePerModel[25])
-    dicLR = json.loads(allParametersPerformancePerModel[33])
-    dicLDA = json.loads(allParametersPerformancePerModel[41])
-    dicQDA = json.loads(allParametersPerformancePerModel[49])
-    dicRF = json.loads(allParametersPerformancePerModel[57])
-    dicExtraT = json.loads(allParametersPerformancePerModel[65])
-    dicAdaB = json.loads(allParametersPerformancePerModel[73])
-    dicGradB = json.loads(allParametersPerformancePerModel[81])
+    dicSVC = json.loads(allParametersPerformancePerModel[10])
+    dicGausNB = json.loads(allParametersPerformancePerModel[19])
+    dicMLP = json.loads(allParametersPerformancePerModel[28])
+    dicLR = json.loads(allParametersPerformancePerModel[37])
+    dicLDA = json.loads(allParametersPerformancePerModel[46])
+    dicQDA = json.loads(allParametersPerformancePerModel[55])
+    dicRF = json.loads(allParametersPerformancePerModel[64])
+    dicExtraT = json.loads(allParametersPerformancePerModel[73])
+    dicAdaB = json.loads(allParametersPerformancePerModel[82])
+    dicGradB = json.loads(allParametersPerformancePerModel[91])
 
     dicKNN = dicKNN['params']
     dicSVC = dicSVC['params']
@@ -1225,16 +1231,16 @@ def PreprocessingParamSep():
 
 def preProcessPerClassM():
     dicKNN = json.loads(allParametersPerformancePerModel[2])
-    dicSVC = json.loads(allParametersPerformancePerModel[10])
-    dicGausNB = json.loads(allParametersPerformancePerModel[18])
-    dicMLP = json.loads(allParametersPerformancePerModel[26])
-    dicLR = json.loads(allParametersPerformancePerModel[34])
-    dicLDA = json.loads(allParametersPerformancePerModel[42])
-    dicQDA = json.loads(allParametersPerformancePerModel[50])
-    dicRF = json.loads(allParametersPerformancePerModel[58])
-    dicExtraT = json.loads(allParametersPerformancePerModel[66])
-    dicAdaB = json.loads(allParametersPerformancePerModel[74])
-    dicGradB = json.loads(allParametersPerformancePerModel[82])
+    dicSVC = json.loads(allParametersPerformancePerModel[11])
+    dicGausNB = json.loads(allParametersPerformancePerModel[20])
+    dicMLP = json.loads(allParametersPerformancePerModel[29])
+    dicLR = json.loads(allParametersPerformancePerModel[38])
+    dicLDA = json.loads(allParametersPerformancePerModel[47])
+    dicQDA = json.loads(allParametersPerformancePerModel[56])
+    dicRF = json.loads(allParametersPerformancePerModel[65])
+    dicExtraT = json.loads(allParametersPerformancePerModel[74])
+    dicAdaB = json.loads(allParametersPerformancePerModel[83])
+    dicGradB = json.loads(allParametersPerformancePerModel[92])
 
     dfKNN = pd.DataFrame.from_dict(dicKNN)
     dfSVC = pd.DataFrame.from_dict(dicSVC)
@@ -1277,16 +1283,16 @@ def preProcessPerClassM():
 
 def preProcessFeatAcc():
     dicKNN = json.loads(allParametersPerformancePerModel[3])
-    dicSVC = json.loads(allParametersPerformancePerModel[11])
-    dicGausNB = json.loads(allParametersPerformancePerModel[19])
-    dicMLP = json.loads(allParametersPerformancePerModel[27])
-    dicLR = json.loads(allParametersPerformancePerModel[35])
-    dicLDA = json.loads(allParametersPerformancePerModel[43])
-    dicQDA = json.loads(allParametersPerformancePerModel[51])
-    dicRF = json.loads(allParametersPerformancePerModel[59])
-    dicExtraT = json.loads(allParametersPerformancePerModel[67])
-    dicAdaB = json.loads(allParametersPerformancePerModel[75])
-    dicGradB = json.loads(allParametersPerformancePerModel[83])
+    dicSVC = json.loads(allParametersPerformancePerModel[12])
+    dicGausNB = json.loads(allParametersPerformancePerModel[21])
+    dicMLP = json.loads(allParametersPerformancePerModel[30])
+    dicLR = json.loads(allParametersPerformancePerModel[39])
+    dicLDA = json.loads(allParametersPerformancePerModel[48])
+    dicQDA = json.loads(allParametersPerformancePerModel[57])
+    dicRF = json.loads(allParametersPerformancePerModel[66])
+    dicExtraT = json.loads(allParametersPerformancePerModel[75])
+    dicAdaB = json.loads(allParametersPerformancePerModel[84])
+    dicGradB = json.loads(allParametersPerformancePerModel[93])
 
     dfKNN = pd.DataFrame.from_dict(dicKNN)
     dfSVC = pd.DataFrame.from_dict(dicSVC)
@@ -1329,16 +1335,16 @@ def preProcessFeatAcc():
 
 def preProcessPerm():
     dicKNN = json.loads(allParametersPerformancePerModel[4])
-    dicSVC = json.loads(allParametersPerformancePerModel[12])
-    dicGausNB = json.loads(allParametersPerformancePerModel[20])
-    dicMLP = json.loads(allParametersPerformancePerModel[28])
-    dicLR = json.loads(allParametersPerformancePerModel[36])
-    dicLDA = json.loads(allParametersPerformancePerModel[44])
-    dicQDA = json.loads(allParametersPerformancePerModel[52])
-    dicRF = json.loads(allParametersPerformancePerModel[60])
-    dicExtraT = json.loads(allParametersPerformancePerModel[68])
-    dicAdaB = json.loads(allParametersPerformancePerModel[76])
-    dicGradB = json.loads(allParametersPerformancePerModel[84])
+    dicSVC = json.loads(allParametersPerformancePerModel[13])
+    dicGausNB = json.loads(allParametersPerformancePerModel[22])
+    dicMLP = json.loads(allParametersPerformancePerModel[31])
+    dicLR = json.loads(allParametersPerformancePerModel[40])
+    dicLDA = json.loads(allParametersPerformancePerModel[49])
+    dicQDA = json.loads(allParametersPerformancePerModel[58])
+    dicRF = json.loads(allParametersPerformancePerModel[67])
+    dicExtraT = json.loads(allParametersPerformancePerModel[76])
+    dicAdaB = json.loads(allParametersPerformancePerModel[85])
+    dicGradB = json.loads(allParametersPerformancePerModel[94])
 
     dfKNN = pd.DataFrame.from_dict(dicKNN)
     dfSVC = pd.DataFrame.from_dict(dicSVC)
@@ -1388,6 +1394,9 @@ def preProcessFeatSc():
 def preProcsumPerMetric(factors):
     sumPerClassifier = []
     loopThroughMetrics = PreprocessingMetrics()
+    loopThroughMetrics.loc[:, 'mean_test_neg_mean_absolute_error'] = loopThroughMetrics.loc[:, 'mean_test_neg_mean_absolute_error'] + 1
+    loopThroughMetrics.loc[:, 'mean_test_neg_root_mean_squared_error'] = loopThroughMetrics.loc[:, 'mean_test_neg_root_mean_squared_error'] + 1
+    loopThroughMetrics.loc[:, 'log_loss'] = 1 - loopThroughMetrics.loc[:, 'log_loss']
     for row in loopThroughMetrics.iterrows():
         rowSum = 0
         name, values = row
@@ -1396,44 +1405,45 @@ def preProcsumPerMetric(factors):
         if sum(factors) is 0:
             sumPerClassifier = 0
         else:
-            sumPerClassifier.append(rowSum/sum(factors))
+            sumPerClassifier.append(rowSum/sum(factors) * 100)
     return sumPerClassifier
 
 def preProcMetricsAllAndSel():
     loopThroughMetrics = PreprocessingMetrics()
     global factors
     metricsPerModelColl = []
-    metricsPerModelColl.append(loopThroughMetrics['mean_test_accuracy'].sum()/loopThroughMetrics['mean_test_accuracy'].count())
-    metricsPerModelColl.append(loopThroughMetrics['mean_test_neg_mean_absolute_error'].sum()/loopThroughMetrics['mean_test_neg_mean_absolute_error'].count())
-    metricsPerModelColl.append(loopThroughMetrics['mean_test_neg_root_mean_squared_error'].sum()/loopThroughMetrics['mean_test_neg_root_mean_squared_error'].count())
-    metricsPerModelColl.append(loopThroughMetrics['geometric_mean_score_micro'].sum()/loopThroughMetrics['geometric_mean_score_micro'].count())
-    metricsPerModelColl.append(loopThroughMetrics['geometric_mean_score_macro'].sum()/loopThroughMetrics['geometric_mean_score_macro'].count())
-    metricsPerModelColl.append(loopThroughMetrics['geometric_mean_score_weighted'].sum()/loopThroughMetrics['geometric_mean_score_weighted'].count())
-    metricsPerModelColl.append(loopThroughMetrics['mean_test_precision_micro'].sum()/loopThroughMetrics['mean_test_precision_micro'].count())
-    metricsPerModelColl.append(loopThroughMetrics['mean_test_precision_macro'].sum()/loopThroughMetrics['mean_test_precision_macro'].count())
-    metricsPerModelColl.append(loopThroughMetrics['mean_test_precision_weighted'].sum()/loopThroughMetrics['mean_test_precision_weighted'].count())
-    metricsPerModelColl.append(loopThroughMetrics['mean_test_recall_micro'].sum()/loopThroughMetrics['mean_test_recall_micro'].count())
-    metricsPerModelColl.append(loopThroughMetrics['mean_test_recall_macro'].sum()/loopThroughMetrics['mean_test_recall_macro'].count())
-    metricsPerModelColl.append(loopThroughMetrics['mean_test_recall_weighted'].sum()/loopThroughMetrics['mean_test_recall_weighted'].count())
-    metricsPerModelColl.append(loopThroughMetrics['f5_micro'].sum()/loopThroughMetrics['f5_micro'].count())
-    metricsPerModelColl.append(loopThroughMetrics['f5_macro'].sum()/loopThroughMetrics['f5_macro'].count())
-    metricsPerModelColl.append(loopThroughMetrics['f5_weighted'].sum()/loopThroughMetrics['f5_weighted'].count())
-    metricsPerModelColl.append(loopThroughMetrics['f1_micro'].sum()/loopThroughMetrics['f1_micro'].count())
-    metricsPerModelColl.append(loopThroughMetrics['f1_macro'].sum()/loopThroughMetrics['f1_macro'].count())
-    metricsPerModelColl.append(loopThroughMetrics['f1_weighted'].sum()/loopThroughMetrics['f1_weighted'].count())
-    metricsPerModelColl.append(loopThroughMetrics['f2_micro'].sum()/loopThroughMetrics['f2_micro'].count())
-    metricsPerModelColl.append(loopThroughMetrics['f2_macro'].sum()/loopThroughMetrics['f2_macro'].count())
-    metricsPerModelColl.append(loopThroughMetrics['f2_weighted'].sum()/loopThroughMetrics['f2_weighted'].count())
-    metricsPerModelColl.append(loopThroughMetrics['matthews_corrcoef'].sum()/loopThroughMetrics['matthews_corrcoef'].count())
-    metricsPerModelColl.append(loopThroughMetrics['mean_test_roc_auc_ovo_weighted'].sum()/loopThroughMetrics['mean_test_roc_auc_ovo_weighted'].count())
-    metricsPerModelColl.append(loopThroughMetrics['log_loss'].sum()/loopThroughMetrics['log_loss'].count())
+    metricsPerModelColl.append(loopThroughMetrics['mean_test_accuracy'])
+    metricsPerModelColl.append(loopThroughMetrics['mean_test_neg_mean_absolute_error'])
+    metricsPerModelColl.append(loopThroughMetrics['mean_test_neg_root_mean_squared_error'])
+    metricsPerModelColl.append(loopThroughMetrics['geometric_mean_score_micro'])
+    metricsPerModelColl.append(loopThroughMetrics['geometric_mean_score_macro'])
+    metricsPerModelColl.append(loopThroughMetrics['geometric_mean_score_weighted'])
+    metricsPerModelColl.append(loopThroughMetrics['mean_test_precision_micro'])
+    metricsPerModelColl.append(loopThroughMetrics['mean_test_precision_macro'])
+    metricsPerModelColl.append(loopThroughMetrics['mean_test_precision_weighted'])
+    metricsPerModelColl.append(loopThroughMetrics['mean_test_recall_micro'])
+    metricsPerModelColl.append(loopThroughMetrics['mean_test_recall_macro'])
+    metricsPerModelColl.append(loopThroughMetrics['mean_test_recall_weighted'])
+    metricsPerModelColl.append(loopThroughMetrics['f5_micro'])
+    metricsPerModelColl.append(loopThroughMetrics['f5_macro'])
+    metricsPerModelColl.append(loopThroughMetrics['f5_weighted'])
+    metricsPerModelColl.append(loopThroughMetrics['f1_micro'])
+    metricsPerModelColl.append(loopThroughMetrics['f1_macro'])
+    metricsPerModelColl.append(loopThroughMetrics['f1_weighted'])
+    metricsPerModelColl.append(loopThroughMetrics['f2_micro'])
+    metricsPerModelColl.append(loopThroughMetrics['f2_macro'])
+    metricsPerModelColl.append(loopThroughMetrics['f2_weighted'])
+    metricsPerModelColl.append(loopThroughMetrics['matthews_corrcoef'])
+    metricsPerModelColl.append(loopThroughMetrics['mean_test_roc_auc_ovo_weighted'])
+    metricsPerModelColl.append(loopThroughMetrics['log_loss'])
     for index, metric in enumerate(metricsPerModelColl):
         if (index == 1 or index == 2):
-            metricsPerModelColl[index] = (metric + 1)*factors[index]
+            metricsPerModelColl[index] = ((metric + 1)*factors[index]) * 100
         elif (index == 23):
-            metricsPerModelColl[index] = (1 - metric)*factors[index]
+            metricsPerModelColl[index] = ((1 - metric)*factors[index] ) * 100
         else:  
-            metricsPerModelColl[index] = metric*factors[index]
+            metricsPerModelColl[index] = (metric*factors[index]) * 100
+        metricsPerModelColl[index] = metricsPerModelColl[index].to_json()
     return metricsPerModelColl
 
 def preProceModels():
@@ -1580,21 +1590,59 @@ def ComputeMetricsForSel(Models):
     MetricsAlltoSel = PreprocessingMetrics()
     listofModels = []
     for loop in Models['ClassifiersList']:
-        temp = [int(s) for s in re.findall(r'\b\d+\b', loop)]
-        listofModels.append(temp[0])
+        listofModels.append(loop)
     MetricsAlltoSel = MetricsAlltoSel.loc[listofModels,:]
 
     global metricsPerModelCollSel
+    global factors
     metricsPerModelCollSel = []
-    metricsPerModelCollSel.append(MetricsAlltoSel['mean_test_accuracy'].sum()/MetricsAlltoSel['mean_test_accuracy'].count())
-    metricsPerModelCollSel.append(MetricsAlltoSel['mean_test_f1_macro'].sum()/MetricsAlltoSel['mean_test_f1_macro'].count())
-    metricsPerModelCollSel.append(MetricsAlltoSel['mean_test_precision'].sum()/MetricsAlltoSel['mean_test_precision'].count())
-    metricsPerModelCollSel.append(MetricsAlltoSel['mean_test_recall'].sum()/MetricsAlltoSel['mean_test_recall'].count())
-    metricsPerModelCollSel.append(MetricsAlltoSel['mean_test_jaccard'].sum()/MetricsAlltoSel['mean_test_jaccard'].count())
-    for index, metric in enumerate(metricsPerModelCollSel):
-        metricsPerModelCollSel[index] = metric*factors[index]
+    metricsPerModelCollSel.append(MetricsAlltoSel['mean_test_accuracy'])
+    metricsPerModelCollSel.append(MetricsAlltoSel['mean_test_neg_mean_absolute_error'])
+    metricsPerModelCollSel.append(MetricsAlltoSel['mean_test_neg_root_mean_squared_error'])
+    metricsPerModelCollSel.append(MetricsAlltoSel['geometric_mean_score_micro'])
+    metricsPerModelCollSel.append(MetricsAlltoSel['geometric_mean_score_macro'])
+    metricsPerModelCollSel.append(MetricsAlltoSel['geometric_mean_score_weighted'])
+    metricsPerModelCollSel.append(MetricsAlltoSel['mean_test_precision_micro'])
+    metricsPerModelCollSel.append(MetricsAlltoSel['mean_test_precision_macro'])
+    metricsPerModelCollSel.append(MetricsAlltoSel['mean_test_precision_weighted'])
+    metricsPerModelCollSel.append(MetricsAlltoSel['mean_test_recall_micro'])
+    metricsPerModelCollSel.append(MetricsAlltoSel['mean_test_recall_macro'])
+    metricsPerModelCollSel.append(MetricsAlltoSel['mean_test_recall_weighted'])
+    metricsPerModelCollSel.append(MetricsAlltoSel['f5_micro'])
+    metricsPerModelCollSel.append(MetricsAlltoSel['f5_macro'])
+    metricsPerModelCollSel.append(MetricsAlltoSel['f5_weighted'])
+    metricsPerModelCollSel.append(MetricsAlltoSel['f1_micro'])
+    metricsPerModelCollSel.append(MetricsAlltoSel['f1_macro'])
+    metricsPerModelCollSel.append(MetricsAlltoSel['f1_weighted'])
+    metricsPerModelCollSel.append(MetricsAlltoSel['f2_micro'])
+    metricsPerModelCollSel.append(MetricsAlltoSel['f2_macro'])
+    metricsPerModelCollSel.append(MetricsAlltoSel['f2_weighted'])
+    metricsPerModelCollSel.append(MetricsAlltoSel['matthews_corrcoef'])
+    metricsPerModelCollSel.append(MetricsAlltoSel['mean_test_roc_auc_ovo_weighted'])
+    metricsPerModelCollSel.append(MetricsAlltoSel['log_loss'])
 
+    for index, metric in enumerate(metricsPerModelCollSel):
+        if (index == 1 or index == 2):
+            metricsPerModelCollSel[index] = (metric + 1)*factors[index]
+        elif (index == 23):
+            metricsPerModelCollSel[index] = (1 - metric)*factors[index]
+        else:  
+            metricsPerModelCollSel[index] = metric*factors[index]
+        metricsPerModelCollSel[index] = metricsPerModelCollSel[index].to_json()
     return 'okay'
+
+# function to get unique values 
+def unique(list1): 
+  
+    # intilize a null list 
+    unique_list = [] 
+      
+    # traverse for all elements 
+    for x in list1: 
+        # check if exists in unique_list or not 
+        if x not in unique_list: 
+            unique_list.append(x) 
+    return unique_list
 
 # Sending the overview classifiers' results to be visualized as a scatterplot
 @app.route('/data/BarChartSelectedModels', methods=["GET", "POST"])
@@ -1608,13 +1656,14 @@ def SendToUpdateBarChart():
 @cross_origin(origin='localhost',headers=['Content-Type','Authorization'])
 @app.route('/data/ServerRequestDataPoint', methods=["GET", "POST"])
 def RetrieveSelDataPoints():
-
+        
     DataPointsSel = request.get_data().decode('utf8').replace("'", '"')
     DataPointsSelClear = json.loads(DataPointsSel)
     listofDataPoints = []
     for loop in DataPointsSelClear['DataPointsSel']:
         temp = [int(s) for s in re.findall(r'\b\d+\b', loop)]
         listofDataPoints.append(temp[0])
+    global algorithmsList
 
     paramsListSepPD = []
     paramsListSepPD = PreprocessingParamSep()
@@ -1644,7 +1693,6 @@ def RetrieveSelDataPoints():
         withoutDuplicates = Remove(value)
         RetrieveParamsCleared[key] = withoutDuplicates
     RetrieveParamsClearedListSVC.append(RetrieveParamsCleared)
-    
     RetrieveParamsCleared = {}
     RetrieveParamsClearedListGausNB = []
     for key, value in paramsListSeptoDicGausNB.items():
@@ -1740,7 +1788,6 @@ def RetrieveSelDataPoints():
 
     if (len(paramsListSeptoDicGradB['n_estimators']) is 0):
         RetrieveParamsClearedListGradB = []
-    
     for eachAlgor in algorithms:
         if (eachAlgor) == 'KNN':
             clf = KNeighborsClassifier()
@@ -1787,8 +1834,7 @@ def RetrieveSelDataPoints():
             params = RetrieveParamsClearedListGradB
             AlgorithmsIDsEnd = GradBModelsCount
         metricsSelList = GridSearchSel(clf, params, factors, AlgorithmsIDsEnd, listofDataPoints)
-
-    if (len(metricsSelList[0]) != 0 and len(metricsSelList[1]) != 0 and len(metricsSelList[2]) != 0 and len(metricsSelList[3]) != 0 and len(metricsSelList[4]) != 0 and len(metricsSelList[5]) != 0 and len(metricsSelList[6]) != 0 and len(metricsSelList[7]) != 0 and len(metricsSelList[8]) != 0 and len(metricsSelList[9]) != 0 and len(metricsSelList[10])):
+    if (len(metricsSelList[0]) != 0 and len(metricsSelList[1]) != 0 and len(metricsSelList[2]) != 0 and len(metricsSelList[3]) != 0 and len(metricsSelList[4]) != 0 and len(metricsSelList[5]) != 0 and len(metricsSelList[6]) != 0 and len(metricsSelList[7]) != 0 and len(metricsSelList[8]) != 0 and len(metricsSelList[9]) != 0 and len(metricsSelList[10]) != 0):
         dicKNN = json.loads(metricsSelList[0])
         dfKNN = pd.DataFrame.from_dict(dicKNN)
         parametersSelDataPD = parametersSelData[0].apply(pd.Series)
@@ -2023,10 +2069,12 @@ def RetrieveSelDataPoints():
                 dfAdaBCleared = dfGradB.drop(dfGradB.index[set_diff_df])
             df_concatMetrics = dfAdaBCleared
     
+    df_concatMetrics.loc[:, 'mean_test_neg_mean_absolute_error'] = df_concatMetrics.loc[:, 'mean_test_neg_mean_absolute_error'] + 1
+    df_concatMetrics.loc[:, 'mean_test_neg_root_mean_squared_error'] = df_concatMetrics.loc[:, 'mean_test_neg_root_mean_squared_error'] + 1
+    df_concatMetrics.loc[:, 'log_loss'] = 1 - df_concatMetrics.loc[:, 'log_loss']
     global sumPerClassifierSelUpdate
     sumPerClassifierSelUpdate = []
     sumPerClassifierSelUpdate = preProcsumPerMetricAccordingtoData(factors, df_concatMetrics)
-
     ModelSpaceMDSNewComb = [list(a) for a in  zip(ModelSpaceMDS[0], ModelSpaceMDS[1])]
 
     ModelSpaceMDSNewSel = FunMDS(df_concatMetrics)
@@ -2195,15 +2243,13 @@ def preProcsumPerMetricAccordingtoData(factors, loopThroughMetrics):
     sumPerClassifier = []
     for row in loopThroughMetrics.iterrows():
         rowSum = 0
-        lengthFactors = len(scoring)
         name, values = row
         for loop, elements in enumerate(values):
-            lengthFactors = lengthFactors -  1 + factors[loop]
             rowSum = elements*factors[loop] + rowSum
-        if lengthFactors is 0:
+        if sum(factors) is 0:
             sumPerClassifier = 0
         else:
-            sumPerClassifier.append(rowSum/lengthFactors)
+            sumPerClassifier.append(rowSum/sum(factors) * 100)
     return sumPerClassifier
 
 # Sending the overview classifiers' results to be visualized as a scatterplot
@@ -2242,6 +2288,7 @@ def EnsembleModel(Models, keyRetrieved):
 
     global XData
     global yData
+    global sclf
 
     lr = LogisticRegression()
 
@@ -2258,75 +2305,75 @@ def EnsembleModel(Models, keyRetrieved):
             arg = dfParamKNNFilt[eachelem]
             all_classifiers.append(make_pipeline(ColumnSelector(cols=columnsInit), KNeighborsClassifier().set_params(**arg)))
     
-        temp = json.loads(allParametersPerformancePerModel[9])
+        temp = json.loads(allParametersPerformancePerModel[10])
         dfParamSVC = pd.DataFrame.from_dict(temp)
         dfParamSVCFilt = dfParamSVC.iloc[:,0]
         for eachelem in SVCModels:
             arg = dfParamSVCFilt[eachelem-SVCModelsCount]
-            all_classifiers.append(make_pipeline(ColumnSelector(cols=columnsInit), SVC(probability=True).set_params(**arg)))
+            all_classifiers.append(make_pipeline(ColumnSelector(cols=columnsInit), SVC(probability=True,random_state=RANDOM_SEED).set_params(**arg)))
         
-        temp = json.loads(allParametersPerformancePerModel[17])
+        temp = json.loads(allParametersPerformancePerModel[19])
         dfParamGauNB = pd.DataFrame.from_dict(temp)
         dfParamGauNBFilt = dfParamGauNB.iloc[:,0]
         for eachelem in GausNBModels:
             arg = dfParamGauNBFilt[eachelem-GausNBModelsCount]
             all_classifiers.append(make_pipeline(ColumnSelector(cols=columnsInit), GaussianNB().set_params(**arg)))
 
-        temp = json.loads(allParametersPerformancePerModel[25])
+        temp = json.loads(allParametersPerformancePerModel[28])
         dfParamMLP = pd.DataFrame.from_dict(temp)
         dfParamMLPFilt = dfParamMLP.iloc[:,0]
         for eachelem in MLPModels:
             arg = dfParamMLPFilt[eachelem-MLPModelsCount]
-            all_classifiers.append(make_pipeline(ColumnSelector(cols=columnsInit), MLPClassifier().set_params(**arg)))
+            all_classifiers.append(make_pipeline(ColumnSelector(cols=columnsInit), MLPClassifier(random_state=RANDOM_SEED).set_params(**arg)))
 
-        temp = json.loads(allParametersPerformancePerModel[33])
+        temp = json.loads(allParametersPerformancePerModel[37])
         dfParamLR = pd.DataFrame.from_dict(temp)
         dfParamLRFilt = dfParamLR.iloc[:,0]
         for eachelem in LRModels:
             arg = dfParamLRFilt[eachelem-LRModelsCount]
-            all_classifiers.append(make_pipeline(ColumnSelector(cols=columnsInit), LogisticRegression().set_params(**arg)))
+            all_classifiers.append(make_pipeline(ColumnSelector(cols=columnsInit), LogisticRegression(random_state=RANDOM_SEED).set_params(**arg)))
 
-        temp = json.loads(allParametersPerformancePerModel[41])
+        temp = json.loads(allParametersPerformancePerModel[46])
         dfParamLDA = pd.DataFrame.from_dict(temp)
         dfParamLDAFilt = dfParamLDA.iloc[:,0]
         for eachelem in LDAModels:
             arg = dfParamLDAFilt[eachelem-LDAModelsCount]
-            all_classifiers.append(make_pipeline(ColumnSelector(cols=columnsInit), LinearDiscriminantAnalysis().set_params(**arg)))
+            all_classifiers.append(make_pipeline(ColumnSelector(cols=columnsInit), LinearDiscriminantAnalysis(random_state=RANDOM_SEED).set_params(**arg)))
 
-        temp = json.loads(allParametersPerformancePerModel[49])
+        temp = json.loads(allParametersPerformancePerModel[55])
         dfParamQDA = pd.DataFrame.from_dict(temp)
         dfParamQDAFilt = dfParamQDA.iloc[:,0]
         for eachelem in QDAModels:
             arg = dfParamQDAFilt[eachelem-QDAModelsCount]
             all_classifiers.append(make_pipeline(ColumnSelector(cols=columnsInit), QuadraticDiscriminantAnalysis().set_params(**arg)))
 
-        temp = json.loads(allParametersPerformancePerModel[57])
+        temp = json.loads(allParametersPerformancePerModel[64])
         dfParamRF = pd.DataFrame.from_dict(temp)
         dfParamRFFilt = dfParamRF.iloc[:,0]
         for eachelem in RFModels:
             arg = dfParamRFFilt[eachelem-RFModelsCount]
-            all_classifiers.append(make_pipeline(ColumnSelector(cols=columnsInit), RandomForestClassifier().set_params(**arg)))
+            all_classifiers.append(make_pipeline(ColumnSelector(cols=columnsInit), RandomForestClassifier(random_state=RANDOM_SEED).set_params(**arg)))
 
-        temp = json.loads(allParametersPerformancePerModel[65])
+        temp = json.loads(allParametersPerformancePerModel[73])
         dfParamExtraT = pd.DataFrame.from_dict(temp)
         dfParamExtraTFilt = dfParamExtraT.iloc[:,0]
         for eachelem in ExtraTModels:
             arg = dfParamExtraTFilt[eachelem-ExtraTModelsCount]
-            all_classifiers.append(make_pipeline(ColumnSelector(cols=columnsInit), ExtraTreesClassifier().set_params(**arg)))
+            all_classifiers.append(make_pipeline(ColumnSelector(cols=columnsInit), ExtraTreesClassifier(random_state=RANDOM_SEED).set_params(**arg)))
 
-        temp = json.loads(allParametersPerformancePerModel[73])
+        temp = json.loads(allParametersPerformancePerModel[82])
         dfParamAdaB = pd.DataFrame.from_dict(temp)
         dfParamAdaBFilt = dfParamAdaB.iloc[:,0]
         for eachelem in AdaBModels:
             arg = dfParamAdaBFilt[eachelem-AdaBModelsCount]
-            all_classifiers.append(make_pipeline(ColumnSelector(cols=columnsInit), AdaBoostClassifier().set_params(**arg)))
+            all_classifiers.append(make_pipeline(ColumnSelector(cols=columnsInit), AdaBoostClassifier(random_state=RANDOM_SEED).set_params(**arg)))
 
-        temp = json.loads(allParametersPerformancePerModel[81])
+        temp = json.loads(allParametersPerformancePerModel[91])
         dfParamGradB = pd.DataFrame.from_dict(temp)
         dfParamGradBFilt = dfParamGradB.iloc[:,0]
         for eachelem in GradBModels:
             arg = dfParamGradBFilt[eachelem-GradBModelsCount]
-            all_classifiers.append(make_pipeline(ColumnSelector(cols=columnsInit), GradientBoostingClassifier().set_params(**arg)))
+            all_classifiers.append(make_pipeline(ColumnSelector(cols=columnsInit), GradientBoostingClassifier(random_state=RANDOM_SEED).set_params(**arg)))
 
         global sclfStack
         sclfStack = 0
@@ -2345,8 +2392,7 @@ def EnsembleModel(Models, keyRetrieved):
         for index, modHere in enumerate(ModelsAll):
             flag = 0
             for loop in Models['ClassifiersList']:
-                temp = [int(s) for s in re.findall(r'\b\d+\b', loop)]
-                if (int(temp[0]) == int(modHere)):
+                if (int(loop) == int(modHere)):
                     flag = 1
             if (flag is 1):
                 all_classifiersSelection.append(all_classifiers[index])
@@ -2376,12 +2422,12 @@ def EnsembleModel(Models, keyRetrieved):
                 store = 0  
             else:
                 store = store + 1          
-            temp = json.loads(allParametersPerformancePerModel[9])
+            temp = json.loads(allParametersPerformancePerModel[10])
             dfParamSVC = pd.DataFrame.from_dict(temp)
             dfParamSVCFilt = dfParamSVC.iloc[:,0]
             for index, eachelem in enumerate(SVCModels):
                 arg = dfParamRFFilt[eachelem-SVCModelsCount]
-                all_classifiers.append(make_pipeline(ColumnSelector(cols=featureSelection['featureSelection'][index+store]), SVC(probability=True).set_params(**arg)))
+                all_classifiers.append(make_pipeline(ColumnSelector(cols=featureSelection['featureSelection'][index+store]), SVC(probability=True,random_state=RANDOM_SEED).set_params(**arg)))
                 store = index
                 flag = 1
 
@@ -2389,7 +2435,7 @@ def EnsembleModel(Models, keyRetrieved):
                 store = 0  
             else:
                 store = store + 1        
-            temp = json.loads(allParametersPerformancePerModel[17])
+            temp = json.loads(allParametersPerformancePerModel[19])
             dfParamGauNB = pd.DataFrame.from_dict(temp)
             dfParamGauNBFilt = dfParamGauNB.iloc[:,0]
             for index, eachelem in enumerate(GausNBModels):
@@ -2402,12 +2448,12 @@ def EnsembleModel(Models, keyRetrieved):
                 store = 0  
             else:
                 store = store + 1   
-            temp = json.loads(allParametersPerformancePerModel[25])
+            temp = json.loads(allParametersPerformancePerModel[28])
             dfParamMLP = pd.DataFrame.from_dict(temp)
             dfParamMLPFilt = dfParamMLP.iloc[:,0]
             for index, eachelem in enumerate(MLPModels):
                 arg = dfParamMLPFilt[eachelem-MLPModelsCount]
-                all_classifiers.append(make_pipeline(ColumnSelector(cols=featureSelection['featureSelection'][index+store]), MLPClassifier().set_params(**arg)))
+                all_classifiers.append(make_pipeline(ColumnSelector(cols=featureSelection['featureSelection'][index+store]), MLPClassifier(random_state=RANDOM_SEED).set_params(**arg)))
                 store = index
                 flag = 1
 
@@ -2415,12 +2461,12 @@ def EnsembleModel(Models, keyRetrieved):
                 store = 0  
             else:
                 store = store + 1   
-            temp = json.loads(allParametersPerformancePerModel[33])
+            temp = json.loads(allParametersPerformancePerModel[37])
             dfParamLR = pd.DataFrame.from_dict(temp)
             dfParamLRFilt = dfParamLR.iloc[:,0]
             for index, eachelem in enumerate(LRModels):
                 arg = dfParamLRFilt[eachelem-LRModelsCount]
-                all_classifiers.append(make_pipeline(ColumnSelector(cols=featureSelection['featureSelection'][index+store]), LogisticRegression().set_params(**arg)))
+                all_classifiers.append(make_pipeline(ColumnSelector(cols=featureSelection['featureSelection'][index+store]), LogisticRegression(random_state=RANDOM_SEED).set_params(**arg)))
                 store = index
                 flag = 1
 
@@ -2428,12 +2474,12 @@ def EnsembleModel(Models, keyRetrieved):
                 store = 0  
             else:
                 store = store + 1   
-            temp = json.loads(allParametersPerformancePerModel[41])
+            temp = json.loads(allParametersPerformancePerModel[46])
             dfParamLDA = pd.DataFrame.from_dict(temp)
             dfParamLDAFilt = dfParamLDA.iloc[:,0]
             for index, eachelem in enumerate(LDAModels):
                 arg = dfParamLDAFilt[eachelem-LDAModelsCount]
-                all_classifiers.append(make_pipeline(ColumnSelector(cols=featureSelection['featureSelection'][index+store]), LinearDiscriminantAnalysis().set_params(**arg)))
+                all_classifiers.append(make_pipeline(ColumnSelector(cols=featureSelection['featureSelection'][index+store]), LinearDiscriminantAnalysis(random_state=RANDOM_SEED).set_params(**arg)))
                 store = index
                 flag = 1
 
@@ -2441,7 +2487,7 @@ def EnsembleModel(Models, keyRetrieved):
                 store = 0  
             else:
                 store = store + 1   
-            temp = json.loads(allParametersPerformancePerModel[49])
+            temp = json.loads(allParametersPerformancePerModel[55])
             dfParamQDA = pd.DataFrame.from_dict(temp)
             dfParamQDAFilt = dfParamQDA.iloc[:,0]
             for index, eachelem in enumerate(QDAModels):
@@ -2454,25 +2500,12 @@ def EnsembleModel(Models, keyRetrieved):
                 store = 0  
             else:
                 store = store + 1   
-            temp = json.loads(allParametersPerformancePerModel[57])
+            temp = json.loads(allParametersPerformancePerModel[64])
             dfParamRF = pd.DataFrame.from_dict(temp)
             dfParamRFFilt = dfParamRF.iloc[:,0]
             for index, eachelem in enumerate(RFModels):
                 arg = dfParamRFFilt[eachelem-RFModelsCount]
-                all_classifiers.append(make_pipeline(ColumnSelector(cols=featureSelection['featureSelection'][index+store]), RandomForestClassifier().set_params(**arg)))
-                store = index
-                flag = 1
-
-            if (flag == 0):
-                store = 0  
-            else:
-                store = store + 1   
-            temp = json.loads(allParametersPerformancePerModel[65])
-            dfParamExtraT = pd.DataFrame.from_dict(temp)
-            dfParamExtraTFilt = dfParamExtraT.iloc[:,0]
-            for index, eachelem in enumerate(ExtraTModels):
-                arg = dfParamExtraTFilt[eachelem-ExtraTModelsCount]
-                all_classifiers.append(make_pipeline(ColumnSelector(cols=featureSelection['featureSelection'][index+store]), ExtraTreesClassifier().set_params(**arg)))
+                all_classifiers.append(make_pipeline(ColumnSelector(cols=featureSelection['featureSelection'][index+store]), RandomForestClassifier(random_state=RANDOM_SEED).set_params(**arg)))
                 store = index
                 flag = 1
 
@@ -2481,11 +2514,11 @@ def EnsembleModel(Models, keyRetrieved):
             else:
                 store = store + 1   
             temp = json.loads(allParametersPerformancePerModel[73])
-            dfParamAdaB = pd.DataFrame.from_dict(temp)
-            dfParamAdaBFilt = dfParamAdaB.iloc[:,0]
-            for index, eachelem in enumerate(AdaBModels):
-                arg = dfParamAdaBFilt[eachelem-AdaBModelsCount]
-                all_classifiers.append(make_pipeline(ColumnSelector(cols=featureSelection['featureSelection'][index+store]), AdaBoostClassifier().set_params(**arg)))
+            dfParamExtraT = pd.DataFrame.from_dict(temp)
+            dfParamExtraTFilt = dfParamExtraT.iloc[:,0]
+            for index, eachelem in enumerate(ExtraTModels):
+                arg = dfParamExtraTFilt[eachelem-ExtraTModelsCount]
+                all_classifiers.append(make_pipeline(ColumnSelector(cols=featureSelection['featureSelection'][index+store]), ExtraTreesClassifier(random_state=RANDOM_SEED).set_params(**arg)))
                 store = index
                 flag = 1
 
@@ -2493,7 +2526,20 @@ def EnsembleModel(Models, keyRetrieved):
                 store = 0  
             else:
                 store = store + 1   
-            temp = json.loads(allParametersPerformancePerModel[81])
+            temp = json.loads(allParametersPerformancePerModel[82])
+            dfParamAdaB = pd.DataFrame.from_dict(temp)
+            dfParamAdaBFilt = dfParamAdaB.iloc[:,0]
+            for index, eachelem in enumerate(AdaBModels):
+                arg = dfParamAdaBFilt[eachelem-AdaBModelsCount]
+                all_classifiers.append(make_pipeline(ColumnSelector(cols=featureSelection['featureSelection'][index+store]), AdaBoostClassifier(random_state=RANDOM_SEED).set_params(**arg)))
+                store = index
+                flag = 1
+
+            if (flag == 0):
+                store = 0  
+            else:
+                store = store + 1   
+            temp = json.loads(allParametersPerformancePerModel[91])
             dfParamGradB = pd.DataFrame.from_dict(temp)
             dfParamGradBFilt = dfParamGradB.iloc[:,0]
             for index, eachelem in enumerate(GradBModels):
@@ -2513,10 +2559,9 @@ def EnsembleModel(Models, keyRetrieved):
         for index, modHere in enumerate(ModelsAll):
             flag = 0
             for loop in Models['ClassifiersList']:
-                temp = [int(s) for s in re.findall(r'\b\d+\b', loop)]
-                if (int(temp[0]) == int(modHere)):
+                if (int(loop) == int(modHere)):
                     flag = 1
-            if (flag is 0):
+            if (flag is 1):
                 all_classifiersSelection.append(all_classifiers[index])
 
         sclfStack = StackingCVClassifier(classifiers=all_classifiersSelection,
@@ -2524,6 +2569,7 @@ def EnsembleModel(Models, keyRetrieved):
                             meta_classifier=lr,
                             random_state=RANDOM_SEED,
                             n_jobs = -1)
+        
         
         #else:
         #    for index, eachelem in enumerate(algorithmsWithoutDuplicates):
@@ -2540,41 +2586,31 @@ def EnsembleModel(Models, keyRetrieved):
         #                        meta_classifier=lr,
         #                        random_state=RANDOM_SEED,
         #                        n_jobs = -1)
-
-    # parallelize all that 
-    temp = model_selection.cross_val_score(sclf, XData, yData, cv=crossValidation, scoring='accuracy', n_jobs=-1)
-    scores.append(temp.mean())
-    scores.append(temp.std())
-
-    # influence calculation for all the instances
-    #global DataHeatmap
-    #DataHeatmap = []
-
-    #for indexValue, row in XData.iterrows():
-    #    XDataRemove = XData.copy()
-    #    XDataRemove.drop(indexValue, inplace=True)
-    #    yDataRemove = yData.copy()
-    #    del yDataRemove[indexValue]
-    #    tempRemove = model_selection.cross_val_score(sclf, XDataRemove, yDataRemove, cv=crossValidation, scoring='accuracy', n_jobs=-1)
-    #    DataHeatmap.append(tempRemove.mean())
-
-    temp = model_selection.cross_val_score(sclf, XData, yData, cv=crossValidation, scoring='precision_weighted', n_jobs=-1)
-    scores.append(temp.mean())
-    scores.append(temp.std())
-    temp = model_selection.cross_val_score(sclf, XData, yData, cv=crossValidation, scoring='recall_weighted', n_jobs=-1)
-    scores.append(temp.mean())
-    scores.append(temp.std())
-    temp = model_selection.cross_val_score(sclfStack, XData, yData, cv=crossValidation, scoring='accuracy', n_jobs=-1)
-    scores.append(temp.mean())
-    scores.append(temp.std())
-    temp = model_selection.cross_val_score(sclfStack, XData, yData, cv=crossValidation, scoring='precision_weighted', n_jobs=-1)
-    scores.append(temp.mean())
-    scores.append(temp.std())
-    temp = model_selection.cross_val_score(sclfStack, XData, yData, cv=crossValidation, scoring='recall_weighted', n_jobs=-1)
-    scores.append(temp.mean())
-    scores.append(temp.std())
+    
+    num_cores = multiprocessing.cpu_count()
+    inputsSc = ['accuracy','precision_weighted','recall_weighted','accuracy','precision_weighted','recall_weighted']
+    flat_results = Parallel(n_jobs=num_cores)(delayed(solve)(sclf,sclfStack,XData,yData,crossValidation,item,index) for index, item in enumerate(inputsSc))
+    scores = [item for sublist in flat_results for item in sublist]
 
     return 'Okay'
+
+def solve(sclf,sclfStack,XData,yData,crossValidation,scoringIn,loop):
+    scoresLoc = []
+    if (loop < 3):
+        temp = model_selection.cross_val_score(sclf, XData, yData, cv=crossValidation, scoring=scoringIn, n_jobs=-1)
+    else:
+        temp = model_selection.cross_val_score(sclfStack, XData, yData, cv=crossValidation, scoring=scoringIn, n_jobs=-1)
+    scoresLoc.append(temp.mean())
+    scoresLoc.append(temp.std())
+    return scoresLoc
+
+def processInput(indexValue,XData,yData,crossValidation,sclf):
+    XDataRemove = XData.copy()
+    XDataRemove.drop(indexValue, inplace=True)
+    yDataRemove = yData.copy()
+    del yDataRemove[indexValue]
+    tempRemove = model_selection.cross_val_score(sclf, XDataRemove, yDataRemove, cv=crossValidation, scoring='accuracy', n_jobs=-1)
+    return tempRemove.mean()
 
 # Sending the final results to be visualized as a line plot
 @app.route('/data/SendFinalResultsBacktoVisualize', methods=["GET", "POST"])
@@ -2585,13 +2621,13 @@ def SendToPlotFinalResults():
     return jsonify(response)
 
 # Sending the final results to be visualized as a line plot
-@app.route('/data/SendInstancesImportance', methods=["GET", "POST"])
-def SendImportInstances():
-    global DataHeatmap
-    response = {    
-        'instancesImportance': DataHeatmap
-    }
-    return jsonify(response)
+#@app.route('/data/SendInstancesImportance', methods=["GET", "POST"])
+#def SendImportInstances():
+#    global DataHeatmap
+#    response = {    
+#        'instancesImportance': DataHeatmap
+#    }
+#    return jsonify(response)
 
 # Retrieve data from client 
 @cross_origin(origin='localhost',headers=['Content-Type','Authorization'])

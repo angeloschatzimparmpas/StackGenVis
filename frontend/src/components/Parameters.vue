@@ -73,7 +73,7 @@ export default {
       labelFactor: 1.25, 			//How much farther than the radius of the outer circle should the labels be placed
       wrapWidth: 60, 			//The number of pixels after which a label needs to be given a new line
       opacityArea: 0.35, 			//The opacity of the area of the blob
-      dotRadius: 4, 				//The size of the colored circles of each blog
+      dotRadius: 2, 				//The size of the colored circles of each blog
       opacityCircles: 0.1, 			//The opacity of the circles of each blob
       strokeWidth: 2, 			//The width of the stroke around each blob
       roundStrokes: false,			//If true the area and stroke will follow a round path (cardinal-closed)
@@ -387,7 +387,6 @@ export default {
       // Clear Heatmap first
       var svg = d3.select("#overview");
       svg.selectAll("*").remove();
-
       var widthinter = this.WH[0]*2 // interactive visualization
       var heightinter = this.WH[1]*1.23 // interactive visualization
 
@@ -496,7 +495,7 @@ export default {
         } else if (this.storeActiveModels[0] > this.AdaBModels) {
           this.allActiveAdaB = countAdaBRelated.slice()
         } else if (this.storeActiveModels[0] > this.ExtraTModels) {
-          this.allActiveExtraT = countExtraT.slice()
+          this.allActiveExtraT = countExtraTRelated.slice()
         } else if (this.storeActiveModels[0] > this.RFModels) {
           this.allActiveRF = countRFRelated.slice()
         } else if (this.storeActiveModels[0] > this.QDAModels) {

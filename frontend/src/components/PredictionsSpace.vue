@@ -2,10 +2,10 @@
 <div>
   <b-row class="md-3">
     <b-col cols="12">
-      <div>Projection Selection: <select id="selectBarChartPred" @change="selectVisualRepresentationPred()">
-        <option value="mds" selected>MDS Projection</option>
-        <option value="tsne">t-SNE Projection</option>
-        <option value="umap">UMAP Projection</option>
+      <div>Projection Method: <select id="selectBarChartPred" @change="selectVisualRepresentationPred()">
+        <option value="mds" selected>MDS</option>
+        <option value="tsne">t-SNE</option>
+        <option value="umap">UMAP</option>
       </select>
       <div id="OverviewPredPlotly" class="OverviewPredPlotly"></div>
       </div>
@@ -39,6 +39,15 @@ export default {
     reset () {
       Plotly.purge('OverviewPredPlotly')
     },
+    clean(obj) {
+      var propNames = Object.getOwnPropertyNames(obj);
+      for (var i = 0; i < propNames.length; i++) {
+        var propName = propNames[i];
+        if (obj[propName] === null || obj[propName] === undefined) {
+          delete obj[propName];
+        }
+      }
+    },
     ScatterPlotPredView () {
        Plotly.purge('OverviewPredPlotly')
 
@@ -52,6 +61,11 @@ export default {
       const DataSetY = JSON.parse(this.PredictionsData[15])
       const originalDataLabels = JSON.parse(this.PredictionsData[16])
       var DataSetParse = JSON.parse(DataSet)
+      var stringParameters = []
+      for (let i = 0; i < DataSetParse.length; i++) {
+        this.clean(DataSetParse[i])
+        stringParameters.push(JSON.stringify(DataSetParse[i]).replace(/,/gi, '<br>'))
+      }
       const XandYCoordinatesTSNE = JSON.parse(this.PredictionsData[18])
       const XandYCoordinatesUMAP= JSON.parse(this.PredictionsData[19])
 
@@ -80,7 +94,7 @@ export default {
           const aux_ID = result.ID.filter((item, index) => originalDataLabels[index] == target_names[i]);
 
           var Text = aux_ID.map((item, index) => {
-            let popup = 'Data Point ID: ' + item + '; Details: ' + JSON.stringify(DataSetParse[item])
+            let popup = 'Data Point ID: ' + item + '<br> Details: ' + stringParameters[item]
             return popup;
           });
 
@@ -98,7 +112,7 @@ export default {
         }
 
         layout = {
-        title: 'Predictions Space Projection (MDS)',
+        title: 'MDS Projection',
         xaxis: {
             visible: false
         },
@@ -110,6 +124,13 @@ export default {
         autosize: true,
         width: width,
         height: height,
+        margin: {
+            l: 50,
+            r: 0,
+            b: 30,
+            t: 40,
+            pad: 0
+          },
         }
       } else if (this.representationDef == 'tsne') {
         result = XandYCoordinatesTSNE.reduce(function(r, a) {
@@ -140,7 +161,7 @@ export default {
           const aux_ID = result.ID.filter((item, index) => originalDataLabels[index] == target_names[i]);
 
           var Text = aux_ID.map((item, index) => {
-            let popup = 'Data Point ID: ' + item + '; Details: ' + JSON.stringify(DataSetParse[item])
+            let popup = 'Data Point ID: ' + item + '<br> Details: ' + stringParameters[item]
             return popup;
           });
 
@@ -158,7 +179,7 @@ export default {
         }
 
         layout = {
-        title: 'Prediction Space Projection (t-SNE)',
+        title: 't-SNE Projection',
         xaxis: {
             visible: false
         },
@@ -170,6 +191,13 @@ export default {
         autosize: true,
         width: width,
         height: height,
+        margin: {
+            l: 50,
+            r: 0,
+            b: 30,
+            t: 40,
+            pad: 0
+          },
         }
       } else {
         for (let i = 0; i < XandYCoordinatesUMAP[0].length; i++) {
@@ -190,7 +218,7 @@ export default {
           const aux_ID = result.ID.filter((item, index) => originalDataLabels[index] == target_names[i]);
 
           var Text = aux_ID.map((item, index) => {
-            let popup = 'Data Point ID: ' + item + '; Details: ' + JSON.stringify(DataSetParse[item])
+            let popup = 'Data Point ID: ' + item + '<br> Details: ' + stringParameters[item]
             return popup;
           });
 
@@ -208,7 +236,7 @@ export default {
         }
 
         layout = {
-        title: 'Predictions Space Projection (UMAP)',
+        title: 'UMAP Projection',
         xaxis: {
             visible: false
         },
@@ -220,6 +248,13 @@ export default {
         autosize: true,
         width: width,
         height: height,
+        margin: {
+            l: 50,
+            r: 0,
+            b: 30,
+            t: 40,
+            pad: 0
+          },
         }
       }
 

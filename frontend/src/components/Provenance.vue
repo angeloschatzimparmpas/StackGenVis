@@ -37,6 +37,7 @@ export default {
       ExtraTModels: 2606,
       AdaBModels: 2766,
       GradBModels: 2926,
+      AllDetails: '',
       platform: ''
     }
   },
@@ -46,6 +47,15 @@ export default {
 
       } else {
         this.platform.clear();
+      }
+    },
+    clean(obj) {
+      var propNames = Object.getOwnPropertyNames(obj);
+      for (var i = 0; i < propNames.length; i++) {
+        var propName = propNames[i];
+        if (obj[propName] === null || obj[propName] === undefined) {
+          delete obj[propName];
+        }
       }
     },
     provenance () {
@@ -66,6 +76,18 @@ export default {
       var flagGradB = 0
 
       var StackInfo = JSON.parse(this.stackInformation[1])
+
+      var parameters = JSON.parse(this.AllDetails[2])
+      var parameters = JSON.parse(parameters)
+
+      var stringParameters = []
+      var temp = 0
+      for (let i = 0; i < StackInfo.length; i++) {
+        this.clean(parameters[i])
+        temp = JSON.stringify(Object.assign({ID: StackInfo[i]}, parameters[i]))
+        stringParameters.push(temp)
+      }
+
       // Create a WebGL 2D platform on the canvas:
       this.platform = Stardust.platform("webgl-2d", canvas, width, height);
     
@@ -211,11 +233,14 @@ export default {
 
       isotypes.data(this.data);
 
+      EventBus.$emit('ExtractResults', stringParameters)
+
       isotypes.render();
       this.counter = this.counter + 1
   }
   },
   mounted () {
+    EventBus.$on('ParametersProvenance', data => {this.AllDetails = data})
     EventBus.$on('InitializeProvenance', data => {this.stackInformation = data})
     EventBus.$on('InitializeProvenance', this.provenance)
     EventBus.$on('Responsive', data => {

@@ -65,13 +65,10 @@ export default {
             + (factorsLocal[10] * Object.values(performanceAlgKNN['mean_test_recall_macro'])[j]) + (factorsLocal[11] * Object.values(performanceAlgKNN['mean_test_recall_weighted'])[j]) + (factorsLocal[12] * Object.values(performanceAlgKNN['f5_micro'])[j]) + (factorsLocal[13] * Object.values(performanceAlgKNN['f5_macro'])[j]) + (factorsLocal[14] * Object.values(performanceAlgKNN['f5_weighted'])[j]) + (factorsLocal[15] * Object.values(performanceAlgKNN['f1_micro'])[j])
             + (factorsLocal[16] * Object.values(performanceAlgKNN['f1_macro'])[j]) + (factorsLocal[17] * Object.values(performanceAlgKNN['f1_weighted'])[j]) + (factorsLocal[18] * Object.values(performanceAlgKNN['f2_micro'])[j]) + (factorsLocal[19] * Object.values(performanceAlgKNN['f2_macro'])[j]) + (factorsLocal[20] * Object.values(performanceAlgKNN['f2_weighted'])[j]) + (factorsLocal[21] * Object.values(performanceAlgKNN['matthews_corrcoef'])[j])
             + (factorsLocal[22] * Object.values(performanceAlgKNN['mean_test_roc_auc_ovo_weighted'])[j]) + (factorsLocal[23] * (1 - Object.values(performanceAlgKNN['log_loss'])[j]))
-          if (sumKNN <= 0) {
-            sumKNN = 0
-          }
           McKNN.push((sumKNN/divide)*100)
         }
         var McSVC = []
-        const performanceAlgSVC = JSON.parse(this.ModelsPerformance[14])
+        const performanceAlgSVC = JSON.parse(this.ModelsPerformance[15])
         for (let j = 0; j < Object.values(performanceAlgSVC['mean_test_accuracy']).length; j++) {
           let sumSVC
           sumSVC = (factorsLocal[0] * Object.values(performanceAlgSVC['mean_test_accuracy'])[j]) + (factorsLocal[1] * (Object.values(performanceAlgSVC['mean_test_neg_mean_absolute_error'])[j]) + 1) + (factorsLocal[2] * (Object.values(performanceAlgSVC['mean_test_neg_root_mean_squared_error'])[j]) + 1) + (factorsLocal[3] * Object.values(performanceAlgSVC['geometric_mean_score_micro'])[j]) + (factorsLocal[4] * Object.values(performanceAlgSVC['geometric_mean_score_macro'])[j])
@@ -79,13 +76,10 @@ export default {
             + (factorsLocal[10] * Object.values(performanceAlgSVC['mean_test_recall_macro'])[j]) + (factorsLocal[11] * Object.values(performanceAlgSVC['mean_test_recall_weighted'])[j]) + (factorsLocal[12] * Object.values(performanceAlgSVC['f5_micro'])[j]) + (factorsLocal[13] * Object.values(performanceAlgSVC['f5_macro'])[j]) + (factorsLocal[14] * Object.values(performanceAlgSVC['f5_weighted'])[j]) + (factorsLocal[15] * Object.values(performanceAlgSVC['f1_micro'])[j])
             + (factorsLocal[16] * Object.values(performanceAlgSVC['f1_macro'])[j]) + (factorsLocal[17] * Object.values(performanceAlgSVC['f1_weighted'])[j]) + (factorsLocal[18] * Object.values(performanceAlgSVC['f2_micro'])[j]) + (factorsLocal[19] * Object.values(performanceAlgSVC['f2_macro'])[j]) + (factorsLocal[20] * Object.values(performanceAlgSVC['f2_weighted'])[j]) + (factorsLocal[21] * Object.values(performanceAlgSVC['matthews_corrcoef'])[j])
             + (factorsLocal[22] * Object.values(performanceAlgSVC['mean_test_roc_auc_ovo_weighted'])[j]) + (factorsLocal[23] * (1 - Object.values(performanceAlgSVC['log_loss'])[j]))
-          if (sumSVC <= 0) {
-            sumSVC = 0
-          }
           McSVC.push((sumSVC/divide)*100)
         }
         var McGausNB = []
-        const performanceAlgGausNB = JSON.parse(this.ModelsPerformance[22])
+        const performanceAlgGausNB = JSON.parse(this.ModelsPerformance[24])
         for (let j = 0; j < Object.values(performanceAlgGausNB['mean_test_accuracy']).length; j++) {
           let sumGausNB 
           sumGausNB = (factorsLocal[0] * Object.values(performanceAlgGausNB['mean_test_accuracy'])[j]) + (factorsLocal[1] * (Object.values(performanceAlgGausNB['mean_test_neg_mean_absolute_error'])[j]) + 1) + (factorsLocal[2] * (Object.values(performanceAlgGausNB['mean_test_neg_root_mean_squared_error'])[j]) + 1) + (factorsLocal[3] * Object.values(performanceAlgGausNB['geometric_mean_score_micro'])[j]) + (factorsLocal[4] * Object.values(performanceAlgGausNB['geometric_mean_score_macro'])[j])
@@ -93,13 +87,10 @@ export default {
             + (factorsLocal[10] * Object.values(performanceAlgGausNB['mean_test_recall_macro'])[j]) + (factorsLocal[11] * Object.values(performanceAlgGausNB['mean_test_recall_weighted'])[j]) + (factorsLocal[12] * Object.values(performanceAlgGausNB['f5_micro'])[j]) + (factorsLocal[13] * Object.values(performanceAlgGausNB['f5_macro'])[j]) + (factorsLocal[14] * Object.values(performanceAlgGausNB['f5_weighted'])[j]) + (factorsLocal[15] * Object.values(performanceAlgGausNB['f1_micro'])[j])
             + (factorsLocal[16] * Object.values(performanceAlgGausNB['f1_macro'])[j]) + (factorsLocal[17] * Object.values(performanceAlgGausNB['f1_weighted'])[j]) + (factorsLocal[18] * Object.values(performanceAlgGausNB['f2_micro'])[j]) + (factorsLocal[19] * Object.values(performanceAlgGausNB['f2_macro'])[j]) + (factorsLocal[20] * Object.values(performanceAlgGausNB['f2_weighted'])[j]) + (factorsLocal[21] * Object.values(performanceAlgGausNB['matthews_corrcoef'])[j])
             + (factorsLocal[22] * Object.values(performanceAlgGausNB['mean_test_roc_auc_ovo_weighted'])[j]) + (factorsLocal[23] * (1 - Object.values(performanceAlgGausNB['log_loss'])[j]))
-          if (sumGausNB <= 0) {
-            sumGausNB = 0
-          }
           McGausNB.push((sumGausNB/divide)*100)
         }
         var McMLP = []
-        const performanceAlgMLP = JSON.parse(this.ModelsPerformance[30])
+        const performanceAlgMLP = JSON.parse(this.ModelsPerformance[33])
         for (let j = 0; j < Object.values(performanceAlgMLP['mean_test_accuracy']).length; j++) {
           let sumMLP
           sumMLP = (factorsLocal[0] * Object.values(performanceAlgMLP['mean_test_accuracy'])[j]) + (factorsLocal[1] * (Object.values(performanceAlgMLP['mean_test_neg_mean_absolute_error'])[j]) + 1) + (factorsLocal[2] * (Object.values(performanceAlgMLP['mean_test_neg_root_mean_squared_error'])[j]) + 1) + (factorsLocal[3] * Object.values(performanceAlgMLP['geometric_mean_score_micro'])[j]) + (factorsLocal[4] * Object.values(performanceAlgMLP['geometric_mean_score_macro'])[j])
@@ -107,13 +98,10 @@ export default {
             + (factorsLocal[10] * Object.values(performanceAlgMLP['mean_test_recall_macro'])[j]) + (factorsLocal[11] * Object.values(performanceAlgMLP['mean_test_recall_weighted'])[j]) + (factorsLocal[12] * Object.values(performanceAlgMLP['f5_micro'])[j]) + (factorsLocal[13] * Object.values(performanceAlgMLP['f5_macro'])[j]) + (factorsLocal[14] * Object.values(performanceAlgMLP['f5_weighted'])[j]) + (factorsLocal[15] * Object.values(performanceAlgMLP['f1_micro'])[j])
             + (factorsLocal[16] * Object.values(performanceAlgMLP['f1_macro'])[j]) + (factorsLocal[17] * Object.values(performanceAlgMLP['f1_weighted'])[j]) + (factorsLocal[18] * Object.values(performanceAlgMLP['f2_micro'])[j]) + (factorsLocal[19] * Object.values(performanceAlgMLP['f2_macro'])[j]) + (factorsLocal[20] * Object.values(performanceAlgMLP['f2_weighted'])[j]) + (factorsLocal[21] * Object.values(performanceAlgMLP['matthews_corrcoef'])[j])
             + (factorsLocal[22] * Object.values(performanceAlgMLP['mean_test_roc_auc_ovo_weighted'])[j]) + (factorsLocal[23] * (1 - Object.values(performanceAlgMLP['log_loss'])[j]))
-          if (sumMLP <= 0) {
-            sumMLP = 0
-          }
           McMLP.push((sumMLP/divide)*100)
         }
         var McLR = []
-        const performanceAlgLR = JSON.parse(this.ModelsPerformance[38])
+        const performanceAlgLR = JSON.parse(this.ModelsPerformance[42])
         for (let j = 0; j < Object.values(performanceAlgLR['mean_test_accuracy']).length; j++) {
           let sumLR
           sumLR = (factorsLocal[0] * Object.values(performanceAlgLR['mean_test_accuracy'])[j]) + (factorsLocal[1] * (Object.values(performanceAlgLR['mean_test_neg_mean_absolute_error'])[j]) + 1) + (factorsLocal[2] * (Object.values(performanceAlgLR['mean_test_neg_root_mean_squared_error'])[j]) + 1) + (factorsLocal[3] * Object.values(performanceAlgLR['geometric_mean_score_micro'])[j]) + (factorsLocal[4] * Object.values(performanceAlgLR['geometric_mean_score_macro'])[j])
@@ -121,13 +109,10 @@ export default {
             + (factorsLocal[10] * Object.values(performanceAlgLR['mean_test_recall_macro'])[j]) + (factorsLocal[11] * Object.values(performanceAlgLR['mean_test_recall_weighted'])[j]) + (factorsLocal[12] * Object.values(performanceAlgLR['f5_micro'])[j]) + (factorsLocal[13] * Object.values(performanceAlgLR['f5_macro'])[j]) + (factorsLocal[14] * Object.values(performanceAlgLR['f5_weighted'])[j]) + (factorsLocal[15] * Object.values(performanceAlgLR['f1_micro'])[j])
             + (factorsLocal[16] * Object.values(performanceAlgLR['f1_macro'])[j]) + (factorsLocal[17] * Object.values(performanceAlgLR['f1_weighted'])[j]) + (factorsLocal[18] * Object.values(performanceAlgLR['f2_micro'])[j]) + (factorsLocal[19] * Object.values(performanceAlgLR['f2_macro'])[j]) + (factorsLocal[20] * Object.values(performanceAlgLR['f2_weighted'])[j]) + (factorsLocal[21] * Object.values(performanceAlgLR['matthews_corrcoef'])[j])
             + (factorsLocal[22] * Object.values(performanceAlgLR['mean_test_roc_auc_ovo_weighted'])[j]) + (factorsLocal[23] * (1 - Object.values(performanceAlgLR['log_loss'])[j]))
-          if (sumLR <= 0) {
-            sumLR = 0
-          }
           McLR.push((sumLR/divide)*100)
         }
         var McLDA = []
-        const performanceAlgLDA = JSON.parse(this.ModelsPerformance[46])
+        const performanceAlgLDA = JSON.parse(this.ModelsPerformance[51])
         for (let j = 0; j < Object.values(performanceAlgLDA['mean_test_accuracy']).length; j++) {
           let sumLDA
           sumLDA = (factorsLocal[0] * Object.values(performanceAlgLDA['mean_test_accuracy'])[j]) + (factorsLocal[1] * (Object.values(performanceAlgLDA['mean_test_neg_mean_absolute_error'])[j]) + 1) + (factorsLocal[2] * (Object.values(performanceAlgLDA['mean_test_neg_root_mean_squared_error'])[j]) + 1) + (factorsLocal[3] * Object.values(performanceAlgLDA['geometric_mean_score_micro'])[j]) + (factorsLocal[4] * Object.values(performanceAlgLDA['geometric_mean_score_macro'])[j])
@@ -135,13 +120,10 @@ export default {
             + (factorsLocal[10] * Object.values(performanceAlgLDA['mean_test_recall_macro'])[j]) + (factorsLocal[11] * Object.values(performanceAlgLDA['mean_test_recall_weighted'])[j]) + (factorsLocal[12] * Object.values(performanceAlgLDA['f5_micro'])[j]) + (factorsLocal[13] * Object.values(performanceAlgLDA['f5_macro'])[j]) + (factorsLocal[14] * Object.values(performanceAlgLDA['f5_weighted'])[j]) + (factorsLocal[15] * Object.values(performanceAlgLDA['f1_micro'])[j])
             + (factorsLocal[16] * Object.values(performanceAlgLDA['f1_macro'])[j]) + (factorsLocal[17] * Object.values(performanceAlgLDA['f1_weighted'])[j]) + (factorsLocal[18] * Object.values(performanceAlgLDA['f2_micro'])[j]) + (factorsLocal[19] * Object.values(performanceAlgLDA['f2_macro'])[j]) + (factorsLocal[20] * Object.values(performanceAlgLDA['f2_weighted'])[j]) + (factorsLocal[21] * Object.values(performanceAlgLDA['matthews_corrcoef'])[j])
             + (factorsLocal[22] * Object.values(performanceAlgLDA['mean_test_roc_auc_ovo_weighted'])[j]) + (factorsLocal[23] * (1 - Object.values(performanceAlgLDA['log_loss'])[j]))
-          if (sumLDA <= 0) {
-            sumLDA = 0
-          }
           McLDA.push((sumLDA/divide)*100)
         }
         var McQDA = []
-        const performanceAlgQDA = JSON.parse(this.ModelsPerformance[54])
+        const performanceAlgQDA = JSON.parse(this.ModelsPerformance[60])
         for (let j = 0; j < Object.values(performanceAlgQDA['mean_test_accuracy']).length; j++) {
           let sumQDA
           sumQDA = (factorsLocal[0] * Object.values(performanceAlgQDA['mean_test_accuracy'])[j]) + (factorsLocal[1] * (Object.values(performanceAlgQDA['mean_test_neg_mean_absolute_error'])[j]) + 1) + (factorsLocal[2] * (Object.values(performanceAlgQDA['mean_test_neg_root_mean_squared_error'])[j]) + 1) + (factorsLocal[3] * Object.values(performanceAlgQDA['geometric_mean_score_micro'])[j]) + (factorsLocal[4] * Object.values(performanceAlgQDA['geometric_mean_score_macro'])[j])
@@ -149,13 +131,10 @@ export default {
             + (factorsLocal[10] * Object.values(performanceAlgQDA['mean_test_recall_macro'])[j]) + (factorsLocal[11] * Object.values(performanceAlgQDA['mean_test_recall_weighted'])[j]) + (factorsLocal[12] * Object.values(performanceAlgQDA['f5_micro'])[j]) + (factorsLocal[13] * Object.values(performanceAlgQDA['f5_macro'])[j]) + (factorsLocal[14] * Object.values(performanceAlgQDA['f5_weighted'])[j]) + (factorsLocal[15] * Object.values(performanceAlgQDA['f1_micro'])[j])
             + (factorsLocal[16] * Object.values(performanceAlgQDA['f1_macro'])[j]) + (factorsLocal[17] * Object.values(performanceAlgQDA['f1_weighted'])[j]) + (factorsLocal[18] * Object.values(performanceAlgQDA['f2_micro'])[j]) + (factorsLocal[19] * Object.values(performanceAlgQDA['f2_macro'])[j]) + (factorsLocal[20] * Object.values(performanceAlgQDA['f2_weighted'])[j]) + (factorsLocal[21] * Object.values(performanceAlgQDA['matthews_corrcoef'])[j])
             + (factorsLocal[22] * Object.values(performanceAlgQDA['mean_test_roc_auc_ovo_weighted'])[j]) + (factorsLocal[23] * (1 - Object.values(performanceAlgQDA['log_loss'])[j]))
-          if (sumQDA <= 0) {
-            sumQDA = 0
-          }
           McQDA.push((sumQDA/divide)*100)
         }
         var McRF = []
-        const performanceAlgRF = JSON.parse(this.ModelsPerformance[62])
+        const performanceAlgRF = JSON.parse(this.ModelsPerformance[69])
         for (let j = 0; j < Object.values(performanceAlgRF['mean_test_accuracy']).length; j++) {
           let sumRF
           sumRF = (factorsLocal[0] * Object.values(performanceAlgRF['mean_test_accuracy'])[j]) + (factorsLocal[1] * (Object.values(performanceAlgRF['mean_test_neg_mean_absolute_error'])[j]) + 1) + (factorsLocal[2] * (Object.values(performanceAlgRF['mean_test_neg_root_mean_squared_error'])[j]) + 1) + (factorsLocal[3] * Object.values(performanceAlgRF['geometric_mean_score_micro'])[j]) + (factorsLocal[4] * Object.values(performanceAlgRF['geometric_mean_score_macro'])[j])
@@ -163,13 +142,10 @@ export default {
             + (factorsLocal[10] * Object.values(performanceAlgRF['mean_test_recall_macro'])[j]) + (factorsLocal[11] * Object.values(performanceAlgRF['mean_test_recall_weighted'])[j]) + (factorsLocal[12] * Object.values(performanceAlgRF['f5_micro'])[j]) + (factorsLocal[13] * Object.values(performanceAlgRF['f5_macro'])[j]) + (factorsLocal[14] * Object.values(performanceAlgRF['f5_weighted'])[j]) + (factorsLocal[15] * Object.values(performanceAlgRF['f1_micro'])[j])
             + (factorsLocal[16] * Object.values(performanceAlgRF['f1_macro'])[j]) + (factorsLocal[17] * Object.values(performanceAlgRF['f1_weighted'])[j]) + (factorsLocal[18] * Object.values(performanceAlgRF['f2_micro'])[j]) + (factorsLocal[19] * Object.values(performanceAlgRF['f2_macro'])[j]) + (factorsLocal[20] * Object.values(performanceAlgRF['f2_weighted'])[j]) + (factorsLocal[21] * Object.values(performanceAlgRF['matthews_corrcoef'])[j])
             + (factorsLocal[22] * Object.values(performanceAlgRF['mean_test_roc_auc_ovo_weighted'])[j]) + (factorsLocal[23] * (1 - Object.values(performanceAlgRF['log_loss'])[j]))
-          if (sumRF <= 0) {
-            sumRF = 0
-          }
           McRF.push((sumRF/divide)*100)
         }
         var McExtraT = []
-        const performanceAlgExtraT = JSON.parse(this.ModelsPerformance[70])
+        const performanceAlgExtraT = JSON.parse(this.ModelsPerformance[78])
         for (let j = 0; j < Object.values(performanceAlgExtraT['mean_test_accuracy']).length; j++) {
           let sumExtraT
           sumExtraT = (factorsLocal[0] * Object.values(performanceAlgExtraT['mean_test_accuracy'])[j]) + (factorsLocal[1] * (Object.values(performanceAlgExtraT['mean_test_neg_mean_absolute_error'])[j]) + 1) + (factorsLocal[2] * (Object.values(performanceAlgExtraT['mean_test_neg_root_mean_squared_error'])[j]) + 1) + (factorsLocal[3] * Object.values(performanceAlgExtraT['geometric_mean_score_micro'])[j]) + (factorsLocal[4] * Object.values(performanceAlgExtraT['geometric_mean_score_macro'])[j])
@@ -177,13 +153,10 @@ export default {
             + (factorsLocal[10] * Object.values(performanceAlgExtraT['mean_test_recall_macro'])[j]) + (factorsLocal[11] * Object.values(performanceAlgExtraT['mean_test_recall_weighted'])[j]) + (factorsLocal[12] * Object.values(performanceAlgExtraT['f5_micro'])[j]) + (factorsLocal[13] * Object.values(performanceAlgExtraT['f5_macro'])[j]) + (factorsLocal[14] * Object.values(performanceAlgExtraT['f5_weighted'])[j]) + (factorsLocal[15] * Object.values(performanceAlgExtraT['f1_micro'])[j])
             + (factorsLocal[16] * Object.values(performanceAlgExtraT['f1_macro'])[j]) + (factorsLocal[17] * Object.values(performanceAlgExtraT['f1_weighted'])[j]) + (factorsLocal[18] * Object.values(performanceAlgExtraT['f2_micro'])[j]) + (factorsLocal[19] * Object.values(performanceAlgExtraT['f2_macro'])[j]) + (factorsLocal[20] * Object.values(performanceAlgExtraT['f2_weighted'])[j]) + (factorsLocal[21] * Object.values(performanceAlgExtraT['matthews_corrcoef'])[j])
             + (factorsLocal[22] * Object.values(performanceAlgExtraT['mean_test_roc_auc_ovo_weighted'])[j]) + (factorsLocal[23] * (1 - Object.values(performanceAlgExtraT['log_loss'])[j]))
-          if (sumExtraT <= 0) {
-            sumExtraT = 0
-          }
           McExtraT.push((sumExtraT/divide)*100)
         }
         var McAdaB = []
-        const performanceAlgAdaB = JSON.parse(this.ModelsPerformance[78])
+        const performanceAlgAdaB = JSON.parse(this.ModelsPerformance[87])
         for (let j = 0; j < Object.values(performanceAlgAdaB['mean_test_accuracy']).length; j++) {
           let sumAdaB
           sumAdaB = (factorsLocal[0] * Object.values(performanceAlgAdaB['mean_test_accuracy'])[j]) + (factorsLocal[1] * (Object.values(performanceAlgAdaB['mean_test_neg_mean_absolute_error'])[j]) + 1) + (factorsLocal[2] * (Object.values(performanceAlgAdaB['mean_test_neg_root_mean_squared_error'])[j]) + 1) + (factorsLocal[3] * Object.values(performanceAlgAdaB['geometric_mean_score_micro'])[j]) + (factorsLocal[4] * Object.values(performanceAlgAdaB['geometric_mean_score_macro'])[j])
@@ -191,13 +164,10 @@ export default {
             + (factorsLocal[10] * Object.values(performanceAlgAdaB['mean_test_recall_macro'])[j]) + (factorsLocal[11] * Object.values(performanceAlgAdaB['mean_test_recall_weighted'])[j]) + (factorsLocal[12] * Object.values(performanceAlgAdaB['f5_micro'])[j]) + (factorsLocal[13] * Object.values(performanceAlgAdaB['f5_macro'])[j]) + (factorsLocal[14] * Object.values(performanceAlgAdaB['f5_weighted'])[j]) + (factorsLocal[15] * Object.values(performanceAlgAdaB['f1_micro'])[j])
             + (factorsLocal[16] * Object.values(performanceAlgAdaB['f1_macro'])[j]) + (factorsLocal[17] * Object.values(performanceAlgAdaB['f1_weighted'])[j]) + (factorsLocal[18] * Object.values(performanceAlgAdaB['f2_micro'])[j]) + (factorsLocal[19] * Object.values(performanceAlgAdaB['f2_macro'])[j]) + (factorsLocal[20] * Object.values(performanceAlgAdaB['f2_weighted'])[j]) + (factorsLocal[21] * Object.values(performanceAlgAdaB['matthews_corrcoef'])[j])
             + (factorsLocal[22] * Object.values(performanceAlgAdaB['mean_test_roc_auc_ovo_weighted'])[j]) + (factorsLocal[23] * (1 - Object.values(performanceAlgAdaB['log_loss'])[j]))
-          if (sumAdaB <= 0) {
-            sumAdaB = 0
-          }
           McAdaB.push((sumAdaB/divide)*100)
         }
         var McGradB = []
-        const performanceAlgGradB = JSON.parse(this.ModelsPerformance[86])
+        const performanceAlgGradB = JSON.parse(this.ModelsPerformance[96])
         for (let j = 0; j < Object.values(performanceAlgGradB['mean_test_accuracy']).length; j++) {
           let sumGradB
           sumGradB = (factorsLocal[0] * Object.values(performanceAlgGradB['mean_test_accuracy'])[j]) + (factorsLocal[1] * (Object.values(performanceAlgGradB['mean_test_neg_mean_absolute_error'])[j]) + 1) + (factorsLocal[2] * (Object.values(performanceAlgGradB['mean_test_neg_root_mean_squared_error'])[j]) + 1) + (factorsLocal[3] * Object.values(performanceAlgGradB['geometric_mean_score_micro'])[j]) + (factorsLocal[4] * Object.values(performanceAlgGradB['geometric_mean_score_macro'])[j])
@@ -205,9 +175,6 @@ export default {
             + (factorsLocal[10] * Object.values(performanceAlgGradB['mean_test_recall_macro'])[j]) + (factorsLocal[11] * Object.values(performanceAlgGradB['mean_test_recall_weighted'])[j]) + (factorsLocal[12] * Object.values(performanceAlgGradB['f5_micro'])[j]) + (factorsLocal[13] * Object.values(performanceAlgGradB['f5_macro'])[j]) + (factorsLocal[14] * Object.values(performanceAlgGradB['f5_weighted'])[j]) + (factorsLocal[15] * Object.values(performanceAlgGradB['f1_micro'])[j])
             + (factorsLocal[16] * Object.values(performanceAlgGradB['f1_macro'])[j]) + (factorsLocal[17] * Object.values(performanceAlgGradB['f1_weighted'])[j]) + (factorsLocal[18] * Object.values(performanceAlgGradB['f2_micro'])[j]) + (factorsLocal[19] * Object.values(performanceAlgGradB['f2_macro'])[j]) + (factorsLocal[20] * Object.values(performanceAlgGradB['f2_weighted'])[j]) + (factorsLocal[21] * Object.values(performanceAlgGradB['matthews_corrcoef'])[j])
             + (factorsLocal[22] * Object.values(performanceAlgGradB['mean_test_roc_auc_ovo_weighted'])[j]) + (factorsLocal[23] * (1 - Object.values(performanceAlgGradB['log_loss'])[j]))
-          if (sumGradB <= 0) {
-            sumGradB = 0
-          }
           McGradB.push((sumGradB/divide)*100)
         }
 
@@ -216,34 +183,34 @@ export default {
           Combined = JSON.parse(this.ModelsPerformance[1])
           colorGiv = colors[0]
         } else if (this.selAlgorithm == 'SVC') {    
-          Combined = JSON.parse(this.ModelsPerformance[9])
+          Combined = JSON.parse(this.ModelsPerformance[10])
           colorGiv = colors[1]
         } else if (this.selAlgorithm == 'GausNB') {    
-          Combined = JSON.parse(this.ModelsPerformance[17])
+          Combined = JSON.parse(this.ModelsPerformance[19])
           colorGiv = colors[2]
         } else if (this.selAlgorithm == 'MLP') {    
-          Combined = JSON.parse(this.ModelsPerformance[25])
+          Combined = JSON.parse(this.ModelsPerformance[28])
           colorGiv = colors[3]
         } else if (this.selAlgorithm == 'LR') {    
-          Combined = JSON.parse(this.ModelsPerformance[33])
+          Combined = JSON.parse(this.ModelsPerformance[37])
           colorGiv = colors[4]
         } else if (this.selAlgorithm == 'LDA') {    
-          Combined = JSON.parse(this.ModelsPerformance[41])
+          Combined = JSON.parse(this.ModelsPerformance[46])
           colorGiv = colors[5]
         } else if (this.selAlgorithm == 'QDA') {    
-          Combined = JSON.parse(this.ModelsPerformance[49])
+          Combined = JSON.parse(this.ModelsPerformance[55])
           colorGiv = colors[6]
         } else if (this.selAlgorithm == 'RF') {    
-          Combined = JSON.parse(this.ModelsPerformance[57])
+          Combined = JSON.parse(this.ModelsPerformance[64])
           colorGiv = colors[7]
         } else if (this.selAlgorithm == 'ExtraT') {    
-          Combined = JSON.parse(this.ModelsPerformance[65])
+          Combined = JSON.parse(this.ModelsPerformance[73])
           colorGiv = colors[8]
         } else if (this.selAlgorithm == 'AdaB') {    
-          Combined = JSON.parse(this.ModelsPerformance[73])
+          Combined = JSON.parse(this.ModelsPerformance[82])
           colorGiv = colors[9]
         } else {
-          Combined = JSON.parse(this.ModelsPerformance[81])
+          Combined = JSON.parse(this.ModelsPerformance[91])
           colorGiv = colors[10]
         }
         var valuesPerf = Object.values(Combined['params'])

@@ -123,7 +123,7 @@ export default {
               else if (this.Toggles[0] == 0 && this.Toggles[1] == 0 && this.Toggles[2] == 1) {
                 values[j] = FeaturesAccuracy[j][i]*100
               } else {
-                alert('Please, keep at least one toggle active! The states of the toggles are being reset.') // Fix this!
+                alert('Please, keep at least one toggle active! The states of the toggles are being reset.')
                 this.Toggles[0] = 1
                 this.Toggles[1] = 1
                 this.Toggles[2] = 1
@@ -382,6 +382,7 @@ export default {
                 }
                 finalresults.push(results)
             }
+            EventBus.$emit('sendSelectedFeaturestoPickle', finalresults)
             EventBus.$emit('SendSelectedFeaturesEvent', finalresults)
           });
       var svgLeg = d3.select("#LegendHeat").append("svg")

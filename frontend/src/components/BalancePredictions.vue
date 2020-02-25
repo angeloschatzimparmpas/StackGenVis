@@ -46,7 +46,7 @@
             performancePerModel.forEach(element => {
               let el = {}
               el.type = "variable 1"
-              el.value = element * 100
+              el.value = element
               data.push(el)
             })
 
@@ -54,14 +54,14 @@
               performancePerModel.forEach(element => {
                 let el = {}
                 el.type = "variable 2"
-                el.value = element * 100
+                el.value = element
                 data.push(el)
               })
             } else {
               performancePerModelSelection.forEach(element => {
                 let el = {}
                 el.type = "variable 2"
-                el.value = element * 100
+                el.value = element
                 data.push(el)
               })
             }
@@ -92,7 +92,7 @@
             var histogram = d3.histogram()
                 .value(function(d) { return +d.value; })   // I need to give the vector of value
                 .domain(x.domain())  // then the domain of the graphic
-                .thresholds(x.ticks(40)); // then the numbers of bins
+                .thresholds(x.ticks(10)); // then the numbers of bins
 
             // And apply twice this function to data to get the bins.
             var bins1 = histogram(data.filter( function(d){return d.type === "variable 1"} ));
@@ -104,7 +104,7 @@
                 .domain([0, d3.max(bins1, function(d) { return d.length; })]);   // d3.hist has to be called before the Y axis obviously
             svg.append("g")
                 .attr("transform", "translate(-20,0)")
-                .call(d3.axisLeft(y1));
+                .call(d3.axisLeft(y1).ticks(5).tickSizeOuter(0));
 
             // Y axis: scale and draw:
             var y2 = d3.scaleLinear()
@@ -112,7 +112,7 @@
                 .domain([0, d3.max(bins2, function(d) { return d.length; })]);   // d3.hist has to be called before the Y axis obviously
             svg.append("g")
                 .attr("transform", "translate(-20,0)")
-                .call(d3.axisLeft(y2));
+                .call(d3.axisLeft(y2).ticks(5).tickSizeOuter(0));
 
              // Add a tooltip div. Here I define the general feature of the tooltip: stuff that do not depend on the data point.
             // Its opacity is set to 0: we don't see it by default.

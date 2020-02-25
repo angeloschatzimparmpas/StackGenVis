@@ -25,6 +25,7 @@ export default {
       ,0,1,1,1
       ],
       SVCModels: 576,
+      tNameAll: '',
       GausNBModels: 736, 
       MLPModels: 1236,
       LRModels: 1356, 
@@ -41,16 +42,16 @@ export default {
   methods: {
     BarChartView () {
       const PerClassMetricsKNN = JSON.parse(this.PerformanceResults[2])
-      const PerClassMetricsSVC = JSON.parse(this.PerformanceResults[10])
-      const PerClassMetricsGausNB = JSON.parse(this.PerformanceResults[18])
-      const PerClassMetricsMLP = JSON.parse(this.PerformanceResults[26])
-      const PerClassMetricsLR = JSON.parse(this.PerformanceResults[34])
-      const PerClassMetricsLDA = JSON.parse(this.PerformanceResults[42])
-      const PerClassMetricsQDA = JSON.parse(this.PerformanceResults[50])
-      const PerClassMetricsRF = JSON.parse(this.PerformanceResults[58])
-      const PerClassMetricsExtraT = JSON.parse(this.PerformanceResults[66])
-      const PerClassMetricsAdaB = JSON.parse(this.PerformanceResults[74])
-      const PerClassMetricsGradB = JSON.parse(this.PerformanceResults[82])
+      const PerClassMetricsSVC = JSON.parse(this.PerformanceResults[11])
+      const PerClassMetricsGausNB = JSON.parse(this.PerformanceResults[20])
+      const PerClassMetricsMLP = JSON.parse(this.PerformanceResults[29])
+      const PerClassMetricsLR = JSON.parse(this.PerformanceResults[38])
+      const PerClassMetricsLDA = JSON.parse(this.PerformanceResults[47])
+      const PerClassMetricsQDA = JSON.parse(this.PerformanceResults[56])
+      const PerClassMetricsRF = JSON.parse(this.PerformanceResults[65])
+      const PerClassMetricsExtraT = JSON.parse(this.PerformanceResults[74])
+      const PerClassMetricsAdaB = JSON.parse(this.PerformanceResults[83])
+      const PerClassMetricsGradB = JSON.parse(this.PerformanceResults[92])
 
       var KNNModels = []
       var SVCModels = []
@@ -461,8 +462,36 @@ export default {
         }
 
         for (var i = 0; i < target_names.length; i++) {
-          traces[i] = {
-            x:  ['K-Nearest Neighbors','C-Support Vector Classifier','Gaussian Naive Bayes','Multilayer Perceptron','Logistic Regression','Linear Discrim Analysis','Quadratic Discrim Analysis','Random Forest','Extra Trees','AdaBoost','Gradient Boosting'],
+          if (this.tNameAll == target_names[i]) {
+            traces[i] = {
+            x:  ['K-Nearest Neighbors','C-Support Vector Classif','Gaussian Naive Bayes','Multilayer Perceptron','Logistic Regression','Linear Discrim Analysis','Quadratic Discrim Analysis','Random Forest','Extra Trees','AdaBoost','Gradient Boosting'],
+            y: sumList[i],
+            name: '<b>'+target_names[i]+'</b>',
+            opacity: 0.5,
+            marker: {
+                opacity: 0.5,
+                color: this.colorsValues[i]
+            },
+            type: 'bar'
+            };
+          tracesSel[i] = {
+              type: 'bar',
+              x: ['K-Nearest Neighbors','C-Support Vector Classif','Gaussian Naive Bayes','Multilayer Perceptron','Logistic Regression','Linear Discrim Analysis','Quadratic Discrim Analysis','Random Forest','Extra Trees','AdaBoost','Gradient Boosting'],
+              y: sumLineList[i],
+              name: '<b>'+target_names[i]+' (Sel)</b>',
+              xaxis: 'x2',
+              mode: 'markers',
+              marker: {
+                  opacity: 1.0,
+                  color: this.colorsValues[i],
+              },
+              width: [0.06, 0.06, 0.06, 0.06, 0.06, 0.06, 0.06, 0.06, 0.06, 0.06, 0.06]
+              };
+              data.push(traces[i])
+              data.push(tracesSel[i])
+          } else {
+            traces[i] = {
+            x:  ['K-Nearest Neighbors','C-Support Vector Classif','Gaussian Naive Bayes','Multilayer Perceptron','Logistic Regression','Linear Discrim Analysis','Quadratic Discrim Analysis','Random Forest','Extra Trees','AdaBoost','Gradient Boosting'],
             y: sumList[i],
             name: target_names[i],
             opacity: 0.5,
@@ -474,7 +503,7 @@ export default {
             };
           tracesSel[i] = {
               type: 'bar',
-              x: ['K-Nearest Neighbors','C-Support Vector Classifier','Gaussian Naive Bayes','Multilayer Perceptron','Logistic Regression','Linear Discrim Analysis','Quadratic Discrim Analysis','Random Forest','Extra Trees','AdaBoost','Gradient Boosting'],
+              x: ['K-Nearest Neighbors','C-Support Vector Classif','Gaussian Naive Bayes','Multilayer Perceptron','Logistic Regression','Linear Discrim Analysis','Quadratic Discrim Analysis','Random Forest','Extra Trees','AdaBoost','Gradient Boosting'],
               y: sumLineList[i],
               name: target_names[i]+' (Sel)',
               xaxis: 'x2',
@@ -488,15 +517,19 @@ export default {
               data.push(traces[i])
               data.push(tracesSel[i])
           }
+          
+          }
           var barc = document.getElementById('barChart');
+          var config = {scrollZoom: true, displaylogo: false, showLink: false, showSendToCloud: false, modeBarButtonsToRemove: ['toImage'], responsive: true}
 
-          Plotly.newPlot(barc, data, layout)
+          Plotly.newPlot(barc, data, layout, config)
 
           barc.on('plotly_click', (eventData) => {
             var tName 
             eventData.points.forEach((e) => {
               tName = e.data.name.replace(/ *\([^)]*\) */g, "")
             });
+            this.tNameAll = tName
             EventBus.$emit('clearPCP')
             EventBus.$emit('alternateFlagLock')
             EventBus.$emit('boxplotSet', [storeKNN[tName],storeSVC[tName],storeGausNB[tName],storeMLP[tName],storeLR[tName],storeLDA[tName],storeQDA[tName],storeRF[tName],storeExtraT[tName],storeAdaB[tName],storeGradB[tName]])
@@ -511,6 +544,8 @@ export default {
       }
     },
     mounted() {
+      EventBus.$on('EraseSelectionBarChart', data => { this.tNameAll = data })
+
       EventBus.$on('updateBarChartAlgorithm', data => { this.algorithmsinBar = data })
       EventBus.$on('updateBarChart', data => { this.modelsSelectedinBar = data })
       EventBus.$on('updateBarChart', this.BarChartView)

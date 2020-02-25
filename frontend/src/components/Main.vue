@@ -143,7 +143,7 @@
     <div id="myModal" class="w3-modal" style="position: fixed;">
       <div class="w3-modal-content w3-card-4 w3-animate-zoom">
         <header class="w3-container w3-blue"> 
-        <h3 style="display:inline-block; font-size: 16px; margin-top: 15px; margin-bottom:15px">Serialized Ensemble Learning Models Using Pickling</h3>
+        <h3 style="display:inline-block; font-size: 16px; margin-top: 15px; margin-bottom:15px">Serialized Data and Stacking Ensemble Learning Models using Cryo</h3>
         </header>
         <Export/>
         <div class="w3-container w3-light-grey w3-padding">
@@ -323,6 +323,7 @@ export default Vue.extend({
           if (this.firstTimeFlag == 1) {
             this.selectedModels_Stack.push(0)
             this.selectedModels_Stack.push(JSON.stringify(this.modelsUpdate))
+            EventBus.$emit('ParametersProvenance', this.OverviewResults)
             EventBus.$emit('InitializeProvenance', this.selectedModels_Stack)
           }
           this.firstTimeFlag = 0
@@ -424,7 +425,7 @@ export default Vue.extend({
     },
     RemoveFromStackModels () {
       const path = `http://127.0.0.1:5000/data/ServerRemoveFromStack`
-
+      
       const postData = {
         ClassifiersList: this.ClassifierIDsList
       }
@@ -555,8 +556,6 @@ export default Vue.extend({
       axios.get(path, axiosConfig)
         .then(response => {
           this.FinalResults = response.data.FinalResults
-
-          this.DataSpaceImportance()
           EventBus.$emit('emittedEventCallingLinePlot', this.FinalResults)
         })
         .catch(error => {
@@ -611,27 +610,6 @@ export default Vue.extend({
           console.log(error)
         })
     },
-    DataSpaceImportance () {
-       const path = `http://localhost:5000/data/SendInstancesImportance`
-
-      const axiosConfig = {
-        headers: {
-          'Content-Type': 'application/json',
-          'Access-Control-Allow-Origin': '*',
-          'Access-Control-Allow-Headers': 'Origin, Content-Type, X-Auth-Token',
-          'Access-Control-Allow-Methods': 'GET, PUT, POST, DELETE, OPTIONS'
-        }
-      }
-      axios.get(path, axiosConfig)
-        .then(response => {
-          this.instancesImportance = response.data.instancesImportance
-          EventBus.$emit('emittedEventCallingDataSpaceImportance', this.instancesImportance)
-          this.DataSpaceCall()
-        })
-        .catch(error => {
-          console.log(error)
-        })
-    },
     DataSpaceCallAfterDataManipulation () {
       const path = `http://localhost:5000/data/requestDataSpaceResultsAfterDataManipulation`
 
@@ -645,7 +623,8 @@ export default Vue.extend({
       }
       axios.get(path, axiosConfig)
         .then(response => {
-          this.DataSpaceImportance()
+          console.log('Calling Data Space!')
+          this.DataSpaceCall()
         })
         .catch(error => {
           console.log(error)
@@ -932,6 +911,23 @@ export default Vue.extend({
           console.log(error)
         })
     },
+    Alg () {
+      $('#profile-tab').on('click', function (e) {
+        EventBus.$emit('Algorithm', false)
+      })
+
+      $('#contact-tab').on('click', function (e) {
+        EventBus.$emit('Algorithm', false)
+      })
+
+      $('#home-tab').on('click', function (e) {
+        var delayInMilliseconds = 1000; //1 second
+
+        setTimeout(function() {
+          EventBus.$emit('Algorithm', true)
+        }, delayInMilliseconds);
+      })
+    },
   },
   created () {
     // does the browser support the Navigation Timing API?
@@ -946,6 +942,7 @@ export default Vue.extend({
     window.addEventListener('resize', this.change)
   },
   mounted() {
+    this.Alg()
     var modal = document.getElementById('myModal')
     window.onclick = function(event) {
       //alert(event.target)

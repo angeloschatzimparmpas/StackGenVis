@@ -1,16 +1,24 @@
 <template>
 <div>
   <div align="center">
-            Projection Selection: <select id="selectBarChart" @change="selectVisualRepresentation()">
-              <option value="mds" selected>MDS Projection</option>
-              <option value="tsne">t-SNE Projection</option>
-              <option value="umap">UMAP Projection</option>
+            Projection Method: <select id="selectBarChart" @change="selectVisualRepresentation()">
+              <option value="mds" selected>MDS</option>
+              <option value="tsne">t-SNE</option>
+              <option value="umap">UMAP</option>
             </select>
+            &nbsp;&nbsp;
             Action: <button
             id="RemoveStack"
             v-on:click="RemoveStack">
             <font-awesome-icon icon="minus" />
             {{ valueStackRemove }}
+            </button>
+            &nbsp;&nbsp;
+            Filter: <button
+            id="ResetSelection"
+            v-on:click="resetSelection">
+            <font-awesome-icon icon="sync-alt" />
+            {{ valueResetSel }}
             </button>
   </div>
   <div id="OverviewPlotly" class="OverviewPlotly"></div>
@@ -38,14 +46,21 @@ export default {
       max: 0,
       min: 0,
       WH: [],
+      newColorsUpdate: [],
       parametersAll: [],
       length: 0,
-      valueStackRemove: 'Remove from Stack',
+      valueStackRemove: 'Remove Unselected from Stack',
       DataPointsSelUpdate: [],
-      ModelsIDGray: []
+      ModelsIDGray: [],
+      valueResetSel: 'Reset Metric Selection'
     }
   },
   methods: {
+    resetSelection () {
+      this.newColorsUpdate = []
+      this.ScatterPlotView()
+      EventBus.$emit('updateBoxPlots')
+    },
     reset () {
       Plotly.purge('OverviewPlotly')
     },
@@ -57,9 +72,26 @@ export default {
     RemoveStack () {
       EventBus.$emit('RemoveFromStack')
     },
+    clean(obj) {
+      var propNames = Object.getOwnPropertyNames(obj);
+      for (var i = 0; i < propNames.length; i++) {
+        var propName = propNames[i];
+        if (obj[propName] === null || obj[propName] === undefined) {
+          delete obj[propName];
+        }
+      }
+    },
     ScatterPlotView () {
       Plotly.purge('OverviewPlotly')
+
       var colorsforScatterPlot = JSON.parse(this.ScatterPlotResults[0])
+
+      if (this.newColorsUpdate.length != 0) {
+        let resultsClear = JSON.parse(this.newColorsUpdate)
+        for (let j = 0; j < Object.values(resultsClear).length; j++) {
+          colorsforScatterPlot.push(Object.values(resultsClear)[j])
+        }
+      }
 
       var MDSData = JSON.parse(this.ScatterPlotResults[1])
       var parameters = JSON.parse(this.ScatterPlotResults[2])
@@ -69,7 +101,12 @@ export default {
 
       EventBus.$emit('sendPointsNumber', modelId.length)
 
-      parameters = JSON.parse(parameters)
+      var parameters = JSON.parse(parameters)
+      var stringParameters = []
+      for (let i = 0; i < parameters.length; i++) {
+        this.clean(parameters[i])
+        stringParameters.push(JSON.stringify(parameters[i]).replace(/,/gi, '<br>'))
+      }
 
       if (this.colorsforOver.length != 0) {
         if (this.colorsforOver[1].length != 0) {
@@ -83,14 +120,14 @@ export default {
 
       var classifiersInfoProcessing = []
       for (let i = 0; i < modelId.length; i++) {
-        classifiersInfoProcessing[i] = 'Model ID: ' + modelId[i] + '; Details: ' + JSON.stringify(parameters[i])
+        classifiersInfoProcessing[i] = 'Model ID: ' + modelId[i] + '<br> Details: ' + stringParameters[i]
       }
 
       var listofNumbersModelsIDs = []
       var StackModelsIDs = []
       if (this.ModelsIDGray.length != 0) {
         for (let j = 0; j < this.ModelsIDGray.length; j++){
-          listofNumbersModelsIDs.push(parseInt(this.ModelsIDGray[j].replace(/\D/g, "")))
+          listofNumbersModelsIDs.push(parseInt(this.ModelsIDGray[j]))
         }
 
         var parametersNew = []
@@ -110,12 +147,12 @@ export default {
         EventBus.$emit('sendPointsNumber', StackModelsIDs.length)
         var classifiersInfoProcessing = []
         for (let i = 0; i < StackModelsIDs.length; i++) {
-          classifiersInfoProcessing[i] = 'Model ID: ' + StackModelsIDs[i] + '; Details: ' + JSON.stringify(parametersNew[i])
+          classifiersInfoProcessing[i] = 'Model ID: ' + StackModelsIDs[i] + '; Details: ' + stringParameters[i]
         }
         MDSData[0] = MDSDataNewX
         MDSData[1] = MDSDataNewY
         colorsforScatterPlot = colorsforScatterPlotNew
-        EventBus.$emit('NewHeatmapAccordingtoNewStack', StackModelsIDs)
+        //EventBus.$emit('NewHeatmapAccordingtoNewStack', StackModelsIDs)
       }
       var DataGeneral
 
@@ -123,6 +160,9 @@ export default {
       var minX
       var maxY
       var minY
+
+      var width = this.WH[0]*6.5 // interactive visualization
+      var height = this.WH[1]*1.22 // interactive visualization
 
       var layout
       if (this.representationDef == 'mds') {
@@ -146,16 +186,14 @@ export default {
             size: 12,
             colorscale: 'Viridis',
             colorbar: {
-              title: 'Metrics Average',
+              title: '# Performance (%) #',
               titleside: 'Top'
             },
           }
         
         }]
-        var width = this.WH[0]*6.5 // interactive visualization
-        var height = this.WH[1]*1.22 // interactive visualization
         layout = {
-          title: 'Models Performance (MDS)',
+          title: 'MDS Projection',
           xaxis: {
               visible: false,
               range: [minX, maxX]
@@ -171,6 +209,13 @@ export default {
           hovermode: "closest",
           hoverlabel: { bgcolor: "#FFF" },
           legend: {orientation: 'h', y: -0.3},
+          margin: {
+            l: 50,
+            r: 0,
+            b: 30,
+            t: 40,
+            pad: 0
+          },
         }
       } else if (this.representationDef == 'tsne') {
         var result = TSNEData.reduce(function(r, a) {
@@ -183,7 +228,7 @@ export default {
             })
             return r;
         }, {})
-
+        
         maxX = Math.max(result.Xax)
         minX = Math.min(result.Xax)
         maxY = Math.max(result.Yax)
@@ -209,7 +254,7 @@ export default {
           }
         }]
         layout = {
-          title: 'Models Performance (t-SNE)',
+          title: 't-SNE Projection',
           xaxis: {
               visible: false,
               range: [minX, maxX]
@@ -225,6 +270,13 @@ export default {
           hovermode: "closest",
           hoverlabel: { bgcolor: "#FFF" },
           legend: {orientation: 'h', y: -0.3},
+          margin: {
+            l: 50,
+            r: 0,
+            b: 30,
+            t: 40,
+            pad: 0
+          },
         }
 
       } else {
@@ -254,10 +306,8 @@ export default {
           }
         
         }]
-        var width = this.WH[0]*6.5 // interactive visualization
-        var height = this.WH[1]*1 // interactive visualization
         layout = {
-          title: 'Models Performance (UMAP)',
+          title: 'UMAP Projection',
           xaxis: {
               visible: false,
               range: [minX, maxX]
@@ -273,6 +323,13 @@ export default {
           hovermode: "closest",
           hoverlabel: { bgcolor: "#FFF" },
           legend: {orientation: 'h', y: -0.3},
+          margin: {
+            l: 50,
+            r: 0,
+            b: 30,
+            t: 40,
+            pad: 0
+          },
         }
       }
      
@@ -286,7 +343,9 @@ export default {
     },
     selectedPointsOverview () {
       const OverviewPlotly = document.getElementById('OverviewPlotly')
+      var allModels = JSON.parse(this.ScatterPlotResults[13])
       OverviewPlotly.on('plotly_selected', function (evt) {
+        var pushModelsRemaining = []
         if (typeof evt !== 'undefined') {
           const ClassifierIDsList = []
           const ClassifierIDsListCleared = []
@@ -302,9 +361,14 @@ export default {
               ClassifierIDsListCleared.push(numberNumb)
             }
           }
-          if (ClassifierIDsList != '') {
-            EventBus.$emit('SendSelectedPointsToServerEvent', ClassifierIDsList)
-            EventBus.$emit('SendSelectedPointsToBrushHeatmap', ClassifierIDsListCleared)
+          for (let i = 0; i < allModels.length; i++) {
+            if (!ClassifierIDsListCleared.includes(allModels[i])) {
+              pushModelsRemaining.push(allModels[i])
+            }
+          }
+          if (allModels != '') {
+            EventBus.$emit('SendSelectedPointsToServerEvent', pushModelsRemaining)
+            EventBus.$emit('SendSelectedPointsToBrushHeatmap', pushModelsRemaining)
           } else {
             EventBus.$emit('SendSelectedPointsToServerEvent', '')
           }
@@ -357,8 +421,12 @@ export default {
     }
   },
   mounted() {
+    EventBus.$on('updateMetricsScatter', data => { this.newColorsUpdate = data })
+    EventBus.$on('updateMetricsScatter', this.ScatterPlotView)
+
     EventBus.$on('GrayOutPoints', data => { this.ModelsIDGray = data })
     EventBus.$on('GrayOutPoints', this.ScatterPlotView)
+
     EventBus.$on('emittedEventCallingBrushedBoxPlot', data => {
       this.brushedBox = data})
     EventBus.$on('emittedEventCallingScatterPlot', data => {

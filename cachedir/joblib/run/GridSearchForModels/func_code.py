@@ -1,7 +1,7 @@
-# first line: 542
+# first line: 556
 @memory.cache
 def GridSearchForModels(XData, yData, clf, params, eachAlgor, AlgorithmsIDsEnd):
-    print('test')
+    print('start')
     # instantiate spark session
     spark = (   
         SparkSession    
@@ -81,6 +81,12 @@ def GridSearchForModels(XData, yData, clf, params, eachAlgor, AlgorithmsIDsEnd):
     resultsLogLossFinal = []
 
     loop = 10
+
+    # influence calculation for all the instances
+    inputs = range(len(XData))
+    num_cores = multiprocessing.cpu_count()
+    
+    impDataInst = Parallel(n_jobs=num_cores)(delayed(processInput)(i,XData,yData,crossValidation,clf) for i in inputs)
 
     for eachModelParameters in parametersLocalNew:
         clf.set_params(**eachModelParameters)
@@ -177,8 +183,10 @@ def GridSearchForModels(XData, yData, clf, params, eachAlgor, AlgorithmsIDsEnd):
     results.append(PerFeatureAccuracyPandas) # Position: 3 and so on
     results.append(perm_imp_eli5PD) # Position: 4 and so on
     results.append(featureScores) # Position: 5 and so on
+    metrics = metrics.clip(lower=0)
     metrics = metrics.to_json()
     results.append(metrics) # Position: 6 and so on
     results.append(perModelProbPandas) # Position: 7 and so on
+    results.append(json.dumps(impDataInst)) # Position: 8 and so on
 
     return results

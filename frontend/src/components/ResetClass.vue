@@ -21,6 +21,7 @@ export default {
   methods: {
       resetClass () {
         EventBus.$emit('clearPCP')
+        EventBus.$emit('EraseSelectionBarChart', '')
         EventBus.$emit('alternateFlagLock')
         EventBus.$emit('boxplotCall', true)
       }

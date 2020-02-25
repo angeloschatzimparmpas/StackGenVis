@@ -1,5 +1,5 @@
 <template>
-  <div id="PCPDataView" class="parcoords" style="width: 1200px; height:280px"></div>
+  <div id="PCPDataView" class="parcoords"></div>
 </template>
 
 <script>
@@ -17,7 +17,7 @@ export default {
   data () {
     return {
       PCPDataReceived: '',
-      colorsValues: ['#a6cee3','#1f78b4','#b2df8a','#33a02c','#fb9a99','#e31a1c','#fdbf6f','#ff7f00','#cab2d6','#6a3d9a','#ffff99']
+      colorsValues: ['#808000','#008080','#bebada','#fccde5','#d9d9d9','#bc80bd','#ccebc5']
     }
   },
   methods: {
@@ -29,10 +29,19 @@ export default {
       const DataSetNew = JSON.parse(this.PCPDataReceived[2])
       var DataSetParse = JSON.parse(DataSetNew)
       const target_names = JSON.parse(this.PCPDataReceived[3])
-      var colors = this.colorsValues
+      const target_names_original = JSON.parse(this.PCPDataReceived[4])
 
-      this.pc = ParCoords()("#PCPDataView")
+      var extraction = []
+      for (let i = 0; i < DataSetParse.length; i++) {
+        extraction.push(Object.assign(DataSetParse[i], {Outcome: target_names_original[i]}))
+      }
+      
+      var colors = this.colorsValues
+      EventBus.$emit('sendDatatoPickle', extraction)
+      var pc = ParCoords()("#PCPDataView")
           .data(DataSetParse)
+          .width(1200)
+          .height(280)
           .color(function(d, i) { return colors[target_names[i]] })
           .bundlingStrength(0) // set bundling strength
           .smoothness(0)
