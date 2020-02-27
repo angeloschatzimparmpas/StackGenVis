@@ -136,6 +136,11 @@ export default {
         var colorsforScatterPlotNew = []
         for (let i = 0; i < modelId.length; i++) {
           if (listofNumbersModelsIDs.includes(modelId[i])) {
+            StackModelsIDs.push(modelId[i])
+            parametersNew.push(parameters[i])
+            colorsforScatterPlotNew.push('rgb(211,211,211)')
+            MDSDataNewX.push(MDSData[0][i])
+            MDSDataNewY.push(MDSData[1][i])
           } else {
             StackModelsIDs.push(modelId[i])
             parametersNew.push(parameters[i])

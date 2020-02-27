@@ -350,7 +350,7 @@ export default {
               tooltip.style("visibility", "hidden");
           })
           .on("mousemove", function(d, i) {
-              tooltip.style("top", (d3.mouse(this)[1]+75) + "px").style("left", (d3.mouse(this)[0]+87) + "px");
+              tooltip.style("top", (d3.mouse(this)[1] + 55) + "px").style("left", (d3.mouse(this)[0]) + "px");
           })
           .on('click', function(d, i, j) {
             var rowsExtracted = svg.selectAll(".row")._groups[0]
@@ -615,7 +615,7 @@ text.legendElement {
 }
 text.hover {
   font-weight: bold;
-  fill: #007bff;
+  fill: #66F;
   font-background: #000;
 }
 .heatmap_tooltip {
@@ -625,7 +625,7 @@ text.hover {
   color: #000;
   position: relative;
   background: rgba(255, 255, 255, 0.8);
-  border: 4px solid #007bff;
+  border: 4px solid #66F;
   padding: 5px;
   border-radius: 8px ;
   -webkit-border-top-left-radius: 8px;
@@ -668,7 +668,7 @@ text.hover {
 }
 .heatmap_tooltip:before {
   border-color: rgba(44, 62, 80, 0);
-  border-top-color: #007bff;
+  border-top-color: #66F;
   border-width: 16px;
   left: 50%;
   margin-left: -16px;

@@ -56,7 +56,7 @@
             </b-col>
             <b-col cols="9">
               <mdb-card style="margin-top: 15px;">
-                <mdb-card-header color="primary-color" tag="h5" class="text-center"><small class="float-left" style="padding-top: 3px;">Metrics Support: [All]</small>Performance of the Algorithms [Sel:{{valueSel}}/All:{{valueAll}}]<small class="float-right"><Controller/></small></mdb-card-header>
+                <mdb-card-header color="primary-color" tag="h5" class="text-center"><small class="float-left" style="padding-top: 3px;">Metrics Support: [All]</small>Performance of the Algorithms [Sel: {{valueSel}} / All: {{valueAll}}]<small class="float-right"><Controller/></small></mdb-card-header>
                   <mdb-card-body>
                       <Algorithms :width="width" :height="height"/>
                   </mdb-card-body>
@@ -114,7 +114,7 @@
               <b-col cols="6">
                 <mdb-card style="margin-top: 15px;">
                   <mdb-card-header color="primary-color" tag="h5" class="text-center"><small class="float-left" style="padding-top: 3px;">Metrics Support: [All]</small>Models Space
-                    [Sel:{{OverSelLength}}/All:{{OverAllLength}}]
+                    [Sel: {{OverSelLength}} / All: {{OverAllLength}}]
                     </mdb-card-header>
                     <mdb-card-body>
                       <mdb-card-text class="text-center"  style="min-height: 845px">
@@ -510,8 +510,10 @@ export default Vue.extend({
       axios.get(path, axiosConfig)
         .then(response => {
           this.DataPointsModels = response.data.DataPointsModels
+          var resultsPerMetricUpdated = JSON.parse(this.DataPointsModels[2])
           console.log('Server successfully sent the new models for the scatterplot!')
           EventBus.$emit('UpdateModelsScatterplot', this.DataPointsModels)
+          EventBus.$emit('InitializeMetricsBarChartPrediction', JSON.stringify(resultsPerMetricUpdated))
           EventBus.$emit('UpdateBalanceView', this.DataPointsModels)
         })
         .catch(error => {

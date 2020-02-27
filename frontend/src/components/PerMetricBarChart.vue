@@ -12,6 +12,7 @@ export default {
     return {
       barchartmetrics: '',
       WH: [],
+      barchartmetricsprediction: [],
       SelBarChartMetrics: [],
       factors: [1,1,1,0,0
       ,1,0,0,1,0
@@ -27,7 +28,6 @@ export default {
 
       var x = []
       var metricsPerModel = JSON.parse(this.barchartmetrics[9])
-
       var metricsPerModelSel = []
       if (this.SelBarChartMetrics.length == 0) {
         metricsPerModelSel = metricsPerModel
@@ -72,7 +72,7 @@ export default {
           var trace2 = {
           x: x,
           y: perModelSelectedClear, 
-          name: 'Selected points', 
+          name: 'Selected Points', 
           type: 'box',
           boxmean: true,
           marker: {
@@ -163,6 +163,9 @@ export default {
     mounted () {
       EventBus.$on('InitializeMetricsBarChart', data => {this.barchartmetrics = data;})
       EventBus.$on('InitializeMetricsBarChart', this.LineBar)
+      
+      EventBus.$on('InitializeMetricsBarChartPrediction', data => {this.barchartmetrics[9] = data;})
+      EventBus.$on('InitializeMetricsBarChartPrediction', this.LineBar)
 
       EventBus.$on('Responsive', data => {
       this.WH = data})

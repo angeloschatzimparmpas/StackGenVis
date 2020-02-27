@@ -233,92 +233,92 @@ export default {
       this.parameters = []
       if (this.keyAllOrClass) {
         for (var j = 0; j < Object.keys(PerformAlgorKNN['params']).length; j++) {
-          this.algorithmKNN.push({'# Performance (%) #': McKNN[j],Algorithm:'K-Nearest Neighbors',Model:'Model ' + AlgorKNNIDs[j] + '; Parameters '+JSON.stringify(Object.values(PerformAlgorKNN['params'])[j])+'; # Performance (%) # ',ModelID:AlgorKNNIDs[j]})
+          this.algorithmKNN.push({'# Performance (%) #': McKNN[j],Algorithm:'K-Nearest Neighbors',Model:'Model ID: ' + AlgorKNNIDs[j] + '<br> Parameters: '+JSON.stringify(Object.values(PerformAlgorKNN['params'])[j])+'<br> # Performance (%) #',ModelID:AlgorKNNIDs[j]})
           this.parameters.push(JSON.stringify(Object.values(PerformAlgorKNN['params'])[j]))
         }
         for (let j = 0; j < Object.keys(PerformAlgorSVC['params']).length; j++) {
-          this.algorithmSVC.push({'# Performance (%) #': McSVC[j],Algorithm:'C-Support Vector Classif',Model:'Model ' + AlgorSVCIDs[j] + '; Parameters '+JSON.stringify(Object.values(PerformAlgorSVC['params'])[j])+'; # Performance (%) # ',ModelID:AlgorSVCIDs[j]})
+          this.algorithmSVC.push({'# Performance (%) #': McSVC[j],Algorithm:'C-Support Vector Classif',Model:'Model ID: ' + AlgorSVCIDs[j] + '<br> Parameters: '+JSON.stringify(Object.values(PerformAlgorSVC['params'])[j])+'<br> # Performance (%) #',ModelID:AlgorSVCIDs[j]})
           this.parameters.push(JSON.stringify(Object.values(PerformAlgorSVC['params'])[j]))
         }
         for (let j = 0; j < Object.keys(PerformAlgorGausNB['params']).length; j++) {
-          this.algorithmGausNB.push({'# Performance (%) #': McGausNB[j],Algorithm:'Gaussian Naive Bayes',Model:'Model ' + AlgorGausNBIDs[j] + '; Parameters '+JSON.stringify(Object.values(PerformAlgorGausNB['params'])[j])+'; # Performance (%) # ',ModelID:AlgorGausNBIDs[j]})
+          this.algorithmGausNB.push({'# Performance (%) #': McGausNB[j],Algorithm:'Gaussian Naive Bayes',Model:'Model ID: ' + AlgorGausNBIDs[j] + '<br> Parameters: '+JSON.stringify(Object.values(PerformAlgorGausNB['params'])[j])+'<br> # Performance (%) #',ModelID:AlgorGausNBIDs[j]})
           this.parameters.push(JSON.stringify(Object.values(PerformAlgorGausNB['params'])[j]))
         }
         for (let j = 0; j < Object.keys(PerformAlgorMLP['params']).length; j++) {
-          this.algorithmMLP.push({'# Performance (%) #': McMLP[j],Algorithm:'Multilayer Perceptron',Model:'Model ' + AlgorMLPIDs[j] + '; Parameters '+JSON.stringify(Object.values(PerformAlgorMLP['params'])[j])+'; # Performance (%) # ',ModelID:AlgorMLPIDs[j]})
+          this.algorithmMLP.push({'# Performance (%) #': McMLP[j],Algorithm:'Multilayer Perceptron',Model:'Model ID: ' + AlgorMLPIDs[j] + '<br> Parameters: '+JSON.stringify(Object.values(PerformAlgorMLP['params'])[j])+'<br> # Performance (%) #',ModelID:AlgorMLPIDs[j]})
           this.parameters.push(JSON.stringify(Object.values(PerformAlgorMLP['params'])[j]))
         }
         for (let j = 0; j < Object.keys(PerformAlgorLR['params']).length; j++) {
-          this.algorithmLR.push({'# Performance (%) #': McLR[j],Algorithm:'Logistic Regression',Model:'Model ' + AlgorLRIDs[j] + '; Parameters '+JSON.stringify(Object.values(PerformAlgorLR['params'])[j])+'; # Performance (%) # ',ModelID:AlgorLRIDs[j]})
+          this.algorithmLR.push({'# Performance (%) #': McLR[j],Algorithm:'Logistic Regression',Model:'Model ID: ' + AlgorLRIDs[j] + '<br> Parameters: '+JSON.stringify(Object.values(PerformAlgorLR['params'])[j])+'<br> # Performance (%) #',ModelID:AlgorLRIDs[j]})
           this.parameters.push(JSON.stringify(Object.values(PerformAlgorLR['params'])[j]))
         }
         for (let j = 0; j < Object.keys(PerformAlgorLDA['params']).length; j++) {
-          this.algorithmLDA.push({'# Performance (%) #': McLDA[j],Algorithm:'Linear Discrim Analysis',Model:'Model ' + AlgorLDAIDs[j] + '; Parameters '+JSON.stringify(Object.values(PerformAlgorLDA['params'])[j])+'; # Performance (%) # ',ModelID:AlgorLDAIDs[j]})
+          this.algorithmLDA.push({'# Performance (%) #': McLDA[j],Algorithm:'Linear Discrim Analysis',Model:'Model ID: ' + AlgorLDAIDs[j] + '<br> Parameters: '+JSON.stringify(Object.values(PerformAlgorLDA['params'])[j])+'<br> # Performance (%) #',ModelID:AlgorLDAIDs[j]})
           this.parameters.push(JSON.stringify(Object.values(PerformAlgorLDA['params'])[j]))
         }
         for (let j = 0; j < Object.keys(PerformAlgorQDA['params']).length; j++) {
-          this.algorithmQDA.push({'# Performance (%) #': McQDA[j],Algorithm:'Quadratic Discrim Analysis',Model:'Model ' + AlgorQDAIDs[j] + '; Parameters '+JSON.stringify(Object.values(PerformAlgorQDA['params'])[j])+'; # Performance (%) # ',ModelID:AlgorQDAIDs[j]})
+          this.algorithmQDA.push({'# Performance (%) #': McQDA[j],Algorithm:'Quadratic Discrim Analysis',Model:'Model ID: ' + AlgorQDAIDs[j] + '<br> Parameters: '+JSON.stringify(Object.values(PerformAlgorQDA['params'])[j])+'<br> # Performance (%) #',ModelID:AlgorQDAIDs[j]})
           this.parameters.push(JSON.stringify(Object.values(PerformAlgorQDA['params'])[j]))
         }
         for (let j = 0; j < Object.keys(PerformAlgorRF['params']).length; j++) {
-          this.algorithmRF.push({'# Performance (%) #': McRF[j],Algorithm:'Random Forest',Model:'Model ' + AlgorRFIDs[j] + '; Parameters '+JSON.stringify(Object.values(PerformAlgorRF['params'])[j])+'; # Performance (%) # ',ModelID:AlgorRFIDs[j]})
+          this.algorithmRF.push({'# Performance (%) #': McRF[j],Algorithm:'Random Forest',Model:'Model ID: ' + AlgorRFIDs[j] + '<br> Parameters: '+JSON.stringify(Object.values(PerformAlgorRF['params'])[j])+'<br> # Performance (%) #',ModelID:AlgorRFIDs[j]})
           this.parameters.push(JSON.stringify(Object.values(PerformAlgorRF['params'])[j]))
         }
         for (let j = 0; j < Object.keys(PerformAlgorExtraT['params']).length; j++) {
-          this.algorithmExtraT.push({'# Performance (%) #': McExtraT[j],Algorithm:'Extra Trees',Model:'Model ' + AlgorExtraTIDs[j] + '; Parameters '+JSON.stringify(Object.values(PerformAlgorExtraT['params'])[j])+'; # Performance (%) # ',ModelID:AlgorExtraTIDs[j]})
+          this.algorithmExtraT.push({'# Performance (%) #': McExtraT[j],Algorithm:'Extra Trees',Model:'Model ID: ' + AlgorExtraTIDs[j] + '<br> Parameters: '+JSON.stringify(Object.values(PerformAlgorExtraT['params'])[j])+'<br> # Performance (%) #',ModelID:AlgorExtraTIDs[j]})
           this.parameters.push(JSON.stringify(Object.values(PerformAlgorExtraT['params'])[j]))
         }
         for (let j = 0; j < Object.keys(PerformAlgorAdaB['params']).length; j++) {
-          this.algorithmAdaB.push({'# Performance (%) #': McAdaB[j],Algorithm:'AdaBoost',Model:'Model ' + AlgorAdaBIDs[j] + '; Parameters '+JSON.stringify(Object.values(PerformAlgorAdaB['params'])[j])+'; # Performance (%) # ',ModelID:AlgorAdaBIDs[j]})
+          this.algorithmAdaB.push({'# Performance (%) #': McAdaB[j],Algorithm:'AdaBoost',Model:'Model ID: ' + AlgorAdaBIDs[j] + '<br> Parameters: '+JSON.stringify(Object.values(PerformAlgorAdaB['params'])[j])+'<br> # Performance (%) #',ModelID:AlgorAdaBIDs[j]})
           this.parameters.push(JSON.stringify(Object.values(PerformAlgorAdaB['params'])[j]))
         }
         for (let j = 0; j < Object.keys(PerformAlgorGradB['params']).length; j++) {
-          this.algorithmGradB.push({'# Performance (%) #': McGradB[j],Algorithm:'Gradient Boosting',Model:'Model ' + AlgorGradBIDs[j] + '; Parameters '+JSON.stringify(Object.values(PerformAlgorGradB['params'])[j])+'; # Performance (%) # ',ModelID:AlgorGradBIDs[j]})
+          this.algorithmGradB.push({'# Performance (%) #': McGradB[j],Algorithm:'Gradient Boosting',Model:'Model ID: ' + AlgorGradBIDs[j] + '<br> Parameters: '+JSON.stringify(Object.values(PerformAlgorGradB['params'])[j])+'<br> # Performance (%) #',ModelID:AlgorGradBIDs[j]})
           this.parameters.push(JSON.stringify(Object.values(PerformAlgorGradB['params'])[j]))
         }
       } else {
         for (var j = 0; j < Object.keys(PerformAlgorKNN['params']).length; j++) {
-          this.algorithmKNN.push({'# Performance (%) #': this.listClassPerf[0][j],Algorithm:'K-Nearest Neighbors',Model:'Model ' + AlgorKNNIDs[j] + '; Parameters '+JSON.stringify(Object.values(PerformAlgorKNN['params'])[j])+'; # Performance (%) # ',ModelID:AlgorKNNIDs[j]})
+          this.algorithmKNN.push({'# Performance (%) #': this.listClassPerf[0][j],Algorithm:'K-Nearest Neighbors',Model:'Model ID: ' + AlgorKNNIDs[j] + '<br> Parameters: '+JSON.stringify(Object.values(PerformAlgorKNN['params'])[j])+'<br> # Performance (%) #',ModelID:AlgorKNNIDs[j]})
           this.parameters.push(JSON.stringify(Object.values(PerformAlgorKNN['params'])[j]))
         }
         for (let j = 0; j < Object.keys(PerformAlgorSVC['params']).length; j++) {
-          this.algorithmSVC.push({'# Performance (%) #': this.listClassPerf[1][j],Algorithm:'C-Support Vector Classif',Model:'Model ' + AlgorSVCIDs[j] + '; Parameters '+JSON.stringify(Object.values(PerformAlgorSVC['params'])[j])+'; # Performance (%) # ',ModelID:AlgorSVCIDs[j]})
+          this.algorithmSVC.push({'# Performance (%) #': this.listClassPerf[1][j],Algorithm:'C-Support Vector Classif',Model:'Model ID: ' + AlgorSVCIDs[j] + '<br> Parameters: '+JSON.stringify(Object.values(PerformAlgorSVC['params'])[j])+'<br> # Performance (%) #',ModelID:AlgorSVCIDs[j]})
           this.parameters.push(JSON.stringify(Object.values(PerformAlgorSVC['params'])[j]))
         }
         for (let j = 0; j < Object.keys(PerformAlgorGausNB['params']).length; j++) {
-          this.algorithmGausNB.push({'# Performance (%) #': this.listClassPerf[2][j],Algorithm:'Gaussian Naive Bayes',Model:'Model ' + AlgorGausNBIDs[j] + '; Parameters '+JSON.stringify(Object.values(PerformAlgorGausNB['params'])[j])+'; # Performance (%) # ',ModelID:AlgorGausNBIDs[j]})
+          this.algorithmGausNB.push({'# Performance (%) #': this.listClassPerf[2][j],Algorithm:'Gaussian Naive Bayes',Model:'Model ID: ' + AlgorGausNBIDs[j] + '<br> Parameters: '+JSON.stringify(Object.values(PerformAlgorGausNB['params'])[j])+'<br> # Performance (%) #',ModelID:AlgorGausNBIDs[j]})
           this.parameters.push(JSON.stringify(Object.values(PerformAlgorGausNB['params'])[j]))
         }
         for (let j = 0; j < Object.keys(PerformAlgorMLP['params']).length; j++) {
-          this.algorithmMLP.push({'# Performance (%) #': this.listClassPerf[3][j],Algorithm:'Multilayer Perceptron',Model:'Model ' + AlgorMLPIDs[j] + '; Parameters '+JSON.stringify(Object.values(PerformAlgorMLP['params'])[j])+'; # Performance (%) # ',ModelID:AlgorMLPIDs[j]})
+          this.algorithmMLP.push({'# Performance (%) #': this.listClassPerf[3][j],Algorithm:'Multilayer Perceptron',Model:'Model ID: ' + AlgorMLPIDs[j] + '<br> Parameters: '+JSON.stringify(Object.values(PerformAlgorMLP['params'])[j])+'<br> # Performance (%) #',ModelID:AlgorMLPIDs[j]})
           this.parameters.push(JSON.stringify(Object.values(PerformAlgorMLP['params'])[j]))
         }
         for (let j = 0; j < Object.keys(PerformAlgorLR['params']).length; j++) {
-          this.algorithmLR.push({'# Performance (%) #': this.listClassPerf[4][j],Algorithm:'Logistic Regression',Model:'Model ' + AlgorLRIDs[j] + '; Parameters '+JSON.stringify(Object.values(PerformAlgorLR['params'])[j])+'; # Performance (%) # ',ModelID:AlgorLRIDs[j]})
+          this.algorithmLR.push({'# Performance (%) #': this.listClassPerf[4][j],Algorithm:'Logistic Regression',Model:'Model ID: ' + AlgorLRIDs[j] + '<br> Parameters: '+JSON.stringify(Object.values(PerformAlgorLR['params'])[j])+'<br> # Performance (%) #',ModelID:AlgorLRIDs[j]})
           this.parameters.push(JSON.stringify(Object.values(PerformAlgorLR['params'])[j]))
         }
         for (let j = 0; j < Object.keys(PerformAlgorLDA['params']).length; j++) {
-          this.algorithmLDA.push({'# Performance (%) #': this.listClassPerf[5][j],Algorithm:'Linear Discrim Analysis',Model:'Model ' + AlgorLDAIDs[j] + '; Parameters '+JSON.stringify(Object.values(PerformAlgorLDA['params'])[j])+'; # Performance (%) # ',ModelID:AlgorLDAIDs[j]})
+          this.algorithmLDA.push({'# Performance (%) #': this.listClassPerf[5][j],Algorithm:'Linear Discrim Analysis',Model:'Model ID: ' + AlgorLDAIDs[j] + '<br> Parameters: '+JSON.stringify(Object.values(PerformAlgorLDA['params'])[j])+'<br> # Performance (%) #',ModelID:AlgorLDAIDs[j]})
           this.parameters.push(JSON.stringify(Object.values(PerformAlgorLDA['params'])[j]))
         }
         for (let j = 0; j < Object.keys(PerformAlgorQDA['params']).length; j++) {
-          this.algorithmQDA.push({'# Performance (%) #': this.listClassPerf[6][j],Algorithm:'Quadratic Discrim Analysis',Model:'Model ' + AlgorQDAIDs[j] + '; Parameters '+JSON.stringify(Object.values(PerformAlgorQDA['params'])[j])+'; # Performance (%) # ',ModelID:AlgorQDAIDs[j]})
+          this.algorithmQDA.push({'# Performance (%) #': this.listClassPerf[6][j],Algorithm:'Quadratic Discrim Analysis',Model:'Model ID: ' + AlgorQDAIDs[j] + '<br> Parameters: '+JSON.stringify(Object.values(PerformAlgorQDA['params'])[j])+'<br> # Performance (%) #',ModelID:AlgorQDAIDs[j]})
           this.parameters.push(JSON.stringify(Object.values(PerformAlgorQDA['params'])[j]))
         }
         for (let j = 0; j < Object.keys(PerformAlgorRF['params']).length; j++) {
-          this.algorithmRF.push({'# Performance (%) #': this.listClassPerf[7][j],Algorithm:'Random Forest',Model:'Model ' + AlgorRFIDs[j] + '; Parameters '+JSON.stringify(Object.values(PerformAlgorRF['params'])[j])+'; # Performance (%) # ',ModelID:AlgorRFIDs[j]})
+          this.algorithmRF.push({'# Performance (%) #': this.listClassPerf[7][j],Algorithm:'Random Forest',Model:'Model ID: ' + AlgorRFIDs[j] + '<br> Parameters: '+JSON.stringify(Object.values(PerformAlgorRF['params'])[j])+'<br> # Performance (%) #',ModelID:AlgorRFIDs[j]})
           this.parameters.push(JSON.stringify(Object.values(PerformAlgorRF['params'])[j]))
         }
         for (let j = 0; j < Object.keys(PerformAlgorExtraT['params']).length; j++) {
-          this.algorithmExtraT.push({'# Performance (%) #': this.listClassPerf[8][j],Algorithm:'Extra Trees',Model:'Model ' + AlgorExtraTIDs[j] + '; Parameters '+JSON.stringify(Object.values(PerformAlgorExtraT['params'])[j])+'; # Performance (%) # ',ModelID:AlgorExtraTIDs[j]})
+          this.algorithmExtraT.push({'# Performance (%) #': this.listClassPerf[8][j],Algorithm:'Extra Trees',Model:'Model ID: ' + AlgorExtraTIDs[j] + '<br> Parameters: '+JSON.stringify(Object.values(PerformAlgorExtraT['params'])[j])+'<br> # Performance (%) #',ModelID:AlgorExtraTIDs[j]})
           this.parameters.push(JSON.stringify(Object.values(PerformAlgorExtraT['params'])[j]))
         }
         for (let j = 0; j < Object.keys(PerformAlgorAdaB['params']).length; j++) {
-          this.algorithmAdaB.push({'# Performance (%) #': this.listClassPerf[9][j],Algorithm:'AdaBoost',Model:'Model ' + AlgorAdaBIDs[j] + '; Parameters '+JSON.stringify(Object.values(PerformAlgorAdaB['params'])[j])+'; # Performance (%) # ',ModelID:AlgorAdaBIDs[j]})
+          this.algorithmAdaB.push({'# Performance (%) #': this.listClassPerf[9][j],Algorithm:'AdaBoost',Model:'Model ID: ' + AlgorAdaBIDs[j] + '<br> Parameters: '+JSON.stringify(Object.values(PerformAlgorAdaB['params'])[j])+'<br> # Performance (%) #',ModelID:AlgorAdaBIDs[j]})
           this.parameters.push(JSON.stringify(Object.values(PerformAlgorAdaB['params'])[j]))
         }
         for (let j = 0; j < Object.keys(PerformAlgorGradB['params']).length; j++) {
-          this.algorithmGradB.push({'# Performance (%) #': this.listClassPerf[10][j],Algorithm:'Gradient Boosting',Model:'Model ' + AlgorGradBIDs[j] + '; Parameters '+JSON.stringify(Object.values(PerformAlgorGradB['params'])[j])+'; # Performance (%) # ',ModelID:AlgorGradBIDs[j]})
+          this.algorithmGradB.push({'# Performance (%) #': this.listClassPerf[10][j],Algorithm:'Gradient Boosting',Model:'Model ID: ' + AlgorGradBIDs[j] + '<br> Parameters: '+JSON.stringify(Object.values(PerformAlgorGradB['params'])[j])+'<br> # Performance (%) #',ModelID:AlgorGradBIDs[j]})
           this.parameters.push(JSON.stringify(Object.values(PerformAlgorGradB['params'])[j]))
         }
       }
@@ -381,7 +381,9 @@ export default {
 
         EventBus.$emit('clearPCP')
         EventBus.$emit('updateFlagKNN', flagEmptyKNN)
-        EventBus.$emit('PCPCall', 'KNN')
+        if (flagEmptyKNN == 1) {
+          EventBus.$emit('PCPCall', 'KNN')
+        }
         EventBus.$emit('updateBarChart', [])
       }
       el[1].onclick = function() {
@@ -399,7 +401,9 @@ export default {
 
         EventBus.$emit('clearPCP')
         EventBus.$emit('updateFlagSVC', flagEmptySVC)
-        EventBus.$emit('PCPCall', 'SVC')
+        if (flagEmptySVC == 1) {
+          EventBus.$emit('PCPCall', 'SVC')
+        }
         EventBus.$emit('updateBarChart', [])
       }
       el[2].onclick = function() {
@@ -417,7 +421,9 @@ export default {
 
         EventBus.$emit('clearPCP')
         EventBus.$emit('updateFlagGausNB', flagEmptyGausNB)
-        EventBus.$emit('PCPCall', 'GausNB')
+        if (flagEmptyGausNB == 1) {
+          EventBus.$emit('PCPCall', 'GausNB')
+        }
         EventBus.$emit('updateBarChart', [])
       }
       el[3].onclick = function() {
@@ -435,7 +441,9 @@ export default {
         
         EventBus.$emit('clearPCP')
         EventBus.$emit('updateFlagMLP', flagEmptyMLP)
-        EventBus.$emit('PCPCall', 'MLP')
+        if (flagEmptyMLP == 1) {
+          EventBus.$emit('PCPCall', 'MLP')
+        }
         EventBus.$emit('updateBarChart', [])
       }
       el[4].onclick = function() {
@@ -453,7 +461,9 @@ export default {
 
         EventBus.$emit('clearPCP')
         EventBus.$emit('updateFlagLR', flagEmptyLR)
-        EventBus.$emit('PCPCall', 'LR')
+        if (flagEmptyLR == 1) {
+          EventBus.$emit('PCPCall', 'LR')
+        }
         EventBus.$emit('updateBarChart', [])
       }
       el[5].onclick = function() {
@@ -471,7 +481,9 @@ export default {
 
         EventBus.$emit('clearPCP')
         EventBus.$emit('updateFlagLDA', flagEmptyLDA)
-        EventBus.$emit('PCPCall', 'LDA')
+        if (flagEmptyLDA == 1) {
+          EventBus.$emit('PCPCall', 'LDA')
+        }
         EventBus.$emit('updateBarChart', [])
       }
       el[6].onclick = function() {
@@ -489,7 +501,9 @@ export default {
       
         EventBus.$emit('clearPCP')
         EventBus.$emit('updateFlagQDA', flagEmptyQDA)
-        EventBus.$emit('PCPCall', 'QDA')
+        if (flagEmptyQDA == 1) {
+          EventBus.$emit('PCPCall', 'QDA')
+        }
         EventBus.$emit('updateBarChart', [])
       }
       el[7].onclick = function() {
@@ -507,7 +521,9 @@ export default {
       
         EventBus.$emit('clearPCP')
         EventBus.$emit('updateFlagRF', flagEmptyRF)
-        EventBus.$emit('PCPCall', 'RF')
+        if (flagEmptyRF == 1) {
+          EventBus.$emit('PCPCall', 'RF')
+        }
         EventBus.$emit('updateBarChart', [])
       }
       el[8].onclick = function() {
@@ -525,7 +541,9 @@ export default {
 
         EventBus.$emit('clearPCP')
         EventBus.$emit('updateFlagExtraT', flagEmptyExtraT)
-        EventBus.$emit('PCPCall', 'ExtraT')
+        if (flagEmptyExtraT == 1) {
+          EventBus.$emit('PCPCall', 'ExtraT')
+        }
         EventBus.$emit('updateBarChart', [])
       }
       el[9].onclick = function() {
@@ -543,7 +561,9 @@ export default {
 
         EventBus.$emit('clearPCP')
         EventBus.$emit('updateFlagAdaB', flagEmptyAdaB)
-        EventBus.$emit('PCPCall', 'AdaB')
+        if (flagEmptyAdaB == 1) {
+          EventBus.$emit('PCPCall', 'AdaB')
+        }
         EventBus.$emit('updateBarChart', [])
       }
       el[10].onclick = function() {
@@ -561,7 +581,9 @@ export default {
 
         EventBus.$emit('clearPCP')
         EventBus.$emit('updateFlagGradB', flagEmptyGradB)
-        EventBus.$emit('PCPCall', 'GradB')
+        if (flagEmptyGradB == 1) {
+          EventBus.$emit('PCPCall', 'GradB')
+        }
         EventBus.$emit('updateBarChart', [])
       }
 
@@ -973,9 +995,9 @@ export default {
       if (activeModels.length == 0){
       } else {
         for (let i = 0; i<activeModels.length; i++) {
-          var array = activeModels[i].split(';')
-          var temp = array[0].split(' ')
-          modelsSelected.push(temp[1])
+          var array = activeModels[i].split(' ')
+          var temp = array[2].split('<br>')
+          modelsSelected.push(temp[0])
         }
       }
       EventBus.$emit('updateBarChartAlgorithm', algorithmsSelected)
@@ -1018,9 +1040,9 @@ export default {
         alert('No models selected, please, retry!')
       } else {
         for (let i = 0; i<activeModels.length; i++) {
-          var array = activeModels[i].split(';')
-          var temp = array[0].split(' ')
-          models.push(temp[1])
+          var array = activeModels[i].split(' ')
+          var temp = array[2].split('<br>')
+          models.push(temp[0]) 
         }
         EventBus.$emit('ReturningAlgorithms', algorithmsSelected)
         EventBus.$emit('ReturningBrushedPointsIDs', models)

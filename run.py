@@ -525,7 +525,7 @@ def RetrieveModel():
             AlgorithmsIDsEnd = LDAModelsCount
         elif (eachAlgor) == 'QDA':
             clf = QuadraticDiscriminantAnalysis()
-            params = {'reg_param': list(range(1, 51)), 'tol': list(np.arange(0.00001,0.001,0.0002))}
+            params = {'reg_param': list(np.arange(0,1,0.02)), 'tol': list(np.arange(0.00001,0.001,0.0002))}
             AlgorithmsIDsEnd = QDAModelsCount
         elif (eachAlgor) == 'RF':
             clf = RandomForestClassifier()
@@ -555,7 +555,7 @@ memory = Memory(location, verbose=0)
 # calculating for all algorithms and models the performance and other results
 @memory.cache
 def GridSearchForModels(XData, yData, clf, params, eachAlgor, AlgorithmsIDsEnd):
-    print('start')
+    print(clf)
     # instantiate spark session
     spark = (   
         SparkSession    
@@ -1436,9 +1436,12 @@ def preProcMetricsAllAndSel():
     metricsPerModelColl.append(loopThroughMetrics['matthews_corrcoef'])
     metricsPerModelColl.append(loopThroughMetrics['mean_test_roc_auc_ovo_weighted'])
     metricsPerModelColl.append(loopThroughMetrics['log_loss'])
+    f=lambda a: (abs(a)+a)/2
     for index, metric in enumerate(metricsPerModelColl):
         if (index == 1 or index == 2):
             metricsPerModelColl[index] = ((metric + 1)*factors[index]) * 100
+        elif (index == 21):
+            metricsPerModelColl[index] = ((f(metric))*factors[index]) * 100
         elif (index == 23):
             metricsPerModelColl[index] = ((1 - metric)*factors[index] ) * 100
         else:  
@@ -1620,10 +1623,12 @@ def ComputeMetricsForSel(Models):
     metricsPerModelCollSel.append(MetricsAlltoSel['matthews_corrcoef'])
     metricsPerModelCollSel.append(MetricsAlltoSel['mean_test_roc_auc_ovo_weighted'])
     metricsPerModelCollSel.append(MetricsAlltoSel['log_loss'])
-
+    f=lambda a: (abs(a)+a)/2
     for index, metric in enumerate(metricsPerModelCollSel):
         if (index == 1 or index == 2):
             metricsPerModelCollSel[index] = (metric + 1)*factors[index]
+        elif (index == 21):
+            metricsPerModelCollSel[index] = ((f(metric))*factors[index]) * 100
         elif (index == 23):
             metricsPerModelCollSel[index] = (1 - metric)*factors[index]
         else:  
@@ -2069,14 +2074,20 @@ def RetrieveSelDataPoints():
                 dfAdaBCleared = dfGradB.drop(dfGradB.index[set_diff_df])
             df_concatMetrics = dfAdaBCleared
     
+    global foreachMetricResults
+    foreachMetricResults = []
+    foreachMetricResults = preProcSumForEachMetric(factors, df_concatMetrics)
+
     df_concatMetrics.loc[:, 'mean_test_neg_mean_absolute_error'] = df_concatMetrics.loc[:, 'mean_test_neg_mean_absolute_error'] + 1
     df_concatMetrics.loc[:, 'mean_test_neg_root_mean_squared_error'] = df_concatMetrics.loc[:, 'mean_test_neg_root_mean_squared_error'] + 1
     df_concatMetrics.loc[:, 'log_loss'] = 1 - df_concatMetrics.loc[:, 'log_loss']
+
     global sumPerClassifierSelUpdate
     sumPerClassifierSelUpdate = []
     sumPerClassifierSelUpdate = preProcsumPerMetricAccordingtoData(factors, df_concatMetrics)
-    ModelSpaceMDSNewComb = [list(a) for a in  zip(ModelSpaceMDS[0], ModelSpaceMDS[1])]
 
+    ModelSpaceMDSNewComb = [list(a) for a in  zip(ModelSpaceMDS[0], ModelSpaceMDS[1])]
+    # fix that for tsne and UMAP
     ModelSpaceMDSNewSel = FunMDS(df_concatMetrics)
 
     ModelSpaceMDSNewSelComb = [list(a) for a in  zip(ModelSpaceMDSNewSel[0], ModelSpaceMDSNewSel[1])]
@@ -2231,7 +2242,8 @@ def GridSearchSel(clf, params, factors, AlgorithmsIDsEnd, DataPointsSel):
         metrics.insert(loop+12,'f2_weighted',resultsWeightedBeta2)
 
         metrics.insert(loop+13,'log_loss',resultsLogLossFinal)
-        
+
+        metrics = metrics.clip(lower=0)
         metrics = metrics.to_json()
 
         resultsMetrics.append(metrics) # Position: 0 and so on 
@@ -2252,6 +2264,45 @@ def preProcsumPerMetricAccordingtoData(factors, loopThroughMetrics):
             sumPerClassifier.append(rowSum/sum(factors) * 100)
     return sumPerClassifier
 
+def preProcSumForEachMetric(factors, loopThroughMetrics):
+    metricsPerModelColl = []
+    metricsPerModelColl.append(loopThroughMetrics['mean_test_accuracy'])
+    metricsPerModelColl.append(loopThroughMetrics['mean_test_neg_mean_absolute_error'])
+    metricsPerModelColl.append(loopThroughMetrics['mean_test_neg_root_mean_squared_error'])
+    metricsPerModelColl.append(loopThroughMetrics['geometric_mean_score_micro'])
+    metricsPerModelColl.append(loopThroughMetrics['geometric_mean_score_macro'])
+    metricsPerModelColl.append(loopThroughMetrics['geometric_mean_score_weighted'])
+    metricsPerModelColl.append(loopThroughMetrics['mean_test_precision_micro'])
+    metricsPerModelColl.append(loopThroughMetrics['mean_test_precision_macro'])
+    metricsPerModelColl.append(loopThroughMetrics['mean_test_precision_weighted'])
+    metricsPerModelColl.append(loopThroughMetrics['mean_test_recall_micro'])
+    metricsPerModelColl.append(loopThroughMetrics['mean_test_recall_macro'])
+    metricsPerModelColl.append(loopThroughMetrics['mean_test_recall_weighted'])
+    metricsPerModelColl.append(loopThroughMetrics['f5_micro'])
+    metricsPerModelColl.append(loopThroughMetrics['f5_macro'])
+    metricsPerModelColl.append(loopThroughMetrics['f5_weighted'])
+    metricsPerModelColl.append(loopThroughMetrics['f1_micro'])
+    metricsPerModelColl.append(loopThroughMetrics['f1_macro'])
+    metricsPerModelColl.append(loopThroughMetrics['f1_weighted'])
+    metricsPerModelColl.append(loopThroughMetrics['f2_micro'])
+    metricsPerModelColl.append(loopThroughMetrics['f2_macro'])
+    metricsPerModelColl.append(loopThroughMetrics['f2_weighted'])
+    metricsPerModelColl.append(loopThroughMetrics['matthews_corrcoef'])
+    metricsPerModelColl.append(loopThroughMetrics['mean_test_roc_auc_ovo_weighted'])
+    metricsPerModelColl.append(loopThroughMetrics['log_loss'])
+    f=lambda a: (abs(a)+a)/2
+    for index, metric in enumerate(metricsPerModelColl):
+        if (index == 1 or index == 2):
+            metricsPerModelColl[index] = ((metric + 1)*factors[index]) * 100
+        elif (index == 21):
+            metricsPerModelColl[index] = ((f(metric))*factors[index]) * 100
+        elif (index == 23):
+            metricsPerModelColl[index] = ((1 - metric)*factors[index]) * 100
+        else:  
+            metricsPerModelColl[index] = (metric*factors[index]) * 100
+        metricsPerModelColl[index] = metricsPerModelColl[index].to_json()
+    return metricsPerModelColl
+
 # Sending the overview classifiers' results to be visualized as a scatterplot
 @app.route('/data/ServerSentDataPointsModel', methods=["GET", "POST"])
 def SendDataPointsModels():
@@ -2262,6 +2313,9 @@ def SendDataPointsModels():
     global mt2xFinal
     mt2xFinalJSON = json.dumps(mt2xFinal)
     ResultsUpdate.append(mt2xFinalJSON)
+    global foreachMetricResults
+    foreachMetricResultsJSON = json.dumps(foreachMetricResults)
+    ResultsUpdate.append(foreachMetricResultsJSON)
     response = {    
         'DataPointsModels': ResultsUpdate
     }
@@ -2426,7 +2480,7 @@ def EnsembleModel(Models, keyRetrieved):
             dfParamSVC = pd.DataFrame.from_dict(temp)
             dfParamSVCFilt = dfParamSVC.iloc[:,0]
             for index, eachelem in enumerate(SVCModels):
-                arg = dfParamRFFilt[eachelem-SVCModelsCount]
+                arg = dfParamSVCFilt[eachelem-SVCModelsCount]
                 all_classifiers.append(make_pipeline(ColumnSelector(cols=featureSelection['featureSelection'][index+store]), SVC(probability=True,random_state=RANDOM_SEED).set_params(**arg)))
                 store = index
                 flag = 1

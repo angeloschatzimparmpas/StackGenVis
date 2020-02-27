@@ -1,7 +1,10 @@
 <template>
     <div>
         <div class="squares-container" style="min-height: 307px;">
+        <div id="tooltip"></div>	<!-- new  -->
             <canvas id="main-canvas" ></canvas>
+            <br>
+            <div id="dynamic-buttons"></div>
         </div>
     </div>
 </template>
@@ -10,6 +13,7 @@
 import * as d3Base from 'd3'
 
 import { EventBus } from '../main.js'
+import $ from 'jquery'
 
 // attach all d3 plugins to the d3 library
 const d3 = Object.assign(d3Base)
@@ -61,7 +65,7 @@ export default {
     provenance () {
       var canvas = document.getElementById("main-canvas");
       var width = this.WH[0]*9 // interactive visualization
-      var height = this.WH[1]*0.5 // interactive visualization
+      var height = this.WH[1]*0.58 // interactive visualization
 
       var flagKNN = 0
       var flagSVC = 0
@@ -76,7 +80,7 @@ export default {
       var flagGradB = 0
 
       var StackInfo = JSON.parse(this.stackInformation[1])
-
+      var performanceLoc = JSON.parse(this.AllDetails[0])
       var parameters = JSON.parse(this.AllDetails[2])
       var parameters = JSON.parse(parameters)
 
@@ -89,8 +93,10 @@ export default {
       }
 
       // Create a WebGL 2D platform on the canvas:
-      this.platform = Stardust.platform("webgl-2d", canvas, width, height);
-    
+      var plat = Stardust.platform("webgl-2d", canvas, width, height);
+      plat.pixelRatio = window.devicePixelRatio || 1;
+      this.platform = plat
+
       for (let i = 0; i < StackInfo.length; i++) {
         if (StackInfo[i] < this.SVCModels){
           this.data.push({
@@ -196,7 +202,7 @@ export default {
       let isotype = new Stardust.mark.circle();
 
       // Create the mark object.
-      let isotypes = Stardust.mark.create(isotype, this.platform);
+      let isotypes = Stardust.mark.create(isotype, plat);
 
       let isotypeHeight = 18;
       let colors = [[166,206,227], [31,120,180], [178,223,138], [51,160,44], [251,154,153], [227,26,28], [253,191,111], [255,127,0], [202,178,214], [106,61,154], [255,255,153], [177,89,40]];
@@ -234,12 +240,87 @@ export default {
       isotypes.data(this.data);
 
       EventBus.$emit('ExtractResults', stringParameters)
-
       isotypes.render();
       this.counter = this.counter + 1
-  }
+
+      plat.beginPicking(canvas.width, canvas.height);
+      isotypes.attr("radius", 6.0);
+      isotypes.render();
+      plat.endPicking();
+      
+      var isDragging = false;
+      var draggingLocation = null;
+      // Handle dragging.
+      canvas.onmousedown = function (e) {
+        var x = e.clientX - canvas.getBoundingClientRect().left;
+        var y = e.clientY - canvas.getBoundingClientRect().top;
+        var p = platform.getPickingPixel(x * platform.pixelRatio, y * platform.pixelRatio);
+        if (p) {
+          selectedNode = nodes[p[1]];
+          requestRender();
+          isDragging = true;
+          draggingLocation = [selectedNode.x, selectedNode.y];
+          var onMove = function (e) {
+            var nx = e.clientX - canvas.getBoundingClientRect().left;
+            var ny = e.clientY - canvas.getBoundingClientRect().top;
+            selectedNode.x = nx;
+            selectedNode.y = ny;
+            draggingLocation = [nx, ny];
+            force.alphaTarget(0.3).restart();
+            requestRender();
+          };
+          var onUp = function () {
+            window.removeEventListener("mousemove", onMove);
+            window.removeEventListener("mouseup", onUp);
+            selectedNode = null;
+            draggingLocation = null;
+            isDragging = false;
+          };
+          window.addEventListener("mousemove", onMove);
+          window.addEventListener("mouseup", onUp);
+        }
+      };
+      canvas.onmousemove = function (e) {
+        if (isDragging) return;
+        var x = e.clientX - canvas.getBoundingClientRect().left;
+        var y = e.clientY - canvas.getBoundingClientRect().top;
+        var p = plat.getPickingPixel(x * plat.pixelRatio, y * plat.pixelRatio);
+
+        if (p) {
+
+				// Show the tooltip only when there is nodeData found by the mouse
+
+				d3.select('#tooltip')
+					.style('opacity', 0.8)
+					.style('top', x + 5 + 'px')
+					.style('left', y + 5 + 'px')
+					.html('Model ID: '+StackInfo[p[1]]+'<br>'+'Parameters: '+JSON.stringify(parameters[p[1]])+'<br> # Performance (%) #: '+performanceLoc[p[1]]);
+
+			} else {
+
+				// Hide the tooltip when there our mouse doesn't find nodeData
+
+				d3.select('#tooltip')
+					.style('opacity', 0);
+
+			}
+      }
+      const stringStep = "Stack "
+      var myButton = '<button id="HistoryReturnButtons'+this.counter+'" class="dynamic_buttons">'+stringStep+this.counter+'</button>&nbsp;&nbsp;&nbsp;'
+      $("#dynamic-buttons").append(myButton);
+
+      function checkhistory () {
+        console.log(event)
+        //call the previous stack depending on button clicked.
+      }
+  },
   },
   mounted () {
+   // fix that 
+   $(document).on('click','.dynamic_buttons', function() {
+      console.log($(this).attr('id'))
+      }
+    );
     EventBus.$on('ParametersProvenance', data => {this.AllDetails = data})
     EventBus.$on('InitializeProvenance', data => {this.stackInformation = data})
     EventBus.$on('InitializeProvenance', this.provenance)
@@ -254,3 +335,25 @@ export default {
 
 }
 </script>
+
+<style scoped>
+#main-canvas {
+  overflow-x: auto;
+  overflow-y: auto;
+}
+
+div#tooltip {
+  position: absolute !important;        
+  display: inline-block;
+  padding: 10px;
+  font-family: 'Open Sans' sans-serif;
+  color: #000;
+  background-color: #fff;
+  border: 1px solid #999;
+  border-radius: 2px;
+  pointer-events: none;
+  opacity: 0;
+  z-index: 1;
+}
+
+</style>

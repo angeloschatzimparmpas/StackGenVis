@@ -31,6 +31,7 @@ export default {
       allActiveAdaB: [],
       allActiveGradB: [],
       storeParameters: [],
+      keepState: 0,
       FlagKNN: 0,
       FlagSVC: 0,
       FlagGausNB: 0,
@@ -53,6 +54,28 @@ export default {
       ExtraTModels: 2606,
       AdaBModels: 2766,
       GradBModels: 2926,
+      countkNNRelated: [],
+      countKNN: 0,
+      countSVCRelated: [],
+      countSVC: 0,
+      countGausNBRelated: [],
+      countGausNB: 0,
+      countMLPRelated: [],
+      countMLP: 0,
+      countLRRelated: [],
+      countLR: 0,
+      countLDARelated: [],
+      countLDA: 0,
+      countQDARelated: [],
+      countQDA: 0,
+      countRFRelated: [],
+      countRF: 0,
+      countExtraTRelated: [],
+      countExtraT: 0,
+      countAdaBRelated: [],
+      countAdaB: 0,
+      countGradBRelated: [],
+      countGradB: 0
     }
   },
   methods: {
@@ -428,104 +451,134 @@ export default {
         this.allActiveExtraT = []
         this.allActiveAdaB = []
         this.allActiveGradB = []
+        this.countkNNRelated = []
+        this.countKNN = 0
+        this.countSVCRelated = []
+        this.countSVC = 0
+        this.countGausNBRelated = []
+        this.countGausNB = 0
+        this.countMLPRelated = []
+        this.countMLP = 0
+        this.countLRRelated = []
+        this.countLR = 0
+        this.countLDARelated = []
+        this.countLDA = 0
+        this.countQDARelated = []
+        this.countQDA = 0
+        this.countRFRelated = []
+        this.countRF = 0
+        this.countExtraTRelated = []
+        this.countExtraT = 0
+        this.countAdaBRelated = []
+        this.countAdaB = 0
+        this.countGradBRelated = []
+        this.countGradB = 0
       }
 
-      if (this.storeActiveModels.length != 0) {
-        var countkNNRelated = []
-        var countKNN = 0
-        var countSVCRelated = []
-        var countSVC = 0
-        var countGausNBRelated = []
-        var countGausNB = 0
-        var countMLPRelated = []
-        var countMLP = 0
-        var countLRRelated = []
-        var countLR = 0
-        var countLDARelated = []
-        var countLDA = 0
-        var countQDARelated = []
-        var countQDA = 0
-        var countRFRelated = []
-        var countRF = 0
-        var countExtraTRelated = []
-        var countExtraT = 0
-        var countAdaBRelated = []
-        var countAdaB = 0
-        var countGradBRelated = []
-        var countGradB = 0
-        for (let i = 0; i < this.storeActiveModels.length; i++) {
-          if (this.storeActiveModels[i] > this.GradBModels) {
-            countGradBRelated.push(JSON.parse(this.storeParameters[this.storeActiveModels[i]]))
-            countGradB++
-          } else if (this.storeActiveModels[i] > this.AdaBModels) {
-            countAdaBRelated.push(JSON.parse(this.storeParameters[this.storeActiveModels[i]]))
-            countAdaB++
-          } else if (this.storeActiveModels[i] > this.ExtraTModels) {
-            countExtraTRelated.push(JSON.parse(this.storeParameters[this.storeActiveModels[i]]))
-            countExtraT++
-          } else if (this.storeActiveModels[i] > this.RFModels) {
-            countRFRelated.push(JSON.parse(this.storeParameters[this.storeActiveModels[i]]))
-            countRF++
-          } else if (this.storeActiveModels[i] > this.QDAModels) {
-            countQDARelated.push(JSON.parse(this.storeParameters[this.storeActiveModels[i]]))
-            countQDA++
-          } else if (this.storeActiveModels[i] > this.LDAModels) {
-            countLDARelated.push(JSON.parse(this.storeParameters[this.storeActiveModels[i]]))
-            countLDA++
-          } else if (this.storeActiveModels[i] > this.LRModels) {
-            countLRRelated.push(JSON.parse(this.storeParameters[this.storeActiveModels[i]]))
-            countLR++
-          } else if (this.storeActiveModels[i] > this.MLPModels) {
-            countMLPRelated.push(JSON.parse(this.storeParameters[this.storeActiveModels[i]]))
-            countMLP++
-          } else if (this.storeActiveModels[i] > this.GausNBModels) {
-            countGausNBRelated.push(JSON.parse(this.storeParameters[this.storeActiveModels[i]]))
-            countGausNB++
-          } else if (this.storeActiveModels[i] > this.SVCModels) {
-            countSVCRelated.push(JSON.parse(this.storeParameters[this.storeActiveModels[i]]))
-            countSVC++
-          } else {
-            countkNNRelated.push(JSON.parse(this.storeParameters[this.storeActiveModels[i]]))
-            countKNN++
+      if(JSON.stringify(this.keepState)!=JSON.stringify(this.storeActiveModels)) {
+        if (this.storeActiveModels.length != 0) {
+          var intersection = this.compare(this.keepState,this.storeActiveModels)
+          for (let k = 0; k < intersection.length; k++) {
+            if (intersection[k] > this.GradBModels) {
+              this.countGradB = 0
+            } else if (intersection[k] > this.AdaBModels) {
+              this.countAdaB = 0
+            } else if (intersection[k] > this.ExtraTModels) {
+              this.countExtraT = 0
+            } else if (intersection[k] > this.RFModels) {
+              this.countRF = 0
+            } else if (intersection[k] > this.QDAModels) {
+              this.countQDA = 0
+            } else if (intersection[k] > this.LDAModels) {
+              this.countLDA = 0
+            } else if (intersection[k] > this.LRModels) {
+              this.countLR = 0
+            } else if (intersection[k] > this.MLPModels) {
+              this.countMLP = 0
+            } else if (intersection[k] > this.GausNBModels) {
+              this.countGausNB = 0
+            } else if (intersection[k] > this.SVCModels) {
+              this.countSVC = 0
+            } else {
+              this.countKNN = 0
+            }
+          }
+         
+          for (let i = 0; i < this.storeActiveModels.length; i++) {
+            if (this.storeActiveModels[i] > this.GradBModels) {
+              this.countGradBRelated.push(JSON.parse(this.storeParameters[this.storeActiveModels[i]]))
+              this.countGradB++
+            } else if (this.storeActiveModels[i] > this.AdaBModels) {
+              this.countAdaBRelated.push(JSON.parse(this.storeParameters[this.storeActiveModels[i]]))
+              this.countAdaB++
+            } else if (this.storeActiveModels[i] > this.ExtraTModels) {
+              this.countExtraTRelated.push(JSON.parse(this.storeParameters[this.storeActiveModels[i]]))
+              this.countExtraT++
+            } else if (this.storeActiveModels[i] > this.RFModels) {
+              this.countRFRelated.push(JSON.parse(this.storeParameters[this.storeActiveModels[i]]))
+              this.countRF++
+            } else if (this.storeActiveModels[i] > this.QDAModels) {
+              this.countQDARelated.push(JSON.parse(this.storeParameters[this.storeActiveModels[i]]))
+              this.countQDA++
+            } else if (this.storeActiveModels[i] > this.LDAModels) {
+              this.countLDARelated.push(JSON.parse(this.storeParameters[this.storeActiveModels[i]]))
+              this.countLDA++
+            } else if (this.storeActiveModels[i] > this.LRModels) {
+              this.countLRRelated.push(JSON.parse(this.storeParameters[this.storeActiveModels[i]]))
+              this.countLR++
+            } else if (this.storeActiveModels[i] > this.MLPModels) {
+              this.countMLPRelated.push(JSON.parse(this.storeParameters[this.storeActiveModels[i]]))
+              this.countMLP++
+            } else if (this.storeActiveModels[i] > this.GausNBModels) {
+              this.countGausNBRelated.push(JSON.parse(this.storeParameters[this.storeActiveModels[i]]))
+              this.countGausNB++
+            } else if (this.storeActiveModels[i] > this.SVCModels) {
+              this.countSVCRelated.push(JSON.parse(this.storeParameters[this.storeActiveModels[i]]))
+              this.countSVC++
+            } else {
+              this.countkNNRelated.push(JSON.parse(this.storeParameters[this.storeActiveModels[i]]))
+              this.countKNN++
+            }
           }
         }
-
         if (this.storeActiveModels[0] > this.GradBModels) {
-          this.allActiveGradB = countGradBRelated.slice()
+          this.allActiveGradB = this.countGradBRelated.slice()
         } else if (this.storeActiveModels[0] > this.AdaBModels) {
-          this.allActiveAdaB = countAdaBRelated.slice()
+          this.allActiveAdaB = this.countAdaBRelated.slice()
         } else if (this.storeActiveModels[0] > this.ExtraTModels) {
-          this.allActiveExtraT = countExtraTRelated.slice()
+          this.allActiveExtraT = this.countExtraTRelated.slice()
         } else if (this.storeActiveModels[0] > this.RFModels) {
-          this.allActiveRF = countRFRelated.slice()
+          this.allActiveRF = this.countRFRelated.slice()
         } else if (this.storeActiveModels[0] > this.QDAModels) {
-          this.allActiveQDA = countQDARelated.slice()
+          this.allActiveQDA = this.countQDARelated.slice()
         } else if (this.storeActiveModels[0] > this.LDAModels) {
-          this.allActiveLDA = countLDARelated.slice()
+          this.allActiveLDA = this.countLDARelated.slice()
         } else if (this.storeActiveModels[0] > this.LRModels) {
-          this.allActiveLR = countLRRelated.slice()
+          this.allActiveLR = this.countLRRelated.slice()
         } else if (this.storeActiveModels[0] > this.MLPModels) {
-          this.allActiveMLP = countMLPRelated.slice()
+          this.allActiveMLP = this.countMLPRelated.slice()
         } else if (this.storeActiveModels[0] > this.GausNBModels) {
-          this.allActiveGausNB = countGausNBRelated.slice()
+          this.allActiveGausNB = this.countGausNBRelated.slice()
         } else if (this.storeActiveModels[0] > this.SVCModels) {
-          this.allActiveSVC = countSVCRelated.slice()
+          this.allActiveSVC = this.countSVCRelated.slice()
         } else {
-          this.allActiveKNN = countkNNRelated.slice()
+          this.allActiveKNN = this.countkNNRelated.slice()
         }
-
-        KNNSelection = countKNN
-        SVCSelection = countSVC
-        GausNBSelection = countGausNB
-        MLPSelection = countMLP
-        LRSelection = countLR
-        LDASelection = countLDA
-        QDASelection = countQDA
-        RFSelection = countRF
-        ExtraTSelection = countExtraT
-        AdaBSelection = countAdaB
-        GradBSelection = countGradB
       }
+
+      KNNSelection = this.countKNN
+      SVCSelection = this.countSVC
+      GausNBSelection = this.countGausNB
+      MLPSelection = this.countMLP
+      LRSelection = this.countLR
+      LDASelection = this.countLDA
+      QDASelection = this.countQDA
+      RFSelection = this.countRF
+      ExtraTSelection = this.countExtraT
+      AdaBSelection = this.countAdaB
+      GradBSelection = this.countGradB
+
+      this.keepState = JSON.parse(JSON.stringify(this.storeActiveModels))
 
       if (this.FlagKNN == 1 && this.allActiveKNN.length == 0) {
         KNNSelection = 576
@@ -606,7 +659,7 @@ export default {
 			////////////////////////////////////////////////////////////// 
 
 			var color = d3.scale.ordinal()
-				.range(["#ffed6f","#b3de69"]);
+				.range(["#ffed6f","#008080"]);
       
 			var radarChartOptions = {
 			  w: width,
@@ -624,19 +677,32 @@ export default {
 			//Call function to draw the Radar chart
 			this.RadarChart("#overview", data, radarChartOptions);
     },
-      updateFlags () {
-        this.FlagKNN = 0
-        this.FlagSVC = 0
-        this.FlagGausNB = 0
-        this.FlagMLP = 0
-        this.FlagLR = 0
-        this.FlagLDA = 0
-        this.FlagQDA = 0
-        this.FlagRF = 0
-        this.FlagExtraT = 0
-        this.FlagAdaB = 0
-        this.FlagGradB = 0
+    updateFlags () {
+      this.FlagKNN = 0
+      this.FlagSVC = 0
+      this.FlagGausNB = 0
+      this.FlagMLP = 0
+      this.FlagLR = 0
+      this.FlagLDA = 0
+      this.FlagQDA = 0
+      this.FlagRF = 0
+      this.FlagExtraT = 0
+      this.FlagAdaB = 0
+      this.FlagGradB = 0
+    },
+    compare(arr1,arr2){
+      
+    const finalarray =[];
+
+    arr1.forEach((e1) => arr2.forEach((e2) =>
+      {if(e1 === e2){
+        finalarray.push(e1)
       }
+    }
+      
+    ))
+    return finalarray
+    }
   },
   mounted () {
     EventBus.$on('updateFlagKNN', data => { this.FlagKNN = data })
