@@ -54,11 +54,11 @@ export default {
       var maxUni = Math.max.apply(Math, featureUni.map(function(o) { return o.Score; }))
       var minUni = Math.min.apply(Math, featureUni.map(function(o) { return o.Score; }))
       let len = Features.length
-      let indicesYAxis = new Array(len)
+      let indicesYAxis = []
       for (let i = 0; i < len; i++) {
           indicesYAxis[i] = [Features[i]]
       } 
-      let indicesXAxis = new Array(len)
+      let indicesXAxis = []
       var temp = []
       for (let i = 0; i < len2; i++) {
         temp = []
@@ -68,10 +68,9 @@ export default {
       }
 
       if (this.ModelsIDHeatStack.length != 0) {
-
           var FeaturesAccuracyNew = []
           var PermImpEliNew = []
-          indicesXAxis = new Array(len)
+          indicesXAxis = []
 
           for (let i = 0; i < modelIds.length; i++) {
               if (this.ModelsIDHeatStack.includes(modelIds[i])) {
@@ -90,7 +89,7 @@ export default {
               indicesXAxis[i] = temp
           }
         }
-
+        
         temp = []
         temp.push("R")
         temp.push("Average")

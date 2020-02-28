@@ -52,7 +52,14 @@ export default {
       valueStackRemove: 'Remove Unselected from Stack',
       DataPointsSelUpdate: [],
       ModelsIDGray: [],
-      valueResetSel: 'Reset Metric Selection'
+      valueResetSel: 'Reset Metric Selection',
+      newStackPoints: '',
+      colorsStore: [],
+      MDSStore: [],
+      parametersStore: [],
+      TSNEStore: [],
+      modelIDStore: [],
+      UMAPStore: []
     }
   },
   methods: {
@@ -86,17 +93,21 @@ export default {
 
       var colorsforScatterPlot = JSON.parse(this.ScatterPlotResults[0])
 
-      if (this.newColorsUpdate.length != 0) {
+      /*if (this.newColorsUpdate.length != 0) {
         let resultsClear = JSON.parse(this.newColorsUpdate)
         for (let j = 0; j < Object.values(resultsClear).length; j++) {
           colorsforScatterPlot.push(Object.values(resultsClear)[j])
         }
-      }
+      }*/
 
       var MDSData = JSON.parse(this.ScatterPlotResults[1])
       var parameters = JSON.parse(this.ScatterPlotResults[2])
       var TSNEData = JSON.parse(this.ScatterPlotResults[12])
-      var modelId = JSON.parse(this.ScatterPlotResults[13])
+      if (this.newStackPoints.length != 0) {
+        var modelId = this.newStackPoints
+      } else {
+        var modelId = JSON.parse(this.ScatterPlotResults[13])
+      }
       var UMAPData = JSON.parse(this.ScatterPlotResults[17])
 
       EventBus.$emit('sendPointsNumber', modelId.length)
@@ -136,11 +147,6 @@ export default {
         var colorsforScatterPlotNew = []
         for (let i = 0; i < modelId.length; i++) {
           if (listofNumbersModelsIDs.includes(modelId[i])) {
-            StackModelsIDs.push(modelId[i])
-            parametersNew.push(parameters[i])
-            colorsforScatterPlotNew.push('rgb(211,211,211)')
-            MDSDataNewX.push(MDSData[0][i])
-            MDSDataNewY.push(MDSData[1][i])
           } else {
             StackModelsIDs.push(modelId[i])
             parametersNew.push(parameters[i])
@@ -157,7 +163,7 @@ export default {
         MDSData[0] = MDSDataNewX
         MDSData[1] = MDSDataNewY
         colorsforScatterPlot = colorsforScatterPlotNew
-        //EventBus.$emit('NewHeatmapAccordingtoNewStack', StackModelsIDs)
+        EventBus.$emit('NewHeatmapAccordingtoNewStack', StackModelsIDs)
       }
       var DataGeneral
 
@@ -192,7 +198,7 @@ export default {
             colorscale: 'Viridis',
             colorbar: {
               title: '# Performance (%) #',
-              titleside: 'Top'
+              titleside:'right',
             },
           }
         
@@ -358,9 +364,10 @@ export default {
             if (evt.points[i] === undefined) {
               break
             } else {
-              const OnlyId = evt.points[i].text.split(';')
-              ClassifierIDsList.push(OnlyId[0])
-              let numb = OnlyId[0].match(/\d/g);
+              const OnlyId = evt.points[i].text.split(' ')[2]
+              const OnlyIdCleared = OnlyId.split('<br>')
+              ClassifierIDsList.push(OnlyIdCleared[0])
+              let numb = OnlyIdCleared[0].match(/\d/g);
               numb = numb.join("");
               let numberNumb = Number(numb)
               ClassifierIDsListCleared.push(numberNumb)
@@ -372,9 +379,11 @@ export default {
             }
           }
           if (allModels != '') {
+            EventBus.$emit('ChangeKey', 1)
             EventBus.$emit('SendSelectedPointsToServerEvent', pushModelsRemaining)
-            EventBus.$emit('SendSelectedPointsToBrushHeatmap', pushModelsRemaining)
+            EventBus.$emit('SendSelectedPointsToBrushHeatmap', ClassifierIDsListCleared)
           } else {
+            EventBus.$emit('ChangeKey', 1)
             EventBus.$emit('SendSelectedPointsToServerEvent', '')
           }
         }
@@ -426,8 +435,11 @@ export default {
     }
   },
   mounted() {
-    EventBus.$on('updateMetricsScatter', data => { this.newColorsUpdate = data })
-    EventBus.$on('updateMetricsScatter', this.ScatterPlotView)
+    /*EventBus.$on('updateMetricsScatter', data => { this.newColorsUpdate = data })
+    EventBus.$on('updateMetricsScatter', this.ScatterPlotView)*/
+
+    EventBus.$on('newPointsStack', data => { this.newStackPoints = data })
+    EventBus.$on('newPointsStack', this.ScatterPlotView)
 
     EventBus.$on('GrayOutPoints', data => { this.ModelsIDGray = data })
     EventBus.$on('GrayOutPoints', this.ScatterPlotView)

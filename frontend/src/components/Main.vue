@@ -232,6 +232,7 @@ export default Vue.extend({
       OverviewResults: 0,
       preDataResults: '',
       DataResults: '',
+      keyNow: 1,
       instancesImportance: '',
       RetrieveValueFile: 'DiabetesC', // this is for the default data set
       ClassifierIDsList: '',
@@ -398,9 +399,9 @@ export default Vue.extend({
         EventBus.$emit('resetViews')
       } else {
         const path = `http://127.0.0.1:5000/data/ServerRequestSelPoin`
-      
         const postData = {
-          ClassifiersList: this.ClassifierIDsList
+          ClassifiersList: this.ClassifierIDsList,
+          keyNow: this.keyNow,
         }
         const axiosConfig = {
           headers: {
@@ -414,9 +415,13 @@ export default Vue.extend({
           .then(response => {
             console.log('Sent the selected points to the server (scatterplot)!')
             this.OverSelLength = this.ClassifierIDsList.length
-            EventBus.$emit('emittedEventCallingHeatmapView', this.OverviewResults)
+            this.OverAllLength = this.ClassifierIDsList.length
             this.getSelectedModelsMetrics()
             this.getFinalResults()
+            if (this.keyNow == 0) {
+              EventBus.$emit('GrayOutPoints', '')
+              EventBus.$emit('newPointsStack', this.OverviewResults)
+            }
           })
           .catch(error => {
             console.log(error)
@@ -440,8 +445,8 @@ export default Vue.extend({
       axios.post(path, postData, axiosConfig)
       .then(response => {
       console.log('Sent the selected points to the server (scatterplot)!')
-      EventBus.$emit('GrayOutPoints', this.ClassifierIDsList)
       this.updatePredictionsSpace()
+      EventBus.$emit('GrayOutPoints', this.ClassifierIDsList)
       this.getFinalResults()
       })
       .catch(error => {
@@ -463,8 +468,11 @@ export default Vue.extend({
         .then(response => {
           this.UpdatePredictions = response.data.UpdatePredictions
           console.log('Updating Predictions Space!')
+          if (this.keyNow == 1) {
+            console.log('mpike')
+            EventBus.$emit('InitializeProvenance', this.UpdatePredictions)
+          }
           EventBus.$emit('updatePredictionsSpace', this.UpdatePredictions)
-          EventBus.$emit('InitializeProvenance', this.UpdatePredictions)
         })
         .catch(error => {
           console.log(error)
@@ -558,6 +566,7 @@ export default Vue.extend({
       axios.get(path, axiosConfig)
         .then(response => {
           this.FinalResults = response.data.FinalResults
+          console.log(this.FinalResults)
           EventBus.$emit('emittedEventCallingLinePlot', this.FinalResults)
         })
         .catch(error => {
@@ -966,8 +975,11 @@ export default Vue.extend({
     EventBus.$on('reset', this.Reset)
     EventBus.$on('ReturningAlgorithms', data => { this.selectedAlgorithms = data })
     EventBus.$on('ReturningBrushedPointsParams', data => { this.parametersofModels = data; })
+
+    EventBus.$on('ChangeKey', data => { this.keyNow = data })
     EventBus.$on('SendSelectedPointsToServerEvent', data => { this.ClassifierIDsList = data })
     EventBus.$on('SendSelectedPointsToServerEvent', this.SendSelectedPointsToServer)
+
     EventBus.$on('SendSelectedDataPointsToServerEvent', data => { this.DataPointsSel = data })
     EventBus.$on('SendSelectedDataPointsToServerEvent', this.SendSelectedDataPointsToServer)
     EventBus.$on('SendSelectedFeaturesEvent', data => { this.SelectedFeaturesPerClassifier = data })

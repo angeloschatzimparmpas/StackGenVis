@@ -1049,7 +1049,6 @@ def PreprocessingPredUpdate(Models):
     dfGradBFiltered = dfGradB.loc[GradBModels, :]
 
     df_concatProbs = pd.concat([dfKNNFiltered, dfSVCFiltered, dfGausNBFiltered, dfMLPFiltered, dfLRFiltered, dfLDAFiltered, dfQDAFiltered, dfRFFiltered, dfExtraTFiltered, dfAdaBFiltered, dfGradBFiltered])
-
     listProbs = df_concatProbs.index.values.tolist()
     deletedElements = 0
     for index, element in enumerate(listProbs):
@@ -1474,7 +1473,9 @@ def InitializeEnsemble():
     XModels = PreprocessingMetrics()
     global ModelSpaceMDS
     global ModelSpaceTSNE
-
+    
+    XModels = XModels.fillna(0)
+    
     ModelSpaceMDS = FunMDS(XModels)
     ModelSpaceTSNE = FunTsne(XModels)
     ModelSpaceTSNE = ModelSpaceTSNE.tolist()
@@ -1583,14 +1584,17 @@ def SendPredBacktobeUpdated():
 def RetrieveSelClassifiersID():
     ClassifierIDsList = request.get_data().decode('utf8').replace("'", '"')
     ComputeMetricsForSel(ClassifierIDsList)
+    ClassifierIDCleaned = json.loads(ClassifierIDsList)
 
-    key = 1
-    EnsembleModel(ClassifierIDsList, key)
+    global keySpec
+    keySpec = ClassifierIDCleaned['keyNow']
+    EnsembleModel(ClassifierIDsList, 1)
     return 'Everything Okay'
 
 def ComputeMetricsForSel(Models):
     Models = json.loads(Models)
     MetricsAlltoSel = PreprocessingMetrics()
+
     listofModels = []
     for loop in Models['ClassifiersList']:
         listofModels.append(loop)
@@ -2340,6 +2344,8 @@ def EnsembleModel(Models, keyRetrieved):
     global all_classifiersSelection  
     all_classifiersSelection = []
 
+    global all_classifiers
+
     global XData
     global yData
     global sclf
@@ -2347,7 +2353,6 @@ def EnsembleModel(Models, keyRetrieved):
     lr = LogisticRegression()
 
     if (keyRetrieved == 0):
-        global all_classifiers
         all_classifiers = []
         columnsInit = []
         columnsInit = [XData.columns.get_loc(c) for c in XData.columns if c in XData]
@@ -2443,8 +2448,11 @@ def EnsembleModel(Models, keyRetrieved):
     elif (keyRetrieved == 1):     
         Models = json.loads(Models)
         ModelsAll = preProceModels()
+        global keySpec
+        print(ModelsAll)
         for index, modHere in enumerate(ModelsAll):
             flag = 0
+            print(Models['ClassifiersList'])
             for loop in Models['ClassifiersList']:
                 if (int(loop) == int(modHere)):
                     flag = 1
@@ -2456,6 +2464,9 @@ def EnsembleModel(Models, keyRetrieved):
                             meta_classifier=lr,
                             random_state=RANDOM_SEED,
                             n_jobs = -1)
+        print(keySpec)
+        if (keySpec == 0):
+            sclfStack = sclf
     elif (keyRetrieved == 2):
         # fix this part!
         if (len(all_classifiersSelection) == 0):
@@ -2640,7 +2651,7 @@ def EnsembleModel(Models, keyRetrieved):
         #                        meta_classifier=lr,
         #                        random_state=RANDOM_SEED,
         #                        n_jobs = -1)
-    
+
     num_cores = multiprocessing.cpu_count()
     inputsSc = ['accuracy','precision_weighted','recall_weighted','accuracy','precision_weighted','recall_weighted']
     flat_results = Parallel(n_jobs=num_cores)(delayed(solve)(sclf,sclfStack,XData,yData,crossValidation,item,index) for index, item in enumerate(inputsSc))

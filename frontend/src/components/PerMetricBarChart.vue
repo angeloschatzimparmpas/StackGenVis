@@ -153,7 +153,7 @@ export default {
               Plotly.restyle(boxPlot, 'x', [['Accuracy','MAE','RMSE','G-Mean','G-Mean','G-Mean','Precision','Precision','Precision','Recall','Recall','Recall','F-Beta Sc','F-Beta Sc','F-Beta Sc','F-Beta Sc','F-Beta Sc','F-Beta Sc','F-Beta Sc','F-Beta Sc','F-Beta Sc','MCC','ROC AUC','<b>Log Loss</b>']]);
               index = 9
             }
-            EventBus.$emit('updateMetricsScatter', resultsColors[index])
+            //EventBus.$emit('updateMetricsScatter', resultsColors[index])
           });
       },
       reset () {

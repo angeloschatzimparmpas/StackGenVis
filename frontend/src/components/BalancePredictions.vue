@@ -92,7 +92,7 @@
             var histogram = d3.histogram()
                 .value(function(d) { return +d.value; })   // I need to give the vector of value
                 .domain(x.domain())  // then the domain of the graphic
-                .thresholds(x.ticks(10)); // then the numbers of bins
+                .thresholds(x.ticks(20)); // then the numbers of bins
 
             // And apply twice this function to data to get the bins.
             var bins1 = histogram(data.filter( function(d){return d.type === "variable 1"} ));
@@ -190,8 +190,9 @@
             svg.append("circle").attr("cx", 215).attr("cy", heightforText-1.5).attr("r", 6).style("fill", "#000")
             svg.append("circle").attr("cx", 785).attr("cy", heightforText-1.5).attr("r", 6).style("fill", "#D3D3D3")
             svg.append("text").attr("x", 230).attr("y", heightforText).text("Entire Distribution").style("font-size", "15px").attr("alignment-baseline","middle")
-            svg.append("text").attr("x", 515).attr("y", heightforText-10).text("Performance").style("font-size", "15px").attr("alignment-baseline","top")
+            svg.append("text").attr("x", 515).attr("y", heightforText-10).text("# Performance (%) #").style("font-size", "15px").attr("alignment-baseline","top")
             svg.append("text").attr("x", 800).attr("y", heightforText).text("Selected Points").style("font-size", "15px").attr("alignment-baseline","middle")
+            svg.append("text").attr("transform", "rotate(-90)").attr("x", -89).attr("y", -45).style("text-anchor", "middle").text("Number of Models"); 
 
             // Function to compute density
             function kernelDensityEstimator(kernel, X) {

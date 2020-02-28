@@ -42,7 +42,11 @@ export default {
       AdaBModels: 2766,
       GradBModels: 2926,
       AllDetails: '',
-      platform: ''
+      platform: '',
+      count: 0,
+      storeData: [],
+      storePerformance: [],
+      storeParameters: []
     }
   },
   methods: {
@@ -64,7 +68,7 @@ export default {
     },
     provenance () {
       var canvas = document.getElementById("main-canvas");
-      var width = this.WH[0]*9 // interactive visualization
+      var width = this.WH[0]*7 // interactive visualization
       var height = this.WH[1]*0.58 // interactive visualization
 
       var flagKNN = 0
@@ -79,10 +83,22 @@ export default {
       var flagAdaB = 0
       var flagGradB = 0
 
+      var localStackStore = []
       var StackInfo = JSON.parse(this.stackInformation[1])
+      var arrayOfNumbers = StackInfo.map(Number)
+      this.storeData.push(arrayOfNumbers)
+      localStackStore = this.storeData.slice()
+
+      var localPerfStore = []
       var performanceLoc = JSON.parse(this.AllDetails[0])
+      this.storePerformance.push(performanceLoc)
+      localPerfStore = this.storePerformance.slice()
+
+      var localParamsStore = []
       var parameters = JSON.parse(this.AllDetails[2])
       var parameters = JSON.parse(parameters)
+      this.storeParameters.push(parameters)
+      localParamsStore = this.storeParameters.slice()
 
       var stringParameters = []
       var temp = 0
@@ -286,15 +302,18 @@ export default {
         var y = e.clientY - canvas.getBoundingClientRect().top;
         var p = plat.getPickingPixel(x * plat.pixelRatio, y * plat.pixelRatio);
 
+        var mergedIDs = [].concat.apply([], localStackStore)
+        var mergedPerf = [].concat.apply([], localPerfStore)
+        var mergedParams = [].concat.apply([], localParamsStore)
+
         if (p) {
 
 				// Show the tooltip only when there is nodeData found by the mouse
-
-				d3.select('#tooltip')
+          d3.select('#tooltip')
 					.style('opacity', 0.8)
 					.style('top', x + 5 + 'px')
 					.style('left', y + 5 + 'px')
-					.html('Model ID: '+StackInfo[p[1]]+'<br>'+'Parameters: '+JSON.stringify(parameters[p[1]])+'<br> # Performance (%) #: '+performanceLoc[p[1]]);
+					.html('Model ID: '+mergedIDs[p[1]]+'<br>'+'Parameters: '+JSON.stringify(mergedParams[p[1]])+'<br> # Performance (%) #: '+mergedPerf[p[1]]);
 
 			} else {
 
@@ -306,21 +325,46 @@ export default {
 			}
       }
       const stringStep = "Stack "
-      var myButton = '<button id="HistoryReturnButtons'+this.counter+'" class="dynamic_buttons">'+stringStep+this.counter+'</button>&nbsp;&nbsp;&nbsp;'
+      var myButton = '<button id="HistoryReturnButtons'+this.counter+'" class="dynamic_buttons">'+stringStep+this.counter+'</button>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'
       $("#dynamic-buttons").append(myButton);
 
-      function checkhistory () {
-        console.log(event)
-        //call the previous stack depending on button clicked.
+   $(document).on('click','.dynamic_buttons', function() {
+      var btns = document.getElementsByClassName('dynamic_buttons')
+
+      btns.forEach(btnlocal => {
+        btnlocal.style.fontWeight = 'normal';
+      });
+
+      function cleanLoc(obj) {
+        var propNames = Object.getOwnPropertyNames(obj);
+        for (var i = 0; i < propNames.length; i++) {
+          var propName = propNames[i];
+          if (obj[propName] === null || obj[propName] === undefined) {
+            delete obj[propName];
+          }
+        }
       }
+
+      var btn = document.getElementById($(this).attr('id'));
+      btn.style.fontWeight = 'bold';
+
+      EventBus.$emit('ChangeKey', 0)
+      EventBus.$emit('SendSelectedPointsToServerEvent', localStackStore[parseInt($(this).attr('id').replace(/\D/g,''))-1])
+      
+      stringParameters = []
+      temp = 0
+      for (let i = 0; i < localStackStore[parseInt($(this).attr('id').replace(/\D/g,''))-1].length; i++) {
+        cleanLoc(localPerfStore[parseInt($(this).attr('id').replace(/\D/g,''))-1][i])
+        temp = JSON.stringify(Object.assign({ID: localStackStore[parseInt($(this).attr('id').replace(/\D/g,''))-1][i]}, localPerfStore[parseInt($(this).attr('id').replace(/\D/g,''))-1][i]))
+        stringParameters.push(temp)
+      }
+      EventBus.$emit('ExtractResults', stringParameters)
+
+      }
+    );
   },
   },
   mounted () {
-   // fix that 
-   $(document).on('click','.dynamic_buttons', function() {
-      console.log($(this).attr('id'))
-      }
-    );
     EventBus.$on('ParametersProvenance', data => {this.AllDetails = data})
     EventBus.$on('InitializeProvenance', data => {this.stackInformation = data})
     EventBus.$on('InitializeProvenance', this.provenance)
