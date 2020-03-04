@@ -59,7 +59,10 @@ export default {
       parametersStore: [],
       TSNEStore: [],
       modelIDStore: [],
-      UMAPStore: []
+      UMAPStore: [],
+      keyLocal: 0,
+      activeModels: 0,
+      pushModelsRemaining: []
     }
   },
   methods: {
@@ -77,7 +80,7 @@ export default {
       EventBus.$emit('RepresentationSelection', this.representationSelection)
     },
     RemoveStack () {
-      EventBus.$emit('RemoveFromStack')
+      EventBus.$emit('RemoveFromStack', this.pushModelsRemaining)
     },
     clean(obj) {
       var propNames = Object.getOwnPropertyNames(obj);
@@ -101,18 +104,29 @@ export default {
       }*/
 
       var MDSData = JSON.parse(this.ScatterPlotResults[1])
-      var parameters = JSON.parse(this.ScatterPlotResults[2])
+      var parametersLoc = JSON.parse(this.ScatterPlotResults[2])
+      var parameters = JSON.parse(parametersLoc)
       var TSNEData = JSON.parse(this.ScatterPlotResults[12])
-      if (this.newStackPoints.length != 0) {
-        var modelId = this.newStackPoints
-      } else {
-        var modelId = JSON.parse(this.ScatterPlotResults[13])
-      }
+      var modelId = JSON.parse(this.ScatterPlotResults[13])
       var UMAPData = JSON.parse(this.ScatterPlotResults[17])
+
+      if (this.keyLocal == 0) {
+        this.colorsStore.push(colorsforScatterPlot)
+        this.MDSStore.push(MDSData)
+        this.parametersStore.push(parameters)
+        this.TSNEStore.push(TSNEData)
+        this.modelIDStore.push(modelId)
+        this.UMAPStore.push(UMAPData)
+        colorsforScatterPlot = this.colorsStore.slice(this.activeModels,this.activeModels+1)[0]
+        MDSData = this.MDSStore.slice(this.activeModels,this.activeModels+1)[0]
+        parameters = this.parametersStore.slice(this.activeModels,this.activeModels+1)[0]
+        TSNEData = this.TSNEStore.slice(this.activeModels,this.activeModels+1)[0]
+        modelId = this.modelIDStore.slice(this.activeModels,this.activeModels+1)[0]
+        UMAPData = this.UMAPStore.slice(this.activeModels,this.activeModels+1)[0]
+      }
 
       EventBus.$emit('sendPointsNumber', modelId.length)
 
-      var parameters = JSON.parse(parameters)
       var stringParameters = []
       for (let i = 0; i < parameters.length; i++) {
         this.clean(parameters[i])
@@ -155,16 +169,34 @@ export default {
             MDSDataNewY.push(MDSData[1][i])
           }
         }
-        EventBus.$emit('sendPointsNumber', StackModelsIDs.length)
-        var classifiersInfoProcessing = []
-        for (let i = 0; i < StackModelsIDs.length; i++) {
-          classifiersInfoProcessing[i] = 'Model ID: ' + StackModelsIDs[i] + '; Details: ' + stringParameters[i]
-        }
         MDSData[0] = MDSDataNewX
         MDSData[1] = MDSDataNewY
+        modelId = StackModelsIDs
+        parameters = parametersNew
         colorsforScatterPlot = colorsforScatterPlotNew
-        EventBus.$emit('NewHeatmapAccordingtoNewStack', StackModelsIDs)
+        if (this.keyLocal == 1) {
+          this.colorsStore.push(colorsforScatterPlot)
+          this.MDSStore.push(MDSData)
+          this.parametersStore.push(parameters)
+          //this.TSNEStore.push(TSNEData)
+          this.modelIDStore.push(modelId)
+          this.UMAPStore.push(UMAPData)
+          colorsforScatterPlot = this.colorsStore.slice(this.activeModels,this.activeModels+1)[0]
+          MDSData = this.MDSStore.slice(this.activeModels,this.activeModels+1)[0]
+          parameters = this.parametersStore.slice(this.activeModels,this.activeModels+1)[0]
+          //TSNEData = this.TSNEStore.slice(this.activeModels,this.activeModels+1)[0]
+          modelId = this.modelIDStore.slice(this.activeModels,this.activeModels+1)[0]
+          //UMAPData = this.UMAPStore.slice(this.activeModels,this.activeModels+1)[0]
+        }
+        EventBus.$emit('sendPointsNumber', modelId.length)
+        var classifiersInfoProcessing = []
+        for (let i = 0; i < modelId.length; i++) {
+          classifiersInfoProcessing[i] = 'Model ID: ' + modelId[i] + '; Details: ' + stringParameters[i]
+        }
+        EventBus.$emit('NewHeatmapAccordingtoNewStack', modelId)
+
       }
+      
       var DataGeneral
 
       var maxX
@@ -213,6 +245,7 @@ export default {
               visible: false,
               range: [minY, maxY]
           },
+          font: { family: 'Helvetica', size: 16, color: '#000000' },
           autosize: true,
           width: width,
           height: height,
@@ -356,7 +389,7 @@ export default {
       const OverviewPlotly = document.getElementById('OverviewPlotly')
       var allModels = JSON.parse(this.ScatterPlotResults[13])
       OverviewPlotly.on('plotly_selected', function (evt) {
-        var pushModelsRemaining = []
+        this.pushModelsRemaining = []
         if (typeof evt !== 'undefined') {
           const ClassifierIDsList = []
           const ClassifierIDsListCleared = []
@@ -375,12 +408,12 @@ export default {
           }
           for (let i = 0; i < allModels.length; i++) {
             if (!ClassifierIDsListCleared.includes(allModels[i])) {
-              pushModelsRemaining.push(allModels[i])
+              this.pushModelsRemaining.push(allModels[i])
             }
           }
           if (allModels != '') {
             EventBus.$emit('ChangeKey', 1)
-            EventBus.$emit('SendSelectedPointsToServerEvent', pushModelsRemaining)
+            EventBus.$emit('SendSelectedPointsToServerEvent', ClassifierIDsListCleared)
             EventBus.$emit('SendSelectedPointsToBrushHeatmap', ClassifierIDsListCleared)
           } else {
             EventBus.$emit('ChangeKey', 1)
@@ -437,6 +470,10 @@ export default {
   mounted() {
     /*EventBus.$on('updateMetricsScatter', data => { this.newColorsUpdate = data })
     EventBus.$on('updateMetricsScatter', this.ScatterPlotView)*/
+
+    EventBus.$on('requestProven',data => { this.activeModels = data })
+
+    EventBus.$on('sendKeyScatt', data => { this.keyLocal = data })
 
     EventBus.$on('newPointsStack', data => { this.newStackPoints = data })
     EventBus.$on('newPointsStack', this.ScatterPlotView)

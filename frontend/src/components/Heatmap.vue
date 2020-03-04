@@ -27,27 +27,64 @@ export default {
       cellSize: 20,
       ModelsIDHeatStack: [],
       highlighted: [],
-      responsiveWidthHeight: []
+      responsiveWidthHeight: [],
+      FeaturesAccuracyStore: [],
+      FeaturesStore: [],
+      PermImpEliStore: [],
+      featureUniStore: [],
+      modelIdsStore: [],
+      keyLocal: 0,
+      activeModels: 0,
+      flagLocal: false,
     }
   },
   methods: {
     Refresh () {
-      EventBus.$emit('SendSelectedFeaturesEvent', '')
+        if (this.flagLocal) {
+            var tempFeatures = this.FeaturesStore.slice(this.activeModels,this.activeModels+1)[0]
+            var tempFeaturesTable = []
+            var FeatureTemp = []
+            var tempModelIds = this.modelIdsStore.slice(this.activeModels,this.activeModels+1)[0]
+            for (let i = 0; i < tempFeatures.length; i++) {
+                tempFeaturesTable.push(i)
+            }
+            for (let i = 0; i < tempModelIds.length; i++) {
+                FeatureTemp.push(tempFeaturesTable)
+            }
+            EventBus.$emit('SendSelectedFeaturesEvent', FeatureTemp)
+        }
     },
     reset () {
       var svg = d3.select("#Heatmap");
       svg.selectAll("*").remove();
+      var svgLeg = d3.select("#LegendHeat");
+      svgLeg.selectAll("*").remove();
     },
     Heatmap () {
       // Clear Heatmap first
       var svg = d3.select("#Heatmap");
       svg.selectAll("*").remove();
+
+      this.flagLocal = false
     
       var FeaturesAccuracy = JSON.parse(this.GetResultsAll[5])
       var Features = JSON.parse(this.GetResultsAll[6])
       var PermImpEli = JSON.parse(this.GetResultsAll[10])
       var featureUni = JSON.parse(this.GetResultsAll[11])
       var modelIds = JSON.parse(this.GetResultsAll[13])
+
+      if (this.keyLocal == 0) {
+        this.FeaturesAccuracyStore.push(FeaturesAccuracy)
+        this.FeaturesStore.push(Features)
+        this.PermImpEliStore.push(PermImpEli)
+        this.featureUniStore.push(featureUni)
+        this.modelIdsStore.push(modelIds)
+        FeaturesAccuracy = this.FeaturesAccuracyStore.slice(this.activeModels,this.activeModels+1)[0]
+        Features = this.FeaturesStore.slice(this.activeModels,this.activeModels+1)[0]
+        PermImpEli = this.PermImpEliStore.slice(this.activeModels,this.activeModels+1)[0]
+        featureUni = this.featureUniStore.slice(this.activeModels,this.activeModels+1)[0]
+        modelIds = this.modelIdsStore.slice(this.activeModels,this.activeModels+1)[0]
+      }
 
       var len2 = modelIds.length
 
@@ -70,6 +107,9 @@ export default {
       if (this.ModelsIDHeatStack.length != 0) {
           var FeaturesAccuracyNew = []
           var PermImpEliNew = []
+          var modelIdNew = []
+          var featureUniNew = []
+          var FeaturesNew = []
           indicesXAxis = []
 
           for (let i = 0; i < modelIds.length; i++) {
@@ -77,15 +117,28 @@ export default {
               } else {
                   FeaturesAccuracyNew.push(FeaturesAccuracy[i])
                   PermImpEliNew.push(PermImpEli[i])
+                  FeaturesNew.push(Features[i])
+                  modelIdNew.push(modelIds[i])
               }
           }
-          FeaturesAccuracy = FeaturesAccuracyNew
-          PermImpEli = PermImpEliNew
-          len2 = this.ModelsIDHeatStack.length
+
+          if (this.keyLocal == 1) {
+            this.FeaturesAccuracyStore.push(FeaturesAccuracyNew)
+            this.FeaturesStore.push(FeaturesNew)
+            this.PermImpEliStore.push(PermImpEliNew)
+            this.featureUniStore.push(featureUni)
+            this.modelIdsStore.push(modelIdNew)
+            FeaturesAccuracy = this.FeaturesAccuracyStore.slice(this.activeModels,this.activeModels+1)[0]
+            Features = this.FeaturesStore.slice(this.activeModels,this.activeModels+1)[0]
+            PermImpEli = this.PermImpEliStore.slice(this.activeModels,this.activeModels+1)[0]
+            featureUni = this.featureUniStore.slice(this.activeModels,this.activeModels+1)[0]
+            modelIds = this.modelIdsStore.slice(this.activeModels,this.activeModels+1)[0]
+          }
+          len2 = modelIds.length
           for (let i = 0; i < len2; i++) {
               temp = []
               temp.push("R")
-              temp.push("Model "+this.ModelsIDHeatStack[i].toString())
+              temp.push("Model "+modelIds[i].toString())
               indicesXAxis[i] = temp
           }
         }
@@ -111,7 +164,7 @@ export default {
                 values[j] = ((((featureUni[i].Score-minUni)/(maxUni-minUni))*100)+(FeaturesAccuracy[j][i]*100))/2
               }
               else if (this.Toggles[0] == 0 && this.Toggles[1] == 1 && this.Toggles[2] == 1) {
-                values[j] = ((PermImpEli[j][i]*100))/2
+                values[j] = (PermImpEli[j][i]*100+(FeaturesAccuracy[j][i]*100))/2
               }
               else if (this.Toggles[0] == 1 && this.Toggles[1] == 0 && this.Toggles[2] == 0) {
                 values[j] = ((featureUni[i].Score-minUni)/(maxUni-minUni))*100
@@ -381,9 +434,14 @@ export default {
                 }
                 finalresults.push(results)
             }
+            EventBus.$emit('flagLocal', true)
             EventBus.$emit('sendSelectedFeaturestoPickle', finalresults)
             EventBus.$emit('SendSelectedFeaturesEvent', finalresults)
           });
+
+      var svgLeg = d3.select("#LegendHeat");
+      svgLeg.selectAll("*").remove();
+        
       var svgLeg = d3.select("#LegendHeat").append("svg")
         .attr("width", viewerWidth/2)
         .attr("height", viewerHeight*0.13)
@@ -429,7 +487,6 @@ export default {
                   if (d != null) values.push(d);
                   else values.push(-999); // to handle NaN
               });
-          //console.log(values);		
           if (rORc == "r") { // sort on cols
               sorted = d3.range(col_number).sort(function(a, b) {
                   if (sortOrder) {
@@ -572,6 +629,12 @@ export default {
     }
   },
   mounted () {
+      EventBus.$on('flagLocal', data => { this.flagLocal = data })
+
+      EventBus.$on('requestProven', data => { this.activeModels = data })
+
+      EventBus.$on('sendKeyScatt', data => { this.keyLocal = data })
+
       EventBus.$on('NewHeatmapAccordingtoNewStack', data => { this.ModelsIDHeatStack = data })
       EventBus.$on('NewHeatmapAccordingtoNewStack', this.Heatmap)
       EventBus.$on('emittedEventCallingToggles', data => { this.Toggles = data })

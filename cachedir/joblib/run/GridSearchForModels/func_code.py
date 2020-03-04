@@ -1,7 +1,6 @@
-# first line: 556
+# first line: 559
 @memory.cache
-def GridSearchForModels(XData, yData, clf, params, eachAlgor, AlgorithmsIDsEnd):
-    print(clf)
+def GridSearchForModels(XData, yData, clf, params, eachAlgor, AlgorithmsIDsEnd, toggle):
     # instantiate spark session
     spark = (   
         SparkSession    
@@ -46,7 +45,7 @@ def GridSearchForModels(XData, yData, clf, params, eachAlgor, AlgorithmsIDsEnd):
     # copy and filter in order to get only the metrics
     metrics = df_cv_results_classifiers.copy()
 
-    metrics = metrics.filter(['mean_test_accuracy','mean_test_neg_mean_absolute_error','mean_test_neg_root_mean_squared_error','mean_test_precision_micro','mean_test_precision_macro','mean_test_precision_weighted','mean_test_recall_micro','mean_test_recall_macro','mean_test_recall_weighted','mean_test_roc_auc_ovo_weighted']) 
+    metrics = metrics.filter(['mean_test_accuracy','mean_test_precision_micro','mean_test_precision_macro','mean_test_precision_weighted','mean_test_recall_micro','mean_test_recall_macro','mean_test_recall_weighted','mean_test_roc_auc_ovo_weighted']) 
 
     # concat parameters and performance
     parametersPerformancePerModel = pd.DataFrame(df_cv_results_classifiers['params'])
@@ -80,31 +79,34 @@ def GridSearchForModels(XData, yData, clf, params, eachAlgor, AlgorithmsIDsEnd):
     resultsLogLoss = []
     resultsLogLossFinal = []
 
-    loop = 10
+    loop = 8
 
     # influence calculation for all the instances
     inputs = range(len(XData))
     num_cores = multiprocessing.cpu_count()
     
     impDataInst = Parallel(n_jobs=num_cores)(delayed(processInput)(i,XData,yData,crossValidation,clf) for i in inputs)
-
     for eachModelParameters in parametersLocalNew:
         clf.set_params(**eachModelParameters)
-
-        perm = PermutationImportance(clf, cv = None, refit = True, n_iter = 25).fit(XData, yData)
-        permList.append(perm.feature_importances_)
-        
-        n_feats = XData.shape[1]
-        PerFeatureAccuracy = []
-        for i in range(n_feats):
-            scores = model_selection.cross_val_score(clf, XData.values[:, i].reshape(-1, 1), yData, cv=crossValidation)
-            PerFeatureAccuracy.append(scores.mean())
-        PerFeatureAccuracyAll.append(PerFeatureAccuracy)
+        if (toggle == 1):
+            perm = PermutationImportance(clf, cv = None, refit = True, n_iter = 25).fit(XData, yData)
+            permList.append(perm.feature_importances_)
+            n_feats = XData.shape[1]
+            PerFeatureAccuracy = []
+            for i in range(n_feats):
+                scores = model_selection.cross_val_score(clf, XData.values[:, i].reshape(-1, 1), yData, cv=crossValidation)
+                PerFeatureAccuracy.append(scores.mean())
+            PerFeatureAccuracyAll.append(PerFeatureAccuracy)
+        else:
+            permList.append(0)
+            PerFeatureAccuracyAll.append(0)
         clf.fit(XData, yData) 
         yPredict = clf.predict(XData)
+        yPredict = np.nan_to_num(yPredict)
         # retrieve target names (class names)
         PerClassMetric.append(classification_report(yData, yPredict, target_names=target_names, digits=2, output_dict=True))
         yPredictProb = clf.predict_proba(XData)
+        yPredictProb = np.nan_to_num(yPredictProb)
         perModelProb.append(yPredictProb.tolist())
 
         resultsMicro.append(geometric_mean_score(yData, yPredict, average='micro'))
@@ -120,13 +122,13 @@ def GridSearchForModels(XData, yData, clf, params, eachAlgor, AlgorithmsIDsEnd):
         resultsMicroBeta1.append(fbeta_score(yData, yPredict, average='micro', beta=1))
         resultsMacroBeta1.append(fbeta_score(yData, yPredict, average='macro', beta=1))
         resultsWeightedBeta1.append(fbeta_score(yData, yPredict, average='weighted', beta=1))
-
+        
         resultsMicroBeta2.append(fbeta_score(yData, yPredict, average='micro', beta=2))
         resultsMacroBeta2.append(fbeta_score(yData, yPredict, average='macro', beta=2))
         resultsWeightedBeta2.append(fbeta_score(yData, yPredict, average='weighted', beta=2))
   
         resultsLogLoss.append(log_loss(yData, yPredictProb, normalize=True))
-
+    print('perase')
     maxLog = max(resultsLogLoss)
     minLog = min(resultsLogLoss)
     for each in resultsLogLoss:
@@ -183,7 +185,7 @@ def GridSearchForModels(XData, yData, clf, params, eachAlgor, AlgorithmsIDsEnd):
     results.append(PerFeatureAccuracyPandas) # Position: 3 and so on
     results.append(perm_imp_eli5PD) # Position: 4 and so on
     results.append(featureScores) # Position: 5 and so on
-    metrics = metrics.clip(lower=0)
+
     metrics = metrics.to_json()
     results.append(metrics) # Position: 6 and so on
     results.append(perModelProbPandas) # Position: 7 and so on

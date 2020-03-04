@@ -16,6 +16,7 @@ export default {
   name: 'ToggleSelection',
   data () {
     return {
+        toggleDeepLocal: 1
     }
   },
   methods: {
@@ -28,9 +29,19 @@ export default {
       },
       ToggleShow () { 
         document.getElementById('toggles').style.visibility = "visible"
+      },
+      ToggleManage () { 
+      if(this.toggleDeepLocal == 0) {
+        document.getElementById('toggles').style.visibility = "hidden"
+      } else {
+        document.getElementById('toggles').style.visibility = "visible"
+      }
       }
   },
   mounted () {
+    EventBus.$on('toggleDeep', data => {this.toggleDeepLocal = data})
+    EventBus.$on('toggleDeep', this.ToggleManage)
+
     EventBus.$on('resetToggles', this.ResetPosition)
     $('#toggle-uni').bootstrapToggle({
         on: 'Enabled',
@@ -77,7 +88,6 @@ export default {
             EventBus.$emit('toggle3', 1)
         }
     })
-    EventBus.$on('emittedEventCallingToggles', this.ToggleShow)
   }
 }
 </script>

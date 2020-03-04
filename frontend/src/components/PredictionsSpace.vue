@@ -111,7 +111,7 @@ export default {
             })
         }
 
-        layout = {
+        layout = {font: { family: 'Helvetica', size: 16, color: '#000000' },
         title: 'MDS Projection',
         xaxis: {
             visible: false
@@ -178,7 +178,7 @@ export default {
           })
         }
 
-        layout = {
+        layout = {font: { family: 'Helvetica', size: 16, color: '#000000' },
         title: 't-SNE Projection',
         xaxis: {
             visible: false
@@ -235,7 +235,7 @@ export default {
             })
         }
 
-        layout = {
+        layout = {font: { family: 'Helvetica', size: 16, color: '#000000' },
         title: 'UMAP Projection',
         xaxis: {
             visible: false

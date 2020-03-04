@@ -2,8 +2,9 @@
 <div>
   <label id="data" for="param-dataset" data-toggle="tooltip" data-placement="right" title="Tip: use one of the data sets already provided or upload a new file.">{{ dataset }}</label>
   <select id="selectFile" @change="selectDataSet()">
-      <option value="DiabetesC.csv" selected>Pima Indian Diabetes</option>
-      <option value="BreastC.csv">Breast Cancer Winconsin</option>
+      <option value="HeartC.csv" selected>Heart Disease</option>
+      <option value="StanceC.csv">Stance in Texts</option>
+      <option value="DiabetesC.csv">Pima Indian Diabetes</option>
       <option value="IrisC.csv">Iris</option>
       <option value="local">Upload New File</option>
   </select>
@@ -48,7 +49,7 @@ export default {
       this.RetrieveValueCSV = fileName.options[fileName.selectedIndex].value
       this.RetrieveValueCSV = this.RetrieveValueCSV.split('.')[0]
 
-      if (this.RetrieveValueCSV == "DiabetesC" || this.RetrieveValueCSV == "BreastC" || this.RetrieveValueCSV == "IrisC") { // This is a function that handles a new file, which users can upload.
+      if (this.RetrieveValueCSV == "DiabetesC" || this.RetrieveValueCSV == "HeartC" || this.RetrieveValueCSV == "IrisC" || this.RetrieveValueCSV == "StanceC") { // This is a function that handles a new file, which users can upload.
         this.dataset = "Data set"
         d3.select("#data").select("input").remove(); // Remove the selection field.
         EventBus.$emit('SendToServerDataSetConfirmation', this.RetrieveValueCSV)

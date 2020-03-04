@@ -8,7 +8,7 @@
           <mdb-card>
             <mdb-card-header color="primary-color" tag="h5" class="text-center">Data Sets and Performance Metrics Manager</mdb-card-header>
               <mdb-card-body>
-                <mdb-card-text class="text-left" style="font-size: 18px;">
+                <mdb-card-text class="text-left" style="font-size: 18.5px;">
                   <DataSetExecController/>
                   <SlidersController/>
                 </mdb-card-text>
@@ -25,7 +25,7 @@
         </b-col>
         <b-col cols="3">
             <mdb-card>
-              <mdb-card-header color="primary-color" tag="h5" class="text-center"><small class="float-left" style="padding-top: 3px;">Metrics Support: [1, 5, 6]</small>Performance of the Metamodel</mdb-card-header>
+              <mdb-card-header color="primary-color" tag="h5" class="text-center"><small class="float-left" style="padding-top: 3px;">Metrics Support: [1, 3 (W), 4 (W)]</small>Performance of the Metamodel</mdb-card-header>
               <mdb-card-body>
                 <FinalResultsLinePlot/>
               </mdb-card-body>
@@ -74,7 +74,7 @@
             </b-col>
             <b-col cols="9">
               <mdb-card style="margin-top: 15px;">
-                <mdb-card-header color="primary-color" tag="h5" class="text-center"><small class="float-left" style="padding-top: 3px;">Metrics Support: [5, 6, 7 (F1)]</small>Performance of the Algorithms for Each Class<small class="float-right"><ResetClass/></small></mdb-card-header>
+                <mdb-card-header color="primary-color" tag="h5" class="text-center"><small class="float-left" style="padding-top: 3px;">Metrics Support: [3*, 4*, 5* (F1 Score)]</small>Performance of the Algorithms for Each Class<small class="float-right"><ResetClass/></small></mdb-card-header>
                 <mdb-card-body>
                     <BarChart/>
                 </mdb-card-body>
@@ -84,6 +84,17 @@
         </div>
         <div class="tab-pane fade" id="profile" role="tabpanel" aria-labelledby="profile-tab">
           <b-row class="md-3">
+              <b-col cols="6">
+              <mdb-card style="margin-top: 15px;">
+                  <mdb-card-header color="primary-color" tag="h5" class="text-center">Data Space</mdb-card-header>
+                  <mdb-card-body>
+                    <mdb-card-text class="text-center" style="min-height: 845px">
+                      <DataSpace/>
+                      <PCPData/>
+                    </mdb-card-text>
+                  </mdb-card-body>
+                </mdb-card>
+              </b-col>
               <b-col cols="6">
                 <mdb-card style="margin-top: 15px;">
                   <mdb-card-header color="primary-color" tag="h5" class="text-center">Features Selection for Each Model</mdb-card-header>
@@ -95,17 +106,6 @@
                       </mdb-card-text>
                     </mdb-card-body>
                 </mdb-card>    
-              </b-col>
-              <b-col cols="6">
-              <mdb-card style="margin-top: 15px;">
-                  <mdb-card-header color="primary-color" tag="h5" class="text-center">Data Space</mdb-card-header>
-                  <mdb-card-body>
-                    <mdb-card-text class="text-center" style="min-height: 845px">
-                      <DataSpace/>
-                      <PCPData/>
-                    </mdb-card-text>
-                  </mdb-card-body>
-                </mdb-card>
               </b-col>
             </b-row>
         </div>
@@ -234,7 +234,7 @@ export default Vue.extend({
       DataResults: '',
       keyNow: 1,
       instancesImportance: '',
-      RetrieveValueFile: 'DiabetesC', // this is for the default data set
+      RetrieveValueFile: 'HeartC', // this is for the default data set
       ClassifierIDsList: '',
       SelectedFeaturesPerClassifier: '',
       FinalResults: 0,
@@ -270,7 +270,8 @@ export default Vue.extend({
       actionData: '',
       filterData: '',
       provenanceData: '',
-      localFile: ''
+      localFile: '',
+      toggleDeepMain: 1,
     }
   },
   methods: {
@@ -332,15 +333,20 @@ export default Vue.extend({
           this.valueSel = 0
           this.valueAll = 0
           var toggles = []
-          toggles.push(this.toggle1)
-          toggles.push(this.toggle2)
-          toggles.push(this.toggle3)
+          if (this.toggleDeepMain == 1) {
+            toggles.push(this.toggle1)
+            toggles.push(this.toggle2)
+            toggles.push(this.toggle3)
+          } else {
+            toggles.push(1)
+            toggles.push(0)
+            toggles.push(0)
+          }
           EventBus.$emit('emitToggles', this.OverviewResults)
           EventBus.$emit('emittedEventCallingToggles', toggles)
           EventBus.$emit('emittedEventCallingHeatmapView', this.OverviewResults)
           EventBus.$emit('emittedEventCallingPredictionsSpacePlotView', this.OverviewResults)
           EventBus.$emit('emittedEventCallingBalanceView', this.OverviewResults)
-          this.getFinalResults()
         })
         .catch(error => {
           console.log(error)
@@ -398,6 +404,7 @@ export default Vue.extend({
         this.OverSelLength = 0
         EventBus.$emit('resetViews')
       } else {
+        console.log(this.ClassifierIDsList)
         const path = `http://127.0.0.1:5000/data/ServerRequestSelPoin`
         const postData = {
           ClassifiersList: this.ClassifierIDsList,
@@ -415,13 +422,12 @@ export default Vue.extend({
           .then(response => {
             console.log('Sent the selected points to the server (scatterplot)!')
             this.OverSelLength = this.ClassifierIDsList.length
-            this.OverAllLength = this.ClassifierIDsList.length
+            if (this.keyNow == 0) {
+              this.OverAllLength = this.ClassifierIDsList.length
+              EventBus.$emit('GrayOutPoints', this.ClassifierIDsList)
+            }
             this.getSelectedModelsMetrics()
             this.getFinalResults()
-            if (this.keyNow == 0) {
-              EventBus.$emit('GrayOutPoints', '')
-              EventBus.$emit('newPointsStack', this.OverviewResults)
-            }
           })
           .catch(error => {
             console.log(error)
@@ -445,9 +451,8 @@ export default Vue.extend({
       axios.post(path, postData, axiosConfig)
       .then(response => {
       console.log('Sent the selected points to the server (scatterplot)!')
-      this.updatePredictionsSpace()
-      EventBus.$emit('GrayOutPoints', this.ClassifierIDsList)
       this.getFinalResults()
+      this.updatePredictionsSpace()
       })
       .catch(error => {
       console.log(error)
@@ -469,8 +474,9 @@ export default Vue.extend({
           this.UpdatePredictions = response.data.UpdatePredictions
           console.log('Updating Predictions Space!')
           if (this.keyNow == 1) {
-            console.log('mpike')
             EventBus.$emit('InitializeProvenance', this.UpdatePredictions)
+            EventBus.$emit('sendKeyScatt', 1)
+            EventBus.$emit('GrayOutPoints', this.ClassifierIDsList)
           }
           EventBus.$emit('updatePredictionsSpace', this.UpdatePredictions)
         })
@@ -566,7 +572,6 @@ export default Vue.extend({
       axios.get(path, axiosConfig)
         .then(response => {
           this.FinalResults = response.data.FinalResults
-          console.log(this.FinalResults)
           EventBus.$emit('emittedEventCallingLinePlot', this.FinalResults)
         })
         .catch(error => {
@@ -645,6 +650,7 @@ export default Vue.extend({
       const path = `http://127.0.0.1:5000/data/ServerRequestSelParameters`
       const postData = {
         Algorithms: this.Algorithms,
+        Toggle: this.toggleDeepMain
       }
       const axiosConfig = {
         headers: {
@@ -783,6 +789,7 @@ export default Vue.extend({
     },
     factors () {
       const path = `http://127.0.0.1:5000/data/factors`
+      console.log(this.basicValuesFact)
       const postData = {
         Factors: this.basicValuesFact
       }
@@ -1007,6 +1014,8 @@ export default Vue.extend({
     EventBus.$on('sendPointsNumber', data => {this.OverSelLength = data})
     EventBus.$on('sendPointsNumber', data => {this.OverAllLength = data})
     EventBus.$on('AllSelModels', data => {this.valueSel = data})
+
+    EventBus.$on('RemoveFromStack', data => { this.ClassifierIDsList = data })
     EventBus.$on('RemoveFromStack', this.RemoveFromStackModels)
 
     EventBus.$on('OpenModal', this.openModalFun)
@@ -1022,6 +1031,8 @@ export default Vue.extend({
 
     EventBus.$on('SendProvenance', data => {this.provenanceData = data})
     EventBus.$on('SendProvenance', this.ProvenanceControlFun)
+
+    EventBus.$on('toggleDeep', data => {this.toggleDeepMain = data})
 
     //Prevent double click to search for a word. 
     document.addEventListener('mousedown', function (event) {

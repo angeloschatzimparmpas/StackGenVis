@@ -49,6 +49,11 @@
 </template>
 
 <script>
+import * as d3Base from 'd3'
+
+// attach all d3 plugins to the d3 library
+const d3 = Object.assign(d3Base)
+
 import * as Plotly from 'plotly.js'
 import { EventBus } from '../main.js'
 
@@ -142,8 +147,12 @@ export default {
       const GradBSize = JSON.parse(impSizeArray[98])
       var sizeScatterplot = []
 
+      var scale = d3.scaleLinear()
+        .domain([0,1])
+        .range([2,30]);
+
       for (let i = 0; i < KNNSize.length; i++) {
-        sizeScatterplot.push(((KNNSize[i] + SVCSize[i] + GausNBSize[i] + MLPSize[i] + LRSize[i] + LDASize[i] + QDASize[i] + RFSize[i] + ExtraTSize[i] + AdaBSize[i] + GradBSize[i]) / 11) * 12)
+        sizeScatterplot.push(scale((KNNSize[i] + SVCSize[i] + GausNBSize[i] + MLPSize[i] + LRSize[i] + LDASize[i] + QDASize[i] + RFSize[i] + ExtraTSize[i] + AdaBSize[i] + GradBSize[i]) / 11))
       }
 
       let intData = []
@@ -210,7 +219,7 @@ export default {
             })
         }
 
-        layout = {
+        layout = {font: { family: 'Helvetica', size: 16, color: '#000000' },
         title: 'MDS Projection',
         xaxis: {
             visible: false
@@ -289,7 +298,7 @@ export default {
           })
         }
 
-        layout = {
+        layout = {font: { family: 'Helvetica', size: 16, color: '#000000' },
         title: 't-SNE Projection',
         xaxis: {
             visible: false
@@ -358,7 +367,7 @@ export default {
             })
         }
 
-        layout = {
+        layout = {font: { family: 'Helvetica', size: 16, color: '#000000' },
         title: 'UMAP Projection',
         xaxis: {
             visible: false

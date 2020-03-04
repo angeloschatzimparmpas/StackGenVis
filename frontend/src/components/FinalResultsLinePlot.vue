@@ -1,5 +1,5 @@
 <template>
-  <div id="LinePlot" style="min-height: 307px;"></div>
+  <div id="LinePlot" style="min-height: 306px;"></div>
 </template>
 
 <script>

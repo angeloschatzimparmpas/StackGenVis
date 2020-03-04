@@ -18,7 +18,7 @@ export default {
       ClassNamesOverview: '',
       algorithmsinBar: [],
       modelsSelectedinBar: [],
-      factors: [1,1,1,0,0
+      factors: [1,0,0
       ,1,0,0,1,0
       ,0,1,0,0,0
       ,0,0,1,0,0
@@ -66,34 +66,34 @@ export default {
       var GradBModels = []
       
       var factorsLocal = this.factors
-      var divide = factorsLocal[6] + factorsLocal[7] + factorsLocal[8] + factorsLocal[9] + factorsLocal[10] + factorsLocal[11] + factorsLocal[15] + factorsLocal[16] + factorsLocal[17]
+      var divide = factorsLocal[4] + factorsLocal[5] + factorsLocal[6] + factorsLocal[7] + factorsLocal[8] + factorsLocal[9] + factorsLocal[13] + factorsLocal[14] + factorsLocal[15]
       var factorF1 = 1
       var factorPrec = 1
       var factorRecall = 1
-      if (factorsLocal[15]!=0) {
+      if (factorsLocal[13]!=0) {
+        factorF1 = factorsLocal[13]
+      } else if (factorsLocal[14]!=0) {
+        factorF1 = factorsLocal[14]
+      } else if (factorsLocal[15]!=0){
         factorF1 = factorsLocal[15]
-      } else if (factorsLocal[16]!=0) {
-        factorF1 = factorsLocal[16]
-      } else if (factorsLocal[17]!=0){
-        factorF1 = factorsLocal[17]
       } else {
         factorF1 = 0
       }
-      if (factorsLocal[6]!=0) {
+      if (factorsLocal[4]!=0) {
+        factorPrec = factorsLocal[4]
+      } else if (factorsLocal[5]!=0) {
+        factorPrec = factorsLocal[5]
+      } else if (factorsLocal[6]!=0){
         factorPrec = factorsLocal[6]
-      } else if (factorsLocal[7]!=0) {
-        factorPrec = factorsLocal[7]
-      } else if (factorsLocal[8]!=0){
-        factorPrec = factorsLocal[8]
       } else {
         factorPrec = 0
       }
-      if (factorsLocal[9]!=0) {
+      if (factorsLocal[7]!=0) {
+        factorRecall = factorsLocal[7]
+      } else if (factorsLocal[8]!=0) {
+        factorRecall = factorsLocal[8]
+      } else if (factorsLocal[9]!=0){
         factorRecall = factorsLocal[9]
-      } else if (factorsLocal[10]!=0) {
-        factorRecall = factorsLocal[10]
-      } else if (factorsLocal[11]!=0){
-        factorRecall = factorsLocal[11]
       } else {
         factorRecall = 0
       }
@@ -404,7 +404,7 @@ export default {
       }
       Plotly.purge('barChart')
       
-      var layout = {
+      var layout = {font: { family: 'Helvetica', size: 16, color: '#000000' },
         autosize: true,
         barmode: 'group',
         width: this.WH[0]*10,

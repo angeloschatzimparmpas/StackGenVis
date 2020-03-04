@@ -1,8 +1,8 @@
 <template>
     <div>
-        <div class="squares-container" style="min-height: 307px;">
+        <div class="squares-container" style="min-height: 306px;">
         <div id="tooltip"></div>	<!-- new  -->
-            <canvas id="main-canvas" ></canvas>
+            <canvas id="main-canvas" style="overflow-y: auto; height:290px;"></canvas>
             <br>
             <div id="dynamic-buttons"></div>
         </div>
@@ -46,7 +46,8 @@ export default {
       count: 0,
       storeData: [],
       storePerformance: [],
-      storeParameters: []
+      storeParameters: [],
+      flagUpdated: 0
     }
   },
   methods: {
@@ -54,6 +55,7 @@ export default {
       if (this.platform == '') {
 
       } else {
+        $('.dynamic_buttons').remove();
         this.platform.clear();
       }
     },
@@ -68,8 +70,9 @@ export default {
     },
     provenance () {
       var canvas = document.getElementById("main-canvas");
-      var width = this.WH[0]*7 // interactive visualization
+      var width = this.WH[0]*4 // interactive visualization
       var height = this.WH[1]*0.58 // interactive visualization
+      console.log(width)
 
       var flagKNN = 0
       var flagSVC = 0
@@ -221,7 +224,7 @@ export default {
       let isotypes = Stardust.mark.create(isotype, plat);
 
       let isotypeHeight = 18;
-      let colors = [[166,206,227], [31,120,180], [178,223,138], [51,160,44], [251,154,153], [227,26,28], [253,191,111], [255,127,0], [202,178,214], [106,61,154], [255,255,153], [177,89,40]];
+      let colors = [[166,206,227], [31,120,180], [178,223,138], [51,160,44], [251,154,153], [227,26,28], [253,191,111], [255,127,0], [202,178,214], [106,61,154], [177,89,40]];
       colors = colors.map(x => [x[0] / 255, x[1] / 255, x[2] / 255, 1]);
 
       let pScale = Stardust.scale.custom(`
@@ -328,43 +331,48 @@ export default {
       var myButton = '<button id="HistoryReturnButtons'+this.counter+'" class="dynamic_buttons">'+stringStep+this.counter+'</button>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'
       $("#dynamic-buttons").append(myButton);
 
-   $(document).on('click','.dynamic_buttons', function() {
+      EventBus.$emit('requestProven',this.counter-1)
+
       var btns = document.getElementsByClassName('dynamic_buttons')
 
       btns.forEach(btnlocal => {
         btnlocal.style.fontWeight = 'normal';
       });
 
-      function cleanLoc(obj) {
-        var propNames = Object.getOwnPropertyNames(obj);
-        for (var i = 0; i < propNames.length; i++) {
-          var propName = propNames[i];
-          if (obj[propName] === null || obj[propName] === undefined) {
-            delete obj[propName];
-          }
+       $(document).on('click','.dynamic_buttons', function() {
+        var btns = document.getElementsByClassName('dynamic_buttons')
+
+        btns.forEach(btnlocal => {
+          btnlocal.style.fontWeight = 'normal';
+        });
+
+        var btn = document.getElementById($(this).attr('id'));
+        btn.style.fontWeight = 'bold';
+
+
+        EventBus.$emit('requestProven',parseInt($(this).attr('id').replace(/\D/g,''))-1)
+        EventBus.$emit('ChangeKey', 0)
         }
-      }
-
-      var btn = document.getElementById($(this).attr('id'));
-      btn.style.fontWeight = 'bold';
-
-      EventBus.$emit('ChangeKey', 0)
-      EventBus.$emit('SendSelectedPointsToServerEvent', localStackStore[parseInt($(this).attr('id').replace(/\D/g,''))-1])
-      
-      stringParameters = []
-      temp = 0
-      for (let i = 0; i < localStackStore[parseInt($(this).attr('id').replace(/\D/g,''))-1].length; i++) {
-        cleanLoc(localPerfStore[parseInt($(this).attr('id').replace(/\D/g,''))-1][i])
-        temp = JSON.stringify(Object.assign({ID: localStackStore[parseInt($(this).attr('id').replace(/\D/g,''))-1][i]}, localPerfStore[parseInt($(this).attr('id').replace(/\D/g,''))-1][i]))
-        stringParameters.push(temp)
-      }
-      EventBus.$emit('ExtractResults', stringParameters)
-
-      }
-    );
+      );
   },
+  updateExtraction () {
+    EventBus.$emit('SendSelectedPointsToServerEvent', this.storeData[this.flagUpdated])
+    
+    var stringParameters = []
+    var temp = 0
+    for (let i = 0; i < this.storeData[this.flagUpdated].length; i++) {
+      this.clean(this.storeData[this.flagUpdated][i])
+      temp = JSON.stringify(Object.assign({ID: this.storeData[this.flagUpdated][i]}, this.storeParameters[this.flagUpdated][i]))
+      stringParameters.push(temp)
+    }
+    EventBus.$emit('ExtractResults', stringParameters)
+  }
   },
   mounted () {
+    EventBus.$on('requestProven', data => {
+    this.flagUpdated = data})
+    EventBus.$on('requestProven', this.updateExtraction)
+
     EventBus.$on('ParametersProvenance', data => {this.AllDetails = data})
     EventBus.$on('InitializeProvenance', data => {this.stackInformation = data})
     EventBus.$on('InitializeProvenance', this.provenance)
@@ -381,10 +389,6 @@ export default {
 </script>
 
 <style scoped>
-#main-canvas {
-  overflow-x: auto;
-  overflow-y: auto;
-}
 
 div#tooltip {
   position: absolute !important;        
