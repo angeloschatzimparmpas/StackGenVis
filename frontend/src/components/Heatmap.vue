@@ -434,6 +434,7 @@ export default {
                 }
                 finalresults.push(results)
             }
+            console.log(finalresults)
             EventBus.$emit('flagLocal', true)
             EventBus.$emit('sendSelectedFeaturestoPickle', finalresults)
             EventBus.$emit('SendSelectedFeaturesEvent', finalresults)

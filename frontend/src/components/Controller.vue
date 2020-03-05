@@ -1,5 +1,5 @@
 <template>
-  <button style="float: right;"
+  <button class="btn-outline-success" style="float: right;"
   id="Execute"
   v-on:click="execute">
   <font-awesome-icon icon="play" />

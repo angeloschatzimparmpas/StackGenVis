@@ -4,9 +4,9 @@
 <body>
     <b-container fluid class="bv-example-row">
       <b-row class="md-3">
-        <b-col cols="3">
+        <b-col cols="3" >
           <mdb-card>
-            <mdb-card-header color="primary-color" tag="h5" class="text-center">Data Sets and Performance Metrics Manager</mdb-card-header>
+            <mdb-card-header color="primary-color" tag="h5" class="text-center" style="background-color: #C0C0C0;">Data Sets and Performance Metrics Manager</mdb-card-header>
               <mdb-card-body>
                 <mdb-card-text class="text-left" style="font-size: 18.5px;">
                   <DataSetExecController/>
@@ -17,7 +17,7 @@
         </b-col>
         <b-col cols="6">
           <mdb-card>
-            <mdb-card-header color="primary-color" tag="h5" class="text-center">Provenance of the Stacking Ensemble<small class="float-right"><knowledge/></small></mdb-card-header>
+            <mdb-card-header color="primary-color" tag="h5" class="text-center" style="background-color: #C0C0C0;"><small class="float-left"><knowledge/></small>History of the Stacking Ensemble<small class="float-right"><active/></small></mdb-card-header>
             <mdb-card-body>
                 <Provenance/>
             </mdb-card-body>
@@ -25,22 +25,23 @@
         </b-col>
         <b-col cols="3">
             <mdb-card>
-              <mdb-card-header color="primary-color" tag="h5" class="text-center"><small class="float-left" style="padding-top: 3px;">Metrics Support: [1, 3 (W), 4 (W)]</small>Performance of the Metamodel</mdb-card-header>
+              <mdb-card-header color="primary-color" tag="h5" class="text-center" style="background-color: #C0C0C0;"><small class="float-left" style="padding-top: 3px;"><font-awesome-icon class="fa-lg" icon="dice-four"/>&nbsp;Metrics Support: [M1, M3-M5 (W)]</small>Metamodel's Performance</mdb-card-header>
               <mdb-card-body>
                 <FinalResultsLinePlot/>
               </mdb-card-body>
             </mdb-card>
         </b-col>
       </b-row>
+      <hr/>
       <ul class="nav nav-tabs" id="myTab" role="tablist" style="margin-top: 15px">
       <li class="nav-item">
-        <a class="nav-link active" id="home-tab" data-toggle="tab" href="#home" role="tab" aria-controls="home" aria-selected="true">Algorithms</a>
+        <a class="nav-link active" id="home-tab" data-toggle="tab" href="#home" role="tab" aria-controls="home" aria-selected="true">Algorithms' Exploration</a>
       </li>
       <li class="nav-item">
-        <a class="nav-link" id="profile-tab" data-toggle="tab" href="#profile" role="tab" aria-controls="profile" aria-selected="false">Data</a>
+        <a class="nav-link" id="profile-tab" data-toggle="tab" href="#profile" role="tab" aria-controls="profile" aria-selected="false">Data Wrangling</a>
       </li>
       <li class="nav-item">
-        <a class="nav-link" id="contact-tab" data-toggle="tab" href="#contact" role="tab" aria-controls="contact" aria-selected="false">Models</a>
+        <a class="nav-link" id="contact-tab" data-toggle="tab" href="#contact" role="tab" aria-controls="contact" aria-selected="false">Models' Exploration</a>
       </li>
       </ul>
       <div class="tab-content" id="myTabContent">
@@ -49,14 +50,14 @@
             <b-col cols="3">
               <mdb-card style="margin-top: 15px">
                 <mdb-card-header color="primary-color" tag="h5" class="text-center">Overview of the Algorithms Space</mdb-card-header>
-                <mdb-card-body class="text-left">
+                <mdb-card-body class="text-center">
                   <Parameters/>
                 </mdb-card-body>
               </mdb-card>
             </b-col>
             <b-col cols="9">
               <mdb-card style="margin-top: 15px;">
-                <mdb-card-header color="primary-color" tag="h5" class="text-center"><small class="float-left" style="padding-top: 3px;">Metrics Support: [All]</small>Performance of the Algorithms [Sel: {{valueSel}} / All: {{valueAll}}]<small class="float-right"><Controller/></small></mdb-card-header>
+                <mdb-card-header color="primary-color" tag="h5" class="text-center"><small class="float-left" style="padding-top: 3px;">Metrics Support: [All]</small>Performance of the Algorithms [Sel: {{valueSel}} / All: {{valueAll}}]<small class="float-right" style="font-size:85% !important"><Controller/></small></mdb-card-header>
                   <mdb-card-body>
                       <Algorithms :width="width" :height="height"/>
                   </mdb-card-body>
@@ -74,7 +75,7 @@
             </b-col>
             <b-col cols="9">
               <mdb-card style="margin-top: 15px;">
-                <mdb-card-header color="primary-color" tag="h5" class="text-center"><small class="float-left" style="padding-top: 3px;">Metrics Support: [3*, 4*, 5* (F1 Score)]</small>Performance of the Algorithms for Each Class<small class="float-right"><ResetClass/></small></mdb-card-header>
+                <mdb-card-header color="primary-color" tag="h5" class="text-center"><small class="float-left" style="padding-top: 3px;"><font-awesome-icon class="fa-lg" icon="dice-three"/>&nbsp;Metrics Support: [M3*, M4*, M5* (F1 Score)]</small>Performance of the Algorithms for Each Class<small class="float-right"><ResetClass/></small></mdb-card-header>
                 <mdb-card-body>
                     <BarChart/>
                 </mdb-card-body>
@@ -113,7 +114,7 @@
           <b-row class="md-3">
               <b-col cols="6">
                 <mdb-card style="margin-top: 15px;">
-                  <mdb-card-header color="primary-color" tag="h5" class="text-center"><small class="float-left" style="padding-top: 3px;">Metrics Support: [All]</small>Models Space
+                  <mdb-card-header color="primary-color" tag="h5" class="text-center"><small class="float-left" style="padding-top: 3px;">Metrics Support: [All]</small>Models' Space
                     [Sel: {{OverSelLength}} / All: {{OverAllLength}}]
                     </mdb-card-header>
                     <mdb-card-body>
@@ -126,7 +127,7 @@
               </b-col>
               <b-col cols="6">
                 <mdb-card style="margin-top: 15px;">
-                  <mdb-card-header color="primary-color" tag="h5" class="text-center">Predictions Space</mdb-card-header>
+                  <mdb-card-header color="primary-color" tag="h5" class="text-center">Predictions' Space</mdb-card-header>
                   <mdb-card-body>
                     <mdb-card-text class="text-center"  style="min-height: 845px">
                       <PredictionsSpace/>
@@ -169,6 +170,7 @@ import AlgorithmHyperParam from './AlgorithmHyperParam.vue'
 import Controller from './Controller.vue'
 import ResetClass from './ResetClass.vue'
 import Knowledge from './Knowledge.vue'
+import Active from './Active.vue'
 import Export from './Export.vue'
 import SlidersController from './SlidersController.vue'
 import ScatterPlot from './ScatterPlot.vue'
@@ -207,6 +209,7 @@ export default Vue.extend({
     Controller,
     ResetClass,
     Knowledge,
+    Active,
     SlidersController,
     ScatterPlot,
     PerMetricBarChart,
@@ -320,7 +323,6 @@ export default Vue.extend({
         .then(response => {
           this.OverviewResults = response.data.OverviewResults
           console.log('Server successfully sent all the data related to visualizations!')
-          this.DataSpaceCallAfterDataManipulation()
           EventBus.$emit('emittedEventCallingScatterPlot', this.OverviewResults)
           if (this.firstTimeFlag == 1) {
             this.selectedModels_Stack.push(0)
@@ -347,6 +349,7 @@ export default Vue.extend({
           EventBus.$emit('emittedEventCallingHeatmapView', this.OverviewResults)
           EventBus.$emit('emittedEventCallingPredictionsSpacePlotView', this.OverviewResults)
           EventBus.$emit('emittedEventCallingBalanceView', this.OverviewResults)
+          this.DataSpaceCall()
         })
         .catch(error => {
           console.log(error)
@@ -404,7 +407,6 @@ export default Vue.extend({
         this.OverSelLength = 0
         EventBus.$emit('resetViews')
       } else {
-        console.log(this.ClassifierIDsList)
         const path = `http://127.0.0.1:5000/data/ServerRequestSelPoin`
         const postData = {
           ClassifiersList: this.ClassifierIDsList,
@@ -621,26 +623,6 @@ export default Vue.extend({
           this.preDataResults = response.data.preDataResults
           EventBus.$emit('emittedEventCallingDataPCP', this.preDataResults)
           EventBus.$emit('emittedEventCallingDataSpacePlotView', this.preDataResults)
-        })
-        .catch(error => {
-          console.log(error)
-        })
-    },
-    DataSpaceCallAfterDataManipulation () {
-      const path = `http://localhost:5000/data/requestDataSpaceResultsAfterDataManipulation`
-
-      const axiosConfig = {
-        headers: {
-          'Content-Type': 'application/json',
-          'Access-Control-Allow-Origin': '*',
-          'Access-Control-Allow-Headers': 'Origin, Content-Type, X-Auth-Token',
-          'Access-Control-Allow-Methods': 'GET, PUT, POST, DELETE, OPTIONS'
-        }
-      }
-      axios.get(path, axiosConfig)
-        .then(response => {
-          console.log('Calling Data Space!')
-          this.DataSpaceCall()
         })
         .catch(error => {
           console.log(error)
@@ -1068,11 +1050,22 @@ body {
   right: 0px;
   top: 0px;
   bottom: 0px;
-  margin-top: 18px !important;
+  margin-top: -4px !important;
 }
 
 .modal-backdrop {
   z-index: -1 !important;
+}
+
+.card-body {
+   padding: 0.60rem !important;
+}
+
+hr {
+  margin-top: 1rem;
+  margin-bottom: 1rem;
+  border: 0;
+  border-top: 1px solid rgba(0, 0, 0, 0.1);
 }
 
 @import './../assets/w3.css';

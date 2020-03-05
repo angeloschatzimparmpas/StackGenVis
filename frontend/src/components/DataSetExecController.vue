@@ -9,13 +9,13 @@
       <option value="local">Upload New File</option>
   </select>
 
-  <button
+  <button class="btn-outline-primary"
   id="Confirm"
   v-on:click="confirm">
   <font-awesome-icon icon="check" />
   {{ value }}
   </button>
-  <button
+  <button class="btn-outline-danger"
   id="Reset"
   v-on:click="reset">
   <font-awesome-icon icon="trash" />

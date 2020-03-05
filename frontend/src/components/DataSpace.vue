@@ -72,6 +72,7 @@ export default {
       restoreData: 'Restore Step',
       userSelectedFilter: 'mean',
       responsiveWidthHeight: [],
+      RetrieveDataSet: 'HeartC',
       colorsValues: ['#808000','#008080','#bebada','#fccde5','#d9d9d9','#bc80bd','#ccebc5'],
     }
   },
@@ -134,17 +135,19 @@ export default {
       const XandYCoordinatesTSNE = JSON.parse(this.dataPoints[5])
       const XandYCoordinatesUMAP = JSON.parse(this.dataPoints[6])
       const impSizeArray = JSON.parse(this.dataPoints[7])
-      const KNNSize = JSON.parse(impSizeArray[8])
-      const SVCSize = JSON.parse(impSizeArray[17])
-      const GausNBSize = JSON.parse(impSizeArray[26])
-      const MLPSize = JSON.parse(impSizeArray[35])
-      const LRSize = JSON.parse(impSizeArray[44])
-      const LDASize = JSON.parse(impSizeArray[53])
-      const QDASize = JSON.parse(impSizeArray[62])
-      const RFSize = JSON.parse(impSizeArray[71])
-      const ExtraTSize = JSON.parse(impSizeArray[80])
-      const AdaBSize = JSON.parse(impSizeArray[89])
-      const GradBSize = JSON.parse(impSizeArray[98])
+      const KNNSize = JSON.parse(impSizeArray[7])
+      const SVCSize = JSON.parse(impSizeArray[16])
+      const GausNBSize = JSON.parse(impSizeArray[25])
+      const MLPSize = JSON.parse(impSizeArray[34])
+      const LRSize = JSON.parse(impSizeArray[43])
+      const LDASize = JSON.parse(impSizeArray[52])
+      const QDASize = JSON.parse(impSizeArray[61])
+      const RFSize = JSON.parse(impSizeArray[70])
+      const ExtraTSize = JSON.parse(impSizeArray[79])
+      const AdaBSize = JSON.parse(impSizeArray[88])
+      const GradBSize = JSON.parse(impSizeArray[97])
+
+      console.log(KNNSize)
       var sizeScatterplot = []
 
       var scale = d3.scaleLinear()
@@ -182,6 +185,20 @@ export default {
         var traces = []
         var layout = []
 
+        var beautifyLabels = []
+        if (this.RetrieveDataSet == 'StanceC') {
+          beautifyLabels.push('Absence of Hypotheticality')
+          beautifyLabels.push('Presence of Hypotheticality')
+        }
+        else if (this.RetrieveDataSet == 'HeartC') {
+          beautifyLabels.push('< 50% diameter narrowing / Healthy')
+          beautifyLabels.push('> 50% diameter narrowing / Diseased')
+        } else {
+          target_names.forEach(element => {
+            beautifyLabels.push(element)
+          });
+        }
+
         for (let i = 0; i < target_names.length; i++) {
 
           const aux_X = result.Xax.filter((item, index) => originalDataLabels[index] == target_names[i]);
@@ -210,7 +227,7 @@ export default {
               x: aux_X,
               y: aux_Y,
               mode: 'markers',
-              name: target_names[i],
+              name: beautifyLabels[i],
               marker: { color: this.colorsValues[i], line: { color: 'rgb(0, 0, 0)', width: 2 }, opacity: Opacity, size: sizeScatterplot },
               hovertemplate: 
                       "<b>%{text}</b><br><br>" +
@@ -219,7 +236,7 @@ export default {
             })
         }
 
-        layout = {font: { family: 'Helvetica', size: 16, color: '#000000' },
+        layout = {font: { family: 'Helvetica', size: 14, color: '#000000' },
         title: 'MDS Projection',
         xaxis: {
             visible: false
@@ -289,7 +306,7 @@ export default {
             x: aux_X,
             y: aux_Y,
             mode: 'markers',
-            name: target_names[i],
+            name: beautifyLabels[i],
             marker: { color: this.colorsValues[i], line: { color: 'rgb(0, 0, 0)', width: 2 }, opacity: Opacity, size: sizeScatterplot },
             hovertemplate: 
                     "<b>%{text}</b><br><br>" +
@@ -298,7 +315,7 @@ export default {
           })
         }
 
-        layout = {font: { family: 'Helvetica', size: 16, color: '#000000' },
+        layout = {font: { family: 'Helvetica', size: 14, color: '#000000' },
         title: 't-SNE Projection',
         xaxis: {
             visible: false
@@ -358,7 +375,7 @@ export default {
               x: aux_X,
               y: aux_Y,
               mode: 'markers',
-              name: target_names[i],
+              name: beautifyLabels[i],
               marker: { color: this.colorsValues[i], line: { color: 'rgb(0, 0, 0)', width: 2 }, opacity: Opacity, size: sizeScatterplot },
               hovertemplate: 
                       "<b>%{text}</b><br><br>" +
@@ -367,7 +384,7 @@ export default {
             })
         }
 
-        layout = {font: { family: 'Helvetica', size: 16, color: '#000000' },
+        layout = {font: { family: 'Helvetica', size: 14, color: '#000000' },
         title: 'UMAP Projection',
         xaxis: {
             visible: false
@@ -445,6 +462,8 @@ export default {
     
     // reset view
     EventBus.$on('resetViews', this.reset)
+
+    EventBus.$on('SendToServerDataSetConfirmation', data => { this.RetrieveDataSet = data })
   }
 }
 </script>

@@ -1,5 +1,5 @@
 <template>
-  <div id="PCP" class="parcoords" style="min-height: 307px;"></div>
+  <div id="PCP" class="parcoords" style="min-height: 285px;"></div>
 </template>
 
 <script>

@@ -1,4 +1,4 @@
-# first line: 559
+# first line: 552
 @memory.cache
 def GridSearchForModels(XData, yData, clf, params, eachAlgor, AlgorithmsIDsEnd, toggle):
     # instantiate spark session
@@ -63,6 +63,8 @@ def GridSearchForModels(XData, yData, clf, params, eachAlgor, AlgorithmsIDsEnd, 
     PerFeatureAccuracyAll = []
     PerClassMetric = []
     perModelProb = []
+    
+    perModelPrediction = []
     resultsMicro = []
     resultsMacro = []
     resultsWeighted = []
@@ -85,7 +87,8 @@ def GridSearchForModels(XData, yData, clf, params, eachAlgor, AlgorithmsIDsEnd, 
     inputs = range(len(XData))
     num_cores = multiprocessing.cpu_count()
     
-    impDataInst = Parallel(n_jobs=num_cores)(delayed(processInput)(i,XData,yData,crossValidation,clf) for i in inputs)
+    #impDataInst = Parallel(n_jobs=num_cores)(delayed(processInput)(i,XData,yData,crossValidation,clf) for i in inputs)
+    
     for eachModelParameters in parametersLocalNew:
         clf.set_params(**eachModelParameters)
         if (toggle == 1):
@@ -103,6 +106,7 @@ def GridSearchForModels(XData, yData, clf, params, eachAlgor, AlgorithmsIDsEnd, 
         clf.fit(XData, yData) 
         yPredict = clf.predict(XData)
         yPredict = np.nan_to_num(yPredict)
+        perModelPrediction.append(yPredict)
         # retrieve target names (class names)
         PerClassMetric.append(classification_report(yData, yPredict, target_names=target_names, digits=2, output_dict=True))
         yPredictProb = clf.predict_proba(XData)
@@ -128,7 +132,7 @@ def GridSearchForModels(XData, yData, clf, params, eachAlgor, AlgorithmsIDsEnd, 
         resultsWeightedBeta2.append(fbeta_score(yData, yPredict, average='weighted', beta=2))
   
         resultsLogLoss.append(log_loss(yData, yPredictProb, normalize=True))
-    print('perase')
+
     maxLog = max(resultsLogLoss)
     minLog = min(resultsLogLoss)
     for each in resultsLogLoss:
@@ -153,6 +157,10 @@ def GridSearchForModels(XData, yData, clf, params, eachAlgor, AlgorithmsIDsEnd, 
     metrics.insert(loop+12,'f2_weighted',resultsWeightedBeta2)
 
     metrics.insert(loop+13,'log_loss',resultsLogLossFinal)
+
+    perModelPredPandas = pd.DataFrame(perModelPrediction)
+    print(perModelPredPandas)
+    perModelPredPandas = perModelPredPandas.to_json()
 
     perModelProbPandas = pd.DataFrame(perModelProb)
     perModelProbPandas = perModelProbPandas.to_json()
@@ -189,6 +197,6 @@ def GridSearchForModels(XData, yData, clf, params, eachAlgor, AlgorithmsIDsEnd, 
     metrics = metrics.to_json()
     results.append(metrics) # Position: 6 and so on
     results.append(perModelProbPandas) # Position: 7 and so on
-    results.append(json.dumps(impDataInst)) # Position: 8 and so on
+    results.append(json.dumps(perModelPredPandas)) # Position: 8 and so on
 
     return results

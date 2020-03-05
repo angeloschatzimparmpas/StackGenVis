@@ -26,6 +26,7 @@ export default {
       UpdatedData: '',
       representationDef: 'mds',
       representationSelection: 'mds',
+      RetrieveDataSet: 'HeartC',
       colorsValues: ['#808000','#008080','#bebada','#fccde5','#d9d9d9','#bc80bd','#ccebc5'],
       WH: []
     }
@@ -102,7 +103,7 @@ export default {
               x: aux_X,
               y: aux_Y,
               mode: 'markers',
-              name: target_names[i],
+              name: beautifyLabels[i],
               marker: { color: this.colorsValues[i], line: { color: 'rgb(0, 0, 0)', width: 2 }, opacity: 1, size: 12 },
               hovertemplate: 
                       "<b>%{text}</b><br><br>" +
@@ -111,7 +112,7 @@ export default {
             })
         }
 
-        layout = {font: { family: 'Helvetica', size: 16, color: '#000000' },
+        layout = {font: { family: 'Helvetica', size: 14, color: '#000000' },
         title: 'MDS Projection',
         xaxis: {
             visible: false
@@ -169,7 +170,7 @@ export default {
             x: aux_X,
             y: aux_Y,
             mode: 'markers',
-            name: target_names[i],
+            name: beautifyLabels[i],
             marker: { color: this.colorsValues[i], line: { color: 'rgb(0, 0, 0)', width: 2 }, opacity: 1, size: 12 },
             hovertemplate: 
                     "<b>%{text}</b><br><br>" +
@@ -178,7 +179,7 @@ export default {
           })
         }
 
-        layout = {font: { family: 'Helvetica', size: 16, color: '#000000' },
+        layout = {font: { family: 'Helvetica', size: 14, color: '#000000' },
         title: 't-SNE Projection',
         xaxis: {
             visible: false
@@ -211,6 +212,20 @@ export default {
 
         var traces = []
 
+        var beautifyLabels = []
+        if (this.RetrieveDataSet == 'StanceC') {
+          beautifyLabels.push('Absence of Hypotheticality')
+          beautifyLabels.push('Presence of Hypotheticality')
+        }
+        else if (this.RetrieveDataSet == 'HeartC') {
+          beautifyLabels.push('< 50% diameter narrowing / Healthy')
+          beautifyLabels.push('> 50% diameter narrowing / Diseased')
+        } else {
+          target_names.forEach(element => {
+            beautifyLabels.push(element)
+          });
+        }
+
         for (let i = 0; i < target_names.length; i++) {
 
           const aux_X = result.Xax.filter((item, index) => originalDataLabels[index] == target_names[i]);
@@ -226,7 +241,7 @@ export default {
               x: aux_X,
               y: aux_Y,
               mode: 'markers',
-              name: target_names[i],
+              name: beautifyLabels[i],
               marker: { color: this.colorsValues[i], line: { color: 'rgb(0, 0, 0)', width: 2 }, opacity: 1, size: 12 },
               hovertemplate: 
                       "<b>%{text}</b><br><br>" +
@@ -235,7 +250,7 @@ export default {
             })
         }
 
-        layout = {font: { family: 'Helvetica', size: 16, color: '#000000' },
+        layout = {font: { family: 'Helvetica', size: 14, color: '#000000' },
         title: 'UMAP Projection',
         xaxis: {
             visible: false
@@ -321,6 +336,8 @@ export default {
 
     // reset the views
     EventBus.$on('resetViews', this.reset)
+
+    EventBus.$on('SendToServerDataSetConfirmation', data => { this.RetrieveDataSet = data })
   }
 }
 </script>

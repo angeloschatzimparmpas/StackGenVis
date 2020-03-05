@@ -1,7 +1,7 @@
 <template>
 <b-row>
     <b-col cols="12">
-        <div id="barChart" class="barChart" style="min-height: 307px;"></div>
+        <div id="barChart" class="barChart" style="min-height: 285px;"></div>
     </b-col>
 </b-row>
 </template>
@@ -36,7 +36,8 @@ export default {
       AdaBModels: 2766,
       GradBModels: 2926,
       colorsValues: ['#808000','#008080','#bebada','#fccde5','#d9d9d9','#bc80bd','#ccebc5'],
-      WH: []
+      WH: [],
+      RetrieveDataSet: 'HeartC'
     }
   },
   methods: {
@@ -104,7 +105,7 @@ export default {
                   KNNModels.push(JSON.parse(this.modelsSelectedinBar[i]))
               } else if (this.algorithmsinBar[i] === "SVC") {
                   SVCModels.push(JSON.parse(this.modelsSelectedinBar[i]) - this.SVCModels)
-              } else if (this.algorithmsinBar[i] === "GausNB") {
+              } else if (this.algorithmsinBar[i] === "GauNB") {
                   GausNBModels.push(JSON.parse(this.modelsSelectedinBar[i] - this.GausNBModels))
               } else if (this.algorithmsinBar[i] === "MLP") {
                   MLPModels.push(JSON.parse(this.modelsSelectedinBar[i]) - this.MLPModels)
@@ -404,11 +405,11 @@ export default {
       }
       Plotly.purge('barChart')
       
-      var layout = {font: { family: 'Helvetica', size: 16, color: '#000000' },
+      var layout = {font: { family: 'Helvetica', size: 14, color: '#000000' },
         autosize: true,
         barmode: 'group',
-        width: this.WH[0]*10,
-        height: this.WH[1]*0.635,
+        width: this.WH[0]*10.21,
+        height: this.WH[1]*0.59,
             xaxis: {
                 title: 'Algorithm',
                 type:"category",
@@ -433,9 +434,9 @@ export default {
         bargap:0.1,
         bargroupgap: 0.2,
         margin: {
-            l: 50,
+            l: 40,
             r: 0,
-            b: 30,
+            b: 0,
             t: 40,
             pad: 0
             },
@@ -460,13 +461,27 @@ export default {
           sumList[i] = keepSum
           sumLineList[i] = keepSumLine
         }
-
+        
+        var beautifyLabels = []
+        if (this.RetrieveDataSet == 'StanceC') {
+          beautifyLabels.push('Absence of Hypotheticality')
+          beautifyLabels.push('Presence of Hypotheticality')
+        }
+        else if (this.RetrieveDataSet == 'HeartC') {
+          beautifyLabels.push('< 50% diameter narrowing / Healthy')
+          beautifyLabels.push('> 50% diameter narrowing / Diseased')
+        } else {
+          target_names.forEach(element => {
+            beautifyLabels.push(element)
+          });
+        }
+        
         for (var i = 0; i < target_names.length; i++) {
           if (this.tNameAll == target_names[i]) {
             traces[i] = {
-            x:  ['K-Nearest Neighbors','C-Support Vector Classif','Gaussian Naive Bayes','Multilayer Perceptron','Logistic Regression','Linear Discrim Analysis','Quadratic Discrim Analysis','Random Forest','Extra Trees','AdaBoost','Gradient Boosting'],
+            x:  ['KNN','SVC','GauNB','MLP','LR','LDA','QDA','RF','ExtraT','AdaB','GradB'],
             y: sumList[i],
-            name: '<b>'+target_names[i]+'</b>',
+            name: '<b>'+beautifyLabels[i]+'</b>',
             opacity: 0.5,
             marker: {
                 opacity: 0.5,
@@ -476,9 +491,9 @@ export default {
             };
           tracesSel[i] = {
               type: 'bar',
-              x: ['K-Nearest Neighbors','C-Support Vector Classif','Gaussian Naive Bayes','Multilayer Perceptron','Logistic Regression','Linear Discrim Analysis','Quadratic Discrim Analysis','Random Forest','Extra Trees','AdaBoost','Gradient Boosting'],
+              x: ['KNN','SVC','GauNB','MLP','LR','LDA','QDA','RF','ExtraT','AdaB','GradB'],
               y: sumLineList[i],
-              name: '<b>'+target_names[i]+' (Sel)</b>',
+              name: '<b>'+beautifyLabels[i]+' (Sel)</b>',
               xaxis: 'x2',
               mode: 'markers',
               marker: {
@@ -491,9 +506,9 @@ export default {
               data.push(tracesSel[i])
           } else {
             traces[i] = {
-            x:  ['K-Nearest Neighbors','C-Support Vector Classif','Gaussian Naive Bayes','Multilayer Perceptron','Logistic Regression','Linear Discrim Analysis','Quadratic Discrim Analysis','Random Forest','Extra Trees','AdaBoost','Gradient Boosting'],
+            x:  ['KNN','SVC','GauNB','MLP','LR','LDA','QDA','RF','ExtraT','AdaB','GradB'],
             y: sumList[i],
-            name: target_names[i],
+            name: beautifyLabels[i],
             opacity: 0.5,
             marker: {
                 opacity: 0.5,
@@ -503,9 +518,9 @@ export default {
             };
           tracesSel[i] = {
               type: 'bar',
-              x: ['K-Nearest Neighbors','C-Support Vector Classif','Gaussian Naive Bayes','Multilayer Perceptron','Logistic Regression','Linear Discrim Analysis','Quadratic Discrim Analysis','Random Forest','Extra Trees','AdaBoost','Gradient Boosting'],
+              x: ['KNN','SVC','GauNB','MLP','LR','LDA','QDA','RF','ExtraT','AdaB','GradB'],
               y: sumLineList[i],
-              name: target_names[i]+' (Sel)',
+              name: beautifyLabels[i]+' (Sel)',
               xaxis: 'x2',
               mode: 'markers',
               marker: {
@@ -564,6 +579,8 @@ export default {
 
       // reset view
       EventBus.$on('resetViews', this.reset)
+
+      EventBus.$on('SendToServerDataSetConfirmation', data => { this.RetrieveDataSet = data })
     }
 }
 </script>

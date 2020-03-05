@@ -6,10 +6,10 @@ import 'bootstrap-vue/dist/bootstrap-vue.css'
 import router from './router'
 import { library } from '@fortawesome/fontawesome-svg-core'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
-import { faUpload, faPlay, faCheck, faSave, faTrash, faPlus, faBalanceScale, faMinus, faEraser, faClone, faObjectGroup, faUndo, faSyncAlt, faFileExport, faWindowClose, faHistory } from '@fortawesome/free-solid-svg-icons'
+import { faUpload, faPlay, faCheck, faSave, faTrash, faPlus, faBalanceScale, faMinus, faEraser, faClone, faObjectGroup, faUndo, faSyncAlt, faFileExport, faWindowClose, faHistory, faDiceThree, faDiceFour, faCalculator } from '@fortawesome/free-solid-svg-icons'
 import bFormSlider from 'vue-bootstrap-slider'
 
-library.add(faUpload, faPlay, faCheck, faSave, faTrash, faPlus, faBalanceScale, faMinus, faEraser, faClone, faObjectGroup, faUndo, faSyncAlt, faFileExport, faWindowClose, faHistory )
+library.add(faUpload, faPlay, faCheck, faSave, faTrash, faPlus, faBalanceScale, faMinus, faEraser, faClone, faObjectGroup, faUndo, faSyncAlt, faFileExport, faWindowClose, faHistory, faDiceThree, faDiceFour,faCalculator )
 
 Vue.component('font-awesome-icon', FontAwesomeIcon)
 

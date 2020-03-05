@@ -1,26 +1,57 @@
 <template>
 <div>
 <b-row>
-    <b-col cols="10">
-      <div id="WrapSliders">
-        <p>(1) Accuracy:<b-form-slider ref="basic1" v-model="basicValue1" :min="0" :max="100" trigger-change-event @slide-start="slideStart" @slide-stop="slideStop" style="padding-right: 15px;padding-left:15px"></b-form-slider>{{ basicValue1 }}%</p>
-        <p>(2*) G-Mean:<b-form-slider ref="basic2" v-model="basicValue2" :min="0" :max="100" trigger-change-event @slide-start="slideStart"  @slide-stop="slideStop" style="padding-right: 15px; padding-left:15px"></b-form-slider>{{ basicValue2 }}%</p>
-        <p>(3*) Precision:<b-form-slider ref="basic3" v-model="basicValue3" :min="0" :max="100" trigger-change-event @slide-start="slideStart"  @slide-stop="slideStop" style="padding-right: 15px; padding-left:15px"></b-form-slider>{{ basicValue3 }}%</p>
-        <p>(4*) Recall:<b-form-slider ref="basic4" v-model="basicValue4" :min="0" :max="100" trigger-change-event @slide-start="slideStart" @slide-stop="slideStop" style="padding-right: 15px; padding-left:15px"></b-form-slider>{{ basicValue4 }}%</p>
-        <p>(5*) F-Beta Score:<b-form-slider ref="basic5" v-model="basicValue5" :min="0" :max="100" trigger-change-event @slide-start="slideStart" @slide-stop="slideStop" style="padding-right: 15px; padding-left:15px"></b-form-slider >{{ basicValue5 }}%</p>
-        <p>(6) MCC:<b-form-slider ref="basic6" v-model="basicValue6" :min="0" :max="100" trigger-change-event @slide-start="slideStart" @slide-stop="slideStop" style="padding-right: 15px; padding-left:15px"></b-form-slider>{{ basicValue6 }}%</p>
-        <p>(7) ROC AUC:<b-form-slider ref="basic7" v-model="basicValue7" :min="0" :max="100" trigger-change-event @slide-start="slideStart" @slide-stop="slideStop" style="padding-right: 15px;padding-left:15px"></b-form-slider>{{ basicValue7 }}%</p>
-        <p>(8) Log Loss:<b-form-slider ref="basic8" v-model="basicValue8" :min="0" :max="100" trigger-change-event @slide-start="slideStart" @slide-stop="slideStop" style="padding-right: 15px;padding-left:15px"></b-form-slider>{{ basicValue8 }}%</p>
-      </div>
-    </b-col>
-    <b-col cols="2">
-      <br>
-      <br>
-      Deep Feature Search:
-      <input type="checkbox" id="toggleDeepID" data-toggle="toggle" checked="checked" data-on="Enabled" data-off="Disabled" data-size="small">
+    <b-col cols="12">
+      <table class="table table-borderless table-sm">
+        <tbody>
+          <tr>
+            <td>(M1) Accuracy:</td>
+            <td><b-form-slider ref="basic1" v-model="basicValue1" :min="0" :max="100" trigger-change-event @slide-start="slideStart" @slide-stop="slideStop" style="padding-right: 15px;"></b-form-slider>{{ basicValue1 }}%</td>
+            <td style="text-align: center; width: 70px"><font-awesome-icon class="fa-lg" icon="dice-four"/></td>
+          </tr>
+          <tr>
+            <td>(M2*) G-Mean:</td>
+            <td><b-form-slider ref="basic2" v-model="basicValue2" :min="0" :max="100" trigger-change-event @slide-start="slideStart"  @slide-stop="slideStop" style="padding-right: 15px;"></b-form-slider>{{ basicValue2 }}%</td>
+            <td style="text-align: center; width: 70px"></td>
+          </tr>
+          <tr>
+            <td>(M3*) Precision:</td>
+            <td><b-form-slider ref="basic3" v-model="basicValue3" :min="0" :max="100" trigger-change-event @slide-start="slideStart"  @slide-stop="slideStop" style="padding-right: 15px; "></b-form-slider>{{ basicValue3 }}%</td>
+            <td style="text-align: center; width: 70px"><font-awesome-icon class="fa-lg" icon="dice-three"/>&nbsp;<font-awesome-icon class="fa-lg" icon="dice-four"/></td>
+          </tr>
+          <tr>
+            <td>(M4*) Recall:</td>
+            <td><b-form-slider ref="basic4" v-model="basicValue4" :min="0" :max="100" trigger-change-event @slide-start="slideStart" @slide-stop="slideStop" style="padding-right: 15px; "></b-form-slider>{{ basicValue4 }}%</td>
+            <td style="text-align: center; width: 70px"><font-awesome-icon class="fa-lg" icon="dice-three"/>&nbsp;<font-awesome-icon class="fa-lg" icon="dice-four"/></td>
+          </tr>
+          <tr>
+            <td width="185">(M5*) <select id="selectFilterBeta" @change="selectAppliedFilterBeta()" >
+        <option value="one" selected>F1 Score</option>
+        <option value="half">F0.5 Score</option>
+        <option value="two">F2 Score</option>
+      </select>:</td>
+            <td><b-form-slider ref="basic5" v-model="basicValue5" :min="0" :max="100" trigger-change-event @slide-start="slideStart" @slide-stop="slideStop" style="padding-right: 15px; "></b-form-slider >{{ basicValue5 }}%</td>
+            <td style="text-align: center; width: 70px"><font-awesome-icon class="fa-lg" icon="dice-three"/>&nbsp;<font-awesome-icon class="fa-lg" icon="dice-four"/></td>
+          </tr>
+          <tr>
+            <td>(M6) MCC:</td>
+            <td><b-form-slider ref="basic6" v-model="basicValue6" :min="0" :max="100" trigger-change-event @slide-start="slideStart" @slide-stop="slideStop" style="padding-right: 15px; "></b-form-slider>{{ basicValue6 }}%</td>
+            <td style="text-align: center; width: 70px"></td>
+          </tr>
+          <tr>
+            <td>(M7) ROC AUC:</td>
+            <td><b-form-slider ref="basic7" v-model="basicValue7" :min="0" :max="100" trigger-change-event @slide-start="slideStart" @slide-stop="slideStop" style="padding-right: 15px;"></b-form-slider>{{ basicValue7 }}%</td>
+            <td style="text-align: center; width: 70px"></td>
+          </tr>
+          <tr>
+            <td>(M8) Log Loss:</td>
+            <td><b-form-slider ref="basic8" v-model="basicValue8" :min="0" :max="100" trigger-change-event @slide-start="slideStart" @slide-stop="slideStop" style="padding-right: 15px;"></b-form-slider>{{ basicValue8 }}%</td>
+            <td style="text-align: center; width: 70px"></td>
+          </tr>
+        </tbody>
+      </table>
     </b-col>
 </b-row>
-<br>
 <b-row>
     <b-col cols="6">
         <p>(*) Average: <select id="selectFilterAverage" @change="selectAppliedFilterAverage()">
@@ -30,11 +61,7 @@
       </select></p>
     </b-col>
     <b-col cols="6">
-        <p>(5) Beta Value: <select id="selectFilterBeta" @change="selectAppliedFilterBeta()">
-        <option value="one" selected>F1 Score</option>
-        <option value="half">F0.5 Score</option>
-        <option value="two">F2 Score</option>
-      </select></p>
+        <p>Detailed Feature Search: <input type="checkbox" id="toggleDeepID" data-toggle="toggle" checked="checked" data-on="Enabled" data-off="Disabled" data-size="small"></p>
     </b-col>
 </b-row>
 </div>
@@ -217,9 +244,9 @@
         },
         mounted () {
           $('#toggleDeepID').bootstrapToggle({
-            on: 'I',
-            off: '0',
-            width: '50%',
+            on: 'On',
+            off: 'Off',
+            width: '20%',
          });
         $('#toggleDeepID').change(function() {
           var toggleDeepSlid = document.getElementById('toggleDeepID')
@@ -239,9 +266,9 @@ p {
     padding: 0 !important;
 }
 
-/*.slider.slider-horizontal {
-    width: 300px !important;
-}*/
+.slider.slider-horizontal{
+  width:260px; /* sample value - set it as you like*/
+}
 
 .slider-handle {
     background: black;

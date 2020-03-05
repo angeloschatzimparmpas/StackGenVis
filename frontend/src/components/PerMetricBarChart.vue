@@ -80,12 +80,13 @@ export default {
           }
           };
           var data = [trace1, trace2];
-          var layout = {font: { family: 'Helvetica', size: 16, color: '#000000' },
+          var layout = {
           boxmode: 'group',
           autosize: true,
           width:  width,
           height: height,
           hovermode: 'x',
+          font: { family: 'Helvetica', size: 14, color: '#000000' },
           margin: {
             l: 50,
             r: 0,

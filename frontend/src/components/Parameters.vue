@@ -75,7 +75,7 @@ export default {
       countAdaBRelated: [],
       countAdaB: 0,
       countGradBRelated: [],
-      countGradB: 0
+      countGradB: 0,
     }
   },
   methods: {
@@ -89,7 +89,7 @@ export default {
       var cfg = {
       w: 600,				//Width of the circle
       h: 600,				//Height of the circle
-      margin: {top: 20, right: 20, bottom: 20, left: 20}, //The margins around the circle
+      margin: {top: 60, right: 20, bottom: 20, left: 120}, //The margins around the circle
       legendPosition: {x: 20, y: 20}, // the position of the legend, from the top-left corner of the svg
       levels: 3,				//How many levels or inner circles should there be drawn
       maxValue: 0, 				//What is the value that the biggest circle will represent
@@ -105,6 +105,7 @@ export default {
       areaName:"areaName",
       value: "value",
       sortAreas: true,
+      colorsDiff: ['#a6cee3','#1f78b4','#b2df8a','#33a02c','#fb9a99','#e31a1c','#fdbf6f','#ff7f00','#cab2d6','#6a3d9a','#b15928']
       };
       
       //Put all of the options into a variable called cfg
@@ -174,6 +175,7 @@ export default {
         .enter()
         .append("circle")
         .attr("class", "gridCircle")
+        .attr("transform", "translate(5,5)")
         .attr("r", function(d, i){return radius/cfg.levels*d;})
         .style("fill", "#CDCDCD")
         .style("stroke", "#CDCDCD")
@@ -185,10 +187,10 @@ export default {
         .data(d3.range(1,(cfg.levels+1)).reverse())
         .enter().append("text")
         .attr("class", "axisLabel")
-        .attr("x", 4)
+        .attr("x", 10)
         .attr("y", function(d){return -d*radius/cfg.levels;})
         .attr("dy", "0.4em")
-        .style("font-size", "10px")
+        .style("font-size", "16px")
         .attr("fill", "#737373")
         .text(function(d,i) { return Format(maxValue * d/cfg.levels); });
 
@@ -206,19 +208,31 @@ export default {
       axis.append("line")
         .attr("x1", 0)
         .attr("y1", 0)
-        .attr("x2", function(d, i){ return rScale(maxValue*1.1) * Math.cos(angleSlice*i - Math.PI/2); })
-        .attr("y2", function(d, i){ return rScale(maxValue*1.1) * Math.sin(angleSlice*i - Math.PI/2); })
+        .attr("transform", "translate(5,5)")
+        .attr("x2", function(d, i){ return rScale(maxValue*1.2) * Math.cos(angleSlice*i - Math.PI/2); })
+        .attr("y2", function(d, i){ return rScale(maxValue*1.2) * Math.sin(angleSlice*i - Math.PI/2); })
         .attr("class", "line")
         .style("stroke", "white")
         .style("stroke-width", "2px");
 
+      axis.append("rect")
+        .attr("text-anchor", "left")
+        .attr("dy", "0.35em")
+        .attr("x", function(d, i){ return (rScale(maxValue * cfg.labelFactor) * Math.cos(angleSlice*i - Math.PI/2)) - 25; })
+        .attr("y", function(d, i){ return rScale(maxValue * cfg.labelFactor) * Math.sin(angleSlice*i - Math.PI/2); })
+        .text(function(d){return d})
+        .attr("width", 15)
+        .attr("height", 15)
+        .style("fill", function(d,i) { return cfg.colorsDiff[i]; })
+
       //Append the labels at each axis
       axis.append("text")
         .attr("class", "legend")
-        .style("font-size", "11px")
+        .style("font-size", "16px")
         .attr("text-anchor", "middle")
-        .attr("dy", "0.35em")
-        .attr("x", function(d, i){ return rScale(maxValue * cfg.labelFactor) * Math.cos(angleSlice*i - Math.PI/2); })
+        .attr("dy", "0em")
+        .style("font-size", "16px")
+        .attr("x", function(d, i){ return (rScale(maxValue * cfg.labelFactor) * Math.cos(angleSlice*i - Math.PI/2)) + 15; })
         .attr("y", function(d, i){ return rScale(maxValue * cfg.labelFactor) * Math.sin(angleSlice*i - Math.PI/2); })
         .text(function(d){return d})
         .call(wrap, cfg.wrapWidth);
@@ -241,6 +255,7 @@ export default {
       var blobWrapper = g.selectAll(".radarWrapper")
         .data(data)
         .enter().append("g")
+        .attr("transform", "translate(5,5)")
         .attr("class", "radarWrapper");
           
       //Append the backgrounds	
@@ -316,8 +331,8 @@ export default {
           newY =  parseFloat(d3.select(this).attr('cy')) - 10;
               
           tooltip
-            .attr('x', newX)
-            .attr('y', newY)
+            .attr('x', newX+5)
+            .attr('y', newY+5)
             .text(Format(d[value]))
             .transition().duration(200)
             .style('opacity', 1);
@@ -619,39 +634,39 @@ export default {
     ////////////////////////////////////////////////////////////// 
 
       var margin = {top: 50, right: 120, bottom: 55, left: 65},
-        legendPosition = {x: 425, y: 185},
-				width = Math.min(510, window.innerWidth - 10) - margin.left - margin.right,
-				height = Math.min(width, window.innerHeight - margin.top - margin.bottom - 20);
-					
+        legendPosition = {x: 425, y: 25},
+				width = Math.min(520, window.innerWidth - 10) - margin.left - margin.right,
+        height = Math.min(width + 12, window.innerHeight + 12 - margin.top - margin.bottom);
+        
 			////////////////////////////////////////////////////////////// 
 			////////////////////////// Data ////////////////////////////// 
 			////////////////////////////////////////////////////////////// 
 
 			var data = [
 					  [
-						{axis:"KNN [M 576]",legend:"Entire",value:KNNAll/max},
-            {axis:"SVC [M 160]",legend:"Entire",value:SVCAll/max},
-            {axis:"GausNB [M 500]",legend:"Entire",value:GausNBAll/max},
-            {axis:"MLP [M 120]",legend:"Entire",value:MLPAll/max},
-            {axis:"LR [M 640]",legend:"Entire",value:LRAll/max},
-            {axis:"LDA [M 200]",legend:"Entire",value:LDAAll/max},
-            {axis:"QDA [M 250]",legend:"Entire",value:QDAAll/max},
-            {axis:"RF [M 160]",legend:"Entire",value:RFAll/max},
-            {axis:"ExtraT [M 160]",legend:"Entire",value:ExtraTAll/max},
-            {axis:"AdaB [M 160]",legend:"Entire",value:AdaBAll/max},
-            {axis:"GradB [M 180]",legend:"Entire",value:GradBAll/max},
+						{axis:"KNN [576]",legend:"Entire",value:KNNAll/max},
+            {axis:"SVC [160]",legend:"Entire",value:SVCAll/max},
+            {axis:"GauNB [500]",legend:"Entire",value:GausNBAll/max},
+            {axis:"MLP [120]",legend:"Entire",value:MLPAll/max},
+            {axis:"LR [640]",legend:"Entire",value:LRAll/max},
+            {axis:"LDA [200]",legend:"Entire",value:LDAAll/max},
+            {axis:"QDA [250]",legend:"Entire",value:QDAAll/max},
+            {axis:"RF [160]",legend:"Entire",value:RFAll/max},
+            {axis:"ExtraT [160]",legend:"Entire",value:ExtraTAll/max},
+            {axis:"AdaB [160]",legend:"Entire",value:AdaBAll/max},
+            {axis:"GradB [180]",legend:"Entire",value:GradBAll/max},
             ],[
-						{axis:"KNN [M 576]",legend:"Selection",value:KNNSelection/max},
-            {axis:"SVC [M 160]",legend:"Selection",value:SVCSelection/max},
-            {axis:"GausNB [M 500]",legend:"Selection",value:GausNBSelection/max},
-            {axis:"MLP [M 120]",legend:"Selection",value:MLPSelection/max},
-            {axis:"LR [M 640]",legend:"Selection",value:LRSelection/max},
-            {axis:"LDA [M 200]",legend:"Selection",value:LDASelection/max},
-            {axis:"QDA [M 250]",legend:"Selection",value:QDASelection/max},
-            {axis:"RF [M 160]",legend:"Selectionn",value:RFSelection/max},
-            {axis:"ExtraT [M 160]",legend:"Selection",value:ExtraTSelection/max},
-            {axis:"AdaB [M 160]",legend:"Selection",value:AdaBSelection/max},
-            {axis:"GradB [M 180]",legend:"Selection",value:GradBSelection/max},
+						{axis:"KNN [576]",legend:"Selection",value:KNNSelection/max},
+            {axis:"SVC [160]",legend:"Selection",value:SVCSelection/max},
+            {axis:"GauNB [500]",legend:"Selection",value:GausNBSelection/max},
+            {axis:"MLP [120]",legend:"Selection",value:MLPSelection/max},
+            {axis:"LR [640]",legend:"Selection",value:LRSelection/max},
+            {axis:"LDA [200]",legend:"Selection",value:LDASelection/max},
+            {axis:"QDA [250]",legend:"Selection",value:QDASelection/max},
+            {axis:"RF [160]",legend:"Selectionn",value:RFSelection/max},
+            {axis:"ExtraT [160]",legend:"Selection",value:ExtraTSelection/max},
+            {axis:"AdaB [160]",legend:"Selection",value:AdaBSelection/max},
+            {axis:"GradB [180]",legend:"Selection",value:GradBSelection/max},
 					  ],
 					];
 			////////////////////////////////////////////////////////////// 
@@ -765,10 +780,12 @@ export default {
   stroke: #fff;
   stroke-width: 3px;
   fill: url(#gradient-chart-area);
+  transform: translate(5px, 5px);
 }
 
 .center-circle {
   fill: #fff;
+  transform: translate(5px, 5px);
 }
 
 .bars {
@@ -778,6 +795,7 @@ export default {
 .gridlines {
   fill: none;
   stroke: #fff;
+  transform: translate(5px, 5px);
 }
 
 .minor {
@@ -796,12 +814,12 @@ export default {
 
 .category-label-text {
   font-weight: bold;
-  font-size: 14px;
+  font-size: 16px;
   fill: #fff;
 }
 
 .question-label-text {
-  font-size: 7px;
+  font-size: 16px;
   font-weight: bold;
   fill: gray;
 }
@@ -814,7 +832,7 @@ export default {
 .category-labels {
   text-anchor: middle;
   font-weight: bold;
-  font-size: 14px;
+  font-size: 16px;
   fill: #fff;
 }
 
@@ -823,6 +841,6 @@ export default {
 }
 
 #overview {
-  min-height: 430px;
+  min-height: 450px;
 }
 </style>

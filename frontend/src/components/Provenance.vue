@@ -1,22 +1,18 @@
 <template>
     <div>
-        <div class="squares-container" style="min-height: 306px;">
+        <div class="squares-container" style="min-height: 364px;">
         <div id="tooltip"></div>	<!-- new  -->
-            <canvas id="main-canvas" style="overflow-y: auto; height:290px;"></canvas>
-            <br>
-            <div id="dynamic-buttons"></div>
+          <div id="performanceCapture" style="min-height: 150px;"></div>	<!-- new  -->
+          <canvas id="main-canvas" style="overflow-y: auto; height:190px;"></canvas>
+          <br>
+          <div id="dynamic-buttons"></div>
         </div>
     </div>
 </template>
 
 <script>
-import * as d3Base from 'd3'
-
 import { EventBus } from '../main.js'
 import $ from 'jquery'
-
-// attach all d3 plugins to the d3 library
-const d3 = Object.assign(d3Base)
 
 import * as Stardust from 'stardust-core'
 import * as StardustGL from 'stardust-webgl'
@@ -72,7 +68,6 @@ export default {
       var canvas = document.getElementById("main-canvas");
       var width = this.WH[0]*4 // interactive visualization
       var height = this.WH[1]*0.58 // interactive visualization
-      console.log(width)
 
       var flagKNN = 0
       var flagSVC = 0
@@ -88,6 +83,7 @@ export default {
 
       var localStackStore = []
       var StackInfo = JSON.parse(this.stackInformation[1])
+      console.log(StackInfo)
       var arrayOfNumbers = StackInfo.map(Number)
       this.storeData.push(arrayOfNumbers)
       localStackStore = this.storeData.slice()
@@ -213,7 +209,9 @@ export default {
       this.data.forEach(d => {
         if (d.column == this.counter) {
           d.typeIndex = this.typeCounter[d.type]++;
+          console.log(d.typeIndex)
           d.typeColumnIndex = this.typeColumnCounter[d.column]++;
+          console.log(d.typeColumnIndex)
         }
       });
 
@@ -226,7 +224,7 @@ export default {
       let isotypeHeight = 18;
       let colors = [[166,206,227], [31,120,180], [178,223,138], [51,160,44], [251,154,153], [227,26,28], [253,191,111], [255,127,0], [202,178,214], [106,61,154], [177,89,40]];
       colors = colors.map(x => [x[0] / 255, x[1] / 255, x[2] / 255, 1]);
-
+      // here 10 was 5!
       let pScale = Stardust.scale.custom(`
               Vector2(
                   20 + column * 100 + typeColumnIndex % 5 * 8,
@@ -327,7 +325,7 @@ export default {
 
 			}
       }
-      const stringStep = "Stack "
+      const stringStep = "Stack Ensemble"
       var myButton = '<button id="HistoryReturnButtons'+this.counter+'" class="dynamic_buttons">'+stringStep+this.counter+'</button>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'
       $("#dynamic-buttons").append(myButton);
 
@@ -354,6 +352,103 @@ export default {
         EventBus.$emit('ChangeKey', 0)
         }
       );
+
+      var width = 150;
+      var arcSize = (6 * width / 100);
+      var innerRadius = arcSize * 3;            
+
+      var data = [
+          {value: 45, label: "Accuracy", color: '#ff0000'},
+          {value: 33, label: "Precision", color: '#00ff00'},
+          {value: 66, label: "Recall", color: '#0000ff'},
+          {value: 50, label: "F1 Score", color: '#ffff00'}
+      ];
+
+      function render() {
+          var svg = d3.select('#performanceCapture').append('svg').attr('width', width).attr('height', width);
+
+          var arcs = data.map(function (obj, i) {
+              return d3.svg.arc().innerRadius(i * arcSize + innerRadius).outerRadius((i + 1) * arcSize - (width / 100) + innerRadius);
+          });
+          var arcsGrey = data.map(function (obj, i) {
+              return d3.svg.arc().innerRadius(i * arcSize + (innerRadius + ((arcSize / 2) - 2))).outerRadius((i + 1) * arcSize - ((arcSize / 2)) + (innerRadius));
+          });
+
+          var pieData = data.map(function (obj, i) {
+              return [
+                  {value: obj.value * 0.75, arc: arcs[i], object: obj},
+                  {value: (100 - obj.value) * 0.75, arc: arcsGrey[i], object: obj},
+                  {value: 100 * 0.25, arc: arcs[i], object: obj}];
+          });
+
+          var pie = d3.layout.pie().sort(null).value(function (d) {
+              return d.value;
+          });
+
+          var g = svg.selectAll('g').data(pieData).enter()
+              .append('g')
+              .attr('transform', 'translate(' + width / 2 + ',' + width / 2 + ') rotate(180)');
+          var gText = svg.selectAll('g.textClass').data([{}]).enter()
+              .append('g')
+              .classed('textClass', true)
+              .attr('transform', 'translate(' + width / 2 + ',' + width / 2 + ') rotate(180)');
+
+
+          g.selectAll('path').data(function (d) {
+              return pie(d);
+          }).enter().append('path')
+              .attr('id', function (d, i) {
+                  if (i == 1) {
+                      return "Text" + d.data.object.label
+                  }
+              })
+              .attr('d', function (d) {
+                  return d.data.arc(d);
+              }).attr('fill', function (d, i) {
+              return i == 0 ? d.data.object.color : i == 1 ? '#D3D3D3' : 'none';
+          });
+
+          svg.selectAll('g').each(function (d, index) {
+              var el = d3.select(this);
+              var path = el.selectAll('path').each(function (r, i) {
+                  if (i === 1) {
+                      var centroid = r.data.arc.centroid({
+                          startAngle: r.startAngle + 0.05,
+                          endAngle: r.startAngle + 0.001 + 0.05
+                      });
+                      var lableObj = r.data.object;
+                      g.append('text')
+                          .attr('font-size', ((5 * width) / 100))
+                          .attr('dominant-baseline', 'central')
+                          /*.attr('transform', "translate(" + centroid[0] + "," + (centroid[1] + 10) + ") rotate(" + (180 / Math.PI * r.startAngle + 7) + ")")
+                            .attr('alignment-baseline', 'middle')*/
+                          .append("textPath")
+                          .attr("textLength", function (d, i) {
+                              return 0;
+                          })
+                          .attr("xlink:href", "#Text" + r.data.object.label)
+                          .attr("startOffset", '5')
+                          .attr("dy", '-3em')
+                          .text(lableObj.value + '%');
+                  }
+                  if (i === 0) {
+                      var centroidText = r.data.arc.centroid({
+                          startAngle: r.startAngle,
+                          endAngle: r.startAngle
+                      });
+                      var lableObj = r.data.object;
+                      gText.append('text')
+                          .attr('font-size', ((5 * width) / 100))
+                          .text(lableObj.label)
+                          .attr('transform', "translate(" + (centroidText[0] - ((1.5 * width) / 100)) + "," + (centroidText[1] + ") rotate(" + (180) + ")"))
+                          .attr('dominant-baseline', 'central');
+                  }
+              });
+          });
+      }
+
+
+      render()
   },
   updateExtraction () {
     EventBus.$emit('SendSelectedPointsToServerEvent', this.storeData[this.flagUpdated])

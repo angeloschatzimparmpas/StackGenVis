@@ -388,30 +388,15 @@ def DataSetSelection():
     XDataStored = XData.copy()
     yDataStored = yData.copy()
 
-    callPreResults()
-
     warnings.simplefilter('ignore')
     return 'Everything is okay'
-
-# Sending each model's results to frontend
-@app.route('/data/requestDataSpaceResultsAfterDataManipulation', methods=["GET", "POST"])
-def SendDataSpaceResultsAfterDataSpaceManipul():
-
-    callPreResults()
-
-    global preResults
-
-    response = {    
-        'DataResults': preResults,
-    }
-    return jsonify(response)
 
 def callPreResults():
 
     global XData
     global yData
     global target_names
-    global allParametersPerformancePerModel
+    global impDataInst
 
     DataSpaceResMDS = FunMDS(XData)
     DataSpaceResTSNE = FunTsne(XData)
@@ -430,7 +415,7 @@ def callPreResults():
     preResults.append(json.dumps(AllTargets)) # Position: 4
     preResults.append(json.dumps(DataSpaceResTSNE)) # Position: 5
     preResults.append(json.dumps(DataSpaceUMAP)) # Position: 6
-    preResults.append(json.dumps(allParametersPerformancePerModel)) # Position: 7
+    preResults.append(json.dumps(impDataInst)) # Position: 7
 
 # Sending each model's results to frontend
 @app.route('/data/requestDataSpaceResults', methods=["GET", "POST"])
@@ -507,7 +492,7 @@ def RetrieveModel():
             params = {'n_neighbors': list(range(1, 25)), 'metric': ['chebyshev', 'manhattan', 'euclidean', 'minkowski'], 'algorithm': ['brute', 'kd_tree', 'ball_tree'], 'weights': ['uniform', 'distance']}
             AlgorithmsIDsEnd = 0
         elif (eachAlgor) == 'SVC':
-            clf = SVC(probability=True)
+            clf = SVC(probability=True,random_state=RANDOM_SEED)
             params = {'C': list(np.arange(0.1,4.43,0.11)), 'kernel': ['rbf','linear', 'poly', 'sigmoid']}
             AlgorithmsIDsEnd = SVCModelsCount
         elif (eachAlgor) == 'GausNB':
@@ -515,11 +500,11 @@ def RetrieveModel():
             params = {'var_smoothing': list(np.arange(0.00000000001,0.0000001,0.0000000002))}
             AlgorithmsIDsEnd = GausNBModelsCount
         elif (eachAlgor) == 'MLP':
-            clf = MLPClassifier()
+            clf = MLPClassifier(random_state=RANDOM_SEED)
             params = {'alpha': list(np.arange(0.00001,0.001,0.0002)), 'tol': list(np.arange(0.00001,0.001,0.0004)), 'max_iter': list(np.arange(100,200,100)), 'activation': ['relu', 'identity', 'logistic', 'tanh'], 'solver' : ['adam', 'sgd']}
             AlgorithmsIDsEnd = MLPModelsCount
         elif (eachAlgor) == 'LR':
-            clf = LogisticRegression()
+            clf = LogisticRegression(random_state=RANDOM_SEED)
             params = {'C': list(np.arange(0.5,2,0.075)), 'max_iter': list(np.arange(50,250,50)), 'solver': ['lbfgs', 'newton-cg', 'sag', 'saga'], 'penalty': ['l2', 'none']}
             AlgorithmsIDsEnd = LRModelsCount
         elif (eachAlgor) == 'LDA':
@@ -531,19 +516,19 @@ def RetrieveModel():
             params = {'reg_param': list(np.arange(0,1,0.02)), 'tol': list(np.arange(0.00001,0.001,0.0002))}
             AlgorithmsIDsEnd = QDAModelsCount
         elif (eachAlgor) == 'RF':
-            clf = RandomForestClassifier()
+            clf = RandomForestClassifier(random_state=RANDOM_SEED)
             params = {'n_estimators': list(range(60, 140)), 'criterion': ['gini', 'entropy']}
             AlgorithmsIDsEnd = RFModelsCount
         elif (eachAlgor) == 'ExtraT':
-            clf = ExtraTreesClassifier()
+            clf = ExtraTreesClassifier(random_state=RANDOM_SEED)
             params = {'n_estimators': list(range(60, 140)), 'criterion': ['gini', 'entropy']}
             AlgorithmsIDsEnd = ExtraTModelsCount
         elif (eachAlgor) == 'AdaB':
-            clf = AdaBoostClassifier()
+            clf = AdaBoostClassifier(random_state=RANDOM_SEED)
             params = {'n_estimators': list(range(40, 80)), 'learning_rate': list(np.arange(0.1,2.3,1.1)), 'algorithm': ['SAMME.R', 'SAMME']}
             AlgorithmsIDsEnd = AdaBModelsCount
         else: 
-            clf = GradientBoostingClassifier()
+            clf = GradientBoostingClassifier(random_state=RANDOM_SEED)
             params = {'n_estimators': list(range(85, 115)), 'learning_rate': list(np.arange(0.01,0.23,0.11)), 'criterion': ['friedman_mse', 'mse', 'mae']}
             AlgorithmsIDsEnd = GradBModelsCount
         allParametersPerformancePerModel = GridSearchForModels(XData, yData, clf, params, eachAlgor, AlgorithmsIDsEnd, toggle)
@@ -620,6 +605,8 @@ def GridSearchForModels(XData, yData, clf, params, eachAlgor, AlgorithmsIDsEnd, 
     PerFeatureAccuracyAll = []
     PerClassMetric = []
     perModelProb = []
+    
+    perModelPrediction = []
     resultsMicro = []
     resultsMacro = []
     resultsWeighted = []
@@ -642,7 +629,8 @@ def GridSearchForModels(XData, yData, clf, params, eachAlgor, AlgorithmsIDsEnd, 
     inputs = range(len(XData))
     num_cores = multiprocessing.cpu_count()
     
-    impDataInst = Parallel(n_jobs=num_cores)(delayed(processInput)(i,XData,yData,crossValidation,clf) for i in inputs)
+    #impDataInst = Parallel(n_jobs=num_cores)(delayed(processInput)(i,XData,yData,crossValidation,clf) for i in inputs)
+    
     for eachModelParameters in parametersLocalNew:
         clf.set_params(**eachModelParameters)
         if (toggle == 1):
@@ -660,6 +648,7 @@ def GridSearchForModels(XData, yData, clf, params, eachAlgor, AlgorithmsIDsEnd, 
         clf.fit(XData, yData) 
         yPredict = clf.predict(XData)
         yPredict = np.nan_to_num(yPredict)
+        perModelPrediction.append(yPredict)
         # retrieve target names (class names)
         PerClassMetric.append(classification_report(yData, yPredict, target_names=target_names, digits=2, output_dict=True))
         yPredictProb = clf.predict_proba(XData)
@@ -685,7 +674,7 @@ def GridSearchForModels(XData, yData, clf, params, eachAlgor, AlgorithmsIDsEnd, 
         resultsWeightedBeta2.append(fbeta_score(yData, yPredict, average='weighted', beta=2))
   
         resultsLogLoss.append(log_loss(yData, yPredictProb, normalize=True))
-    print('perase')
+
     maxLog = max(resultsLogLoss)
     minLog = min(resultsLogLoss)
     for each in resultsLogLoss:
@@ -710,6 +699,10 @@ def GridSearchForModels(XData, yData, clf, params, eachAlgor, AlgorithmsIDsEnd, 
     metrics.insert(loop+12,'f2_weighted',resultsWeightedBeta2)
 
     metrics.insert(loop+13,'log_loss',resultsLogLossFinal)
+
+    perModelPredPandas = pd.DataFrame(perModelPrediction)
+    print(perModelPredPandas)
+    perModelPredPandas = perModelPredPandas.to_json()
 
     perModelProbPandas = pd.DataFrame(perModelProb)
     perModelProbPandas = perModelProbPandas.to_json()
@@ -746,7 +739,7 @@ def GridSearchForModels(XData, yData, clf, params, eachAlgor, AlgorithmsIDsEnd, 
     metrics = metrics.to_json()
     results.append(metrics) # Position: 6 and so on
     results.append(perModelProbPandas) # Position: 7 and so on
-    results.append(json.dumps(impDataInst)) # Position: 8 and so on
+    results.append(json.dumps(perModelPredPandas)) # Position: 8 and so on
 
     return results
 
@@ -1500,6 +1493,8 @@ def InitializeEnsemble():
     XModels = PreprocessingMetrics()
     global ModelSpaceMDS
     global ModelSpaceTSNE
+    global allParametersPerformancePerModel
+    global impDataInst
     
     XModels = XModels.fillna(0)
 
@@ -1515,10 +1510,66 @@ def InitializeEnsemble():
     PredictionSpaceUMAP = FunUMAP(PredictionProbSel)
 
     ModelsIDs = preProceModels()
+    
+    impDataInst = processDataInstance(ModelsIDs,allParametersPerformancePerModel)
+
     key = 0
     EnsembleModel(ModelsIDs, key)
 
     ReturnResults(ModelSpaceMDS,ModelSpaceTSNE,ModelSpaceUMAP,PredictionSpaceMDS,PredictionSpaceTSNE,PredictionSpaceUMAP)
+
+def processDataInstance(ModelsIDs, allParametersPerformancePerModel):
+    dicKNN = json.loads(allParametersPerformancePerModel[8])
+    dicSVC = json.loads(allParametersPerformancePerModel[17])
+    dicGausNB = json.loads(allParametersPerformancePerModel[26])
+    dicMLP = json.loads(allParametersPerformancePerModel[35])
+    dicLR = json.loads(allParametersPerformancePerModel[44])
+    dicLDA = json.loads(allParametersPerformancePerModel[53])
+    dicQDA = json.loads(allParametersPerformancePerModel[62])
+    dicRF = json.loads(allParametersPerformancePerModel[71])
+    dicExtraT = json.loads(allParametersPerformancePerModel[70])
+    dicAdaB = json.loads(allParametersPerformancePerModel[89])
+    dicGradB = json.loads(allParametersPerformancePerModel[98])
+
+    dfKNN = pd.DataFrame.from_dict(dicKNN)
+    dfSVC = pd.DataFrame.from_dict(dicSVC)
+    dfGausNB = pd.DataFrame.from_dict(dicGausNB)
+    dfMLP = pd.DataFrame.from_dict(dicMLP)
+    dfLR = pd.DataFrame.from_dict(dicLR)
+    dfLDA = pd.DataFrame.from_dict(dicLDA)
+    dfQDA = pd.DataFrame.from_dict(dicQDA)
+    dfRF = pd.DataFrame.from_dict(dicRF)
+    dfExtraT = pd.DataFrame.from_dict(dicExtraT)
+    dfAdaB = pd.DataFrame.from_dict(dicAdaB)
+    dfGradB = pd.DataFrame.from_dict(dicGradB)
+
+    dfKNN.index = dfKNN.index.astype(int)
+    dfSVC.index = dfSVC.index.astype(int) + SVCModelsCount
+    dfGausNB.index = dfGausNB.index.astype(int) + GausNBModelsCount
+    dfMLP.index = dfMLP.index.astype(int) + MLPModelsCount
+    dfLR.index = dfLR.index.astype(int) + LRModelsCount
+    dfLDA.index = dfLDA.index.astype(int) + LDAModelsCount
+    dfQDA.index = dfQDA.index.astype(int) + QDAModelsCount
+    dfRF.index = dfRF.index.astype(int) + RFModelsCount
+    dfExtraT.index = dfExtraT.index.astype(int) + ExtraTModelsCount
+    dfAdaB.index = dfAdaB.index.astype(int) + AdaBModelsCount
+    dfGradB.index = dfGradB.index.astype(int) + GradBModelsCount
+
+    dfKNNFiltered = dfKNN.loc[KNNModels, :]
+    dfSVCFiltered = dfSVC.loc[SVCModels, :]
+    dfGausNBFiltered = dfGausNB.loc[GausNBModels, :]
+    dfMLPFiltered = dfMLP.loc[MLPModels, :]
+    dfLRFiltered = dfLR.loc[LRModels, :]
+    dfLDAFiltered = dfLDA.loc[LDAModels, :]
+    dfQDAFiltered = dfQDA.loc[QDAModels, :]
+    dfRFFiltered = dfRF.loc[RFModels, :]
+    dfExtraTFiltered = dfExtraT.loc[ExtraTModels, :]
+    dfAdaBFiltered = dfAdaB.loc[AdaBModels, :]
+    dfGradBFiltered = dfGradB.loc[GradBModels, :]
+
+    df_connect = pd.concat([dfKNNFiltered, dfSVCFiltered, dfGausNBFiltered, dfMLPFiltered, dfLRFiltered, dfLDAFiltered, dfQDAFiltered, dfRFFiltered, dfExtraTFiltered, dfAdaBFiltered, dfGradBFiltered])
+    print(df_connect.sum(axis=1))
+    return df_connect
 
 def ReturnResults(ModelSpaceMDS,ModelSpaceTSNE,ModelSpaceUMAP,PredictionSpaceMDS,PredictionSpaceTSNE,PredictionSpaceUMAP):
 
@@ -1589,7 +1640,6 @@ def RetrieveSelClassifiersIDandRemoveFromStack():
 
     global resultsUpdatePredictionSpace
     resultsUpdatePredictionSpace = []
-    print(PredictionProbSelUpdate)
     resultsUpdatePredictionSpace.append(json.dumps(PredictionProbSelUpdate[0])) # Position: 0
     resultsUpdatePredictionSpace.append(json.dumps(PredictionProbSelUpdate[1]))
 
@@ -1827,7 +1877,7 @@ def RetrieveSelDataPoints():
             params = RetrieveParamsClearedListKNN
             AlgorithmsIDsEnd = 0
         elif (eachAlgor) == 'SVC':
-            clf = SVC(probability=True)
+            clf = SVC(probability=True,random_state=RANDOM_SEED)
             params = RetrieveParamsClearedListSVC
             AlgorithmsIDsEnd = SVCModelsCount
         elif (eachAlgor) == 'GausNB':
@@ -1835,11 +1885,11 @@ def RetrieveSelDataPoints():
             params = RetrieveParamsClearedListGausNB
             AlgorithmsIDsEnd = GausNBModelsCount
         elif (eachAlgor) == 'MLP':
-            clf = MLPClassifier()
+            clf = MLPClassifier(random_state=RANDOM_SEED)
             params = RetrieveParamsClearedListMLP
             AlgorithmsIDsEnd = MLPModelsCount
         elif (eachAlgor) == 'LR':
-            clf = LogisticRegression()
+            clf = LogisticRegression(random_state=RANDOM_SEED)
             params = RetrieveParamsClearedListLR
             AlgorithmsIDsEnd = LRModelsCount
         elif (eachAlgor) == 'LDA':
@@ -1851,19 +1901,19 @@ def RetrieveSelDataPoints():
             params = RetrieveParamsClearedListQDA
             AlgorithmsIDsEnd = QDAModelsCount
         elif (eachAlgor) == 'RF':
-            clf = RandomForestClassifier()
+            clf = RandomForestClassifier(random_state=RANDOM_SEED)
             params = RetrieveParamsClearedListRF
             AlgorithmsIDsEnd = RFModelsCount
         elif (eachAlgor) == 'ExtraT':
-            clf = ExtraTreesClassifier()
+            clf = ExtraTreesClassifier(random_state=RANDOM_SEED)
             params = RetrieveParamsClearedListExtraT
             AlgorithmsIDsEnd = ExtraTModelsCount
         elif (eachAlgor) == 'AdaB':
-            clf = AdaBoostClassifier()
+            clf = AdaBoostClassifier(random_state=RANDOM_SEED)
             params = RetrieveParamsClearedListGradB
             AlgorithmsIDsEnd = AdaBModelsCount
         else: 
-            clf = GradientBoostingClassifier()
+            clf = GradientBoostingClassifier(random_state=RANDOM_SEED)
             params = RetrieveParamsClearedListGradB
             AlgorithmsIDsEnd = GradBModelsCount
         metricsSelList = GridSearchSel(clf, params, factors, AlgorithmsIDsEnd, listofDataPoints)
@@ -2367,7 +2417,7 @@ def EnsembleModel(Models, keyRetrieved):
     global yData
     global sclf
 
-    lr = LogisticRegression()
+    lr = LogisticRegression(random_state=RANDOM_SEED)
 
     if (keyRetrieved == 0):
         all_classifiers = []
@@ -2721,7 +2771,7 @@ def EnsembleModel(Models, keyRetrieved):
         #            del columnsReduce[0:len(resultsList[index][1])]
         #        else:
         #            for j, each in enumerate(resultsList[index][1]):
-        #                all_classifiersSelection.append(make_pipeline(ColumnSelector(cols=columnsReduce[j]), RandomForestClassifier().set_params(**each)))
+        #                all_classifiersSelection.append(make_pipeline(ColumnSelector(cols=columnsReduce[j]), RandomForestClassifier(random_state=RANDOM_SEED).set_params(**each)))
         #            del columnsReduce[0:len(resultsList[index][1])]
         #    sclf = StackingCVClassifier(classifiers=all_classifiersSelection,
         #                        use_probas=True,
@@ -2733,7 +2783,7 @@ def EnsembleModel(Models, keyRetrieved):
         pass
     else:
         num_cores = multiprocessing.cpu_count()
-        inputsSc = ['accuracy','precision_weighted','recall_weighted','accuracy','precision_weighted','recall_weighted']
+        inputsSc = ['accuracy','precision_weighted','recall_weighted','accuracy','precision_weighted','recall_weighted','f1_weighted','f1_weighted']
         flat_results = Parallel(n_jobs=num_cores)(delayed(solve)(sclf,sclfStack,XData,yData,crossValidation,item,index) for index, item in enumerate(inputsSc))
         scores = [item for sublist in flat_results for item in sublist]
 
@@ -2748,14 +2798,6 @@ def solve(sclf,sclfStack,XData,yData,crossValidation,scoringIn,loop):
     scoresLoc.append(temp.mean())
     scoresLoc.append(temp.std())
     return scoresLoc
-
-def processInput(indexValue,XData,yData,crossValidation,sclf):
-    XDataRemove = XData.copy()
-    XDataRemove.drop(indexValue, inplace=True)
-    yDataRemove = yData.copy()
-    del yDataRemove[indexValue]
-    tempRemove = model_selection.cross_val_score(sclf, XDataRemove, yDataRemove, cv=crossValidation, scoring='accuracy', n_jobs=-1)
-    return tempRemove.mean()
 
 # Sending the final results to be visualized as a line plot
 @app.route('/data/SendFinalResultsBacktoVisualize', methods=["GET", "POST"])
