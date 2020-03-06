@@ -408,8 +408,8 @@ export default {
       var layout = {font: { family: 'Helvetica', size: 14, color: '#000000' },
         autosize: true,
         barmode: 'group',
-        width: this.WH[0]*10.21,
-        height: this.WH[1]*0.59,
+        width: this.WH[0]*10.205,
+        height: this.WH[1]*0.6,
             xaxis: {
                 title: 'Algorithm',
                 type:"category",
@@ -535,7 +535,7 @@ export default {
           
           }
           var barc = document.getElementById('barChart');
-          var config = {scrollZoom: true, displaylogo: false, showLink: false, showSendToCloud: false, modeBarButtonsToRemove: ['toImage'], responsive: true}
+          var config = {displayModeBar: false, scrollZoom: true, displaylogo: false, showLink: false, showSendToCloud: false, modeBarButtonsToRemove: ['toImage'], responsive: true}
 
           Plotly.newPlot(barc, data, layout, config)
 
@@ -544,7 +544,15 @@ export default {
             eventData.points.forEach((e) => {
               tName = e.data.name.replace(/ *\([^)]*\) */g, "")
             });
-            this.tNameAll = tName
+            if (tName == "< 50% diameter narrowing / Healthy") {
+              tName = 0
+              this.tNameAll = 0
+            } else if (tName == "> 50% diameter narrowing / Diseased"){
+              tName = 1
+              this.tNameAll = 1
+            } else {
+              this.tNameAll = tName
+            }
             EventBus.$emit('clearPCP')
             EventBus.$emit('alternateFlagLock')
             EventBus.$emit('boxplotSet', [storeKNN[tName],storeSVC[tName],storeGausNB[tName],storeMLP[tName],storeLR[tName],storeLDA[tName],storeQDA[tName],storeRF[tName],storeExtraT[tName],storeAdaB[tName],storeGradB[tName]])

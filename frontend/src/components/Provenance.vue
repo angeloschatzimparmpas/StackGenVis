@@ -1,8 +1,8 @@
 <template>
     <div>
-        <div class="squares-container" style="min-height: 364px;">
+        <div class="squares-container" style="min-height: 374px;">
         <div id="tooltip"></div>	<!-- new  -->
-          <div id="performanceCapture" style="min-height: 150px;"></div>	<!-- new  -->
+          <div id="performanceCapture" style="min-height: 150px; margin-top: -10px !important;"></div>	<!-- new  -->
           <canvas id="main-canvas" style="overflow-y: auto; height:190px;"></canvas>
           <br>
           <div id="dynamic-buttons"></div>
@@ -13,6 +13,10 @@
 <script>
 import { EventBus } from '../main.js'
 import $ from 'jquery'
+import * as d3Base from 'd3'
+
+// attach all d3 plugins to the d3 library
+const d3v5 = Object.assign(d3Base)
 
 import * as Stardust from 'stardust-core'
 import * as StardustGL from 'stardust-webgl'
@@ -43,7 +47,13 @@ export default {
       storeData: [],
       storePerformance: [],
       storeParameters: [],
-      flagUpdated: 0
+      flagUpdated: 0,
+      FinalResultsProv: [],
+      Stack_scoresMean: [],
+      Stack_scoresMean2: [],
+      Stack_scoresMean3: [],
+      Stack_scoresMean4: [],
+      firstInside: 0
     }
   },
   methods: {
@@ -54,6 +64,8 @@ export default {
         $('.dynamic_buttons').remove();
         this.platform.clear();
       }
+      var svg = d3.select("#performanceCapture");
+      svg.selectAll("*").remove();
     },
     clean(obj) {
       var propNames = Object.getOwnPropertyNames(obj);
@@ -66,8 +78,8 @@ export default {
     },
     provenance () {
       var canvas = document.getElementById("main-canvas");
-      var width = this.WH[0]*4 // interactive visualization
-      var height = this.WH[1]*0.58 // interactive visualization
+      var width = this.WH[0]*3.5 // interactive visualization
+      var height = this.WH[1]*0.375 // interactive visualization
 
       var flagKNN = 0
       var flagSVC = 0
@@ -83,7 +95,6 @@ export default {
 
       var localStackStore = []
       var StackInfo = JSON.parse(this.stackInformation[1])
-      console.log(StackInfo)
       var arrayOfNumbers = StackInfo.map(Number)
       this.storeData.push(arrayOfNumbers)
       localStackStore = this.storeData.slice()
@@ -209,9 +220,7 @@ export default {
       this.data.forEach(d => {
         if (d.column == this.counter) {
           d.typeIndex = this.typeCounter[d.type]++;
-          console.log(d.typeIndex)
           d.typeColumnIndex = this.typeColumnCounter[d.column]++;
-          console.log(d.typeColumnIndex)
         }
       });
 
@@ -227,8 +236,8 @@ export default {
       // here 10 was 5!
       let pScale = Stardust.scale.custom(`
               Vector2(
-                  20 + column * 100 + typeColumnIndex % 5 * 8,
-                  height - 10 - floor(typeColumnIndex / 5) * 10
+                  20 + column * 195 + typeColumnIndex % 12 * 11.7,
+                  height - 10 - floor(typeColumnIndex / 12) * 10
               )
           `);
       pScale.attr("typeColumnIndex", d => d.typeColumnIndex);
@@ -239,8 +248,8 @@ export default {
 
       let qScale = Stardust.scale.custom(`
               Vector2(
-                  65 + typeIndex % 30 * 8,
-                  height - 10 - floor(typeIndex / 15) * 18
+                  60 + typeIndex % 30 * 8,
+                  height - 10 - floor(typeIndex / 15) * 40
               )
           `);
       qScale.attr("typeIndex", d => d.typeIndex);
@@ -314,7 +323,7 @@ export default {
 					.style('opacity', 0.8)
 					.style('top', x + 5 + 'px')
 					.style('left', y + 5 + 'px')
-					.html('Model ID: '+mergedIDs[p[1]]+'<br>'+'Parameters: '+JSON.stringify(mergedParams[p[1]])+'<br> # Performance (%) #: '+mergedPerf[p[1]]);
+					.html('Model ID: '+mergedIDs[p[1]]+'<br>'+'Parameters: '+JSON.stringify(mergedParams[p[1]])+'<br> # Performance (%) #: '+mergedPerf[p[1]].toFixed(2));
 
 			} else {
 
@@ -325,8 +334,11 @@ export default {
 
 			}
       }
-      const stringStep = "Stack Ensemble"
+      const stringStep = "Stacking Ensemble "
       var myButton = '<button id="HistoryReturnButtons'+this.counter+'" class="dynamic_buttons">'+stringStep+this.counter+'</button>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'
+      var svgs = '<svg id=svg'+this.counter+'></svg>'
+      this.firstInside = this.counter
+      $("#performanceCapture").append(svgs);
       $("#dynamic-buttons").append(myButton);
 
       EventBus.$emit('requestProven',this.counter-1)
@@ -352,103 +364,111 @@ export default {
         EventBus.$emit('ChangeKey', 0)
         }
       );
+  },
+  RadialPerf () {
+    var width = 160;
+    var arcSize = (6 * width / 100);
+    var innerRadius = arcSize * 3;
 
-      var width = 150;
-      var arcSize = (6 * width / 100);
-      var innerRadius = arcSize * 3;            
+    this.Stack_scoresMean.push((JSON.parse(this.FinalResultsProv[8])*100).toFixed(0))
+    this.Stack_scoresMean2.push((JSON.parse(this.FinalResultsProv[10])*100).toFixed(0))
+    this.Stack_scoresMean3.push((JSON.parse(this.FinalResultsProv[12])*100).toFixed(0))
+    this.Stack_scoresMean4.push((JSON.parse(this.FinalResultsProv[14])*100).toFixed(0))
 
-      var data = [
-          {value: 45, label: "Accuracy", color: '#ff0000'},
-          {value: 33, label: "Precision", color: '#00ff00'},
-          {value: 66, label: "Recall", color: '#0000ff'},
-          {value: 50, label: "F1 Score", color: '#ffff00'}
-      ];
+    const colorsSingle = ['#fc9272','#fb6a4a','#ef3b2c','#cb181d','#a50f15','#67000d']
 
-      function render() {
-          var svg = d3.select('#performanceCapture').append('svg').attr('width', width).attr('height', width);
+    var scaleColor = d3v5.scaleLinear()
+      .domain([0,100,5])
+      .range(colorsSingle)
+      .interpolate(d3v5.interpolateRgb); //interpolateHsl interpolateHcl interpolateRgb;
 
-          var arcs = data.map(function (obj, i) {
-              return d3.svg.arc().innerRadius(i * arcSize + innerRadius).outerRadius((i + 1) * arcSize - (width / 100) + innerRadius);
-          });
-          var arcsGrey = data.map(function (obj, i) {
-              return d3.svg.arc().innerRadius(i * arcSize + (innerRadius + ((arcSize / 2) - 2))).outerRadius((i + 1) * arcSize - ((arcSize / 2)) + (innerRadius));
-          });
+    var data = [
+      {value: this.Stack_scoresMean, label: "Accuracy", color: scaleColor(this.Stack_scoresMean)},
+      {value: this.Stack_scoresMean2, label: "Precision", color: scaleColor(this.Stack_scoresMean2)},
+      {value: this.Stack_scoresMean3, label: "Recall", color: scaleColor(this.Stack_scoresMean3)},
+      {value: this.Stack_scoresMean4, label: "F1 Score", color: scaleColor(this.Stack_scoresMean4)}
+    ];
+  
+    var svg = d3.select('#svg'+this.firstInside).attr('width', width).attr('height', width).style('margin-right', '20px');
 
-          var pieData = data.map(function (obj, i) {
-              return [
-                  {value: obj.value * 0.75, arc: arcs[i], object: obj},
-                  {value: (100 - obj.value) * 0.75, arc: arcsGrey[i], object: obj},
-                  {value: 100 * 0.25, arc: arcs[i], object: obj}];
-          });
+    var arcs = data.map(function (obj, i) {
+        return d3.svg.arc().innerRadius(i * arcSize + innerRadius).outerRadius((i + 1) * arcSize - (width / 100) + innerRadius);
+    });
+    var arcsGrey = data.map(function (obj, i) {
+        return d3.svg.arc().innerRadius(i * arcSize + (innerRadius + ((arcSize / 2) - 2))).outerRadius((i + 1) * arcSize - ((arcSize / 2)) + (innerRadius));
+    });
 
-          var pie = d3.layout.pie().sort(null).value(function (d) {
-              return d.value;
-          });
+    var pieData = data.map(function (obj, i) {
+        return [
+            {value: obj.value * 0.75, arc: arcs[i], object: obj},
+            {value: (100 - obj.value) * 0.75, arc: arcsGrey[i], object: obj},
+            {value: 100 * 0.25, arc: arcs[i], object: obj}];
+    });
 
-          var g = svg.selectAll('g').data(pieData).enter()
-              .append('g')
-              .attr('transform', 'translate(' + width / 2 + ',' + width / 2 + ') rotate(180)');
-          var gText = svg.selectAll('g.textClass').data([{}]).enter()
-              .append('g')
-              .classed('textClass', true)
-              .attr('transform', 'translate(' + width / 2 + ',' + width / 2 + ') rotate(180)');
+    var pie = d3.layout.pie().sort(null).value(function (d) {
+        return d.value;
+    });
 
-
-          g.selectAll('path').data(function (d) {
-              return pie(d);
-          }).enter().append('path')
-              .attr('id', function (d, i) {
-                  if (i == 1) {
-                      return "Text" + d.data.object.label
-                  }
-              })
-              .attr('d', function (d) {
-                  return d.data.arc(d);
-              }).attr('fill', function (d, i) {
-              return i == 0 ? d.data.object.color : i == 1 ? '#D3D3D3' : 'none';
-          });
-
-          svg.selectAll('g').each(function (d, index) {
-              var el = d3.select(this);
-              var path = el.selectAll('path').each(function (r, i) {
-                  if (i === 1) {
-                      var centroid = r.data.arc.centroid({
-                          startAngle: r.startAngle + 0.05,
-                          endAngle: r.startAngle + 0.001 + 0.05
-                      });
-                      var lableObj = r.data.object;
-                      g.append('text')
-                          .attr('font-size', ((5 * width) / 100))
-                          .attr('dominant-baseline', 'central')
-                          /*.attr('transform', "translate(" + centroid[0] + "," + (centroid[1] + 10) + ") rotate(" + (180 / Math.PI * r.startAngle + 7) + ")")
-                            .attr('alignment-baseline', 'middle')*/
-                          .append("textPath")
-                          .attr("textLength", function (d, i) {
-                              return 0;
-                          })
-                          .attr("xlink:href", "#Text" + r.data.object.label)
-                          .attr("startOffset", '5')
-                          .attr("dy", '-3em')
-                          .text(lableObj.value + '%');
-                  }
-                  if (i === 0) {
-                      var centroidText = r.data.arc.centroid({
-                          startAngle: r.startAngle,
-                          endAngle: r.startAngle
-                      });
-                      var lableObj = r.data.object;
-                      gText.append('text')
-                          .attr('font-size', ((5 * width) / 100))
-                          .text(lableObj.label)
-                          .attr('transform', "translate(" + (centroidText[0] - ((1.5 * width) / 100)) + "," + (centroidText[1] + ") rotate(" + (180) + ")"))
-                          .attr('dominant-baseline', 'central');
-                  }
-              });
-          });
-      }
+    var g = svg.selectAll('g').data(pieData).enter()
+        .append('g')
+        .attr('transform', 'translate(' + width / 2 + ',' + width / 2 + ') rotate(180)');
+    var gText = svg.selectAll('g.textClass').data([{}]).enter()
+        .append('g')
+        .classed('textClass', true)
+        .attr('transform', 'translate(' + width / 2 + ',' + width / 2 + ') rotate(180)');
 
 
-      render()
+    g.selectAll('path').data(function (d) {
+        return pie(d);
+    }).enter().append('path')
+        .attr('id', function (d, i) {
+            if (i == 1) {
+                return "Text" + d.data.object.label
+            }
+        })
+        .attr('d', function (d) {
+            return d.data.arc(d);
+        }).attr('fill', function (d, i) {
+        return i == 0 ? d.data.object.color : i == 1 ? '#D3D3D3' : 'none';
+    });
+
+    svg.selectAll('g').each(function (d, index) {
+        var el = d3.select(this);
+        var path = el.selectAll('path').each(function (r, i) {
+            if (i === 1) {
+                var centroid = r.data.arc.centroid({
+                    startAngle: r.startAngle + 0.05,
+                    endAngle: r.startAngle + 0.001 + 0.05
+                });
+                var lableObj = r.data.object;
+                g.append('text')
+                    .attr('font-size', ((5 * width) / 100) + 2)
+                    .attr('dominant-baseline', 'central')
+                    /*.attr('transform', "translate(" + centroid[0] + "," + (centroid[1] + 10) + ") rotate(" + (180 / Math.PI * r.startAngle + 7) + ")")
+                      .attr('alignment-baseline', 'middle')*/
+                    .append("textPath")
+                    .attr("textLength", function (d, i) {
+                        return 0;
+                    })
+                    .attr("xlink:href", "#Text" + r.data.object.label)
+                    .attr("startOffset", '5')
+                    .attr("dy", '-3em')
+                    .text(lableObj.value + '%');
+            }
+            if (i === 0) {
+                var centroidText = r.data.arc.centroid({
+                    startAngle: r.startAngle,
+                    endAngle: r.startAngle
+                });
+                var lableObj = r.data.object;
+                gText.append('text')
+                    .attr('font-size', ((5 * width) / 100) + 2)
+                    .text(lableObj.label)
+                    .attr('transform', "translate(" + (centroidText[0] - ((1.5 * width) / 100)) + "," + (centroidText[1] + ") rotate(" + (180) + ")"))
+                    .attr('dominant-baseline', 'central');
+            }
+        });
+    });
   },
   updateExtraction () {
     EventBus.$emit('SendSelectedPointsToServerEvent', this.storeData[this.flagUpdated])
@@ -464,6 +484,10 @@ export default {
   }
   },
   mounted () {
+    EventBus.$on('emittedEventCallingLinePlot', data => {
+    this.FinalResultsProv = data})
+    EventBus.$on('emittedEventCallingReally', this.RadialPerf)
+
     EventBus.$on('requestProven', data => {
     this.flagUpdated = data})
     EventBus.$on('requestProven', this.updateExtraction)
@@ -471,6 +495,7 @@ export default {
     EventBus.$on('ParametersProvenance', data => {this.AllDetails = data})
     EventBus.$on('InitializeProvenance', data => {this.stackInformation = data})
     EventBus.$on('InitializeProvenance', this.provenance)
+
     EventBus.$on('Responsive', data => {
     this.WH = data})
     EventBus.$on('ResponsiveandChange', data => {

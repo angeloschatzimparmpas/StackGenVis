@@ -236,7 +236,7 @@ export default {
         
         }]
         layout = {
-          title: 'MDS Projection',
+
           xaxis: {
               visible: false,
               range: [minX, maxX]
@@ -298,7 +298,7 @@ export default {
           }
         }]
         layout = {
-          title: 't-SNE Projection',
+
           xaxis: {
               visible: false,
               range: [minX, maxX]
@@ -351,7 +351,7 @@ export default {
         
         }]
         layout = {
-          title: 'UMAP Projection',
+
           xaxis: {
               visible: false,
               range: [minX, maxX]
@@ -389,8 +389,8 @@ export default {
       const OverviewPlotly = document.getElementById('OverviewPlotly')
       var allModels = JSON.parse(this.ScatterPlotResults[13])
       OverviewPlotly.on('plotly_selected', function (evt) {
-        this.pushModelsRemaining = []
         if (typeof evt !== 'undefined') {
+          var pushModelsRemainingTemp = []
           const ClassifierIDsList = []
           const ClassifierIDsListCleared = []
           for (let i = 0; evt.points.length; i++) {
@@ -400,17 +400,16 @@ export default {
               const OnlyId = evt.points[i].text.split(' ')[2]
               const OnlyIdCleared = OnlyId.split('<br>')
               ClassifierIDsList.push(OnlyIdCleared[0])
-              let numb = OnlyIdCleared[0].match(/\d/g);
-              numb = numb.join("");
-              let numberNumb = Number(numb)
+              let numberNumb = parseInt(OnlyIdCleared[0])
               ClassifierIDsListCleared.push(numberNumb)
             }
           }
           for (let i = 0; i < allModels.length; i++) {
             if (!ClassifierIDsListCleared.includes(allModels[i])) {
-              this.pushModelsRemaining.push(allModels[i])
+              pushModelsRemainingTemp.push(allModels[i])
             }
           }
+            EventBus.$emit('updateRemaining', pushModelsRemainingTemp)
           if (allModels != '') {
             EventBus.$emit('ChangeKey', 1)
             EventBus.$emit('SendSelectedPointsToServerEvent', ClassifierIDsListCleared)
@@ -470,8 +469,9 @@ export default {
   mounted() {
     /*EventBus.$on('updateMetricsScatter', data => { this.newColorsUpdate = data })
     EventBus.$on('updateMetricsScatter', this.ScatterPlotView)*/
+    EventBus.$on('updateRemaining', data => { this.pushModelsRemaining = data })
 
-    EventBus.$on('requestProven',data => { this.activeModels = data })
+    EventBus.$on('requestProven', data => { this.activeModels = data })
 
     EventBus.$on('sendKeyScatt', data => { this.keyLocal = data })
 

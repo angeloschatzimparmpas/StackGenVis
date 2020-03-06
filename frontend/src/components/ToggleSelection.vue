@@ -25,11 +25,6 @@ export default {
                 $(this).bootstrapToggle('on'); //you can set "on" or "off" 
         });
       },
-      ToggleSelection () { 
-      },
-      ToggleShow () { 
-        document.getElementById('toggles').style.visibility = "visible"
-      },
       ToggleManage () { 
       if(this.toggleDeepLocal == 0) {
         document.getElementById('toggles').style.visibility = "hidden"
@@ -39,6 +34,7 @@ export default {
       }
   },
   mounted () {
+    this.ToggleManage()
     EventBus.$on('toggleDeep', data => {this.toggleDeepLocal = data})
     EventBus.$on('toggleDeep', this.ToggleManage)
 

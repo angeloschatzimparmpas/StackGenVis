@@ -328,8 +328,6 @@ def SendToServerData():
     global XDataStored, yDataStored
     XDataStored = XData.copy()
     yDataStored = yData.copy()
-
-    callPreResults()
     
     return 'Processed uploaded data set'
 
@@ -1513,6 +1511,8 @@ def InitializeEnsemble():
     
     impDataInst = processDataInstance(ModelsIDs,allParametersPerformancePerModel)
 
+    callPreResults()
+
     key = 0
     EnsembleModel(ModelsIDs, key)
 
@@ -1520,16 +1520,27 @@ def InitializeEnsemble():
 
 def processDataInstance(ModelsIDs, allParametersPerformancePerModel):
     dicKNN = json.loads(allParametersPerformancePerModel[8])
+    dicKNN = json.loads(dicKNN)
     dicSVC = json.loads(allParametersPerformancePerModel[17])
+    dicSVC = json.loads(dicSVC)
     dicGausNB = json.loads(allParametersPerformancePerModel[26])
+    dicGausNB = json.loads(dicGausNB)
     dicMLP = json.loads(allParametersPerformancePerModel[35])
+    dicMLP = json.loads(dicMLP)
     dicLR = json.loads(allParametersPerformancePerModel[44])
+    dicLR = json.loads(dicLR)
     dicLDA = json.loads(allParametersPerformancePerModel[53])
+    dicLDA = json.loads(dicLDA)
     dicQDA = json.loads(allParametersPerformancePerModel[62])
+    dicQDA = json.loads(dicQDA)
     dicRF = json.loads(allParametersPerformancePerModel[71])
-    dicExtraT = json.loads(allParametersPerformancePerModel[70])
+    dicRF = json.loads(dicRF)
+    dicExtraT = json.loads(allParametersPerformancePerModel[80])
+    dicExtraT = json.loads(dicExtraT)
     dicAdaB = json.loads(allParametersPerformancePerModel[89])
+    dicAdaB = json.loads(dicAdaB)
     dicGradB = json.loads(allParametersPerformancePerModel[98])
+    dicGradB = json.loads(dicGradB)
 
     dfKNN = pd.DataFrame.from_dict(dicKNN)
     dfSVC = pd.DataFrame.from_dict(dicSVC)
@@ -1568,8 +1579,17 @@ def processDataInstance(ModelsIDs, allParametersPerformancePerModel):
     dfGradBFiltered = dfGradB.loc[GradBModels, :]
 
     df_connect = pd.concat([dfKNNFiltered, dfSVCFiltered, dfGausNBFiltered, dfMLPFiltered, dfLRFiltered, dfLDAFiltered, dfQDAFiltered, dfRFFiltered, dfExtraTFiltered, dfAdaBFiltered, dfGradBFiltered])
-    print(df_connect.sum(axis=1))
-    return df_connect
+    global yData
+    countCorrect = []
+    length = len(df_connect.index)
+    for index, element in enumerate(yData):
+        countTemp = 0
+        dfPart = df_connect[[str(index)]]
+        for indexdf, row in dfPart.iterrows():
+            if (int(row.values[0]) == int(element)):
+                countTemp += 1
+        countCorrect.append(1 - (countTemp/length))
+    return countCorrect
 
 def ReturnResults(ModelSpaceMDS,ModelSpaceTSNE,ModelSpaceUMAP,PredictionSpaceMDS,PredictionSpaceTSNE,PredictionSpaceUMAP):
 
@@ -1637,6 +1657,8 @@ def RetrieveSelClassifiersIDandRemoveFromStack():
     ClassifierIDsList = request.get_data().decode('utf8').replace("'", '"')
 
     PredictionProbSelUpdate = PreprocessingPredUpdate(ClassifierIDsList)
+    print(ClassifierIDsList)
+    print(PredictionProbSelUpdate)
 
     global resultsUpdatePredictionSpace
     resultsUpdatePredictionSpace = []

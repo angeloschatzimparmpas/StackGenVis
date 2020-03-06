@@ -81,33 +81,33 @@ export default {
           };
           var data = [trace1, trace2];
           var layout = {
+          font: { family: 'Helvetica', size: 14, color: '#000000' },
           boxmode: 'group',
           autosize: true,
           width:  width,
           height: height,
           hovermode: 'x',
-          font: { family: 'Helvetica', size: 14, color: '#000000' },
           margin: {
             l: 50,
             r: 0,
-            b: 30,
+            b: 35,
             t: 40,
             pad: 0
           },
           xaxis: {
               title: 'Performance Metrics',
               titlefont: {
-              size: 12,
+              size: 16,
               color: 'black'
               }},
           yaxis: {
               title: '# Performance (%) #',
               titlefont: {
-              size: 12,
+              size: 16,
               color: 'black'
               }}};
           var boxPlot = document.getElementById('PerMetricBar');
-          var config = {scrollZoom: true, displaylogo: false, showLink: false, showSendToCloud: false, modeBarButtonsToRemove: ['toImage'], responsive: true}
+          var config = {displayModeBar: false, scrollZoom: true, displaylogo: false, showLink: false, showSendToCloud: false, modeBarButtonsToRemove: ['toImage'], responsive: true}
           Plotly.newPlot(boxPlot, data, layout, config);
 
           boxPlot.on('plotly_click', (eventData) => {

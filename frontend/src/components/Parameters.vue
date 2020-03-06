@@ -674,7 +674,7 @@ export default {
 			////////////////////////////////////////////////////////////// 
 
 			var color = d3.scale.ordinal()
-				.range(["#ffed6f","#008080"]);
+				.range(["#ffed6f","#000000"]);
       
 			var radarChartOptions = {
 			  w: width,
@@ -722,7 +722,7 @@ export default {
   mounted () {
     EventBus.$on('updateFlagKNN', data => { this.FlagKNN = data })
     EventBus.$on('updateFlagSVC', data => { this.FlagSVC = data })
-    EventBus.$on('updateFlagGausNB', data => { this.FlagGausNB = data })
+    EventBus.$on('updateFlagGauNB', data => { this.FlagGausNB = data })
     EventBus.$on('updateFlagMLP', data => { this.FlagMLP = data })
     EventBus.$on('updateFlagLR', data => { this.FlagLR = data })
     EventBus.$on('updateFlagLDA', data => { this.FlagLDA = data })
@@ -736,7 +736,7 @@ export default {
 
     EventBus.$on('updateFlagKNN', this.overview)
     EventBus.$on('updateFlagSVC', this.overview)
-    EventBus.$on('updateFlagGausNB', this.overview)
+    EventBus.$on('updateFlagGauNB', this.overview)
     EventBus.$on('updateFlagMLP', this.overview)
     EventBus.$on('updateFlagLR', this.overview)
     EventBus.$on('updateFlagLDA', this.overview)

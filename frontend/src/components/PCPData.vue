@@ -29,7 +29,6 @@ export default {
       d3.selectAll("#PCPDataView > *").remove();
       const DataSetNew = JSON.parse(this.PCPDataReceived[2])
       var DataSetParse = JSON.parse(DataSetNew)
-      this.ClassifierIDsListClearedData = DataSetParse.slice();
       const target_names = JSON.parse(this.PCPDataReceived[3])
       const target_names_original = JSON.parse(this.PCPDataReceived[4])
 
@@ -41,8 +40,10 @@ export default {
       EventBus.$emit('sendDatatoPickle', extraction)
 
       var highlighted = []
-      for (let i = 0; i < this.ClassifierIDsListClearedData.length; i++) {
-        highlighted.push(DataSetParse[i])
+      for (let i = 0; i < DataSetParse.length; i++) {
+        if (this.ClassifierIDsListClearedData.includes(i)) {
+          highlighted[i] = DataSetParse[i]
+        }
       }
 
       if (DataSetParse.length == this.ClassifierIDsListClearedData.length || this.ClassifierIDsListClearedData.length == 0)

@@ -17,7 +17,7 @@
         </b-col>
         <b-col cols="6">
           <mdb-card>
-            <mdb-card-header color="primary-color" tag="h5" class="text-center" style="background-color: #C0C0C0;"><small class="float-left"><knowledge/></small>History of the Stacking Ensemble<small class="float-right"><active/></small></mdb-card-header>
+            <mdb-card-header color="primary-color" tag="h5" class="text-center" style="background-color: #C0C0C0;">History of the Stacking Ensemble<small class="float-right"><knowledge/></small></mdb-card-header>
             <mdb-card-body>
                 <Provenance/>
             </mdb-card-body>
@@ -98,7 +98,7 @@
               </b-col>
               <b-col cols="6">
                 <mdb-card style="margin-top: 15px;">
-                  <mdb-card-header color="primary-color" tag="h5" class="text-center">Features Selection for Each Model</mdb-card-header>
+                  <mdb-card-header color="primary-color" tag="h5" class="text-center">Features Selection for Each Model<small class="float-right"><active/></small></mdb-card-header>
                     <mdb-card-body>
                       <mdb-card-text class="text-center" style="min-height: 845px">
                         <ToggleSelection/>
@@ -407,6 +407,7 @@ export default Vue.extend({
         this.OverSelLength = 0
         EventBus.$emit('resetViews')
       } else {
+        this.OverSelLength = this.ClassifierIDsList.length
         const path = `http://127.0.0.1:5000/data/ServerRequestSelPoin`
         const postData = {
           ClassifiersList: this.ClassifierIDsList,
@@ -423,7 +424,6 @@ export default Vue.extend({
         axios.post(path, postData, axiosConfig)
           .then(response => {
             console.log('Sent the selected points to the server (scatterplot)!')
-            this.OverSelLength = this.ClassifierIDsList.length
             if (this.keyNow == 0) {
               this.OverAllLength = this.ClassifierIDsList.length
               EventBus.$emit('GrayOutPoints', this.ClassifierIDsList)
@@ -438,7 +438,7 @@ export default Vue.extend({
     },
     RemoveFromStackModels () {
       const path = `http://127.0.0.1:5000/data/ServerRemoveFromStack`
-      
+      console.log(this.ClassifierIDsList)
       const postData = {
         ClassifiersList: this.ClassifierIDsList
       }
@@ -453,6 +453,7 @@ export default Vue.extend({
       axios.post(path, postData, axiosConfig)
       .then(response => {
       console.log('Sent the selected points to the server (scatterplot)!')
+      EventBus.$emit('updateFlagForFinalResults', 0)
       this.getFinalResults()
       this.updatePredictionsSpace()
       })
@@ -700,6 +701,7 @@ export default Vue.extend({
     },
     UpdateBasedonFeatures () {
       const path = `http://127.0.0.1:5000/data/FeaturesSelection`
+      console.log(this.SelectedFeaturesPerClassifier)
         const postData = {
           featureSelection: this.SelectedFeaturesPerClassifier
         }
@@ -942,6 +944,7 @@ export default Vue.extend({
     window.addEventListener('resize', this.change)
   },
   mounted() {
+
     this.Alg()
     var modal = document.getElementById('myModal')
     window.onclick = function(event) {
@@ -972,7 +975,7 @@ export default Vue.extend({
     EventBus.$on('SendSelectedDataPointsToServerEvent', data => { this.DataPointsSel = data })
     EventBus.$on('SendSelectedDataPointsToServerEvent', this.SendSelectedDataPointsToServer)
     EventBus.$on('SendSelectedFeaturesEvent', data => { this.SelectedFeaturesPerClassifier = data })
-    EventBus.$on('SendSelectedFeaturesEvent', this.UpdateBasedonFeatures )
+    EventBus.$on('sendToServerFeatures', this.UpdateBasedonFeatures)
     EventBus.$on('SendToServerDataSetConfirmation', data => { this.RetrieveValueFile = data })
     EventBus.$on('SendToServerLocalFile', data => { this.localFile = data })
     EventBus.$on('SendToServerLocalFile', this.SendToServerData)

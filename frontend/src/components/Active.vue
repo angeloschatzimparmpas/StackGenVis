@@ -15,12 +15,12 @@ export default {
   name: 'Active',
   data () {
     return {
-      valueActive: 'Compute Active Metamodel\'s Performance'
+      valueActive: 'Compute Metamodel\'s Performance'
     }
   },
   methods: {
       sendUpdateActive () {
-        EventBus.$emit('OpenModal')
+        EventBus.$emit('sendToServerFeatures')
       }
   }
 }

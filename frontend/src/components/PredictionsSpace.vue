@@ -75,6 +75,20 @@ export default {
       var Xaxs = [];
       var Yaxs = [];
 
+      var beautifyLabels = []
+      if (this.RetrieveDataSet == 'StanceC') {
+        beautifyLabels.push('Absence of Hypotheticality')
+        beautifyLabels.push('Presence of Hypotheticality')
+      }
+      else if (this.RetrieveDataSet == 'HeartC') {
+        beautifyLabels.push('< 50% diameter narrowing / Healthy')
+        beautifyLabels.push('> 50% diameter narrowing / Diseased')
+      } else {
+        target_names.forEach(element => {
+          beautifyLabels.push(element)
+        });
+      }
+
       if (this.representationDef == 'mds') {
         for (let i = 0; i < XandYCoordinatesMDS[0].length; i++) {
           Xaxs.push(XandYCoordinatesMDS[0][i])
@@ -113,7 +127,7 @@ export default {
         }
 
         layout = {font: { family: 'Helvetica', size: 14, color: '#000000' },
-        title: 'MDS Projection',
+
         xaxis: {
             visible: false
         },
@@ -125,6 +139,7 @@ export default {
         autosize: true,
         width: width,
         height: height,
+        legend: {orientation: 'h', xanchor: 'center', x: 0.5},
         margin: {
             l: 50,
             r: 0,
@@ -180,7 +195,7 @@ export default {
         }
 
         layout = {font: { family: 'Helvetica', size: 14, color: '#000000' },
-        title: 't-SNE Projection',
+
         xaxis: {
             visible: false
         },
@@ -192,6 +207,7 @@ export default {
         autosize: true,
         width: width,
         height: height,
+        legend: {orientation: 'h', xanchor: 'center', x: 0.5},
         margin: {
             l: 50,
             r: 0,
@@ -211,20 +227,6 @@ export default {
         result.ID = IDs
 
         var traces = []
-
-        var beautifyLabels = []
-        if (this.RetrieveDataSet == 'StanceC') {
-          beautifyLabels.push('Absence of Hypotheticality')
-          beautifyLabels.push('Presence of Hypotheticality')
-        }
-        else if (this.RetrieveDataSet == 'HeartC') {
-          beautifyLabels.push('< 50% diameter narrowing / Healthy')
-          beautifyLabels.push('> 50% diameter narrowing / Diseased')
-        } else {
-          target_names.forEach(element => {
-            beautifyLabels.push(element)
-          });
-        }
 
         for (let i = 0; i < target_names.length; i++) {
 
@@ -251,13 +253,14 @@ export default {
         }
 
         layout = {font: { family: 'Helvetica', size: 14, color: '#000000' },
-        title: 'UMAP Projection',
+
         xaxis: {
             visible: false
         },
         yaxis: {
             visible: false
         },
+        legend: {orientation: 'h', xanchor: 'center', x: 0.5},
         dragmode: 'lasso',
         hovermode: "closest",
         autosize: true,

@@ -135,27 +135,15 @@ export default {
       const XandYCoordinatesTSNE = JSON.parse(this.dataPoints[5])
       const XandYCoordinatesUMAP = JSON.parse(this.dataPoints[6])
       const impSizeArray = JSON.parse(this.dataPoints[7])
-      const KNNSize = JSON.parse(impSizeArray[7])
-      const SVCSize = JSON.parse(impSizeArray[16])
-      const GausNBSize = JSON.parse(impSizeArray[25])
-      const MLPSize = JSON.parse(impSizeArray[34])
-      const LRSize = JSON.parse(impSizeArray[43])
-      const LDASize = JSON.parse(impSizeArray[52])
-      const QDASize = JSON.parse(impSizeArray[61])
-      const RFSize = JSON.parse(impSizeArray[70])
-      const ExtraTSize = JSON.parse(impSizeArray[79])
-      const AdaBSize = JSON.parse(impSizeArray[88])
-      const GradBSize = JSON.parse(impSizeArray[97])
 
-      console.log(KNNSize)
       var sizeScatterplot = []
 
       var scale = d3.scaleLinear()
         .domain([0,1])
-        .range([2,30]);
+        .range([10,20]);
 
-      for (let i = 0; i < KNNSize.length; i++) {
-        sizeScatterplot.push(scale((KNNSize[i] + SVCSize[i] + GausNBSize[i] + MLPSize[i] + LRSize[i] + LDASize[i] + QDASize[i] + RFSize[i] + ExtraTSize[i] + AdaBSize[i] + GradBSize[i]) / 11))
+      for (let i = 0; i < impSizeArray.length; i++) {
+        sizeScatterplot.push(scale(impSizeArray[i]))
       }
 
       let intData = []
@@ -171,7 +159,21 @@ export default {
       var Xaxs = []
       var Yaxs = []
       var Opacity
-    
+
+      var beautifyLabels = []
+      if (this.RetrieveDataSet == 'StanceC') {
+        beautifyLabels.push('Absence of Hypotheticality')
+        beautifyLabels.push('Presence of Hypotheticality')
+      }
+      else if (this.RetrieveDataSet == 'HeartC') {
+        beautifyLabels.push('< 50% diameter narrowing / Healthy')
+        beautifyLabels.push('> 50% diameter narrowing / Diseased')
+      } else {
+        target_names.forEach(element => {
+          beautifyLabels.push(element)
+        });
+      }
+
       if (this.representationDef == 'mds') {
         for (let i = 0; i < XandYCoordinatesMDS[0].length; i++) {
           Xaxs.push(XandYCoordinatesMDS[0][i])
@@ -184,20 +186,6 @@ export default {
 
         var traces = []
         var layout = []
-
-        var beautifyLabels = []
-        if (this.RetrieveDataSet == 'StanceC') {
-          beautifyLabels.push('Absence of Hypotheticality')
-          beautifyLabels.push('Presence of Hypotheticality')
-        }
-        else if (this.RetrieveDataSet == 'HeartC') {
-          beautifyLabels.push('< 50% diameter narrowing / Healthy')
-          beautifyLabels.push('> 50% diameter narrowing / Diseased')
-        } else {
-          target_names.forEach(element => {
-            beautifyLabels.push(element)
-          });
-        }
 
         for (let i = 0; i < target_names.length; i++) {
 
@@ -237,7 +225,7 @@ export default {
         }
 
         layout = {font: { family: 'Helvetica', size: 14, color: '#000000' },
-        title: 'MDS Projection',
+        legend: {orientation: 'h', xanchor: 'center', x: 0.5},
         xaxis: {
             visible: false
         },
@@ -316,7 +304,7 @@ export default {
         }
 
         layout = {font: { family: 'Helvetica', size: 14, color: '#000000' },
-        title: 't-SNE Projection',
+        legend: {orientation: 'h', xanchor: 'center', x: 0.5},
         xaxis: {
             visible: false
         },
@@ -385,7 +373,7 @@ export default {
         }
 
         layout = {font: { family: 'Helvetica', size: 14, color: '#000000' },
-        title: 'UMAP Projection',
+        legend: {orientation: 'h', xanchor: 'center', x: 0.5},
         xaxis: {
             visible: false
         },
@@ -423,11 +411,10 @@ export default {
             if (evt.points[i] === undefined) {
               break
             } else {
-              const OnlyId = evt.points[i].text.split(';')
-              ClassifierIDsList.push(OnlyId[0])
-              let numb = OnlyId[0].match(/\d/g);
-              numb = numb.join("");
-              let numberNumb = Number(numb)
+              const OnlyId = evt.points[i].text.split('<br>')
+              const ImpID = OnlyId[0].split(' ')
+              ClassifierIDsList.push(ImpID[3])
+              let numberNumb = parseInt(ImpID[3])
               ClassifierIDsListCleared.push(numberNumb)
             }
           }
