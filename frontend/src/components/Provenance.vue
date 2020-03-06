@@ -3,7 +3,7 @@
         <div class="squares-container" style="min-height: 374px;">
         <div id="tooltip"></div>	<!-- new  -->
           <div id="performanceCapture" style="min-height: 150px; margin-top: -10px !important;"></div>	<!-- new  -->
-          <canvas id="main-canvas" style="overflow-y: auto; height:190px;"></canvas>
+          <canvas id="main-canvas" style="overflow-y: auto; overflow-x: auto; height:190px;"></canvas>
           <br>
           <div id="dynamic-buttons"></div>
         </div>
@@ -63,9 +63,9 @@ export default {
       } else {
         $('.dynamic_buttons').remove();
         this.platform.clear();
+        var svg = d3.select("#performanceCapture");
+        svg.selectAll("*").remove();
       }
-      var svg = d3.select("#performanceCapture");
-      svg.selectAll("*").remove();
     },
     clean(obj) {
       var propNames = Object.getOwnPropertyNames(obj);
@@ -78,7 +78,7 @@ export default {
     },
     provenance () {
       var canvas = document.getElementById("main-canvas");
-      var width = this.WH[0]*3.5 // interactive visualization
+      var width = this.WH[0]*6.52 // interactive visualization
       var height = this.WH[1]*0.375 // interactive visualization
 
       var flagKNN = 0
@@ -336,9 +336,6 @@ export default {
       }
       const stringStep = "Stacking Ensemble "
       var myButton = '<button id="HistoryReturnButtons'+this.counter+'" class="dynamic_buttons">'+stringStep+this.counter+'</button>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'
-      var svgs = '<svg id=svg'+this.counter+'></svg>'
-      this.firstInside = this.counter
-      $("#performanceCapture").append(svgs);
       $("#dynamic-buttons").append(myButton);
 
       EventBus.$emit('requestProven',this.counter-1)
@@ -366,14 +363,23 @@ export default {
       );
   },
   RadialPerf () {
+    this.firstInside++
+    var svgs = '<svg id=svg'+this.firstInside+'></svg>'
+    $("#performanceCapture").append(svgs);
+
     var width = 160;
     var arcSize = (6 * width / 100);
     var innerRadius = arcSize * 3;
 
-    this.Stack_scoresMean.push((JSON.parse(this.FinalResultsProv[8])*100).toFixed(0))
-    this.Stack_scoresMean2.push((JSON.parse(this.FinalResultsProv[10])*100).toFixed(0))
-    this.Stack_scoresMean3.push((JSON.parse(this.FinalResultsProv[12])*100).toFixed(0))
-    this.Stack_scoresMean4.push((JSON.parse(this.FinalResultsProv[14])*100).toFixed(0))
+    this.Stack_scoresMean = []
+    this.Stack_scoresMean2 = []
+    this.Stack_scoresMean3 = []
+    this.Stack_scoresMean4 = []
+
+    this.Stack_scoresMean.push((JSON.parse(this.FinalResultsProv[0])*100).toFixed(0))
+    this.Stack_scoresMean2.push((JSON.parse(this.FinalResultsProv[2])*100).toFixed(0))
+    this.Stack_scoresMean3.push((JSON.parse(this.FinalResultsProv[4])*100).toFixed(0))
+    this.Stack_scoresMean4.push((JSON.parse(this.FinalResultsProv[6])*100).toFixed(0))
 
     const colorsSingle = ['#fc9272','#fb6a4a','#ef3b2c','#cb181d','#a50f15','#67000d']
 
@@ -388,8 +394,8 @@ export default {
       {value: this.Stack_scoresMean3, label: "Recall", color: scaleColor(this.Stack_scoresMean3)},
       {value: this.Stack_scoresMean4, label: "F1 Score", color: scaleColor(this.Stack_scoresMean4)}
     ];
-  
-    var svg = d3.select('#svg'+this.firstInside).attr('width', width).attr('height', width).style('margin-right', '20px');
+
+    var svg = d3.select('#svg'+this.firstInside).attr('width', width).attr('height', width).style('margin-right', '25px');
 
     var arcs = data.map(function (obj, i) {
         return d3.svg.arc().innerRadius(i * arcSize + innerRadius).outerRadius((i + 1) * arcSize - (width / 100) + innerRadius);

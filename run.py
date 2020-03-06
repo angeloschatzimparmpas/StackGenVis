@@ -1688,6 +1688,7 @@ def RetrieveSelClassifiersID():
 
     global keySpec
     keySpec = ClassifierIDCleaned['keyNow']
+    print(keySpec)
     EnsembleModel(ClassifierIDsList, 1)
     return 'Everything Okay'
 
@@ -2608,6 +2609,7 @@ def EnsembleModel(Models, keyRetrieved):
                             meta_classifier=lr,
                             random_state=RANDOM_SEED,
                             n_jobs = -1)
+        print('mpike')
         if (keySpec == 0):
             sclfStack = sclf
     elif (keyRetrieved == 2):

@@ -407,6 +407,7 @@ export default Vue.extend({
         this.OverSelLength = 0
         EventBus.$emit('resetViews')
       } else {
+        console.log(this.keyNow)
         this.OverSelLength = this.ClassifierIDsList.length
         const path = `http://127.0.0.1:5000/data/ServerRequestSelPoin`
         const postData = {
@@ -438,9 +439,8 @@ export default Vue.extend({
     },
     RemoveFromStackModels () {
       const path = `http://127.0.0.1:5000/data/ServerRemoveFromStack`
-      console.log(this.ClassifierIDsList)
       const postData = {
-        ClassifiersList: this.ClassifierIDsList
+        ClassifiersList: this.ClassifierIDsList,
       }
       const axiosConfig = {
       headers: {
@@ -454,8 +454,8 @@ export default Vue.extend({
       .then(response => {
       console.log('Sent the selected points to the server (scatterplot)!')
       EventBus.$emit('updateFlagForFinalResults', 0)
-      this.getFinalResults()
       this.updatePredictionsSpace()
+      this.getFinalResults()
       })
       .catch(error => {
       console.log(error)
