@@ -64,41 +64,41 @@ export default {
       this.scoresPositive.push(parseFloat(this.scoresMean[this.scoresMean.length - 1]) + parseFloat(this.scoresSTD[this.scoresSTD.length - 1]))
       this.scoresNegative.push(parseFloat(this.scoresMean[this.scoresMean.length - 1]) - parseFloat(this.scoresSTD[this.scoresSTD.length - 1]))
 
-      this.scoresMean2.push((JSON.parse(this.FinalResultsforLinePlot[2])*100).toFixed(2))
-      this.scoresSTD2.push((JSON.parse(this.FinalResultsforLinePlot[3])*100).toFixed(2))
+      this.scoresMean2.push((JSON.parse(this.FinalResultsforLinePlot[4])*100).toFixed(2))
+      this.scoresSTD2.push((JSON.parse(this.FinalResultsforLinePlot[5])*100).toFixed(2))
 
       this.scoresPositive2.push(parseFloat(this.scoresMean2[this.scoresMean2.length - 1]) + parseFloat(this.scoresSTD2[this.scoresSTD2.length - 1]))
       this.scoresNegative2.push(parseFloat(this.scoresMean2[this.scoresMean2.length - 1]) - parseFloat(this.scoresSTD2[this.scoresSTD2.length - 1]))
 
-      this.scoresMean3.push((JSON.parse(this.FinalResultsforLinePlot[4])*100).toFixed(2))
-      this.scoresSTD3.push((JSON.parse(this.FinalResultsforLinePlot[5])*100).toFixed(2))
+      this.scoresMean3.push((JSON.parse(this.FinalResultsforLinePlot[8])*100).toFixed(2))
+      this.scoresSTD3.push((JSON.parse(this.FinalResultsforLinePlot[9])*100).toFixed(2))
 
       this.scoresPositive3.push(parseFloat(this.scoresMean3[this.scoresMean3.length - 1]) + parseFloat(this.scoresSTD3[this.scoresSTD3.length - 1]))
       this.scoresNegative3.push(parseFloat(this.scoresMean3[this.scoresMean3.length - 1]) - parseFloat(this.scoresSTD3[this.scoresSTD3.length - 1]))
 
-      this.scoresMean4.push((JSON.parse(this.FinalResultsforLinePlot[6])*100).toFixed(2))
-      this.scoresSTD4.push((JSON.parse(this.FinalResultsforLinePlot[7])*100).toFixed(2))
+      this.scoresMean4.push((JSON.parse(this.FinalResultsforLinePlot[12])*100).toFixed(2))
+      this.scoresSTD4.push((JSON.parse(this.FinalResultsforLinePlot[13])*100).toFixed(2))
 
       this.scoresPositive4.push(parseFloat(this.scoresMean4[this.scoresMean4.length - 1]) + parseFloat(this.scoresSTD4[this.scoresSTD4.length - 1]))
       this.scoresNegative4.push(parseFloat(this.scoresMean4[this.scoresMean4.length - 1]) - parseFloat(this.scoresSTD4[this.scoresSTD4.length - 1]))
 
       // Stack
 
-      this.Stack_scoresMean.push((JSON.parse(this.FinalResultsforLinePlot[8])*100).toFixed(2))
-      this.Stack_scoresSTD.push((JSON.parse(this.FinalResultsforLinePlot[9])*100).toFixed(2))
+      this.Stack_scoresMean.push((JSON.parse(this.FinalResultsforLinePlot[2])*100).toFixed(2))
+      this.Stack_scoresSTD.push((JSON.parse(this.FinalResultsforLinePlot[3])*100).toFixed(2))
 
       this.Stack_scoresPositive.push(parseFloat(this.Stack_scoresMean[this.Stack_scoresMean.length - 1]) + parseFloat(this.Stack_scoresSTD[this.Stack_scoresSTD.length - 1]))
       this.Stack_scoresNegative.push(parseFloat(this.Stack_scoresMean[this.Stack_scoresMean.length - 1]) - parseFloat(this.Stack_scoresSTD[this.Stack_scoresSTD.length - 1]))
 
-      this.Stack_scoresMean2.push((JSON.parse(this.FinalResultsforLinePlot[10])*100).toFixed(2))
-      this.Stack_scoresSTD2.push((JSON.parse(this.FinalResultsforLinePlot[11])*100).toFixed(2))
+      this.Stack_scoresMean2.push((JSON.parse(this.FinalResultsforLinePlot[6])*100).toFixed(2))
+      this.Stack_scoresSTD2.push((JSON.parse(this.FinalResultsforLinePlot[7])*100).toFixed(2))
 
       this.Stack_scoresPositive2.push(parseFloat(this.Stack_scoresMean2[this.Stack_scoresMean2.length - 1]) + parseFloat(this.Stack_scoresSTD2[this.Stack_scoresSTD2.length - 1]))
       this.Stack_scoresNegative2.push(parseFloat(this.Stack_scoresMean2[this.Stack_scoresMean2.length - 1]) - parseFloat(this.Stack_scoresSTD2[this.Stack_scoresSTD2.length - 1]))
 
 
-      this.Stack_scoresMean3.push((JSON.parse(this.FinalResultsforLinePlot[12])*100).toFixed(2))
-      this.Stack_scoresSTD3.push((JSON.parse(this.FinalResultsforLinePlot[13])*100).toFixed(2))
+      this.Stack_scoresMean3.push((JSON.parse(this.FinalResultsforLinePlot[10])*100).toFixed(2))
+      this.Stack_scoresSTD3.push((JSON.parse(this.FinalResultsforLinePlot[11])*100).toFixed(2))
 
       this.Stack_scoresPositive3.push(parseFloat(this.Stack_scoresMean3[this.Stack_scoresMean3.length - 1]) + parseFloat(this.Stack_scoresSTD3[this.Stack_scoresSTD3.length - 1]))
       this.Stack_scoresNegative3.push(parseFloat(this.Stack_scoresMean3[this.Stack_scoresMean3.length - 1]) - parseFloat(this.Stack_scoresSTD3[this.Stack_scoresSTD3.length - 1]))

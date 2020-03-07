@@ -275,6 +275,8 @@ export default Vue.extend({
       provenanceData: '',
       localFile: '',
       toggleDeepMain: 1,
+      keyLoc: 0,
+      keyData: true,
     }
   },
   methods: {
@@ -324,13 +326,13 @@ export default Vue.extend({
           this.OverviewResults = response.data.OverviewResults
           console.log('Server successfully sent all the data related to visualizations!')
           EventBus.$emit('emittedEventCallingScatterPlot', this.OverviewResults)
-          if (this.firstTimeFlag == 1) {
-            this.selectedModels_Stack.push(0)
-            this.selectedModels_Stack.push(JSON.stringify(this.modelsUpdate))
-            EventBus.$emit('ParametersProvenance', this.OverviewResults)
-            EventBus.$emit('InitializeProvenance', this.selectedModels_Stack)
-          }
-          this.firstTimeFlag = 0
+          // if (this.firstTimeFlag == 1) {
+          //   this.selectedModels_Stack.push(0)
+          //   this.selectedModels_Stack.push(JSON.stringify(this.modelsUpdate))
+          //   EventBus.$emit('ParametersProvenance', this.OverviewResults)
+          //   EventBus.$emit('InitializeProvenance', this.selectedModels_Stack)
+          // }
+          // this.firstTimeFlag = 0
           EventBus.$emit('InitializeMetricsBarChart', this.OverviewResults)
           this.valueSel = 0
           this.valueAll = 0
@@ -350,6 +352,13 @@ export default Vue.extend({
           EventBus.$emit('emittedEventCallingPredictionsSpacePlotView', this.OverviewResults)
           EventBus.$emit('emittedEventCallingBalanceView', this.OverviewResults)
           this.DataSpaceCall()
+          if (this.keyData) {
+            this.selectedModels_Stack.push(0)
+            this.selectedModels_Stack.push(JSON.stringify(this.modelsUpdate))
+            EventBus.$emit('ParametersProvenance', this.OverviewResults)
+            EventBus.$emit('InitializeProvenance', this.selectedModels_Stack)
+          }
+          this.getFinalResults()
         })
         .catch(error => {
           console.log(error)
@@ -407,7 +416,6 @@ export default Vue.extend({
         this.OverSelLength = 0
         EventBus.$emit('resetViews')
       } else {
-        console.log(this.keyNow)
         this.OverSelLength = this.ClassifierIDsList.length
         const path = `http://127.0.0.1:5000/data/ServerRequestSelPoin`
         const postData = {
@@ -428,7 +436,7 @@ export default Vue.extend({
             if (this.keyNow == 0) {
               this.OverAllLength = this.ClassifierIDsList.length
               EventBus.$emit('GrayOutPoints', this.ClassifierIDsList)
-            }
+            } 
             this.getSelectedModelsMetrics()
             this.getFinalResults()
           })
@@ -455,7 +463,6 @@ export default Vue.extend({
       console.log('Sent the selected points to the server (scatterplot)!')
       EventBus.$emit('updateFlagForFinalResults', 0)
       this.updatePredictionsSpace()
-      this.getFinalResults()
       })
       .catch(error => {
       console.log(error)
@@ -826,9 +833,10 @@ export default Vue.extend({
       EventBus.$emit('emittedEventCallingTogglesUpdate', toggles)
     },
     DataSpaceFun () {
+      this.keyData = false
       const path = `http://127.0.0.1:5000/data/SendDataSpacPoints`
       const postData = {
-        points: this.dataPointsSelfromDataSpace
+        points: this.dataPointsSelfromDataSpace,
       }
       const axiosConfig = {
         headers: {
@@ -961,6 +969,9 @@ export default Vue.extend({
     $(window).on("unload", function(e) {
       alert('Handler for .unload() called.');
     })
+
+    EventBus.$on('sendKeyNow', data => { this.keyLoc = data })
+
     EventBus.$on('ReturningBrushedPointsIDs',  data => { this.modelsUpdate = data })
     //EventBus.$on('ReturningBrushedPointsIDs',  this.UpdateBarChartFeatures )
     EventBus.$on('ConfirmDataSet', this.fileNameSend)

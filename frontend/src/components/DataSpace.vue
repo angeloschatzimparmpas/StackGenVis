@@ -74,6 +74,7 @@ export default {
       responsiveWidthHeight: [],
       RetrieveDataSet: 'HeartC',
       colorsValues: ['#808000','#008080','#bebada','#fccde5','#d9d9d9','#bc80bd','#ccebc5'],
+      onlyOnce: true,
     }
   },
   methods: {
@@ -398,8 +399,10 @@ export default {
       var config = {scrollZoom: true, displaylogo: false, showLink: false, showSendToCloud: false, modeBarButtonsToRemove: ['toImage', 'toggleSpikelines', 'autoScale2d', 'hoverClosestGl2d','hoverCompareCartesian','select2d','hoverClosestCartesian','zoomIn2d','zoomOut2d','zoom2d'], responsive: true}
 
       Plotly.newPlot('OverviewDataPlotly', traces, layout, config)
-
-      this.selectedDataPoints()
+      if (this.onlyOnce) {
+        this.selectedDataPoints()
+      }
+      this.onlyOnce = false
     },
     selectedDataPoints () {
       const OverviewDataPlotly = document.getElementById('OverviewDataPlotly')
@@ -419,9 +422,10 @@ export default {
             }
           }
           if (ClassifierIDsList != '') {
+            EventBus.$emit('ChangeKey', 1)
             EventBus.$emit('SendSelectedPointsToServerEventfromData', ClassifierIDsListCleared)
           } else {
-            EventBus.$emit('SendSelectedPointsToServerEventfromData', '')
+            EventBus.$emit('ChangeKey', 0)
           }
         }
       })

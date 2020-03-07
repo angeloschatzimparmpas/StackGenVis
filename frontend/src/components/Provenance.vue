@@ -1,6 +1,6 @@
 <template>
     <div>
-        <div class="squares-container" style="min-height: 374px;">
+        <div class="squares-container" style="min-height: 374px; margin-left: 35px">
         <div id="tooltip"></div>	<!-- new  -->
           <div id="performanceCapture" style="min-height: 150px; margin-top: -10px !important;"></div>	<!-- new  -->
           <canvas id="main-canvas" style="overflow-y: auto; overflow-x: auto; height:190px;"></canvas>
@@ -53,7 +53,7 @@ export default {
       Stack_scoresMean2: [],
       Stack_scoresMean3: [],
       Stack_scoresMean4: [],
-      firstInside: 0
+      firstInside: 0,
     }
   },
   methods: {
@@ -346,7 +346,7 @@ export default {
         btnlocal.style.fontWeight = 'normal';
       });
 
-       $(document).on('click','.dynamic_buttons', function() {
+      $(document).on('click','.dynamic_buttons', function() {
         var btns = document.getElementsByClassName('dynamic_buttons')
 
         btns.forEach(btnlocal => {
@@ -356,9 +356,8 @@ export default {
         var btn = document.getElementById($(this).attr('id'));
         btn.style.fontWeight = 'bold';
 
-
-        EventBus.$emit('requestProven',parseInt($(this).attr('id').replace(/\D/g,''))-1)
         EventBus.$emit('ChangeKey', 0)
+        EventBus.$emit('requestProven',parseInt($(this).attr('id').replace(/\D/g,''))-1)
         }
       );
   },
@@ -376,17 +375,15 @@ export default {
     this.Stack_scoresMean3 = []
     this.Stack_scoresMean4 = []
 
-    this.Stack_scoresMean.push((JSON.parse(this.FinalResultsProv[0])*100).toFixed(0))
-    this.Stack_scoresMean2.push((JSON.parse(this.FinalResultsProv[2])*100).toFixed(0))
-    this.Stack_scoresMean3.push((JSON.parse(this.FinalResultsProv[4])*100).toFixed(0))
-    this.Stack_scoresMean4.push((JSON.parse(this.FinalResultsProv[6])*100).toFixed(0))
+    this.Stack_scoresMean.push((JSON.parse(this.FinalResultsProv[0])*100).toFixed(1))
+    this.Stack_scoresMean2.push((JSON.parse(this.FinalResultsProv[4])*100).toFixed(1))
+    this.Stack_scoresMean3.push((JSON.parse(this.FinalResultsProv[8])*100).toFixed(1))
+    this.Stack_scoresMean4.push((JSON.parse(this.FinalResultsProv[12])*100).toFixed(1))
 
-    const colorsSingle = ['#fc9272','#fb6a4a','#ef3b2c','#cb181d','#a50f15','#67000d']
+    const colorsSingle = ['#fdd0a2','#f16913','#7f2704']
 
-    var scaleColor = d3v5.scaleLinear()
-      .domain([0,100,5])
-      .range(colorsSingle)
-      .interpolate(d3v5.interpolateRgb); //interpolateHsl interpolateHcl interpolateRgb;
+    var scaleColor = d3v5.scaleSequential(d3v5.interpolateReds)
+    .domain([0, 100])
 
     var data = [
       {value: this.Stack_scoresMean, label: "Accuracy", color: scaleColor(this.Stack_scoresMean)},
@@ -395,7 +392,7 @@ export default {
       {value: this.Stack_scoresMean4, label: "F1 Score", color: scaleColor(this.Stack_scoresMean4)}
     ];
 
-    var svg = d3.select('#svg'+this.firstInside).attr('width', width).attr('height', width).style('margin-right', '25px');
+    var svg = d3.select('#svg'+this.firstInside).attr('width', width).attr('height', width).style('margin-right', '38px');
 
     var arcs = data.map(function (obj, i) {
         return d3.svg.arc().innerRadius(i * arcSize + innerRadius).outerRadius((i + 1) * arcSize - (width / 100) + innerRadius);
@@ -477,7 +474,10 @@ export default {
     });
   },
   updateExtraction () {
-    EventBus.$emit('SendSelectedPointsToServerEvent', this.storeData[this.flagUpdated])
+    if (this.flag) {
+      EventBus.$emit('SendSelectedPointsToServerEvent', this.storeData[this.flagUpdated])
+    }
+    this.flag = true
     
     var stringParameters = []
     var temp = 0

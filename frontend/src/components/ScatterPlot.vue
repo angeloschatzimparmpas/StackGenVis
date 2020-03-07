@@ -62,7 +62,8 @@ export default {
       UMAPStore: [],
       keyLocal: 0,
       activeModels: 0,
-      pushModelsRemaining: []
+      pushModelsRemaining: [],
+      onlyOnce: true
     }
   },
   methods: {
@@ -382,10 +383,13 @@ export default {
       var scat = document.getElementById('OverviewPlotly')
       
       Plotly.newPlot(scat, DataGeneral, layout, config)
-
-      this.selectedPointsOverview()
+      if (this.onlyOnce) {
+        this.selectedPointsOverview()
+      }
+      this.onlyOnce = false
     },
     selectedPointsOverview () {
+      console.log('mpike')
       const OverviewPlotly = document.getElementById('OverviewPlotly')
       var allModels = JSON.parse(this.ScatterPlotResults[13])
       OverviewPlotly.on('plotly_selected', function (evt) {
@@ -416,7 +420,6 @@ export default {
             EventBus.$emit('SendSelectedPointsToBrushHeatmap', ClassifierIDsListCleared)
           } else {
             EventBus.$emit('ChangeKey', 1)
-            EventBus.$emit('SendSelectedPointsToServerEvent', '')
           }
         }
       })

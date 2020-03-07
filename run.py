@@ -67,6 +67,14 @@ cors = CORS(app, resources={r"/data/*": {"origins": "*"}})
 def Reset():
     global DataRawLength
     global DataResultsRaw
+    global previousState
+    previousState = []
+
+    global keySpecInternal
+    keySpecInternal = 1
+
+    global previousStateActive
+    previousStateActive = []
 
     global RANDOM_SEED
     RANDOM_SEED = 42
@@ -85,6 +93,9 @@ def Reset():
     global ExtraTModelsCount
     global AdaBModelsCount
     global GradBModelsCount
+
+    global keyData
+    keyData = 0
 
     KNNModelsCount = 0
     SVCModelsCount = 576
@@ -168,11 +179,23 @@ def RetrieveFileName():
 
     fileName = request.get_data().decode('utf8').replace("'", '"')
 
+    global keySpecInternal
+    keySpecInternal = 1
+
     global RANDOM_SEED
     RANDOM_SEED = 42
 
+    global keyData
+    keyData = 0
+
     global XData
     XData = []
+
+    global previousState
+    previousState = []
+
+    global previousStateActive
+    previousStateActive = []
 
     global yData
     yData = []
@@ -1685,10 +1708,11 @@ def RetrieveSelClassifiersID():
     ClassifierIDsList = request.get_data().decode('utf8').replace("'", '"')
     ComputeMetricsForSel(ClassifierIDsList)
     ClassifierIDCleaned = json.loads(ClassifierIDsList)
+    
+    global keySpecInternal
+    keySpecInternal = 1
+    keySpecInternal = ClassifierIDCleaned['keyNow']
 
-    global keySpec
-    keySpec = ClassifierIDCleaned['keyNow']
-    print(keySpec)
     EnsembleModel(ClassifierIDsList, 1)
     return 'Everything Okay'
 
@@ -2429,6 +2453,11 @@ def FeatureSelPerModel():
 
 def EnsembleModel(Models, keyRetrieved): 
     global scores
+    global previousState
+    global previousStateActive
+    global keySpec
+    global keySpecInternal
+    global keyData
     scores = []
 
     global all_classifiersSelection  
@@ -2581,9 +2610,6 @@ def EnsembleModel(Models, keyRetrieved):
             arg = dfParamGradBFilt[eachelem-GradBModelsCount]
             all_classifiers.append(make_pipeline(ColumnSelector(cols=columnsInit), GradientBoostingClassifier(random_state=RANDOM_SEED).set_params(**arg)))
 
-        global sclfStack
-        sclfStack = 0
-
         global sclf 
         sclf = 0
         sclf = StackingCVClassifier(classifiers=all_classifiers,
@@ -2591,11 +2617,10 @@ def EnsembleModel(Models, keyRetrieved):
                             meta_classifier=lr,
                             random_state=RANDOM_SEED,
                             n_jobs = -1)
-        sclfStack = sclf
+        keySpec = 0
     elif (keyRetrieved == 1):     
         Models = json.loads(Models)
         ModelsAll = preProceModels()
-        global keySpec
         for index, modHere in enumerate(ModelsAll):
             flag = 0
             for loop in Models['ClassifiersList']:
@@ -2609,11 +2634,8 @@ def EnsembleModel(Models, keyRetrieved):
                             meta_classifier=lr,
                             random_state=RANDOM_SEED,
                             n_jobs = -1)
-        print('mpike')
-        if (keySpec == 0):
-            sclfStack = sclf
+        keySpec = 1
     elif (keyRetrieved == 2):
-        # fix this part!
         if (len(all_classifiersSelection) == 0):
             all_classifiers = []
             columnsInit = []
@@ -2769,22 +2791,25 @@ def EnsembleModel(Models, keyRetrieved):
                                 meta_classifier=lr,
                                 random_state=RANDOM_SEED,
                                 n_jobs = -1)
-    else: 
-        Models = json.loads(Models)
-        ModelsAll = preProceModels()
-        for index, modHere in enumerate(ModelsAll):
-            flag = 0
-            for loop in Models['ClassifiersList']:
-                if (int(loop) == int(modHere)):
-                    flag = 1
-            if (flag is 1):
-                all_classifiersSelection.append(all_classifiers[index])
+            keySpec = 1
+    else:
+        keySpec = 2
 
-        sclfStack = StackingCVClassifier(classifiers=all_classifiersSelection,
-                            use_probas=True,
-                            meta_classifier=lr,
-                            random_state=RANDOM_SEED,
-                            n_jobs = -1)
+        # Models = json.loads(Models)
+        # ModelsAll = preProceModels()
+        # for index, modHere in enumerate(ModelsAll):
+        #     flag = 0
+        #     for loop in Models['ClassifiersList']:
+        #         if (int(loop) == int(modHere)):
+        #             flag = 1
+        #     if (flag is 1):
+        #         all_classifiersSelection.append(all_classifiers[index])
+
+        # sclfStack = StackingCVClassifier(classifiers=all_classifiersSelection,
+        #                     use_probas=True,
+        #                     meta_classifier=lr,
+        #                     random_state=RANDOM_SEED,
+        #                     n_jobs = -1)
         
         
         #else:
@@ -2803,24 +2828,134 @@ def EnsembleModel(Models, keyRetrieved):
         #                        random_state=RANDOM_SEED,
         #                        n_jobs = -1)
 
-    if (keyRetrieved == 0):
-        pass
-    else:
+    # if (keyRetrieved == 0):
+    #     pass
+    # else:
+    print(keySpec)
+    print(keySpecInternal)
+    if (keySpec == 0 or keySpec == 1):
         num_cores = multiprocessing.cpu_count()
-        inputsSc = ['accuracy','precision_weighted','recall_weighted','accuracy','precision_weighted','recall_weighted','f1_weighted','f1_weighted']
-        flat_results = Parallel(n_jobs=num_cores)(delayed(solve)(sclf,sclfStack,XData,yData,crossValidation,item,index) for index, item in enumerate(inputsSc))
+        inputsSc = ['accuracy','precision_weighted','recall_weighted','f1_weighted']
+
+        flat_results = Parallel(n_jobs=num_cores)(delayed(solve)(sclf,keyData,keySpec,keySpecInternal,previousState,previousStateActive,XData,yData,crossValidation,item,index) for index, item in enumerate(inputsSc))
         scores = [item for sublist in flat_results for item in sublist]
+
+    if (keySpec == 0):
+        previousState = []
+        previousState.append(scores[2])
+        previousState.append(scores[3])
+        previousState.append(scores[6])
+        previousState.append(scores[7])
+        previousState.append(scores[10])
+        previousState.append(scores[11])
+        previousState.append(scores[14])
+        previousState.append(scores[15])
+    elif (keySpec == 1):
+        if (keySpecInternal == 1):
+            previousStateActive = []
+            previousStateActive.append(scores[0])
+            previousStateActive.append(scores[1])
+            previousStateActive.append(scores[4])
+            previousStateActive.append(scores[5])
+            previousStateActive.append(scores[8])
+            previousStateActive.append(scores[9])
+            previousStateActive.append(scores[12])
+            previousStateActive.append(scores[13])
+        else:
+            previousStateActive = []
+            previousStateActive.append(scores[0])
+            previousStateActive.append(scores[1])
+            previousStateActive.append(scores[4])
+            previousStateActive.append(scores[5])
+            previousStateActive.append(scores[8])
+            previousStateActive.append(scores[9])
+            previousStateActive.append(scores[12])
+            previousStateActive.append(scores[13])
+            previousState = []
+            previousState.append(scores[2])
+            previousState.append(scores[3])
+            previousState.append(scores[6])
+            previousState.append(scores[7])
+            previousState.append(scores[10])
+            previousState.append(scores[11])
+            previousState.append(scores[14])
+            previousState.append(scores[15])
+    else:
+        scores = []
+        previousState = []
+        scores.append(previousStateActive[0])
+        scores.append(previousStateActive[1])
+        scores.append(previousStateActive[0])
+        scores.append(previousStateActive[1])
+        previousState.append(previousStateActive[0])
+        previousState.append(previousStateActive[1])
+        scores.append(previousStateActive[2])
+        scores.append(previousStateActive[3])
+        scores.append(previousStateActive[2])
+        scores.append(previousStateActive[3])
+        previousState.append(previousStateActive[2])
+        previousState.append(previousStateActive[3])
+        scores.append(previousStateActive[4])
+        scores.append(previousStateActive[5])
+        scores.append(previousStateActive[4])
+        scores.append(previousStateActive[5])
+        previousState.append(previousStateActive[4])
+        previousState.append(previousStateActive[5])
+        scores.append(previousStateActive[6])
+        scores.append(previousStateActive[7])
+        scores.append(previousStateActive[6])
+        scores.append(previousStateActive[7])
+        previousState.append(previousStateActive[6])
+        previousState.append(previousStateActive[7])
 
     return 'Okay'
 
-def solve(sclf,sclfStack,XData,yData,crossValidation,scoringIn,loop):
+def solve(sclf,keyData,keySpec,keySpecInternal,previousStateLoc,previousStateActiveLoc,XData,yData,crossValidation,scoringIn,loop):
     scoresLoc = []
-    if (loop < 3):
+    if (keySpec == 0):
         temp = model_selection.cross_val_score(sclf, XData, yData, cv=crossValidation, scoring=scoringIn, n_jobs=-1)
+        scoresLoc.append(temp.mean())
+        scoresLoc.append(temp.std())
+        if (keyData == 1):
+            if (loop == 0):
+                scoresLoc.append(previousStateLoc[0])
+                scoresLoc.append(previousStateLoc[1])
+            elif (loop == 1):
+                scoresLoc.append(previousStateLoc[2])
+                scoresLoc.append(previousStateLoc[3])
+            elif (loop == 2):
+                scoresLoc.append(previousStateLoc[4])
+                scoresLoc.append(previousStateLoc[5])
+            else:
+                scoresLoc.append(previousStateLoc[6])
+                scoresLoc.append(previousStateLoc[7])
+        else:
+            scoresLoc.append(temp.mean())
+            scoresLoc.append(temp.std())
     else:
-        temp = model_selection.cross_val_score(sclfStack, XData, yData, cv=crossValidation, scoring=scoringIn, n_jobs=-1)
-    scoresLoc.append(temp.mean())
-    scoresLoc.append(temp.std())
+        if (keySpecInternal == 1):
+            temp = model_selection.cross_val_score(sclf, XData, yData, cv=crossValidation, scoring=scoringIn, n_jobs=-1)
+            scoresLoc.append(temp.mean())
+            scoresLoc.append(temp.std())
+            if (loop == 0):
+                scoresLoc.append(previousStateLoc[0])
+                scoresLoc.append(previousStateLoc[1])
+            elif (loop == 1):
+                scoresLoc.append(previousStateLoc[2])
+                scoresLoc.append(previousStateLoc[3])
+            elif (loop == 2):
+                scoresLoc.append(previousStateLoc[4])
+                scoresLoc.append(previousStateLoc[5])
+            else:
+                scoresLoc.append(previousStateLoc[6])
+                scoresLoc.append(previousStateLoc[7])
+        else:
+            temp = model_selection.cross_val_score(sclf, XData, yData, cv=crossValidation, scoring=scoringIn, n_jobs=-1)
+            scoresLoc.append(temp.mean())
+            scoresLoc.append(temp.std())
+            scoresLoc.append(temp.mean())
+            scoresLoc.append(temp.std())
+
     return scoresLoc
 
 # Sending the final results to be visualized as a line plot
@@ -2856,6 +2991,8 @@ def RetrieveFilter():
 def RetrieveDataSpacePoints():
     dataSpacePoints = request.get_data().decode('utf8').replace("'", '"')
     dataSpacePointsCleared = json.loads(dataSpacePoints)
+    global keyData
+    keyData = 1
     global dataSpacePointsIDs
     dataSpacePointsIDs = dataSpacePointsCleared['points']
     return 'Done'
