@@ -225,7 +225,7 @@ export default {
                 "<extra></extra>",
           text: classifiersInfoProcessing,
           marker: {
-           line: { color: 'rgb(0, 0, 0)', width: 2 },
+           line: { color: 'rgb(0, 0, 0)', width: 3 },
             color: colorsforScatterPlot,
             size: 12,
             colorscale: 'Viridis',
@@ -289,6 +289,7 @@ export default {
                 "<extra></extra>",
           text: classifiersInfoProcessing,
           marker: {
+              line: { color: 'rgb(0, 0, 0)', width: 3 },
               color: colorsforScatterPlot,
               size: 12,
               colorscale: 'Viridis',
@@ -340,7 +341,7 @@ export default {
                 "<extra></extra>",
           text: classifiersInfoProcessing,
           marker: {
-           line: { color: 'rgb(0, 0, 0)', width: 2 },
+           line: { color: 'rgb(0, 0, 0)', width: 3 },
             color: colorsforScatterPlot,
             size: 12,
             colorscale: 'Viridis',
@@ -389,7 +390,6 @@ export default {
       this.onlyOnce = false
     },
     selectedPointsOverview () {
-      console.log('mpike')
       const OverviewPlotly = document.getElementById('OverviewPlotly')
       var allModels = JSON.parse(this.ScatterPlotResults[13])
       OverviewPlotly.on('plotly_selected', function (evt) {

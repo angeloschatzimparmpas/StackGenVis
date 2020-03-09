@@ -516,7 +516,7 @@ def RetrieveModel():
             clf = SVC(probability=True,random_state=RANDOM_SEED)
             params = {'C': list(np.arange(0.1,4.43,0.11)), 'kernel': ['rbf','linear', 'poly', 'sigmoid']}
             AlgorithmsIDsEnd = SVCModelsCount
-        elif (eachAlgor) == 'GausNB':
+        elif (eachAlgor) == 'GauNB':
             clf = GaussianNB()
             params = {'var_smoothing': list(np.arange(0.00000000001,0.0000001,0.0000000002))}
             AlgorithmsIDsEnd = GausNBModelsCount
@@ -564,6 +564,7 @@ memory = Memory(location, verbose=0)
 # calculating for all algorithms and models the performance and other results
 @memory.cache
 def GridSearchForModels(XData, yData, clf, params, eachAlgor, AlgorithmsIDsEnd, toggle):
+    print('inside')
     # instantiate spark session
     spark = (   
         SparkSession    
@@ -722,7 +723,6 @@ def GridSearchForModels(XData, yData, clf, params, eachAlgor, AlgorithmsIDsEnd, 
     metrics.insert(loop+13,'log_loss',resultsLogLossFinal)
 
     perModelPredPandas = pd.DataFrame(perModelPrediction)
-    print(perModelPredPandas)
     perModelPredPandas = perModelPredPandas.to_json()
 
     perModelProbPandas = pd.DataFrame(perModelProb)
@@ -826,7 +826,7 @@ def RetrieveModelsParam():
         elif (items == 'SVC'):
             counterSVC += 1
             SVCModels.append(int(RetrieveModelsPar['models'][index]))
-        elif (items == 'GausNB'):
+        elif (items == 'GauNB'):
             counterGausNB += 1
             GausNBModels.append(int(RetrieveModelsPar['models'][index]))
         elif (items == 'MLP'):
@@ -942,6 +942,7 @@ def PreprocessingMetrics():
     dfExtraT.index = dfExtraT.index.astype(int) + ExtraTModelsCount
     dfAdaB.index = dfAdaB.index.astype(int) + AdaBModelsCount
     dfGradB.index = dfGradB.index.astype(int) + GradBModelsCount
+
     dfKNNFiltered = dfKNN.loc[KNNModels, :]
     dfSVCFiltered = dfSVC.loc[SVCModels, :]
     dfGausNBFiltered = dfGausNB.loc[GausNBModels, :]
@@ -1069,6 +1070,7 @@ def PreprocessingPredUpdate(Models):
     dfGradBFiltered = dfGradB.loc[GradBModels, :]
 
     df_concatProbs = pd.concat([dfKNNFiltered, dfSVCFiltered, dfGausNBFiltered, dfMLPFiltered, dfLRFiltered, dfLDAFiltered, dfQDAFiltered, dfRFFiltered, dfExtraTFiltered, dfAdaBFiltered, dfGradBFiltered])
+
     listProbs = df_concatProbs.index.values.tolist()
     deletedElements = 0
     for index, element in enumerate(listProbs):
@@ -1080,21 +1082,27 @@ def PreprocessingPredUpdate(Models):
     listIDsRemoved = df_concatProbsCleared.index.values.tolist()
     predictionsAll = PreprocessingPred()
     PredictionSpaceAll = FunMDS(predictionsAll)
+    PredictionSpaceAllComb = [list(a) for a in  zip(PredictionSpaceAll[0], PredictionSpaceAll[1])]
 
     predictionsSel = []
     for column, content in df_concatProbsCleared.items():
         el = [sum(x)/len(x) for x in zip(*content)]
         predictionsSel.append(el)
-
     PredictionSpaceSel = FunMDS(predictionsSel)
 
+    print(PredictionSpaceSel)
+    PredictionSpaceSelComb = [list(a) for a in  zip(PredictionSpaceSel[0], PredictionSpaceSel[1])]
+    print(PredictionSpaceSelComb)
     mtx2PredFinal = []
-    mtx1Pred, mtx2Pred, disparity2 = procrustes(PredictionSpaceAll, PredictionSpaceSel)
+    mtx2Pred, mtx2Pred, disparityPred = procrustes(PredictionSpaceAllComb, PredictionSpaceSelComb)
 
-    a1 = [i[1] for i in mtx2Pred]
-    b1 = [i[0] for i in mtx2Pred]
+    #a1 = [i[1] for i in mtx2Pred]
+    #b1 = [i[0] for i in mtx2Pred]
+    #print(a1)
+    a1, b1 = zip(*mtx2Pred)
     mtx2PredFinal.append(a1)
     mtx2PredFinal.append(b1)
+    print(mtx2Pred)
     return [mtx2PredFinal,listIDsRemoved]
 
 def PreprocessingParam():
@@ -1680,7 +1688,7 @@ def RetrieveSelClassifiersIDandRemoveFromStack():
     ClassifierIDsList = request.get_data().decode('utf8').replace("'", '"')
 
     PredictionProbSelUpdate = PreprocessingPredUpdate(ClassifierIDsList)
-    print(ClassifierIDsList)
+
     print(PredictionProbSelUpdate)
 
     global resultsUpdatePredictionSpace
@@ -1793,7 +1801,13 @@ def RetrieveSelDataPoints():
     for loop in DataPointsSelClear['DataPointsSel']:
         temp = [int(s) for s in re.findall(r'\b\d+\b', loop)]
         listofDataPoints.append(temp[0])
+
     global algorithmsList
+    global resultsMetrics
+    resultsMetrics = []
+
+    df_concatMetrics = []
+    metricsSelList = []
 
     paramsListSepPD = []
     paramsListSepPD = PreprocessingParamSep()
@@ -1918,6 +1932,7 @@ def RetrieveSelDataPoints():
 
     if (len(paramsListSeptoDicGradB['n_estimators']) is 0):
         RetrieveParamsClearedListGradB = []
+    print(algorithms)
     for eachAlgor in algorithms:
         if (eachAlgor) == 'KNN':
             clf = KNeighborsClassifier()
@@ -1927,7 +1942,7 @@ def RetrieveSelDataPoints():
             clf = SVC(probability=True,random_state=RANDOM_SEED)
             params = RetrieveParamsClearedListSVC
             AlgorithmsIDsEnd = SVCModelsCount
-        elif (eachAlgor) == 'GausNB':
+        elif (eachAlgor) == 'GauNB':
             clf = GaussianNB()
             params = RetrieveParamsClearedListGausNB
             AlgorithmsIDsEnd = GausNBModelsCount
@@ -1957,13 +1972,14 @@ def RetrieveSelDataPoints():
             AlgorithmsIDsEnd = ExtraTModelsCount
         elif (eachAlgor) == 'AdaB':
             clf = AdaBoostClassifier(random_state=RANDOM_SEED)
-            params = RetrieveParamsClearedListGradB
+            params = RetrieveParamsClearedListAdaB
             AlgorithmsIDsEnd = AdaBModelsCount
         else: 
             clf = GradientBoostingClassifier(random_state=RANDOM_SEED)
             params = RetrieveParamsClearedListGradB
             AlgorithmsIDsEnd = GradBModelsCount
         metricsSelList = GridSearchSel(clf, params, factors, AlgorithmsIDsEnd, listofDataPoints)
+
     if (len(metricsSelList[0]) != 0 and len(metricsSelList[1]) != 0 and len(metricsSelList[2]) != 0 and len(metricsSelList[3]) != 0 and len(metricsSelList[4]) != 0 and len(metricsSelList[5]) != 0 and len(metricsSelList[6]) != 0 and len(metricsSelList[7]) != 0 and len(metricsSelList[8]) != 0 and len(metricsSelList[9]) != 0 and len(metricsSelList[10]) != 0):
         dicKNN = json.loads(metricsSelList[0])
         dfKNN = pd.DataFrame.from_dict(dicKNN)
@@ -2194,10 +2210,10 @@ def RetrieveSelDataPoints():
             set_diff_df = pd.concat([parametersSelDataPD, paramsListSepPD[10], paramsListSepPD[10]]).drop_duplicates(keep=False)
             set_diff_df = set_diff_df.index.tolist()
             if (len(set_diff_df) == 0):
-                dfAdaBCleared = dfGradB
+                dfGradBCleared = dfGradB
             else:
-                dfAdaBCleared = dfGradB.drop(dfGradB.index[set_diff_df])
-            df_concatMetrics = dfAdaBCleared
+                dfGradBCleared = dfGradB.drop(dfGradB.index[set_diff_df])
+            df_concatMetrics = dfGradBCleared
     
     global foreachMetricResults
     foreachMetricResults = []
@@ -2214,6 +2230,7 @@ def RetrieveSelDataPoints():
     ModelSpaceMDSNewSel = FunMDS(df_concatMetrics)
 
     ModelSpaceMDSNewSelComb = [list(a) for a in  zip(ModelSpaceMDSNewSel[0], ModelSpaceMDSNewSel[1])]
+
     global mt2xFinal
     mt2xFinal = []
     mtx1, mtx2, disparity = procrustes(ModelSpaceMDSNewComb, ModelSpaceMDSNewSelComb)
@@ -2238,7 +2255,9 @@ def GridSearchSel(clf, params, factors, AlgorithmsIDsEnd, DataPointsSel):
         sc = spark.sparkContext 
 
         XDatasubset = XData.loc[DataPointsSel,:]
+
         yDataSubset = [yData[i] for i in DataPointsSel]
+
         # this is the grid we use to train the models
         grid = DistGridSearchCV(    
             estimator=clf, param_grid=params,     
@@ -2363,11 +2382,11 @@ def GridSearchSel(clf, params, factors, AlgorithmsIDsEnd, DataPointsSel):
         metrics.insert(loop+12,'f2_weighted',resultsWeightedBeta2)
 
         metrics.insert(loop+13,'log_loss',resultsLogLossFinal)
-
+        metrics = metrics.fillna(0)
         metrics = metrics.to_json()
-
+        
         resultsMetrics.append(metrics) # Position: 0 and so on 
-
+        
     return resultsMetrics
 
 
@@ -2831,8 +2850,6 @@ def EnsembleModel(Models, keyRetrieved):
     # if (keyRetrieved == 0):
     #     pass
     # else:
-    print(keySpec)
-    print(keySpecInternal)
     if (keySpec == 0 or keySpec == 1):
         num_cores = multiprocessing.cpu_count()
         inputsSc = ['accuracy','precision_weighted','recall_weighted','f1_weighted']

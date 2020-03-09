@@ -2,8 +2,8 @@
   <div>
     <div align="center">
       Projection Method: <select id="selectBarChartData" @change="selectVisualRepresentationData()">
-        <option value="mds" selected>MDS</option>
-        <option value="tsne">t-SNE</option>
+        <option value="mds">MDS</option>
+        <option value="tsne" selected>t-SNE</option>
         <option value="umap">UMAP</option>
       </select>
       &nbsp;&nbsp;
@@ -63,8 +63,8 @@ export default {
     return {
       dataPoints: '',
       highlightedPoints: '',
-      representationDef: 'mds',
-      representationSelection: 'mds',
+      representationDef: 'tsne',
+      representationSelection: 'tsne',
       mergeData: 'Merge',
       removeData: 'Remove',
       composeData: 'Compose',
@@ -75,6 +75,7 @@ export default {
       RetrieveDataSet: 'HeartC',
       colorsValues: ['#808000','#008080','#bebada','#fccde5','#d9d9d9','#bc80bd','#ccebc5'],
       onlyOnce: true,
+      restylePoints: []
     }
   },
   methods: {
@@ -149,6 +150,7 @@ export default {
 
       let intData = []
       if (this.highlightedPoints.length > 0){
+        this.restylePoints = []
         let removedPuncData = this.highlightedPoints.map(function(x){return x.replace(';', '');})
         intData = removedPuncData.map(Number)
       } else {
@@ -160,6 +162,7 @@ export default {
       var Xaxs = []
       var Yaxs = []
       var Opacity
+      var colorUpdate = []
 
       var beautifyLabels = []
       if (this.RetrieveDataSet == 'StanceC') {
@@ -180,10 +183,24 @@ export default {
           Xaxs.push(XandYCoordinatesMDS[0][i])
           Yaxs.push(XandYCoordinatesMDS[1][i])
           IDs.push(i)
+          if (this.restylePoints.length != 0) {
+            if (XandYCoordinatesMDS[0].length == this.restylePoints.length) {
+              colorUpdate.push('rgb(0, 0, 0)')
+            } else {
+              if (this.restylePoints.includes(i)) {
+                  colorUpdate.push('rgb(175, 68, 39)')
+                } else {
+                  colorUpdate.push('rgb(0, 0, 0)')
+                }
+              }
+            } else {
+                  colorUpdate.push('rgb(0, 0, 0)')
+            }
         }
         result.Xax = Xaxs
         result.Yax = Yaxs
         result.ID = IDs
+        result.colorUpdates = colorUpdate
 
         var traces = []
         var layout = []
@@ -193,6 +210,7 @@ export default {
           const aux_X = result.Xax.filter((item, index) => originalDataLabels[index] == target_names[i]);
           const aux_Y = result.Yax.filter((item, index) => originalDataLabels[index] == target_names[i]);
           const aux_ID = result.ID.filter((item, index) => originalDataLabels[index] == target_names[i]);
+          const aux_colorUpdates = result.colorUpdates.filter((item, index) => originalDataLabels[index] == target_names[i]);
 
           var Text = aux_ID.map((item, index) => {
             let popup = 'Data Point ID: ' + item + '<br> Details: ' + stringParameters[item]
@@ -211,13 +229,12 @@ export default {
             return opac;
           });
 
-
           traces.push({
               x: aux_X,
               y: aux_Y,
               mode: 'markers',
               name: beautifyLabels[i],
-              marker: { color: this.colorsValues[i], line: { color: 'rgb(0, 0, 0)', width: 2 }, opacity: Opacity, size: sizeScatterplot },
+              marker: { color: this.colorsValues[i], line: { color: aux_colorUpdates[i], width: 3 }, opacity: Opacity, size: sizeScatterplot },
               hovertemplate: 
                       "<b>%{text}</b><br><br>" +
                       "<extra></extra>",
@@ -263,8 +280,22 @@ export default {
 
         for (let i = 0; i < result.Xax.length; i++) {
           IDs.push(i)
+          if (this.restylePoints.length != 0) {
+            if (XandYCoordinatesMDS[0].length == this.restylePoints.length) {
+              colorUpdate.push('rgb(0, 0, 0)')
+            } else {
+              if (this.restylePoints.includes(i)) {
+                  colorUpdate.push('rgb(175, 68, 39)')
+                } else {
+                  colorUpdate.push('rgb(0, 0, 0)')
+                }
+              }
+            } else {
+                  colorUpdate.push('rgb(0, 0, 0)')
+          }
         }
         result.ID = IDs
+        result.colorUpdates = colorUpdate
         
         var traces = []
 
@@ -273,6 +304,7 @@ export default {
           const aux_X = result.Xax.filter((item, index) => originalDataLabels[index] == target_names[i]);
           const aux_Y = result.Yax.filter((item, index) => originalDataLabels[index] == target_names[i]);
           const aux_ID = result.ID.filter((item, index) => originalDataLabels[index] == target_names[i]);
+          const aux_colorUpdates = result.colorUpdates.filter((item, index) => originalDataLabels[index] == target_names[i]);
 
           var Text = aux_ID.map((item, index) => {
             let popup = 'Data Point ID: ' + item + '<br> Details: ' + stringParameters[item]
@@ -296,7 +328,7 @@ export default {
             y: aux_Y,
             mode: 'markers',
             name: beautifyLabels[i],
-            marker: { color: this.colorsValues[i], line: { color: 'rgb(0, 0, 0)', width: 2 }, opacity: Opacity, size: sizeScatterplot },
+            marker: { color: this.colorsValues[i], line: { color: aux_colorUpdates, width: 3 }, opacity: Opacity, size: sizeScatterplot },
             hovertemplate: 
                     "<b>%{text}</b><br><br>" +
                     "<extra></extra>",
@@ -330,10 +362,27 @@ export default {
           Xaxs.push(XandYCoordinatesUMAP[0][i])
           Yaxs.push(XandYCoordinatesUMAP[1][i])
           IDs.push(i)
+          if (this.restylePoints.length != 0) {
+            if (XandYCoordinatesMDS[0].length == this.restylePoints.length) {
+              colorUpdate.push('rgb(0, 0, 0)')
+            } else {
+              if (this.restylePoints.includes(i)) {
+                  colorUpdate.push('rgb(175, 68, 39)')
+                } else {
+                  colorUpdate.push('rgb(0, 0, 0)')
+                }
+              }
+            } else {
+                  colorUpdate.push('rgb(0, 0, 0)')
+            }
         }
         result.Xax = Xaxs
         result.Yax = Yaxs
         result.ID = IDs
+        result.colorUpdates = colorUpdate
+
+        var traces = []
+        var layout = []
 
         var traces = []
 
@@ -342,6 +391,7 @@ export default {
           const aux_X = result.Xax.filter((item, index) => originalDataLabels[index] == target_names[i]);
           const aux_Y = result.Yax.filter((item, index) => originalDataLabels[index] == target_names[i]);
           const aux_ID = result.ID.filter((item, index) => originalDataLabels[index] == target_names[i]);
+          const aux_colorUpdates = result.colorUpdates.filter((item, index) => originalDataLabels[index] == target_names[i]);
 
           var Text = aux_ID.map((item, index) => {
             let popup = 'Data Point ID: ' + item + '<br> Details: ' + stringParameters[item]
@@ -365,7 +415,7 @@ export default {
               y: aux_Y,
               mode: 'markers',
               name: beautifyLabels[i],
-              marker: { color: this.colorsValues[i], line: { color: 'rgb(0, 0, 0)', width: 2 }, opacity: Opacity, size: sizeScatterplot },
+              marker: { color: this.colorsValues[i], line: { color: aux_colorUpdates, width: 3 }, opacity: Opacity, size: sizeScatterplot },
               hovertemplate: 
                       "<b>%{text}</b><br><br>" +
                       "<extra></extra>",
@@ -455,6 +505,10 @@ export default {
     EventBus.$on('resetViews', this.reset)
 
     EventBus.$on('SendToServerDataSetConfirmation', data => { this.RetrieveDataSet = data })
+
+    EventBus.$on('brushedDataSpace', data => {this.onlyOnce = true})
+    EventBus.$on('brushedDataSpace', data => {this.restylePoints = data})
+    EventBus.$on('brushedDataSpace', this.scatterPlotDataView)
   }
 }
 </script>

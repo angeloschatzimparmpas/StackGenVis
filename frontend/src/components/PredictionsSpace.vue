@@ -107,7 +107,7 @@ export default {
           const aux_X = result.Xax.filter((item, index) => originalDataLabels[index] == target_names[i]);
           const aux_Y = result.Yax.filter((item, index) => originalDataLabels[index] == target_names[i]);
           const aux_ID = result.ID.filter((item, index) => originalDataLabels[index] == target_names[i]);
-
+          console.log(aux_X)
           var Text = aux_ID.map((item, index) => {
             let popup = 'Data Point ID: ' + item + '<br> Details: ' + stringParameters[item]
             return popup;
@@ -118,7 +118,7 @@ export default {
               y: aux_Y,
               mode: 'markers',
               name: beautifyLabels[i],
-              marker: { color: this.colorsValues[i], line: { color: 'rgb(0, 0, 0)', width: 2 }, opacity: 1, size: 12 },
+              marker: { color: this.colorsValues[i], line: { color: 'rgb(0, 0, 0)', width: 3 }, opacity: 1, size: 12 },
               hovertemplate: 
                       "<b>%{text}</b><br><br>" +
                       "<extra></extra>",
@@ -186,7 +186,7 @@ export default {
             y: aux_Y,
             mode: 'markers',
             name: beautifyLabels[i],
-            marker: { color: this.colorsValues[i], line: { color: 'rgb(0, 0, 0)', width: 2 }, opacity: 1, size: 12 },
+            marker: { color: this.colorsValues[i], line: { color: 'rgb(0, 0, 0)', width: 3 }, opacity: 1, size: 12 },
             hovertemplate: 
                     "<b>%{text}</b><br><br>" +
                     "<extra></extra>",
@@ -244,7 +244,7 @@ export default {
               y: aux_Y,
               mode: 'markers',
               name: beautifyLabels[i],
-              marker: { color: this.colorsValues[i], line: { color: 'rgb(0, 0, 0)', width: 2 }, opacity: 1, size: 12 },
+              marker: { color: this.colorsValues[i], line: { color: 'rgb(0, 0, 0)', width: 3 }, opacity: 1, size: 12 },
               hovertemplate: 
                       "<b>%{text}</b><br><br>" +
                       "<extra></extra>",
@@ -283,6 +283,7 @@ export default {
     },
     UpdateScatterPlot () {
       const XandYCoordinates = JSON.parse(this.UpdatedData[0])
+      console.log(XandYCoordinates)
 
       Plotly.animate('OverviewPredPlotly', {
         data: [
@@ -299,7 +300,7 @@ export default {
           duration: 1000
         }
       })
-      this.selectedPointsOverview()
+      //this.selectedPointsOverview()
     },
     selectedPointsOverview () {
       const OverviewPlotly = document.getElementById('OverviewPredPlotly')
@@ -314,6 +315,7 @@ export default {
               DataPoints.push(OnlyId[3])
             }
           }
+          console.log(DataPoints)
           if (DataPoints != '') {
             EventBus.$emit('SendSelectedDataPointsToServerEvent', DataPoints)
           } else {

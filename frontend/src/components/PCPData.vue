@@ -34,7 +34,7 @@ export default {
 
       var extraction = []
       for (let i = 0; i < DataSetParse.length; i++) {
-        extraction.push(Object.assign(DataSetParse[i], {Outcome: target_names_original[i]}))
+        extraction.push(Object.assign(DataSetParse[i], {Outcome: target_names_original[i]}, {ID: i}))
       }
       var colors = this.colorsValues
       EventBus.$emit('sendDatatoPickle', extraction)
@@ -51,7 +51,7 @@ export default {
             .data(DataSetParse)
             .width(1200)
             .height(280)
-            .hideAxis(["Outcome"])
+            .hideAxis(["Outcome","ID"])
             .color(function(d, i) { return colors[target_names[i]] })
             .bundlingStrength(0) // set bundling strength
             .smoothness(0)
@@ -65,7 +65,7 @@ export default {
           .data(DataSetParse)
           .width(1200)
           .height(280)
-          .hideAxis(["Outcome"])
+          .hideAxis(["Outcome","ID"])
           .color(function(d, i) { return colors[target_names[i]] })
           .bundlingStrength(0) // set bundling strength
           .smoothness(0)
@@ -76,6 +76,13 @@ export default {
           .reorderable()
           .interactive();
       }
+      pc.on('brushend', function(brushed, args){
+        var brushedCleared = []
+        for (let i = 0; i < brushed.length; i++) {
+          brushedCleared.push(brushed[i].ID)
+        }
+        EventBus.$emit('brushedDataSpace', brushedCleared)
+    })
 
     },
   },

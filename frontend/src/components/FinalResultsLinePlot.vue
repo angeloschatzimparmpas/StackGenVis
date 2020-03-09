@@ -145,6 +145,10 @@ export default {
         type: "scatter"
       }
 
+      var text = this.scoresSTD2.map (function(value, i) {
+          return `STD: +/-${value}`
+      })
+
       var trace3 = {
         x: this.xaxis, 
         y: this.scoresMean2, 
@@ -169,7 +173,9 @@ export default {
         showlegend: false, 
         type: "scatter"
       }
-
+      var text = this.scoresSTD3.map (function(value, i) {
+          return `STD: +/-${value}`
+      })
       var trace5 = {
         x: this.xaxis, 
         y: this.scoresMean3, 
@@ -194,7 +200,9 @@ export default {
         showlegend: false, 
         type: "scatter"
       }
-
+      var text = this.scoresSTD4.map (function(value, i) {
+          return `STD: +/-${value}`
+      })
       var trace7 = {
         x: this.xaxis, 
         y: this.scoresMean4, 
@@ -221,7 +229,9 @@ export default {
       }
 
       // Stack
-
+      var text = this.Stack_scoresSTD.map (function(value, i) {
+          return `STD: +/-${value}`
+      })
         var trace9 = {
         x: this.xaxis, 
         y: this.Stack_scoresMean, 
@@ -246,7 +256,9 @@ export default {
         showlegend: false, 
         type: "scatter"
       }
-
+      var text = this.Stack_scoresSTD2.map (function(value, i) {
+          return `STD: +/-${value}`
+      })
       var trace11 = {
         x: this.xaxis, 
         y: this.Stack_scoresMean2, 
@@ -271,7 +283,9 @@ export default {
         showlegend: false, 
         type: "scatter"
       }
-
+      var text = this.Stack_scoresSTD3.map (function(value, i) {
+          return `STD: +/-${value}`
+      })
       var trace13 = {
         x: this.xaxis, 
         y: this.Stack_scoresMean3, 
@@ -296,7 +310,9 @@ export default {
         showlegend: false, 
         type: "scatter"
       }
-
+      var text = this.Stack_scoresSTD4.map (function(value, i) {
+          return `STD: +/-${value}`
+      })
       var trace15 = {
         x: this.xaxis, 
         y: this.Stack_scoresMean4, 

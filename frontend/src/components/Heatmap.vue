@@ -271,7 +271,7 @@ export default {
 
       var rowSortOrder = false;
       var colSortOrder = false;
-
+ 
       var rowLabels = svg.append("g")
           .attr("class", "rowLabels")
           .selectAll(".rowLabel")
@@ -350,6 +350,8 @@ export default {
             return d.idx;
           })
           .attr("class", "row");
+          svg.append("text").attr("x", 220).attr("y", -50).text("Models").style("font-size", "16px").attr("alignment-baseline","top")
+      svg.append("text").attr("transform", "rotate(-90)").attr("x", -130).attr("y", -45).style("text-anchor", "middle").style("font-size", "16px").text("Data Features"); 
       var heatMap = row.selectAll(".cell")
           .data(function(d) {
               return d;

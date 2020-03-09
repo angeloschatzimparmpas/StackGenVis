@@ -375,10 +375,10 @@ export default {
     this.Stack_scoresMean3 = []
     this.Stack_scoresMean4 = []
 
-    this.Stack_scoresMean.push((JSON.parse(this.FinalResultsProv[0])*100).toFixed(1))
-    this.Stack_scoresMean2.push((JSON.parse(this.FinalResultsProv[4])*100).toFixed(1))
-    this.Stack_scoresMean3.push((JSON.parse(this.FinalResultsProv[8])*100).toFixed(1))
-    this.Stack_scoresMean4.push((JSON.parse(this.FinalResultsProv[12])*100).toFixed(1))
+    this.Stack_scoresMean.push((JSON.parse(this.FinalResultsProv[0])*100).toFixed(0))
+    this.Stack_scoresMean2.push((JSON.parse(this.FinalResultsProv[4])*100).toFixed(0))
+    this.Stack_scoresMean3.push((JSON.parse(this.FinalResultsProv[8])*100).toFixed(0))
+    this.Stack_scoresMean4.push((JSON.parse(this.FinalResultsProv[12])*100).toFixed(0))
 
     const colorsSingle = ['#fdd0a2','#f16913','#7f2704']
 

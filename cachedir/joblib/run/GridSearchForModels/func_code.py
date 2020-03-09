@@ -1,6 +1,7 @@
-# first line: 552
+# first line: 565
 @memory.cache
 def GridSearchForModels(XData, yData, clf, params, eachAlgor, AlgorithmsIDsEnd, toggle):
+    print('inside')
     # instantiate spark session
     spark = (   
         SparkSession    
@@ -159,7 +160,6 @@ def GridSearchForModels(XData, yData, clf, params, eachAlgor, AlgorithmsIDsEnd, 
     metrics.insert(loop+13,'log_loss',resultsLogLossFinal)
 
     perModelPredPandas = pd.DataFrame(perModelPrediction)
-    print(perModelPredPandas)
     perModelPredPandas = perModelPredPandas.to_json()
 
     perModelProbPandas = pd.DataFrame(perModelProb)

@@ -37,6 +37,7 @@
 
             var performancePerModel = JSON.parse(this.resultsfromOverview[0])
             var performancePerModelSelection = []
+            console.log(this.newResultsFromSelection)
             if (this.newResultsFromSelection.length != 0) {
               var performancePerModelSelection = JSON.parse(this.newResultsFromSelection[0]) 
             }
@@ -190,7 +191,7 @@
             svg.append("circle").attr("cx", 215).attr("cy", heightforText-1.5).attr("r", 6).style("fill", "#000")
             svg.append("circle").attr("cx", 785).attr("cy", heightforText-1.5).attr("r", 6).style("fill", "#D3D3D3")
             svg.append("text").attr("x", 230).attr("y", heightforText).text("All Points").style("font-size", "16px").attr("alignment-baseline","middle")
-            svg.append("text").attr("x", 515).attr("y", heightforText-10).text("# Performance (%) #").style("font-size", "16px").attr("alignment-baseline","top")
+            svg.append("text").attr("x", 515).attr("y", heightforText-6).text("# Performance (%) #").style("font-size", "16px").attr("alignment-baseline","top")
             svg.append("text").attr("x", 800).attr("y", heightforText).text("Selected Points").style("font-size", "16px").attr("alignment-baseline","middle")
             svg.append("text").attr("transform", "rotate(-90)").attr("x", -89).attr("y", -45).style("text-anchor", "middle").style("font-size", "16px").text("Number of Models"); 
 

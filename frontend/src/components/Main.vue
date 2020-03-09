@@ -241,7 +241,7 @@ export default Vue.extend({
       ClassifierIDsList: '',
       SelectedFeaturesPerClassifier: '',
       FinalResults: 0,
-      Algorithms: ['KNN','SVC','GausNB','MLP','LR','LDA','QDA','RF','ExtraT','AdaB','GradB'],
+      Algorithms: ['KNN','SVC','GauNB','MLP','LR','LDA','QDA','RF','ExtraT','AdaB','GradB'],
       selectedAlgorithm: '',
       PerformancePerModel: '',
       PerformanceCheck: '',
@@ -708,7 +708,6 @@ export default Vue.extend({
     },
     UpdateBasedonFeatures () {
       const path = `http://127.0.0.1:5000/data/FeaturesSelection`
-      console.log(this.SelectedFeaturesPerClassifier)
         const postData = {
           featureSelection: this.SelectedFeaturesPerClassifier
         }
@@ -780,7 +779,6 @@ export default Vue.extend({
     },
     factors () {
       const path = `http://127.0.0.1:5000/data/factors`
-      console.log(this.basicValuesFact)
       const postData = {
         Factors: this.basicValuesFact
       }
