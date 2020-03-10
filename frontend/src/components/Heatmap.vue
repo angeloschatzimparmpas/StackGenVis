@@ -350,7 +350,7 @@ export default {
             return d.idx;
           })
           .attr("class", "row");
-          svg.append("text").attr("x", 220).attr("y", -50).text("Models").style("font-size", "16px").attr("alignment-baseline","top")
+      svg.append("text").attr("x", 220).attr("y", -50).text("Models").style("font-size", "16px").attr("alignment-baseline","top")
       svg.append("text").attr("transform", "rotate(-90)").attr("x", -130).attr("y", -45).style("text-anchor", "middle").style("font-size", "16px").text("Data Features"); 
       var heatMap = row.selectAll(".cell")
           .data(function(d) {
@@ -393,7 +393,7 @@ export default {
               d3.select('#rowLabel_' + k).classed("hover", true);
               if (d != null) {
                   tooltip.style("visibility", "visible");
-                  tooltip.html('<div class="heatmap_tooltip">' + d.toFixed(3) + '</div>');
+                  tooltip.html('<div class="heatmap_tooltip">' + d.toFixed(2) + '</div>');
               } else
                   tooltip.style("visibility", "hidden");
           })
@@ -477,6 +477,8 @@ export default {
               return legendElementWidth * i;
           })
           .attr("y", viewerPosTop + cellSize);
+
+      svgLeg.append("text").attr("x", 220).attr("y", 50).text("Importance (Normalized)").style("font-size", "16px").attr("alignment-baseline","top")
 
       //==================================================
       // Change ordering of cells

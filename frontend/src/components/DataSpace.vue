@@ -94,18 +94,23 @@ export default {
     },
     merge() {
       EventBus.$emit('SendAction', 'merge')
+      EventBus.$emit('SendSelectedPointsToServerEventfromData', [])
     },
     remove () {
       EventBus.$emit('SendAction', 'remove')
+      EventBus.$emit('SendSelectedPointsToServerEventfromData', [])
     },
     compose () {
       EventBus.$emit('SendAction', 'compose')
+      EventBus.$emit('SendSelectedPointsToServerEventfromData', [])
     },
     save () {
       EventBus.$emit('SendProvenance', 'save')
+      EventBus.$emit('SendSelectedPointsToServerEventfromData', [])
     },
     restore () {
       EventBus.$emit('SendProvenance', 'restore')
+      EventBus.$emit('SendSelectedPointsToServerEventfromData', [])
     },
     clean(obj) {
       var propNames = Object.getOwnPropertyNames(obj);
@@ -125,10 +130,14 @@ export default {
 
       var target_names = JSON.parse(this.dataPoints[0])
       const XandYCoordinatesMDS = JSON.parse(this.dataPoints[1])
+      console.log(XandYCoordinatesMDS)
       const DataSet = JSON.parse(this.dataPoints[2])
-      const DataSetY = JSON.parse(this.dataPoints[3])
-      const originalDataLabels = JSON.parse(this.dataPoints[4])
+      const originalDataLabels = JSON.parse(this.dataPoints[3])
+      //console.log(DataSetY)
+      //const originalDataLabels = JSON.parse(this.dataPoints[4])
+      console.log(originalDataLabels)
       var DataSetParse = JSON.parse(DataSet)
+      console.log(DataSetParse)
       var stringParameters = []
       for (let i = 0; i < DataSetParse.length; i++) {
         this.clean(DataSetParse[i])
@@ -170,8 +179,8 @@ export default {
         beautifyLabels.push('Presence of Hypotheticality')
       }
       else if (this.RetrieveDataSet == 'HeartC') {
-        beautifyLabels.push('< 50% diameter narrowing / Healthy')
-        beautifyLabels.push('> 50% diameter narrowing / Diseased')
+        beautifyLabels.push('< 50% Diameter Narrowing / Healthy')
+        beautifyLabels.push('> 50% Diameter Narrowing / Diseased')
       } else {
         target_names.forEach(element => {
           beautifyLabels.push(element)
@@ -201,6 +210,7 @@ export default {
         result.Yax = Yaxs
         result.ID = IDs
         result.colorUpdates = colorUpdate
+        console.log(result)
 
         var traces = []
         var layout = []
@@ -453,6 +463,7 @@ export default {
         this.selectedDataPoints()
       }
       this.onlyOnce = false
+
     },
     selectedDataPoints () {
       const OverviewDataPlotly = document.getElementById('OverviewDataPlotly')
@@ -471,6 +482,7 @@ export default {
               ClassifierIDsListCleared.push(numberNumb)
             }
           }
+          console.log(ClassifierIDsListCleared)
           if (ClassifierIDsList != '') {
             EventBus.$emit('ChangeKey', 1)
             EventBus.$emit('SendSelectedPointsToServerEventfromData', ClassifierIDsListCleared)
@@ -482,6 +494,7 @@ export default {
     }
   },
   mounted() {
+    EventBus.$on('onlyOnce', data => { this.onlyOnce = data })
     // initialize the first data space projection based on the data set 
     EventBus.$on('emittedEventCallingDataSpacePlotView', data => {
       this.dataPoints = data})

@@ -37,7 +37,6 @@
 
             var performancePerModel = JSON.parse(this.resultsfromOverview[0])
             var performancePerModelSelection = []
-            console.log(this.newResultsFromSelection)
             if (this.newResultsFromSelection.length != 0) {
               var performancePerModelSelection = JSON.parse(this.newResultsFromSelection[0]) 
             }

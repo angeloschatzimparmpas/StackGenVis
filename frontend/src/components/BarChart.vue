@@ -468,8 +468,8 @@ export default {
           beautifyLabels.push('Presence of Hypotheticality')
         }
         else if (this.RetrieveDataSet == 'HeartC') {
-          beautifyLabels.push('< 50% diameter narrowing / Healthy')
-          beautifyLabels.push('> 50% diameter narrowing / Diseased')
+          beautifyLabels.push('< 50% Diameter Narrowing / Healthy')
+          beautifyLabels.push('> 50% Diameter Narrowing / Diseased')
         } else {
           target_names.forEach(element => {
             beautifyLabels.push(element)
@@ -544,10 +544,10 @@ export default {
             eventData.points.forEach((e) => {
               tName = e.data.name.replace(/ *\([^)]*\) */g, "")
             });
-            if (tName == "< 50% diameter narrowing / Healthy") {
+            if (tName == "< 50% Diameter Narrowing / Healthy") {
               tName = 0
               this.tNameAll = 0
-            } else if (tName == "> 50% diameter narrowing / Diseased"){
+            } else if (tName == "> 50% Diameter Narrowing / Diseased"){
               tName = 1
               this.tNameAll = 1
             } else {

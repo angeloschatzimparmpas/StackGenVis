@@ -325,6 +325,7 @@ export default Vue.extend({
         .then(response => {
           this.OverviewResults = response.data.OverviewResults
           console.log('Server successfully sent all the data related to visualizations!')
+          EventBus.$emit('onlyOnce', true)
           EventBus.$emit('emittedEventCallingScatterPlot', this.OverviewResults)
           // if (this.firstTimeFlag == 1) {
           //   this.selectedModels_Stack.push(0)
@@ -874,8 +875,10 @@ export default Vue.extend({
         })
     },
     ActionFun () {
+      console.log(this.actionData)
       const path = `http://127.0.0.1:5000/data/UpdateAction`
       const postData = {
+        points: this.dataPointsSelfromDataSpace,
         action: this.actionData
       }
       const axiosConfig = {

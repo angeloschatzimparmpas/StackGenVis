@@ -57,6 +57,7 @@ export default {
           }
         }
       }
+      console.log(resultsColors)
       var width = this.WH[0]*6.5 // interactive visualization
       var height = this.WH[1]*0.5 // interactive visualization
           var trace1 = {
@@ -120,33 +121,33 @@ export default {
             }
             else if (xAxisHovered == 'G-Mean') {
               Plotly.restyle(boxPlot, 'x', [['Accuracy','<b>G-Mean</b>','<b>G-Mean</b>','<b>G-Mean</b>','Precision','Precision','Precision','Recall','Recall','Recall','F-Beta Score','F-Beta Score','F-Beta Score','F-Beta Score','F-Beta Score','F-Beta Score','F-Beta Score','F-Beta Score','F-Beta Score','MCC','ROC AUC','Log Loss']]);
-              index = 3
+              index = 1
             }
             else if (xAxisHovered == 'Precision') {
               Plotly.restyle(boxPlot, 'x', [['Accuracy','G-Mean','G-Mean','G-Mean','<b>Precision</b>','<b>Precision</b>','<b>Precision</b>','Recall','Recall','Recall','F-Beta Score','F-Beta Score','F-Beta Score','F-Beta Score','F-Beta Score','F-Beta Score','F-Beta Score','F-Beta Score','F-Beta Score','MCC','ROC AUC','Log Loss']]);
-              index = 4
+              index = 2
             }
             else if (xAxisHovered == 'Recall') {
               Plotly.restyle(boxPlot, 'x', [['Accuracy','G-Mean','G-Mean','G-Mean','Precision','Precision','Precision','<b>Recall</b>','<b>Recall</b>','<b>Recall</b>','F-Beta Score','F-Beta Score','F-Beta Score','F-Beta Score','F-Beta Score','F-Beta Score','F-Beta Score','F-Beta Score','F-Beta Score','MCC','ROC AUC','Log Loss']]);
-              index = 5
+              index = 3
             }
             else if (xAxisHovered == 'F-Beta Score') {
               Plotly.restyle(boxPlot, 'x', [['Accuracy','G-Mean','G-Mean','G-Mean','Precision','Precision','Precision','Recall','Recall','Recall','<b>F-Beta Score</b>','<b>F-Beta Score</b>','<b>F-Beta Score</b>','<b>F-Beta Score</b>','<b>F-Beta Score</b>','<b>F-Beta Score</b>','<b>F-Beta Score</b>','<b>F-Beta Score</b>','<b>F-Beta Score</b>','MCC','ROC AUC','Log Loss']]);
-              index = 6
+              index = 4
             }
             else if (xAxisHovered == 'MCC') {
               Plotly.restyle(boxPlot, 'x', [['Accuracy','G-Mean','G-Mean','G-Mean','Precision','Precision','Precision','Recall','Recall','Recall','F-Beta Score','F-Beta Score','F-Beta Score','F-Beta Score','F-Beta Score','F-Beta Score','F-Beta Score','F-Beta Score','F-Beta Score','<b>MCC</b>','ROC AUC','Log Loss']]);
-              index = 7
+              index = 5
             }
             else if (xAxisHovered == 'ROC AUC') {
               Plotly.restyle(boxPlot, 'x', [['Accuracy','G-Mean','G-Mean','G-Mean','Precision','Precision','Precision','Recall','Recall','Recall','F-Beta Score','F-Beta Score','F-Beta Score','F-Beta Score','F-Beta Score','F-Beta Score','F-Beta Score','F-Beta Score','F-Beta Score','MCC','<b>ROC AUC</b>','Log Loss']]);
-              index = 8
+              index = 6
             }
             else {
               Plotly.restyle(boxPlot, 'x', [['Accuracy','G-Mean','G-Mean','G-Mean','Precision','Precision','Precision','Recall','Recall','Recall','F-Beta Score','F-Beta Score','F-Beta Score','F-Beta Score','F-Beta Score','F-Beta Score','F-Beta Score','F-Beta Score','F-Beta Score','MCC','ROC AUC','<b>Log Loss</b>']]);
-              index = 9
+              index = 7
             }
-            //EventBus.$emit('updateMetricsScatter', resultsColors[index])
+            EventBus.$emit('updateMetricsScatter', resultsColors[index])
           });
       },
       reset () {

@@ -47,7 +47,7 @@ export default {
     $('#toggle-uni').change(function() {
         var toggleIDUni = document.getElementById('toggle-uni')
         var toggleIDPer = document.getElementById('toggle-per')
-        var toggleIDFi = document.getElementById('toggle-per')
+        var toggleIDFi = document.getElementById('toggle-fi')
         if (toggleIDUni.checked === false) {
             EventBus.$emit('toggle1', 0)
         } else {
@@ -62,7 +62,7 @@ export default {
     $('#toggle-per').change(function() {
         var toggleIDUni = document.getElementById('toggle-uni')
         var toggleIDPer = document.getElementById('toggle-per')
-        var toggleIDFi = document.getElementById('toggle-per')
+        var toggleIDFi = document.getElementById('toggle-fi')
         if (toggleIDPer.checked === false) {
             EventBus.$emit('toggle2', 0)
         } else {
@@ -77,7 +77,7 @@ export default {
     $('#toggle-fi').change(function() {
         var toggleIDUni = document.getElementById('toggle-uni')
         var toggleIDPer = document.getElementById('toggle-per')
-        var toggleIDFi = document.getElementById('toggle-per')
+        var toggleIDFi = document.getElementById('toggle-fi')
         if (toggleIDFi.checked === false) {
             EventBus.$emit('toggle3', 0)
         } else {

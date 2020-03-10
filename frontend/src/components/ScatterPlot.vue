@@ -96,13 +96,22 @@ export default {
       Plotly.purge('OverviewPlotly')
 
       var colorsforScatterPlot = JSON.parse(this.ScatterPlotResults[0])
-
-      /*if (this.newColorsUpdate.length != 0) {
+      console.log(this.newColorsUpdate)
+      if (this.newColorsUpdate.length != 0) {
+        console.log('den mpike')
+        colorsforScatterPlot = []
         let resultsClear = JSON.parse(this.newColorsUpdate)
         for (let j = 0; j < Object.values(resultsClear).length; j++) {
           colorsforScatterPlot.push(Object.values(resultsClear)[j])
         }
-      }*/
+        this.colorsStore = []
+        this.MDSStore = []
+        this.parametersStore = []
+        this.TSNEStore = []
+        this.modelIDStore = []
+        this.UMAPStore = []
+      }
+      console.log(colorsforScatterPlot)
 
       var MDSData = JSON.parse(this.ScatterPlotResults[1])
       var parametersLoc = JSON.parse(this.ScatterPlotResults[2])
@@ -124,6 +133,8 @@ export default {
         TSNEData = this.TSNEStore.slice(this.activeModels,this.activeModels+1)[0]
         modelId = this.modelIDStore.slice(this.activeModels,this.activeModels+1)[0]
         UMAPData = this.UMAPStore.slice(this.activeModels,this.activeModels+1)[0]
+
+      console.log(colorsforScatterPlot)
       }
 
       EventBus.$emit('sendPointsNumber', modelId.length)
@@ -197,7 +208,6 @@ export default {
         EventBus.$emit('NewHeatmapAccordingtoNewStack', modelId)
 
       }
-      
       var DataGeneral
 
       var maxX
@@ -470,8 +480,11 @@ export default {
     }
   },
   mounted() {
-    /*EventBus.$on('updateMetricsScatter', data => { this.newColorsUpdate = data })
-    EventBus.$on('updateMetricsScatter', this.ScatterPlotView)*/
+    EventBus.$on('onlyOnce', data => { this.onlyOnce = data })
+
+    EventBus.$on('updateMetricsScatter', data => { this.newColorsUpdate = data })
+    EventBus.$on('updateMetricsScatter', this.ScatterPlotView)
+
     EventBus.$on('updateRemaining', data => { this.pushModelsRemaining = data })
 
     EventBus.$on('requestProven', data => { this.activeModels = data })

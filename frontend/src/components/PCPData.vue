@@ -46,7 +46,7 @@ export default {
         }
       }
 
-      if (DataSetParse.length == this.ClassifierIDsListClearedData.length || this.ClassifierIDsListClearedData.length == 0)
+      if (DataSetParse.length == this.ClassifierIDsListClearedData.length || this.ClassifierIDsListClearedData.length == 0) {
         var pc = ParCoords()("#PCPDataView")
             .data(DataSetParse)
             .width(1200)
@@ -60,6 +60,7 @@ export default {
             .brushMode('1D-axes')
             .reorderable()
             .interactive();
+      }
       else {
         var pc = ParCoords()("#PCPDataView")
           .data(DataSetParse)

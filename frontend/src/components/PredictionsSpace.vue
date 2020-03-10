@@ -28,7 +28,8 @@ export default {
       representationSelection: 'mds',
       RetrieveDataSet: 'HeartC',
       colorsValues: ['#808000','#008080','#bebada','#fccde5','#d9d9d9','#bc80bd','#ccebc5'],
-      WH: []
+      WH: [],
+      onlyOnce: true,
     }
   },
   methods: {
@@ -59,8 +60,8 @@ export default {
       var target_names = JSON.parse(this.PredictionsData[4])
       const XandYCoordinatesMDS = JSON.parse(this.PredictionsData[8])
       const DataSet = JSON.parse(this.PredictionsData[14])
-      const DataSetY = JSON.parse(this.PredictionsData[15])
-      const originalDataLabels = JSON.parse(this.PredictionsData[16])
+      const originalDataLabels = JSON.parse(this.PredictionsData[15])
+      //const originalDataLabels = JSON.parse(this.PredictionsData[16])
       var DataSetParse = JSON.parse(DataSet)
       var stringParameters = []
       for (let i = 0; i < DataSetParse.length; i++) {
@@ -81,8 +82,8 @@ export default {
         beautifyLabels.push('Presence of Hypotheticality')
       }
       else if (this.RetrieveDataSet == 'HeartC') {
-        beautifyLabels.push('< 50% diameter narrowing / Healthy')
-        beautifyLabels.push('> 50% diameter narrowing / Diseased')
+        beautifyLabels.push('< 50% Diameter Narrowing / Healthy')
+        beautifyLabels.push('> 50% Diameter Narrowing / Diseased')
       } else {
         target_names.forEach(element => {
           beautifyLabels.push(element)
@@ -107,7 +108,7 @@ export default {
           const aux_X = result.Xax.filter((item, index) => originalDataLabels[index] == target_names[i]);
           const aux_Y = result.Yax.filter((item, index) => originalDataLabels[index] == target_names[i]);
           const aux_ID = result.ID.filter((item, index) => originalDataLabels[index] == target_names[i]);
-          console.log(aux_X)
+
           var Text = aux_ID.map((item, index) => {
             let popup = 'Data Point ID: ' + item + '<br> Details: ' + stringParameters[item]
             return popup;
@@ -279,11 +280,14 @@ export default {
       var config = {scrollZoom: true, displaylogo: false, showLink: false, showSendToCloud: false, modeBarButtonsToRemove: ['toImage', 'toggleSpikelines', 'autoScale2d', 'hoverClosestGl2d','hoverCompareCartesian','select2d','hoverClosestCartesian','zoomIn2d','zoomOut2d','zoom2d'], responsive: true}
 
       Plotly.newPlot('OverviewPredPlotly', traces, layout, config)
-      this.selectedPointsOverview()
+      if (this.onlyOnce) {
+        this.selectedPointsOverview()
+      }
+      this.onlyOnce = false
+
     },
     UpdateScatterPlot () {
       const XandYCoordinates = JSON.parse(this.UpdatedData[0])
-      console.log(XandYCoordinates)
 
       Plotly.animate('OverviewPredPlotly', {
         data: [
@@ -326,6 +330,7 @@ export default {
     },
   },
   mounted() {
+    EventBus.$on('onlyOnce', data => { this.onlyOnce = data })
     EventBus.$on('updatePredictionsSpace', data => { this.UpdatedData = data })
     EventBus.$on('updatePredictionsSpace', this.UpdateScatterPlot)
     EventBus.$on('emittedEventCallingPredictionsSpacePlotView', data => {

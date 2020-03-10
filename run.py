@@ -418,7 +418,7 @@ def callPreResults():
     global yData
     global target_names
     global impDataInst
-
+    print(XData)
     DataSpaceResMDS = FunMDS(XData)
     DataSpaceResTSNE = FunTsne(XData)
     DataSpaceResTSNE = DataSpaceResTSNE.tolist()
@@ -442,7 +442,7 @@ def callPreResults():
 @app.route('/data/requestDataSpaceResults', methods=["GET", "POST"])
 def SendDataSpaceResults():
     global preResults
-
+    callPreResults()
     response = {    
         'preDataResults': preResults,
     }
@@ -1689,8 +1689,6 @@ def RetrieveSelClassifiersIDandRemoveFromStack():
 
     PredictionProbSelUpdate = PreprocessingPredUpdate(ClassifierIDsList)
 
-    print(PredictionProbSelUpdate)
-
     global resultsUpdatePredictionSpace
     resultsUpdatePredictionSpace = []
     resultsUpdatePredictionSpace.append(json.dumps(PredictionProbSelUpdate[0])) # Position: 0
@@ -1932,7 +1930,7 @@ def RetrieveSelDataPoints():
 
     if (len(paramsListSeptoDicGradB['n_estimators']) is 0):
         RetrieveParamsClearedListGradB = []
-    print(algorithms)
+
     for eachAlgor in algorithms:
         if (eachAlgor) == 'KNN':
             clf = KNeighborsClassifier()
@@ -2093,6 +2091,17 @@ def RetrieveSelDataPoints():
 
         df_concatMetrics = pd.concat([dfKNNCleared, dfSVCCleared, dfGausNBCleared, dfMLPCleared, dfLRCleared, dfLDACleared, dfQDACleared, dfRFCleared, dfExtraTCleared, dfAdaBCleared, dfGradBCleared])
     else:
+        dfSVCCleared = pd.DataFrame()
+        dfKNNCleared = pd.DataFrame()
+        dfGausNBCleared = pd.DataFrame()
+        dfMLPCleared = pd.DataFrame()
+        dfLRCleared = pd.DataFrame()
+        dfLDACleared = pd.DataFrame()
+        dfQDACleared = pd.DataFrame()
+        dfRFCleared = pd.DataFrame()
+        dfExtraTCleared = pd.DataFrame()
+        dfAdaBCleared = pd.DataFrame()
+        dfGradBCleared = pd.DataFrame()
         if (len(metricsSelList[0]) != 0):
             dicKNN = json.loads(metricsSelList[0])
             dfKNN = pd.DataFrame.from_dict(dicKNN)
@@ -2103,8 +2112,7 @@ def RetrieveSelDataPoints():
                 dfKNNCleared = dfKNN
             else:
                 dfKNNCleared = dfKNN.drop(dfKNN.index[set_diff_df])
-            df_concatMetrics = dfKNNCleared
-        elif (len(metricsSelList[1]) != 0):
+        if (len(metricsSelList[1]) != 0):
             dicSVC = json.loads(metricsSelList[1])
             dfSVC = pd.DataFrame.from_dict(dicSVC)
             parametersSelDataPD = parametersSelData[1].apply(pd.Series)
@@ -2114,8 +2122,7 @@ def RetrieveSelDataPoints():
                 dfSVCCleared = dfSVC
             else:
                 dfSVCCleared = dfSVC.drop(dfSVC.index[set_diff_df])
-            df_concatMetrics = dfSVCCleared
-        elif (len(metricsSelList[2]) != 0):
+        if (len(metricsSelList[2]) != 0):
             dicGausNB = json.loads(metricsSelList[2])
             dfGausNB = pd.DataFrame.from_dict(dicGausNB)
             parametersSelDataPD = parametersSelData[2].apply(pd.Series)
@@ -2125,8 +2132,7 @@ def RetrieveSelDataPoints():
                 dfGausNBCleared = dfGausNB
             else:
                 dfGausNBCleared = dfGausNB.drop(dfGausNB.index[set_diff_df])
-            df_concatMetrics = dfGausNBCleared
-        elif (len(metricsSelList[3]) != 0):
+        if (len(metricsSelList[3]) != 0):
             dicMLP = json.loads(metricsSelList[3])
             dfMLP = pd.DataFrame.from_dict(dicMLP)
             parametersSelDataPD = parametersSelData[3].apply(pd.Series)
@@ -2136,8 +2142,7 @@ def RetrieveSelDataPoints():
                 dfMLPCleared = dfMLP
             else:
                 dfMLPCleared = dfMLP.drop(dfMLP.index[set_diff_df])
-            df_concatMetrics = dfMLPCleared
-        elif (len(metricsSelList[4]) != 0):
+        if (len(metricsSelList[4]) != 0):
             dicLR = json.loads(metricsSelList[4])
             dfLR = pd.DataFrame.from_dict(dicLR)
             parametersSelDataPD = parametersSelData[4].apply(pd.Series)
@@ -2147,8 +2152,7 @@ def RetrieveSelDataPoints():
                 dfLRCleared = dfLR
             else:
                 dfLRCleared = dfLR.drop(dfLR.index[set_diff_df])
-            df_concatMetrics = dfLRCleared
-        elif (len(metricsSelList[5]) != 0):
+        if (len(metricsSelList[5]) != 0):
             dicLDA = json.loads(metricsSelList[5])
             dfLDA = pd.DataFrame.from_dict(dicLDA)
             parametersSelDataPD = parametersSelData[5].apply(pd.Series)
@@ -2158,8 +2162,7 @@ def RetrieveSelDataPoints():
                 dfLDACleared = dfLDA
             else:
                 dfLDACleared = dfLDA.drop(dfLDA.index[set_diff_df])
-            df_concatMetrics = dfLDACleared
-        elif (len(metricsSelList[6]) != 0):
+        if (len(metricsSelList[6]) != 0):
             dicQDA = json.loads(metricsSelList[6])
             dfQDA = pd.DataFrame.from_dict(dicQDA)
             parametersSelDataPD = parametersSelData[6].apply(pd.Series)
@@ -2169,8 +2172,7 @@ def RetrieveSelDataPoints():
                 dfQDACleared = dfQDA
             else:
                 dfQDACleared = dfQDA.drop(dfQDA.index[set_diff_df])
-            df_concatMetrics = dfQDACleared
-        elif (len(metricsSelList[7]) != 0):
+        if (len(metricsSelList[7]) != 0):
             dicRF = json.loads(metricsSelList[7])
             dfRF = pd.DataFrame.from_dict(dicRF)
             parametersSelDataPD = parametersSelData[7].apply(pd.Series)
@@ -2180,8 +2182,7 @@ def RetrieveSelDataPoints():
                 dfRFCleared = dfRF
             else:
                 dfRFCleared = dfRF.drop(dfRF.index[set_diff_df])
-            df_concatMetrics = dfRFCleared
-        elif (len(metricsSelList[8]) != 0):
+        if (len(metricsSelList[8]) != 0):
             dicExtraT = json.loads(metricsSelList[8])
             dfExtraT = pd.DataFrame.from_dict(dicExtraT)
             parametersSelDataPD = parametersSelData[8].apply(pd.Series)
@@ -2191,8 +2192,7 @@ def RetrieveSelDataPoints():
                 dfExtraTCleared = dfExtraT
             else:
                 dfExtraTCleared = dfExtraT.drop(dfExtraT.index[set_diff_df])
-            df_concatMetrics = dfExtraTCleared
-        elif (len(metricsSelList[9]) != 0):
+        if (len(metricsSelList[9]) != 0):
             dicAdaB = json.loads(metricsSelList[9])
             dfAdaB = pd.DataFrame.from_dict(dicAdaB)
             parametersSelDataPD = parametersSelData[9].apply(pd.Series)
@@ -2202,8 +2202,7 @@ def RetrieveSelDataPoints():
                 dfAdaBCleared = dfAdaB
             else:
                 dfAdaBCleared = dfAdaB.drop(dfAdaB.index[set_diff_df])
-            df_concatMetrics = dfAdaBCleared
-        else:
+        if (len(metricsSelList[10]) != 0):
             dicGradB = json.loads(metricsSelList[10])
             dfGradB = pd.DataFrame.from_dict(dicGradB)
             parametersSelDataPD = parametersSelData[10].apply(pd.Series)
@@ -2213,14 +2212,15 @@ def RetrieveSelDataPoints():
                 dfGradBCleared = dfGradB
             else:
                 dfGradBCleared = dfGradB.drop(dfGradB.index[set_diff_df])
-            df_concatMetrics = dfGradBCleared
-    
+        df_concatMetrics = pd.concat([dfKNNCleared, dfSVCCleared, dfGausNBCleared, dfMLPCleared, dfLRCleared, dfLDACleared, dfQDACleared, dfRFCleared, dfExtraTCleared, dfAdaBCleared, dfGradBCleared])
+    df_concatMetrics = df_concatMetrics.reset_index(drop=True)
+    print(df_concatMetrics)
     global foreachMetricResults
     foreachMetricResults = []
     foreachMetricResults = preProcSumForEachMetric(factors, df_concatMetrics)
 
     df_concatMetrics.loc[:, 'log_loss'] = 1 - df_concatMetrics.loc[:, 'log_loss']
-
+    print(df_concatMetrics)
     global sumPerClassifierSelUpdate
     sumPerClassifierSelUpdate = []
     sumPerClassifierSelUpdate = preProcsumPerMetricAccordingtoData(factors, df_concatMetrics)
@@ -2230,7 +2230,8 @@ def RetrieveSelDataPoints():
     ModelSpaceMDSNewSel = FunMDS(df_concatMetrics)
 
     ModelSpaceMDSNewSelComb = [list(a) for a in  zip(ModelSpaceMDSNewSel[0], ModelSpaceMDSNewSel[1])]
-
+    print(len(ModelSpaceMDSNewComb))
+    print(len(ModelSpaceMDSNewSelComb))
     global mt2xFinal
     mt2xFinal = []
     mtx1, mtx2, disparity = procrustes(ModelSpaceMDSNewComb, ModelSpaceMDSNewSelComb)
@@ -2242,6 +2243,8 @@ def RetrieveSelDataPoints():
 
 
 def GridSearchSel(clf, params, factors, AlgorithmsIDsEnd, DataPointsSel):
+    global XData
+    global yData
     if (len(params) == 0):
         resultsMetrics.append([]) # Position: 0 and so on 
         parametersSelData.append([])
@@ -2253,8 +2256,7 @@ def GridSearchSel(clf, params, factors, AlgorithmsIDsEnd, DataPointsSel):
             .getOrCreate()    
             )
         sc = spark.sparkContext 
-
-        XDatasubset = XData.loc[DataPointsSel,:]
+        XDatasubset = XData.iloc[DataPointsSel,:]
 
         yDataSubset = [yData[i] for i in DataPointsSel]
 
@@ -3022,19 +3024,19 @@ def RetrieveAction():
     filterActionCleared = json.loads(filterAction)
 
     global filterActionFinal
-    global dataSpacePointsIDs
     global filterDataFinal
     global XData
     global yData
 
     filterActionFinal = filterActionCleared['action']
-
+    dataSpacePointsIDs = filterActionCleared['points']
+    print(dataSpacePointsIDs)
     if (filterActionFinal == 'merge'):
         if (filterDataFinal == 'mean' or filterDataFinal == ''):
-            mean = XData.iloc[dataSpacePointsIDs, :].mean()
+            mean = XData.loc[dataSpacePointsIDs, :].mean()
             XData.loc[len(XData)]= mean
         else:
-            median = XData.iloc[dataSpacePointsIDs, :].median()
+            median = XData.loc[dataSpacePointsIDs, :].median()
             XData.loc[len(XData)]= median
         yDataSelected = [yData[i] for i in dataSpacePointsIDs]
         storeMode = mode(yDataSelected)
@@ -3044,10 +3046,10 @@ def RetrieveAction():
         XData.reset_index(drop=True, inplace=True)
     elif (filterActionFinal == 'compose'):
         if (filterDataFinal == 'mean' or filterDataFinal == ''):
-            mean = XData.iloc[dataSpacePointsIDs, :].mean()
+            mean = XData.loc[dataSpacePointsIDs, :].mean()
             XData.loc[len(XData)]= mean
         else:
-            median = XData.iloc[dataSpacePointsIDs, :].median()
+            median = XData.loc[dataSpacePointsIDs, :].median()
             XData.loc[len(XData)]= median
         yDataSelected = [yData[i] for i in dataSpacePointsIDs]
         storeMode = mode(yDataSelected)
