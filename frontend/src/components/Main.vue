@@ -115,7 +115,7 @@
               <b-col cols="6">
                 <mdb-card style="margin-top: 15px;">
                   <mdb-card-header color="primary-color" tag="h5" class="text-center"><small class="float-left" style="padding-top: 3px;">Metrics Support: [All]</small>Models' Space
-                    [Sel: {{OverSelLength}} / All: {{OverAllLength}}]
+                    [Sel: {{OverSelLength}} / All: {{OverAllLength}}]<small class="float-right"><active-scatter/></small>
                     </mdb-card-header>
                     <mdb-card-body>
                       <mdb-card-text class="text-center"  style="min-height: 845px">
@@ -171,6 +171,7 @@ import Controller from './Controller.vue'
 import ResetClass from './ResetClass.vue'
 import Knowledge from './Knowledge.vue'
 import Active from './Active.vue'
+import ActiveScatter from './ActiveScatter.vue'
 import Export from './Export.vue'
 import SlidersController from './SlidersController.vue'
 import ScatterPlot from './ScatterPlot.vue'
@@ -210,6 +211,7 @@ export default Vue.extend({
     ResetClass,
     Knowledge,
     Active,
+    ActiveScatter,
     SlidersController,
     ScatterPlot,
     PerMetricBarChart,
@@ -277,6 +279,7 @@ export default Vue.extend({
       toggleDeepMain: 1,
       keyLoc: 0,
       keyData: true,
+      ClassifierIDsListRemaining: []
     }
   },
   methods: {
@@ -412,6 +415,33 @@ export default Vue.extend({
       console.log(error)
       })
     },
+    updateBarChartLocally () {
+      this.OverSelLength = this.ClassifierIDsList.length
+      const path = `http://127.0.0.1:5000/data/ServerRequestSelPoinLocally`
+      const postData = {
+        ClassifiersList: this.ClassifierIDsList,
+      }
+      const axiosConfig = {
+        headers: {
+          'Content-Type': 'application/json',
+          'Access-Control-Allow-Origin': '*',
+          'Access-Control-Allow-Headers': 'Origin, Content-Type, X-Auth-Token',
+          'Access-Control-Allow-Methods': 'GET, PUT, POST, DELETE, OPTIONS'
+        }
+      }
+      axios.post(path, postData, axiosConfig)
+        .then(response => {
+          console.log('Sent the selected points to the server (scatterplot)!')
+          if (this.keyNow == 0) {
+            this.OverAllLength = this.ClassifierIDsList.length
+            EventBus.$emit('GrayOutPoints', this.ClassifierIDsList)
+          } 
+          this.getSelectedModelsMetrics()
+        })
+        .catch(error => {
+          console.log(error)
+        })
+  },
     SendSelectedPointsToServer () {
       if (this.ClassifierIDsList === ''){
         this.OverSelLength = 0
@@ -438,7 +468,7 @@ export default Vue.extend({
               this.OverAllLength = this.ClassifierIDsList.length
               EventBus.$emit('GrayOutPoints', this.ClassifierIDsList)
             } 
-            this.getSelectedModelsMetrics()
+            //this.getSelectedModelsMetrics()
             this.getFinalResults()
           })
           .catch(error => {
@@ -449,7 +479,7 @@ export default Vue.extend({
     RemoveFromStackModels () {
       const path = `http://127.0.0.1:5000/data/ServerRemoveFromStack`
       const postData = {
-        ClassifiersList: this.ClassifierIDsList,
+        ClassifiersList: this.ClassifierIDsListRemaining,
       }
       const axiosConfig = {
       headers: {
@@ -462,7 +492,6 @@ export default Vue.extend({
       axios.post(path, postData, axiosConfig)
       .then(response => {
       console.log('Sent the selected points to the server (scatterplot)!')
-      EventBus.$emit('updateFlagForFinalResults', 0)
       this.updatePredictionsSpace()
       })
       .catch(error => {
@@ -490,6 +519,8 @@ export default Vue.extend({
             EventBus.$emit('GrayOutPoints', this.ClassifierIDsList)
           }
           EventBus.$emit('updatePredictionsSpace', this.UpdatePredictions)
+          EventBus.$emit('updateFlagForFinalResults', 0)
+          this.getFinalResults()
         })
         .catch(error => {
           console.log(error)
@@ -982,7 +1013,8 @@ export default Vue.extend({
 
     EventBus.$on('ChangeKey', data => { this.keyNow = data })
     EventBus.$on('SendSelectedPointsToServerEvent', data => { this.ClassifierIDsList = data })
-    EventBus.$on('SendSelectedPointsToServerEvent', this.SendSelectedPointsToServer)
+    EventBus.$on('SendSelectedPointsToServerEvent', this.updateBarChartLocally)
+    EventBus.$on('sendToServerSelectedScatter', this.SendSelectedPointsToServer)
 
     EventBus.$on('SendSelectedDataPointsToServerEvent', data => { this.DataPointsSel = data })
     EventBus.$on('SendSelectedDataPointsToServerEvent', this.SendSelectedDataPointsToServer)
@@ -1012,7 +1044,7 @@ export default Vue.extend({
     EventBus.$on('sendPointsNumber', data => {this.OverAllLength = data})
     EventBus.$on('AllSelModels', data => {this.valueSel = data})
 
-    EventBus.$on('RemoveFromStack', data => { this.ClassifierIDsList = data })
+    EventBus.$on('RemoveFromStack', data => { this.ClassifierIDsListRemaining = data })
     EventBus.$on('RemoveFromStack', this.RemoveFromStackModels)
 
     EventBus.$on('OpenModal', this.openModalFun)

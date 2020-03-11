@@ -69,8 +69,15 @@ export default {
   methods: {
     resetSelection () {
       this.newColorsUpdate = []
-      this.ScatterPlotView()
+      EventBus.$emit('updateBold', '')
       EventBus.$emit('updateBoxPlots')
+      this.colorsStore = []
+      this.MDSStore = []
+      this.parametersStore = []
+      this.TSNEStore = []
+      this.modelIDStore = []
+      this.UMAPStore = []
+      this.ScatterPlotView()
     },
     reset () {
       Plotly.purge('OverviewPlotly')
@@ -94,32 +101,25 @@ export default {
     },
     ScatterPlotView () {
       Plotly.purge('OverviewPlotly')
+      var colorsforScatterPlot
+      var MDSData
 
-      var colorsforScatterPlot = JSON.parse(this.ScatterPlotResults[0])
-      console.log(this.newColorsUpdate)
+      colorsforScatterPlot = JSON.parse(this.ScatterPlotResults[0])
       if (this.newColorsUpdate.length != 0) {
-        console.log('den mpike')
         colorsforScatterPlot = []
         let resultsClear = JSON.parse(this.newColorsUpdate)
         for (let j = 0; j < Object.values(resultsClear).length; j++) {
           colorsforScatterPlot.push(Object.values(resultsClear)[j])
         }
-        this.colorsStore = []
-        this.MDSStore = []
-        this.parametersStore = []
-        this.TSNEStore = []
-        this.modelIDStore = []
-        this.UMAPStore = []
       }
-      console.log(colorsforScatterPlot)
 
-      var MDSData = JSON.parse(this.ScatterPlotResults[1])
+      MDSData= JSON.parse(this.ScatterPlotResults[1])
+
       var parametersLoc = JSON.parse(this.ScatterPlotResults[2])
       var parameters = JSON.parse(parametersLoc)
       var TSNEData = JSON.parse(this.ScatterPlotResults[12])
       var modelId = JSON.parse(this.ScatterPlotResults[13])
       var UMAPData = JSON.parse(this.ScatterPlotResults[17])
-
       if (this.keyLocal == 0) {
         this.colorsStore.push(colorsforScatterPlot)
         this.MDSStore.push(MDSData)
@@ -133,8 +133,6 @@ export default {
         TSNEData = this.TSNEStore.slice(this.activeModels,this.activeModels+1)[0]
         modelId = this.modelIDStore.slice(this.activeModels,this.activeModels+1)[0]
         UMAPData = this.UMAPStore.slice(this.activeModels,this.activeModels+1)[0]
-
-      console.log(colorsforScatterPlot)
       }
 
       EventBus.$emit('sendPointsNumber', modelId.length)
@@ -162,6 +160,7 @@ export default {
 
       var listofNumbersModelsIDs = []
       var StackModelsIDs = []
+      console.log(this.ModelsIDGray.length)
       if (this.ModelsIDGray.length != 0) {
         for (let j = 0; j < this.ModelsIDGray.length; j++){
           listofNumbersModelsIDs.push(parseInt(this.ModelsIDGray[j]))
@@ -171,18 +170,39 @@ export default {
         var MDSDataNewX = []
         var MDSDataNewY = []
         var colorsforScatterPlotNew = []
+
+        if (this.DataPointsSelUpdate.length != 0) {
+          this.colorsStore.pop()
+          this.MDSStore.pop()
+          this.parametersStore.pop()
+          this.modelIDStore.pop()
+          this.UMAPStore.pop()
+        }
+
         for (let i = 0; i < modelId.length; i++) {
           if (listofNumbersModelsIDs.includes(modelId[i])) {
-          } else {
             StackModelsIDs.push(modelId[i])
             parametersNew.push(parameters[i])
-            colorsforScatterPlotNew.push(colorsforScatterPlot[i])
-            MDSDataNewX.push(MDSData[0][i])
-            MDSDataNewY.push(MDSData[1][i])
+            if (this.DataPointsSelUpdate.length != 0) {
+              colorsforScatterPlot = JSON.parse(this.DataPointsSelUpdate[0])
+              colorsforScatterPlotNew.push(colorsforScatterPlot[i])
+            } else {
+              colorsforScatterPlotNew.push(colorsforScatterPlot[i])
+            }
+            if (this.DataPointsSelUpdate.length != 0) {
+              MDSData = JSON.parse(this.DataPointsSelUpdate[1])
+              MDSDataNewX.push(MDSData[0][i])
+              MDSDataNewY.push(MDSData[1][i])
+            } else {
+              MDSDataNewX.push(MDSData[0][i])
+              MDSDataNewY.push(MDSData[1][i])
+            }
           }
         }
+        this.DataPointsSelUpdate = []
         MDSData[0] = MDSDataNewX
         MDSData[1] = MDSDataNewY
+        console.log(StackModelsIDs)
         modelId = StackModelsIDs
         parameters = parametersNew
         colorsforScatterPlot = colorsforScatterPlotNew
@@ -193,13 +213,19 @@ export default {
           //this.TSNEStore.push(TSNEData)
           this.modelIDStore.push(modelId)
           this.UMAPStore.push(UMAPData)
+          console.log(this.activeModels)
           colorsforScatterPlot = this.colorsStore.slice(this.activeModels,this.activeModels+1)[0]
           MDSData = this.MDSStore.slice(this.activeModels,this.activeModels+1)[0]
           parameters = this.parametersStore.slice(this.activeModels,this.activeModels+1)[0]
           //TSNEData = this.TSNEStore.slice(this.activeModels,this.activeModels+1)[0]
           modelId = this.modelIDStore.slice(this.activeModels,this.activeModels+1)[0]
+          console.log(modelId)
           //UMAPData = this.UMAPStore.slice(this.activeModels,this.activeModels+1)[0]
         }
+
+
+        console.log(this.colorsStore)
+        console.log(colorsforScatterPlot)
         EventBus.$emit('sendPointsNumber', modelId.length)
         var classifiersInfoProcessing = []
         for (let i = 0; i < modelId.length; i++) {
@@ -397,7 +423,6 @@ export default {
       if (this.onlyOnce) {
         this.selectedPointsOverview()
       }
-      this.onlyOnce = false
     },
     selectedPointsOverview () {
       const OverviewPlotly = document.getElementById('OverviewPlotly')
@@ -418,11 +443,13 @@ export default {
               ClassifierIDsListCleared.push(numberNumb)
             }
           }
+          console.log(ClassifierIDsListCleared)
           for (let i = 0; i < allModels.length; i++) {
             if (!ClassifierIDsListCleared.includes(allModels[i])) {
               pushModelsRemainingTemp.push(allModels[i])
             }
           }
+          console.log(pushModelsRemainingTemp)
             EventBus.$emit('updateRemaining', pushModelsRemainingTemp)
           if (allModels != '') {
             EventBus.$emit('ChangeKey', 1)
@@ -437,47 +464,47 @@ export default {
     UpdateScatter () {
       this.ScatterPlotView()
     },
-    animate() {
-      var maxX
-      var minX
-      var maxY
-      var minY
+  //   animate() {
+  //     var maxX
+  //     var minX
+  //     var maxY
+  //     var minY
 
-      var colorsforScatterPlot = JSON.parse(this.DataPointsSelUpdate[0])
-      var MDSData = JSON.parse(this.DataPointsSelUpdate[1])
+  //     var colorsforScatterPlot = JSON.parse(this.DataPointsSelUpdate[0])
+  //     var MDSData = JSON.parse(this.DataPointsSelUpdate[1])
 
-      maxX = Math.max(MDSData[0])
-      minX = Math.min(MDSData[0])
-      maxY = Math.max(MDSData[1])
-      minY = Math.max(MDSData[1])
+  //     maxX = Math.max(MDSData[0])
+  //     minX = Math.min(MDSData[0])
+  //     maxY = Math.max(MDSData[1])
+  //     minY = Math.max(MDSData[1])
 
-      Plotly.animate('OverviewPlotly', {
-        data: [
-          {x: MDSData[0], y: MDSData[1],marker: {
-              color: colorsforScatterPlot,
-              }}
-        ],
-        traces: [0],
-        layout: {
-          xaxis: {
-              visible: false,
-              range: [minX, maxX]
-          },
-          yaxis: {
-              visible: false,
-              range: [minY, maxY]
-          },
-        }
-      }, {
-        transition: {
-          duration: 3000,
-          easing: 'cubic-in-out'
-        },
-        frame: {
-          duration: 3000
-        }
-      })
-    }
+  //     Plotly.animate('OverviewPlotly', {
+  //       data: [
+  //         {x: MDSData[0], y: MDSData[1],marker: {
+  //             color: colorsforScatterPlot,
+  //             }}
+  //       ],
+  //       traces: [0],
+  //       layout: {
+  //         xaxis: {
+  //             visible: false,
+  //             range: [minX, maxX]
+  //         },
+  //         yaxis: {
+  //             visible: false,
+  //             range: [minY, maxY]
+  //         },
+  //       }
+  //     }, {
+  //       transition: {
+  //         duration: 3000,
+  //         easing: 'cubic-in-out'
+  //       },
+  //       frame: {
+  //         duration: 3000
+  //       }
+  //     })
+  //   }
   },
   mounted() {
     EventBus.$on('onlyOnce', data => { this.onlyOnce = data })
@@ -513,7 +540,7 @@ export default {
     EventBus.$on('RepresentationSelection', data => {this.representationDef = data})
     EventBus.$on('RepresentationSelection', this.ScatterPlotView)
     EventBus.$on('UpdateModelsScatterplot', data => {this.DataPointsSelUpdate = data})
-    EventBus.$on('UpdateModelsScatterplot', this.animate)
+    EventBus.$on('UpdateModelsScatterplot', this.ScatterPlotView)
 
     // reset view
     EventBus.$on('resetViews', this.reset)

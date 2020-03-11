@@ -130,14 +130,11 @@ export default {
 
       var target_names = JSON.parse(this.dataPoints[0])
       const XandYCoordinatesMDS = JSON.parse(this.dataPoints[1])
-      console.log(XandYCoordinatesMDS)
       const DataSet = JSON.parse(this.dataPoints[2])
       const originalDataLabels = JSON.parse(this.dataPoints[3])
       //console.log(DataSetY)
       //const originalDataLabels = JSON.parse(this.dataPoints[4])
-      console.log(originalDataLabels)
       var DataSetParse = JSON.parse(DataSet)
-      console.log(DataSetParse)
       var stringParameters = []
       for (let i = 0; i < DataSetParse.length; i++) {
         this.clean(DataSetParse[i])
@@ -210,7 +207,6 @@ export default {
         result.Yax = Yaxs
         result.ID = IDs
         result.colorUpdates = colorUpdate
-        console.log(result)
 
         var traces = []
         var layout = []
@@ -482,7 +478,6 @@ export default {
               ClassifierIDsListCleared.push(numberNumb)
             }
           }
-          console.log(ClassifierIDsListCleared)
           if (ClassifierIDsList != '') {
             EventBus.$emit('ChangeKey', 1)
             EventBus.$emit('SendSelectedPointsToServerEventfromData', ClassifierIDsListCleared)

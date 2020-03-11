@@ -14,6 +14,7 @@ export default {
       WH: [],
       barchartmetricsprediction: [],
       SelBarChartMetrics: [],
+      boldXAxis: '',
       factors: [1,0,0
       ,1,0,0,1,0
       ,0,1,0,0,0
@@ -25,7 +26,7 @@ export default {
   methods: {
     LineBar () {
       Plotly.purge('PerMetricBar')
-
+      
       var x = []
       var metricsPerModel = JSON.parse(this.barchartmetrics[9])
       var metricsPerModelSel = []
@@ -40,7 +41,33 @@ export default {
       var perModelAllClear = []
       var perModelSelectedClear = []
       var resultsColors = []
-      var chooseFrom = ['Accuracy','G-Mean','G-Mean','G-Mean','Precision','Precision','Precision','Recall','Recall','Recall','F-Beta Score','F-Beta Score','F-Beta Score','F-Beta Score','F-Beta Score','F-Beta Score','F-Beta Score','F-Beta Score','F-Beta Score','MCC','ROC AUC','Log Loss']
+      if (this.boldXAxis == 'Accuracy') {
+        var chooseFrom = ['<b>Accuracy</b>','G-Mean','G-Mean','G-Mean','Precision','Precision','Precision','Recall','Recall','Recall','F-Beta Score','F-Beta Score','F-Beta Score','F-Beta Score','F-Beta Score','F-Beta Score','F-Beta Score','F-Beta Score','F-Beta Score','MCC','ROC AUC','Log Loss']
+      }
+      else if (this.boldXAxis == 'G-Mean') {
+        var chooseFrom = ['Accuracy','<b>G-Mean</b>','<b>G-Mean</b>','<b>G-Mean</b>','Precision','Precision','Precision','Recall','Recall','Recall','F-Beta Score','F-Beta Score','F-Beta Score','F-Beta Score','F-Beta Score','F-Beta Score','F-Beta Score','F-Beta Score','F-Beta Score','MCC','ROC AUC','Log Loss']
+      }
+      else if (this.boldXAxis == 'Precision') {
+        var chooseFrom = ['Accuracy','G-Mean','G-Mean','G-Mean','<b>Precision</b>','<b>Precision</b>','<b>Precision</b>','Recall','Recall','Recall','F-Beta Score','F-Beta Score','F-Beta Score','F-Beta Score','F-Beta Score','F-Beta Score','F-Beta Score','F-Beta Score','F-Beta Score','MCC','ROC AUC','Log Loss']
+      }
+      else if (this.boldXAxis == 'Recall') {
+        var chooseFrom = ['Accuracy','G-Mean','G-Mean','G-Mean','Precision','Precision','Precision','<b>Recall</b>','<b>Recall</b>','<b>Recall</b>','F-Beta Score','F-Beta Score','F-Beta Score','F-Beta Score','F-Beta Score','F-Beta Score','F-Beta Score','F-Beta Score','F-Beta Score','MCC','ROC AUC','Log Loss']
+      }
+      else if (this.boldXAxis == 'F-Beta Score') {
+        var chooseFrom = ['Accuracy','G-Mean','G-Mean','G-Mean','Precision','Precision','Precision','Recall','Recall','Recall','<b>F-Beta Score</b>','<b>F-Beta Score</b>','<b>F-Beta Score</b>','<b>F-Beta Score</b>','<b>F-Beta Score</b>','<b>F-Beta Score</b>','<b>F-Beta Score</b>','<b>F-Beta Score</b>','<b>F-Beta Score</b>','MCC','ROC AUC','Log Loss']
+      }
+      else if (this.boldXAxis == 'MCC') {
+        var chooseFrom = ['Accuracy','G-Mean','G-Mean','G-Mean','Precision','Precision','Precision','Recall','Recall','Recall','F-Beta Score','F-Beta Score','F-Beta Score','F-Beta Score','F-Beta Score','F-Beta Score','F-Beta Score','F-Beta Score','F-Beta Score','<b>MCC</b>','ROC AUC','Log Loss']
+      }
+      else if (this.boldXAxis == 'ROC AUC') {
+        var chooseFrom = ['Accuracy','G-Mean','G-Mean','G-Mean','Precision','Precision','Precision','Recall','Recall','Recall','F-Beta Score','F-Beta Score','F-Beta Score','F-Beta Score','F-Beta Score','F-Beta Score','F-Beta Score','F-Beta Score','F-Beta Score','MCC','<b>ROC AUC</b>','Log Loss']
+      }
+      else if (this.boldXAxis == 'Log Loss') {
+        var chooseFrom = ['Accuracy','G-Mean','G-Mean','G-Mean','Precision','Precision','Precision','Recall','Recall','Recall','F-Beta Score','F-Beta Score','F-Beta Score','F-Beta Score','F-Beta Score','F-Beta Score','F-Beta Score','F-Beta Score','F-Beta Score','MCC','ROC AUC','<b>Log Loss</b>']
+      } 
+      else {
+        var chooseFrom = ['Accuracy','G-Mean','G-Mean','G-Mean','Precision','Precision','Precision','Recall','Recall','Recall','F-Beta Score','F-Beta Score','F-Beta Score','F-Beta Score','F-Beta Score','F-Beta Score','F-Beta Score','F-Beta Score','F-Beta Score','MCC','ROC AUC','Log Loss']
+      }
       for (let i = 0; i < metricsPerModel.length; i++) {
         if (factorsLocal[i] != 0) {
           resultsColors.push(metricsPerModel[i])
@@ -57,7 +84,6 @@ export default {
           }
         }
       }
-      console.log(resultsColors)
       var width = this.WH[0]*6.5 // interactive visualization
       var height = this.WH[1]*0.5 // interactive visualization
           var trace1 = {
@@ -116,37 +142,30 @@ export default {
             xAxisHovered = eventData.points[0].x
             var index
             if (xAxisHovered == 'Accuracy') {
-              Plotly.restyle(boxPlot, 'x', [['<b>Accuracy</b>','G-Mean','G-Mean','G-Mean','Precision','Precision','Precision','Recall','Recall','Recall','F-Beta Score','F-Beta Score','F-Beta Score','F-Beta Score','F-Beta Score','F-Beta Score','F-Beta Score','F-Beta Score','F-Beta Score','MCC','ROC AUC','Log Loss']]);
               index = 0
             }
             else if (xAxisHovered == 'G-Mean') {
-              Plotly.restyle(boxPlot, 'x', [['Accuracy','<b>G-Mean</b>','<b>G-Mean</b>','<b>G-Mean</b>','Precision','Precision','Precision','Recall','Recall','Recall','F-Beta Score','F-Beta Score','F-Beta Score','F-Beta Score','F-Beta Score','F-Beta Score','F-Beta Score','F-Beta Score','F-Beta Score','MCC','ROC AUC','Log Loss']]);
               index = 1
             }
             else if (xAxisHovered == 'Precision') {
-              Plotly.restyle(boxPlot, 'x', [['Accuracy','G-Mean','G-Mean','G-Mean','<b>Precision</b>','<b>Precision</b>','<b>Precision</b>','Recall','Recall','Recall','F-Beta Score','F-Beta Score','F-Beta Score','F-Beta Score','F-Beta Score','F-Beta Score','F-Beta Score','F-Beta Score','F-Beta Score','MCC','ROC AUC','Log Loss']]);
               index = 2
             }
             else if (xAxisHovered == 'Recall') {
-              Plotly.restyle(boxPlot, 'x', [['Accuracy','G-Mean','G-Mean','G-Mean','Precision','Precision','Precision','<b>Recall</b>','<b>Recall</b>','<b>Recall</b>','F-Beta Score','F-Beta Score','F-Beta Score','F-Beta Score','F-Beta Score','F-Beta Score','F-Beta Score','F-Beta Score','F-Beta Score','MCC','ROC AUC','Log Loss']]);
               index = 3
             }
             else if (xAxisHovered == 'F-Beta Score') {
-              Plotly.restyle(boxPlot, 'x', [['Accuracy','G-Mean','G-Mean','G-Mean','Precision','Precision','Precision','Recall','Recall','Recall','<b>F-Beta Score</b>','<b>F-Beta Score</b>','<b>F-Beta Score</b>','<b>F-Beta Score</b>','<b>F-Beta Score</b>','<b>F-Beta Score</b>','<b>F-Beta Score</b>','<b>F-Beta Score</b>','<b>F-Beta Score</b>','MCC','ROC AUC','Log Loss']]);
               index = 4
             }
             else if (xAxisHovered == 'MCC') {
-              Plotly.restyle(boxPlot, 'x', [['Accuracy','G-Mean','G-Mean','G-Mean','Precision','Precision','Precision','Recall','Recall','Recall','F-Beta Score','F-Beta Score','F-Beta Score','F-Beta Score','F-Beta Score','F-Beta Score','F-Beta Score','F-Beta Score','F-Beta Score','<b>MCC</b>','ROC AUC','Log Loss']]);
               index = 5
             }
             else if (xAxisHovered == 'ROC AUC') {
-              Plotly.restyle(boxPlot, 'x', [['Accuracy','G-Mean','G-Mean','G-Mean','Precision','Precision','Precision','Recall','Recall','Recall','F-Beta Score','F-Beta Score','F-Beta Score','F-Beta Score','F-Beta Score','F-Beta Score','F-Beta Score','F-Beta Score','F-Beta Score','MCC','<b>ROC AUC</b>','Log Loss']]);
               index = 6
             }
             else {
-              Plotly.restyle(boxPlot, 'x', [['Accuracy','G-Mean','G-Mean','G-Mean','Precision','Precision','Precision','Recall','Recall','Recall','F-Beta Score','F-Beta Score','F-Beta Score','F-Beta Score','F-Beta Score','F-Beta Score','F-Beta Score','F-Beta Score','F-Beta Score','MCC','ROC AUC','<b>Log Loss</b>']]);
               index = 7
             }
+            EventBus.$emit('updateBold', xAxisHovered)
             EventBus.$emit('updateMetricsScatter', resultsColors[index])
           });
       },
@@ -155,6 +174,9 @@ export default {
       }
     },
     mounted () {
+      EventBus.$on('updateBold', data => {this.boldXAxis = data;})
+      EventBus.$on('updateBold', this.LineBar)
+
       EventBus.$on('InitializeMetricsBarChart', data => {this.barchartmetrics = data;})
       EventBus.$on('InitializeMetricsBarChart', this.LineBar)
       

@@ -32,6 +32,10 @@ from sklearn.manifold import TSNE
 from sklearn.metrics import matthews_corrcoef
 from sklearn.metrics import log_loss
 from sklearn.metrics import fbeta_score
+from sklearn.metrics import accuracy_score
+from sklearn.metrics import precision_score
+from sklearn.metrics import recall_score
+from sklearn.metrics import f1_score
 from imblearn.metrics import geometric_mean_score
 import umap
 from sklearn.metrics import classification_report
@@ -78,6 +82,9 @@ def Reset():
 
     global RANDOM_SEED
     RANDOM_SEED = 42
+
+    global StanceTest
+    StanceTest = False
 
     global factors
     factors = [1,0,0,1,0,0,1,0,0,1,0,0,0,0,0,1,0,0,0,1,1,1]
@@ -176,6 +183,8 @@ def Reset():
 def RetrieveFileName():
     global DataRawLength
     global DataResultsRaw
+    global DataResultsRawTest
+    global DataRawLengthTest
 
     fileName = request.get_data().decode('utf8').replace("'", '"')
 
@@ -275,14 +284,22 @@ def RetrieveFileName():
     global parametersSelData
     parametersSelData = []
 
+    global StanceTest
+    StanceTest = False
+
     global target_names
+    
     target_names = []
     DataRawLength = -1
+    DataRawLengthTest = -1
+
     data = json.loads(fileName)  
     if data['fileName'] == 'HeartC':
         CollectionDB = mongo.db.HeartC.find()
     elif data['fileName'] == 'StanceC':
+        StanceTest = True
         CollectionDB = mongo.db.StanceC.find()
+        CollectionDBTest = mongo.db.StanceCTest.find()
     elif data['fileName'] == 'DiabetesC':
         CollectionDB = mongo.db.DiabetesC.find()
     else:
@@ -293,6 +310,15 @@ def RetrieveFileName():
         item['InstanceID'] = index
         DataResultsRaw.append(item)
     DataRawLength = len(DataResultsRaw)
+
+    DataResultsRawTest = []
+    if (StanceTest):
+        for index, item in enumerate(CollectionDBTest):
+            item['_id'] = str(item['_id'])
+            item['InstanceID'] = index
+            DataResultsRawTest.append(item)
+        DataRawLengthTest = len(DataResultsRawTest)
+
     DataSetSelection()
     return 'Everything is okay'
 
@@ -364,6 +390,49 @@ def CollectionData():
     return jsonify(response)
 
 def DataSetSelection():
+    global XDataTest, yDataTest
+    XDataTest = pd.DataFrame()
+    yDataTest = []
+    global StanceTest
+    if (StanceTest):
+        DataResultsTest = copy.deepcopy(DataResultsRawTest)
+
+        for dictionary in DataResultsRawTest:
+            for key in dictionary.keys():
+                if (key.find('*') != -1):
+                    target = key
+                    continue
+            continue
+
+        DataResultsRawTest.sort(key=lambda x: x[target], reverse=True)
+        DataResultsTest.sort(key=lambda x: x[target], reverse=True)
+
+        for dictionary in DataResultsTest:
+            del dictionary['_id']
+            del dictionary['InstanceID']
+            del dictionary[target]
+
+        AllTargetsTest = [o[target] for o in DataResultsRaw]
+        AllTargetsFloatValuesTest = []
+
+        previous = None
+        Class = 0
+        for i, value in enumerate(AllTargetsTest):
+            if (i == 0):
+                previous = value
+                target_namesLoc.append(value)
+            if (value == previous):
+                AllTargetsFloatValuesTest.append(Class)
+            else:
+                Class = Class + 1
+                target_namesLoc.append(value)
+                AllTargetsFloatValuesTest.append(Class)
+                previous = value
+
+        ArrayDataResultsTest = pd.DataFrame.from_dict(DataResultsTest)
+
+        XDataTest, yDataTest = ArrayDataResultsTest, AllTargetsFloatValuesTest
+
     DataResults = copy.deepcopy(DataResultsRaw)
 
     for dictionary in DataResultsRaw:
@@ -564,7 +633,7 @@ memory = Memory(location, verbose=0)
 # calculating for all algorithms and models the performance and other results
 @memory.cache
 def GridSearchForModels(XData, yData, clf, params, eachAlgor, AlgorithmsIDsEnd, toggle):
-    print('inside')
+    print('inside models')
     # instantiate spark session
     spark = (   
         SparkSession    
@@ -1712,7 +1781,7 @@ def SendPredBacktobeUpdated():
 @app.route('/data/ServerRequestSelPoin', methods=["GET", "POST"])
 def RetrieveSelClassifiersID():
     ClassifierIDsList = request.get_data().decode('utf8').replace("'", '"')
-    ComputeMetricsForSel(ClassifierIDsList)
+    #ComputeMetricsForSel(ClassifierIDsList)
     ClassifierIDCleaned = json.loads(ClassifierIDsList)
     
     global keySpecInternal
@@ -1720,6 +1789,15 @@ def RetrieveSelClassifiersID():
     keySpecInternal = ClassifierIDCleaned['keyNow']
 
     EnsembleModel(ClassifierIDsList, 1)
+    return 'Everything Okay'
+
+# Retrieve data from client 
+@cross_origin(origin='localhost',headers=['Content-Type','Authorization'])
+@app.route('/data/ServerRequestSelPoinLocally', methods=["GET", "POST"])
+def RetrieveSelClassifiersIDLocally():
+    ClassifierIDsList = request.get_data().decode('utf8').replace("'", '"')
+    ComputeMetricsForSel(ClassifierIDsList)
+
     return 'Everything Okay'
 
 def ComputeMetricsForSel(Models):
@@ -2473,6 +2551,8 @@ def FeatureSelPerModel():
     return 'Everything Okay'
 
 def EnsembleModel(Models, keyRetrieved): 
+    global XDataTest, yDataTest
+
     global scores
     global previousState
     global previousStateActive
@@ -2852,11 +2932,12 @@ def EnsembleModel(Models, keyRetrieved):
     # if (keyRetrieved == 0):
     #     pass
     # else:
+    global StanceTest
     if (keySpec == 0 or keySpec == 1):
         num_cores = multiprocessing.cpu_count()
         inputsSc = ['accuracy','precision_weighted','recall_weighted','f1_weighted']
 
-        flat_results = Parallel(n_jobs=num_cores)(delayed(solve)(sclf,keyData,keySpec,keySpecInternal,previousState,previousStateActive,XData,yData,crossValidation,item,index) for index, item in enumerate(inputsSc))
+        flat_results = Parallel(n_jobs=num_cores)(delayed(solve)(StanceTest,XDataTest,yDataTest,sclf,keyData,keySpec,keySpecInternal,previousState,previousStateActive,XData,yData,crossValidation,item,index) for index, item in enumerate(inputsSc))
         scores = [item for sublist in flat_results for item in sublist]
 
     if (keySpec == 0):
@@ -2929,7 +3010,7 @@ def EnsembleModel(Models, keyRetrieved):
 
     return 'Okay'
 
-def solve(sclf,keyData,keySpec,keySpecInternal,previousStateLoc,previousStateActiveLoc,XData,yData,crossValidation,scoringIn,loop):
+def solve(StanceTest,y_Test,y_true,sclf,keyData,keySpec,keySpecInternal,previousStateLoc,previousStateActiveLoc,XData,yData,crossValidation,scoringIn,loop):
     scoresLoc = []
     if (keySpec == 0):
         temp = model_selection.cross_val_score(sclf, XData, yData, cv=crossValidation, scoring=scoringIn, n_jobs=-1)
@@ -2974,6 +3055,16 @@ def solve(sclf,keyData,keySpec,keySpecInternal,previousStateLoc,previousStateAct
             scoresLoc.append(temp.std())
             scoresLoc.append(temp.mean())
             scoresLoc.append(temp.std())
+    if (StanceTest):
+        y_pred = sclf.predict(y_Test)
+        if (loop == 0):
+            print(accuracy_score(y_true, y_pred))
+        elif (loop == 1):
+            print(precision_score(y_true, y_pred, average='weighted'))
+        elif (loop == 2):
+            print(recall_score(y_true, y_pred, average='weighted'))
+        else:
+            print(f1_score(y_true, y_pred, average='weighted'))
 
     return scoresLoc
 

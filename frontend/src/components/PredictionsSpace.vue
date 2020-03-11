@@ -51,14 +51,18 @@ export default {
       }
     },
     ScatterPlotPredView () {
-       Plotly.purge('OverviewPredPlotly')
+      Plotly.purge('OverviewPredPlotly')
 
       // responsive visualization
       var width = this.WH[0]*6.5 // interactive visualization
       var height = this.WH[1]*1.22 // interactive visualization
-
+      var XandYCoordinatesMDS
       var target_names = JSON.parse(this.PredictionsData[4])
-      const XandYCoordinatesMDS = JSON.parse(this.PredictionsData[8])
+      if (this.UpdatedData.length != 0) {
+        XandYCoordinatesMDS = JSON.parse(this.UpdatedData[0])
+      } else {
+        XandYCoordinatesMDS = JSON.parse(this.PredictionsData[8])
+      }
       const DataSet = JSON.parse(this.PredictionsData[14])
       const originalDataLabels = JSON.parse(this.PredictionsData[15])
       //const originalDataLabels = JSON.parse(this.PredictionsData[16])
@@ -66,6 +70,7 @@ export default {
       var stringParameters = []
       for (let i = 0; i < DataSetParse.length; i++) {
         this.clean(DataSetParse[i])
+
         stringParameters.push(JSON.stringify(DataSetParse[i]).replace(/,/gi, '<br>'))
       }
       const XandYCoordinatesTSNE = JSON.parse(this.PredictionsData[18])
@@ -280,37 +285,47 @@ export default {
       var config = {scrollZoom: true, displaylogo: false, showLink: false, showSendToCloud: false, modeBarButtonsToRemove: ['toImage', 'toggleSpikelines', 'autoScale2d', 'hoverClosestGl2d','hoverCompareCartesian','select2d','hoverClosestCartesian','zoomIn2d','zoomOut2d','zoom2d'], responsive: true}
 
       Plotly.newPlot('OverviewPredPlotly', traces, layout, config)
-      if (this.onlyOnce) {
-        this.selectedPointsOverview()
-      }
-      this.onlyOnce = false
+      //if (this.onlyOnce) {
+      this.selectedPointsOverview()
+      // }
+      // this.onlyOnce = false
 
     },
-    UpdateScatterPlot () {
-      const XandYCoordinates = JSON.parse(this.UpdatedData[0])
+    // UpdateScatterPlot () {
+    //   const XandYCoordinates = JSON.parse(this.UpdatedData[0])
+    //   const aux_X = result.Xax.filter((item, index) => originalDataLabels[index] == target_names[i]);
+    //   const aux_Y = result.Yax.filter((item, index) => originalDataLabels[index] == target_names[i]);
+    //   const aux_ID = result.ID.filter((item, index) => originalDataLabels[index] == target_names[i]);
 
-      Plotly.animate('OverviewPredPlotly', {
-        data: [
-          {x: XandYCoordinates[0], y: XandYCoordinates[1]}
-        ],
-        traces: [0],
-        layout: {}
-      }, {
-        transition: {
-          duration: 1000,
-          easing: 'cubic-in-out'
-        },
-        frame: {
-          duration: 1000
-        }
-      })
-      //this.selectedPointsOverview()
-    },
+    //   var Text = aux_ID.map((item, index) => {
+    //   let popup = 'Data Point ID: ' + item + '<br> Details: ' + stringParameters[item]
+    //   return popup;
+    //   });
+
+
+    //   Plotly.animate('OverviewPredPlotly', {
+    //     data: [
+    //       {x: XandYCoordinates[0], y: XandYCoordinates[1]}
+    //     ],
+    //     traces: [0],
+    //     layout: {}
+    //   }, {
+    //     transition: {
+    //       duration: 1000,
+    //       easing: 'cubic-in-out'
+    //     },
+    //     frame: {
+    //       duration: 1000
+    //     }
+    //   })
+    //   //this.selectedPointsOverview()
+    // },
     selectedPointsOverview () {
       const OverviewPlotly = document.getElementById('OverviewPredPlotly')
       OverviewPlotly.on('plotly_selected', function (evt) {
         if (typeof evt !== 'undefined') {
           const DataPoints = []
+          console.log(evt)
           for (let i = 0; evt.points.length; i++) {
             if (evt.points[i] === undefined) {
               break
@@ -332,7 +347,7 @@ export default {
   mounted() {
     EventBus.$on('onlyOnce', data => { this.onlyOnce = data })
     EventBus.$on('updatePredictionsSpace', data => { this.UpdatedData = data })
-    EventBus.$on('updatePredictionsSpace', this.UpdateScatterPlot)
+    EventBus.$on('updatePredictionsSpace', this.ScatterPlotPredView)
     EventBus.$on('emittedEventCallingPredictionsSpacePlotView', data => {
       this.PredictionsData = data})
     EventBus.$on('emittedEventCallingPredictionsSpacePlotView', this.ScatterPlotPredView)
