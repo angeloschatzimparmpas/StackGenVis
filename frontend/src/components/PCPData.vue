@@ -18,7 +18,8 @@ export default {
     return {
       PCPDataReceived: '',
       colorsValues: ['#808000','#008080','#bebada','#fccde5','#d9d9d9','#bc80bd','#ccebc5'],
-      ClassifierIDsListClearedData: []
+      ClassifierIDsListClearedData: [],
+      RetrieveDataSet: 'HeartC',
     }
   },
   methods: {
@@ -34,7 +35,12 @@ export default {
 
       var extraction = []
       for (let i = 0; i < DataSetParse.length; i++) {
-        extraction.push(Object.assign(DataSetParse[i], {Outcome: target_names_original[i]}, {ID: i}))
+        if (this.RetrieveDataSet == 'IrisC') {
+          extraction.push(Object.assign(DataSetParse[i], {Outcome: target_names[i]}, {ID: i}))
+        } else {
+          extraction.push(Object.assign(DataSetParse[i], {Outcome: target_names_original[i]}, {ID: i}))
+        }
+
       }
       var colors = this.colorsValues
       EventBus.$emit('sendDatatoPickle', extraction)
@@ -50,9 +56,9 @@ export default {
         var pc = ParCoords()("#PCPDataView")
             .data(DataSetParse)
             .width(1200)
-            .height(280)
+            .height(272)
             .hideAxis(["Outcome","ID"])
-            .color(function(d, i) { return colors[target_names[i]] })
+            .color(function(d, i) { return colors[d.Outcome] })
             .bundlingStrength(0) // set bundling strength
             .smoothness(0)
             .showControlPoints(false)
@@ -65,9 +71,9 @@ export default {
         var pc = ParCoords()("#PCPDataView")
           .data(DataSetParse)
           .width(1200)
-          .height(280)
+          .height(272)
           .hideAxis(["Outcome","ID"])
-          .color(function(d, i) { return colors[target_names[i]] })
+          .color(function(d, i) { return colors[d.Outcome] })
           .bundlingStrength(0) // set bundling strength
           .smoothness(0)
           .showControlPoints(false)
@@ -77,6 +83,7 @@ export default {
           .reorderable()
           .interactive();
       }
+      pc.alphaOnBrushed(0.2);
       pc.on('brushend', function(brushed, args){
         var brushedCleared = []
         for (let i = 0; i < brushed.length; i++) {
@@ -98,6 +105,8 @@ export default {
 
     // reset the views
     EventBus.$on('resetViews', this.reset)
+
+    EventBus.$on('SendToServerDataSetConfirmation', data => { this.RetrieveDataSet = data })
   }
 }
 </script>

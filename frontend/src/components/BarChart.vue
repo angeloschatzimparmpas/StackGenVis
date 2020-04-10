@@ -550,6 +550,12 @@ export default {
             } else if (tName == "> 50% Diameter Narrowing / Diseased"){
               tName = 1
               this.tNameAll = 1
+            } else if  (tName == "Absence of Hypotheticality") {
+              tName = 0
+              this.tNameAll = 0
+            } else if (tName == "Presence of Hypotheticality"){
+              tName = 1
+              this.tNameAll = 1
             } else {
               this.tNameAll = tName
             }

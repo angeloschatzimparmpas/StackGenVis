@@ -75,7 +75,7 @@ export default {
       RetrieveDataSet: 'HeartC',
       colorsValues: ['#808000','#008080','#bebada','#fccde5','#d9d9d9','#bc80bd','#ccebc5'],
       onlyOnce: true,
-      restylePoints: []
+      restylePoints: [],
     }
   },
   methods: {
@@ -93,22 +93,27 @@ export default {
       EventBus.$emit('SendFilter', this.userSelectedFilter)
     },
     merge() {
+      this.restylePoints = []
       EventBus.$emit('SendAction', 'merge')
       EventBus.$emit('SendSelectedPointsToServerEventfromData', [])
     },
     remove () {
+      this.restylePoints = []
       EventBus.$emit('SendAction', 'remove')
       EventBus.$emit('SendSelectedPointsToServerEventfromData', [])
     },
     compose () {
+      this.restylePoints = []
       EventBus.$emit('SendAction', 'compose')
       EventBus.$emit('SendSelectedPointsToServerEventfromData', [])
     },
     save () {
+      this.restylePoints = []
       EventBus.$emit('SendProvenance', 'save')
       EventBus.$emit('SendSelectedPointsToServerEventfromData', [])
     },
     restore () {
+      this.restylePoints = []
       EventBus.$emit('SendProvenance', 'restore')
       EventBus.$emit('SendSelectedPointsToServerEventfromData', [])
     },
@@ -132,6 +137,7 @@ export default {
       const XandYCoordinatesMDS = JSON.parse(this.dataPoints[1])
       const DataSet = JSON.parse(this.dataPoints[2])
       const originalDataLabels = JSON.parse(this.dataPoints[3])
+
       //console.log(DataSetY)
       //const originalDataLabels = JSON.parse(this.dataPoints[4])
       var DataSetParse = JSON.parse(DataSet)
@@ -182,6 +188,10 @@ export default {
         target_names.forEach(element => {
           beautifyLabels.push(element)
         });
+        target_names = []
+        target_names.push(0)
+        target_names.push(1)
+        target_names.push(2)
       }
 
       if (this.representationDef == 'mds') {
@@ -210,7 +220,6 @@ export default {
 
         var traces = []
         var layout = []
-
         for (let i = 0; i < target_names.length; i++) {
 
           const aux_X = result.Xax.filter((item, index) => originalDataLabels[index] == target_names[i]);
@@ -287,9 +296,12 @@ export default {
         for (let i = 0; i < result.Xax.length; i++) {
           IDs.push(i)
           if (this.restylePoints.length != 0) {
+            console.log('test1')
             if (XandYCoordinatesMDS[0].length == this.restylePoints.length) {
+              console.log('test2')
               colorUpdate.push('rgb(0, 0, 0)')
             } else {
+              console.log('test3')
               if (this.restylePoints.includes(i)) {
                   colorUpdate.push('rgb(175, 68, 39)')
                 } else {
@@ -297,7 +309,8 @@ export default {
                 }
               }
             } else {
-                  colorUpdate.push('rgb(0, 0, 0)')
+              console.log('test')
+              colorUpdate.push('rgb(0, 0, 0)')
           }
         }
         result.ID = IDs
@@ -379,7 +392,7 @@ export default {
                 }
               }
             } else {
-                  colorUpdate.push('rgb(0, 0, 0)')
+              colorUpdate.push('rgb(0, 0, 0)')
             }
         }
         result.Xax = Xaxs

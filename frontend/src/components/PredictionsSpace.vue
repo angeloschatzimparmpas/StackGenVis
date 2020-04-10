@@ -55,7 +55,7 @@ export default {
 
       // responsive visualization
       var width = this.WH[0]*6.5 // interactive visualization
-      var height = this.WH[1]*1.22 // interactive visualization
+      var height = this.WH[1]*1.185 // interactive visualization
       var XandYCoordinatesMDS
       var target_names = JSON.parse(this.PredictionsData[4])
       if (this.UpdatedData.length != 0) {
@@ -74,6 +74,7 @@ export default {
         stringParameters.push(JSON.stringify(DataSetParse[i]).replace(/,/gi, '<br>'))
       }
       const XandYCoordinatesTSNE = JSON.parse(this.PredictionsData[18])
+      console.log(XandYCoordinatesTSNE)
       const XandYCoordinatesUMAP= JSON.parse(this.PredictionsData[19])
 
       var result = [];
@@ -93,6 +94,10 @@ export default {
         target_names.forEach(element => {
           beautifyLabels.push(element)
         });
+        target_names = []
+        target_names.push(0)
+        target_names.push(1)
+        target_names.push(2)
       }
 
       if (this.representationDef == 'mds') {

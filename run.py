@@ -74,8 +74,14 @@ def Reset():
     global previousState
     previousState = []
 
+    global filterActionFinal
+    filterActionFinal = ''
+
     global keySpecInternal
     keySpecInternal = 1
+
+    global dataSpacePointsIDs
+    dataSpacePointsIDs = []
 
     global previousStateActive
     previousStateActive = []
@@ -175,6 +181,9 @@ def Reset():
 
     global target_names
     target_names = []
+
+    global target_namesLoc
+    target_namesLoc = []
     return 'The reset was done!'
 
 # Retrieve data from client and select the correct data set
@@ -190,6 +199,12 @@ def RetrieveFileName():
 
     global keySpecInternal
     keySpecInternal = 1
+
+    global filterActionFinal
+    filterActionFinal = ''
+
+    global dataSpacePointsIDs
+    dataSpacePointsIDs = []
 
     global RANDOM_SEED
     RANDOM_SEED = 42
@@ -290,6 +305,11 @@ def RetrieveFileName():
     global target_names
     
     target_names = []
+
+    global target_namesLoc
+    
+    target_namesLoc = []
+
     DataRawLength = -1
     DataRawLengthTest = -1
 
@@ -352,6 +372,7 @@ def SendToServerData():
 
     global AllTargets
     global target_names
+    global target_namesLoc
     AllTargets = [o[target] for o in DataResultsRaw]
     AllTargetsFloatValues = []
 
@@ -392,8 +413,10 @@ def CollectionData():
 def DataSetSelection():
     global XDataTest, yDataTest
     XDataTest = pd.DataFrame()
-    yDataTest = []
     global StanceTest
+    global AllTargets
+    global target_names
+    target_namesLoc = []
     if (StanceTest):
         DataResultsTest = copy.deepcopy(DataResultsRawTest)
 
@@ -412,7 +435,7 @@ def DataSetSelection():
             del dictionary['InstanceID']
             del dictionary[target]
 
-        AllTargetsTest = [o[target] for o in DataResultsRaw]
+        AllTargetsTest = [o[target] for o in DataResultsRawTest]
         AllTargetsFloatValuesTest = []
 
         previous = None
@@ -450,8 +473,6 @@ def DataSetSelection():
         del dictionary['InstanceID']
         del dictionary[target]
 
-    global AllTargets
-    global target_names
     AllTargets = [o[target] for o in DataResultsRaw]
     AllTargetsFloatValues = []
 
@@ -487,7 +508,6 @@ def callPreResults():
     global yData
     global target_names
     global impDataInst
-    print(XData)
     DataSpaceResMDS = FunMDS(XData)
     DataSpaceResTSNE = FunTsne(XData)
     DataSpaceResTSNE = DataSpaceResTSNE.tolist()
@@ -633,7 +653,8 @@ memory = Memory(location, verbose=0)
 # calculating for all algorithms and models the performance and other results
 @memory.cache
 def GridSearchForModels(XData, yData, clf, params, eachAlgor, AlgorithmsIDsEnd, toggle):
-    print('inside models')
+    print('toggle:',toggle)
+    #print('inside')
     # instantiate spark session
     spark = (   
         SparkSession    
@@ -1023,7 +1044,6 @@ def PreprocessingMetrics():
     dfExtraTFiltered = dfExtraT.loc[ExtraTModels, :]
     dfAdaBFiltered = dfAdaB.loc[AdaBModels, :]
     dfGradBFiltered = dfGradB.loc[GradBModels, :]
-
     df_concatMetrics = pd.concat([dfKNNFiltered, dfSVCFiltered, dfGausNBFiltered, dfMLPFiltered, dfLRFiltered, dfLDAFiltered, dfQDAFiltered, dfRFFiltered, dfExtraTFiltered, dfAdaBFiltered, dfGradBFiltered])
     return df_concatMetrics
 
@@ -1075,7 +1095,6 @@ def PreprocessingPred():
     dfExtraTFiltered = dfExtraT.loc[ExtraTModels, :]
     dfAdaBFiltered = dfAdaB.loc[AdaBModels, :]
     dfGradBFiltered = dfGradB.loc[GradBModels, :]
-
     df_concatProbs = pd.concat([dfKNNFiltered, dfSVCFiltered, dfGausNBFiltered, dfMLPFiltered, dfLRFiltered, dfLDAFiltered, dfQDAFiltered, dfRFFiltered, dfExtraTFiltered, dfAdaBFiltered, dfGradBFiltered])
     predictions = []
     for column, content in df_concatProbs.items():
@@ -1159,19 +1178,14 @@ def PreprocessingPredUpdate(Models):
         predictionsSel.append(el)
     PredictionSpaceSel = FunMDS(predictionsSel)
 
-    print(PredictionSpaceSel)
     PredictionSpaceSelComb = [list(a) for a in  zip(PredictionSpaceSel[0], PredictionSpaceSel[1])]
-    print(PredictionSpaceSelComb)
+
     mtx2PredFinal = []
     mtx2Pred, mtx2Pred, disparityPred = procrustes(PredictionSpaceAllComb, PredictionSpaceSelComb)
 
-    #a1 = [i[1] for i in mtx2Pred]
-    #b1 = [i[0] for i in mtx2Pred]
-    #print(a1)
     a1, b1 = zip(*mtx2Pred)
     mtx2PredFinal.append(a1)
     mtx2PredFinal.append(b1)
-    print(mtx2Pred)
     return [mtx2PredFinal,listIDsRemoved]
 
 def PreprocessingParam():
@@ -1679,7 +1693,22 @@ def processDataInstance(ModelsIDs, allParametersPerformancePerModel):
     dfGradBFiltered = dfGradB.loc[GradBModels, :]
 
     df_connect = pd.concat([dfKNNFiltered, dfSVCFiltered, dfGausNBFiltered, dfMLPFiltered, dfLRFiltered, dfLDAFiltered, dfQDAFiltered, dfRFFiltered, dfExtraTFiltered, dfAdaBFiltered, dfGradBFiltered])
+
     global yData
+    global filterActionFinal
+    global dataSpacePointsIDs
+    lengthDF = len(df_connect.columns)
+
+    if (filterActionFinal == 'compose'):
+        getList = []
+        for index, row in df_connect.iterrows():
+            yDataSelected = []
+            for column in row[dataSpacePointsIDs]:
+                yDataSelected.append(column)
+            storeMode = mode(yDataSelected)
+            getList.append(storeMode)
+        df_connect[str(lengthDF)] = getList
+
     countCorrect = []
     length = len(df_connect.index)
     for index, element in enumerate(yData):
@@ -2292,13 +2321,13 @@ def RetrieveSelDataPoints():
                 dfGradBCleared = dfGradB.drop(dfGradB.index[set_diff_df])
         df_concatMetrics = pd.concat([dfKNNCleared, dfSVCCleared, dfGausNBCleared, dfMLPCleared, dfLRCleared, dfLDACleared, dfQDACleared, dfRFCleared, dfExtraTCleared, dfAdaBCleared, dfGradBCleared])
     df_concatMetrics = df_concatMetrics.reset_index(drop=True)
-    print(df_concatMetrics)
+
     global foreachMetricResults
     foreachMetricResults = []
     foreachMetricResults = preProcSumForEachMetric(factors, df_concatMetrics)
 
     df_concatMetrics.loc[:, 'log_loss'] = 1 - df_concatMetrics.loc[:, 'log_loss']
-    print(df_concatMetrics)
+
     global sumPerClassifierSelUpdate
     sumPerClassifierSelUpdate = []
     sumPerClassifierSelUpdate = preProcsumPerMetricAccordingtoData(factors, df_concatMetrics)
@@ -2308,8 +2337,7 @@ def RetrieveSelDataPoints():
     ModelSpaceMDSNewSel = FunMDS(df_concatMetrics)
 
     ModelSpaceMDSNewSelComb = [list(a) for a in  zip(ModelSpaceMDSNewSel[0], ModelSpaceMDSNewSel[1])]
-    print(len(ModelSpaceMDSNewComb))
-    print(len(ModelSpaceMDSNewSelComb))
+
     global mt2xFinal
     mt2xFinal = []
     mtx1, mtx2, disparity = procrustes(ModelSpaceMDSNewComb, ModelSpaceMDSNewSelComb)
@@ -2883,7 +2911,7 @@ def EnsembleModel(Models, keyRetrieved):
             dfParamGradBFilt = dfParamGradB.iloc[:,0]
             for index, eachelem in enumerate(GradBModels):
                 arg = dfParamGradBFilt[eachelem-GradBModelsCount]
-                all_classifiers.append(make_pipeline(ColumnSelector(cols=featureSelection['featureSelection'][countItems]), GradientBoostingClassifier().set_params(**arg)))
+                all_classifiers.append(make_pipeline(ColumnSelector(cols=featureSelection['featureSelection'][countItems]), GradientBoostingClassifier(random_state=RANDOM_SEED).set_params(**arg)))
                 store = index
                 flag = 1          
 
@@ -2932,12 +2960,11 @@ def EnsembleModel(Models, keyRetrieved):
     # if (keyRetrieved == 0):
     #     pass
     # else:
-    global StanceTest
     if (keySpec == 0 or keySpec == 1):
         num_cores = multiprocessing.cpu_count()
         inputsSc = ['accuracy','precision_weighted','recall_weighted','f1_weighted']
 
-        flat_results = Parallel(n_jobs=num_cores)(delayed(solve)(StanceTest,XDataTest,yDataTest,sclf,keyData,keySpec,keySpecInternal,previousState,previousStateActive,XData,yData,crossValidation,item,index) for index, item in enumerate(inputsSc))
+        flat_results = Parallel(n_jobs=num_cores)(delayed(solve)(sclf,keyData,keySpec,keySpecInternal,previousState,previousStateActive,XData,yData,crossValidation,item,index) for index, item in enumerate(inputsSc))
         scores = [item for sublist in flat_results for item in sublist]
 
     if (keySpec == 0):
@@ -2950,6 +2977,15 @@ def EnsembleModel(Models, keyRetrieved):
         previousState.append(scores[11])
         previousState.append(scores[14])
         previousState.append(scores[15])
+        previousStateActive = []
+        previousStateActive.append(scores[0])
+        previousStateActive.append(scores[1])
+        previousStateActive.append(scores[4])
+        previousStateActive.append(scores[5])
+        previousStateActive.append(scores[8])
+        previousStateActive.append(scores[9])
+        previousStateActive.append(scores[12])
+        previousStateActive.append(scores[13])
     elif (keySpec == 1):
         if (keySpecInternal == 1):
             previousStateActive = []
@@ -3007,10 +3043,20 @@ def EnsembleModel(Models, keyRetrieved):
         scores.append(previousStateActive[7])
         previousState.append(previousStateActive[6])
         previousState.append(previousStateActive[7])
+    print(scores)
+    global StanceTest
+    if (StanceTest):
+        sclf.fit(XData, yData)
+        y_pred = sclf.predict(XDataTest)
+
+        print(accuracy_score(yDataTest, y_pred))
+        print(precision_score(yDataTest, y_pred, average='weighted'))
+        print(recall_score(yDataTest, y_pred, average='weighted'))
+        print(f1_score(yDataTest, y_pred, average='weighted'))
 
     return 'Okay'
 
-def solve(StanceTest,y_Test,y_true,sclf,keyData,keySpec,keySpecInternal,previousStateLoc,previousStateActiveLoc,XData,yData,crossValidation,scoringIn,loop):
+def solve(sclf,keyData,keySpec,keySpecInternal,previousStateLoc,previousStateActiveLoc,XData,yData,crossValidation,scoringIn,loop):
     scoresLoc = []
     if (keySpec == 0):
         temp = model_selection.cross_val_score(sclf, XData, yData, cv=crossValidation, scoring=scoringIn, n_jobs=-1)
@@ -3055,22 +3101,13 @@ def solve(StanceTest,y_Test,y_true,sclf,keyData,keySpec,keySpecInternal,previous
             scoresLoc.append(temp.std())
             scoresLoc.append(temp.mean())
             scoresLoc.append(temp.std())
-    if (StanceTest):
-        y_pred = sclf.predict(y_Test)
-        if (loop == 0):
-            print(accuracy_score(y_true, y_pred))
-        elif (loop == 1):
-            print(precision_score(y_true, y_pred, average='weighted'))
-        elif (loop == 2):
-            print(recall_score(y_true, y_pred, average='weighted'))
-        else:
-            print(f1_score(y_true, y_pred, average='weighted'))
-
+    
     return scoresLoc
 
 # Sending the final results to be visualized as a line plot
 @app.route('/data/SendFinalResultsBacktoVisualize', methods=["GET", "POST"])
 def SendToPlotFinalResults():
+    global scores
     response = {    
         'FinalResults': scores
     }
@@ -3116,12 +3153,12 @@ def RetrieveAction():
 
     global filterActionFinal
     global filterDataFinal
+    global dataSpacePointsIDs
     global XData
     global yData
 
     filterActionFinal = filterActionCleared['action']
     dataSpacePointsIDs = filterActionCleared['points']
-    print(dataSpacePointsIDs)
     if (filterActionFinal == 'merge'):
         if (filterDataFinal == 'mean' or filterDataFinal == ''):
             mean = XData.loc[dataSpacePointsIDs, :].mean()
@@ -3164,6 +3201,7 @@ def RetrieveProvenance():
     global XData
     global yDataStored
     global yData
+    global filterActionFinal
 
     # save and restore
     if (filterProvenanceFinal == 'save'):
@@ -3172,5 +3210,6 @@ def RetrieveProvenance():
     else:
         XData = XDataStored.copy()
         yData = yDataStored.copy()
+        filterActionFinal = ''
 
     return 'Done'

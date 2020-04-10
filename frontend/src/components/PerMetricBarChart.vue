@@ -85,7 +85,7 @@ export default {
         }
       }
       var width = this.WH[0]*6.5 // interactive visualization
-      var height = this.WH[1]*0.5 // interactive visualization
+      var height = this.WH[1]*0.482 // interactive visualization
           var trace1 = {
           x: x,
           y: perModelAllClear, 
@@ -180,6 +180,7 @@ export default {
       EventBus.$on('InitializeMetricsBarChart', data => {this.barchartmetrics = data;})
       EventBus.$on('InitializeMetricsBarChart', this.LineBar)
       
+      EventBus.$on('InitializeMetricsBarChartPrediction', data => {this.SelBarChartMetrics.length = []})
       EventBus.$on('InitializeMetricsBarChartPrediction', data => {this.barchartmetrics[9] = data;})
       EventBus.$on('InitializeMetricsBarChartPrediction', this.LineBar)
 

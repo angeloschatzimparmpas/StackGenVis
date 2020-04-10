@@ -89,7 +89,7 @@
               <mdb-card style="margin-top: 15px;">
                   <mdb-card-header color="primary-color" tag="h5" class="text-center">Data Space</mdb-card-header>
                   <mdb-card-body>
-                    <mdb-card-text class="text-center" style="min-height: 845px">
+                    <mdb-card-text class="text-center" style="min-height: 822px">
                       <DataSpace/>
                       <PCPData/>
                     </mdb-card-text>
@@ -100,7 +100,7 @@
                 <mdb-card style="margin-top: 15px;">
                   <mdb-card-header color="primary-color" tag="h5" class="text-center">Features Selection for Each Model<small class="float-right"><active/></small></mdb-card-header>
                     <mdb-card-body>
-                      <mdb-card-text class="text-center" style="min-height: 845px">
+                      <mdb-card-text class="text-center" style="min-height: 822px">
                         <ToggleSelection/>
                         <br/>
                         <Heatmap/>
@@ -118,7 +118,7 @@
                     [Sel: {{OverSelLength}} / All: {{OverAllLength}}]<small class="float-right"><active-scatter/></small>
                     </mdb-card-header>
                     <mdb-card-body>
-                      <mdb-card-text class="text-center"  style="min-height: 845px">
+                      <mdb-card-text class="text-center"  style="min-height: 822px">
                         <ScatterPlot/>
                         <PerMetricBarChart/>
                       </mdb-card-text>
@@ -129,7 +129,7 @@
                 <mdb-card style="margin-top: 15px;">
                   <mdb-card-header color="primary-color" tag="h5" class="text-center">Predictions' Space</mdb-card-header>
                   <mdb-card-body>
-                    <mdb-card-text class="text-center"  style="min-height: 845px">
+                    <mdb-card-text class="text-center"  style="min-height: 822px">
                       <PredictionsSpace/>
                       <BalancePredictions/>
                     </mdb-card-text>
@@ -362,6 +362,7 @@ export default Vue.extend({
             EventBus.$emit('ParametersProvenance', this.OverviewResults)
             EventBus.$emit('InitializeProvenance', this.selectedModels_Stack)
           }
+          this.keyData = false
           this.getFinalResults()
         })
         .catch(error => {
@@ -863,7 +864,6 @@ export default Vue.extend({
       EventBus.$emit('emittedEventCallingTogglesUpdate', toggles)
     },
     DataSpaceFun () {
-      this.keyData = false
       const path = `http://127.0.0.1:5000/data/SendDataSpacPoints`
       const postData = {
         points: this.dataPointsSelfromDataSpace,
@@ -1098,6 +1098,7 @@ body {
   top: 0px;
   bottom: 0px;
   margin-top: -4px !important;
+  overflow-x: hidden !important;
 }
 
 .modal-backdrop {

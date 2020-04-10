@@ -275,7 +275,7 @@ export default {
           this.algorithmGradB.push({'# Performance (%) #': McGradB[j],Algorithm:'GradB',Model:'Model ID: ' + AlgorGradBIDs[j] + '<br> Parameters: '+JSON.stringify(Object.values(PerformAlgorGradB['params'])[j])+'<br> # Performance (%) #',ModelID:AlgorGradBIDs[j]})
           this.parameters.push(JSON.stringify(Object.values(PerformAlgorGradB['params'])[j]))
         }
-      } else {
+       } else {
         for (var j = 0; j < Object.keys(PerformAlgorKNN['params']).length; j++) {
           this.algorithmKNN.push({'# Performance (%) #': this.listClassPerf[0][j],Algorithm:'KNN',Model:'Model ID: ' + AlgorKNNIDs[j] + '<br> Parameters: '+JSON.stringify(Object.values(PerformAlgorKNN['params'])[j])+'<br> # Performance (%) #',ModelID:AlgorKNNIDs[j]})
           this.parameters.push(JSON.stringify(Object.values(PerformAlgorKNN['params'])[j]))
@@ -324,6 +324,7 @@ export default {
       EventBus.$emit('ParametersAll', this.parameters)
 
       // concat the data
+      var data = this.algorithmKNN
       var data = this.algorithmKNN.concat(this.algorithmSVC)
       var data = data.concat(this.algorithmGausNB)
       var data = data.concat(this.algorithmMLP)

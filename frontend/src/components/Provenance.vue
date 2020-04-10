@@ -1,11 +1,11 @@
 <template>
     <div>
-        <div class="squares-container" style="min-height: 374px; margin-left: 35px">
+        <div class="squares-container" style="overflow: auto; width: 6000px; min-height: 374px; margin-left: 10px; margin-top:-10px">
         <div id="tooltip"></div>	<!-- new  -->
-          <div id="performanceCapture" style="min-height: 150px; margin-top: -10px !important;"></div>	<!-- new  -->
+          <div id="performanceCapture" style="overflow: auto; width: 6000px; min-height: 150px;"></div>	<!-- new  -->
           <canvas id="main-canvas" style="overflow-y: auto; overflow-x: auto; height:190px;"></canvas>
           <br>
-          <div id="dynamic-buttons"></div>
+          <div id="dynamic-buttons" style="overflow: auto; width: 6000px;"></div>
         </div>
     </div>
 </template>
@@ -236,7 +236,7 @@ export default {
       // here 10 was 5!
       let pScale = Stardust.scale.custom(`
               Vector2(
-                  20 + column * 195 + typeColumnIndex % 12 * 11.7,
+                  20 + column * 207 + typeColumnIndex % 12 * 11.7,
                   height - 10 - floor(typeColumnIndex / 12) * 10
               )
           `);
@@ -335,7 +335,13 @@ export default {
 			}
       }
       const stringStep = "Stacking Ensemble "
-      var myButton = '<button id="HistoryReturnButtons'+this.counter+'" class="dynamic_buttons">'+stringStep+this.counter+'</button>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'
+      if (this.counter == 1) {
+        var text = "Parent Stack ID: None"
+      } else {
+        var text1 = "Parent Stack ID: "
+        var text = text1.concat(this.flagUpdated+1)
+      }
+      var myButton = '<button id="HistoryReturnButtons'+this.counter+'" class="dynamic_buttons" data-placement="bottom" title="'+text+'">'+stringStep+this.counter+'</button>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'
       $("#dynamic-buttons").append(myButton);
 
       EventBus.$emit('requestProven',this.counter-1)
@@ -351,15 +357,25 @@ export default {
 
         btns.forEach(btnlocal => {
           btnlocal.style.fontWeight = 'normal';
-        });
+        })
 
         var btn = document.getElementById($(this).attr('id'));
-        btn.style.fontWeight = 'bold';
+        btn.style.fontWeight = 'bold'
 
         EventBus.$emit('ChangeKey', 0)
         EventBus.$emit('requestProven',parseInt($(this).attr('id').replace(/\D/g,''))-1)
-        }
-      );
+        })
+
+      var btns = document.getElementsByClassName('dynamic_buttons')
+
+      btns.forEach(btnlocal => {
+        btnlocal.style.fontWeight = 'normal';
+      })
+      
+      var idConcat = "HistoryReturnButtons".concat(this.counter)
+      var btn = document.getElementById(idConcat);
+      btn.style.fontWeight = 'bold';
+
   },
   RadialPerf () {
     this.firstInside++
@@ -391,8 +407,8 @@ export default {
       {value: this.Stack_scoresMean3, label: "Recall", color: scaleColor(this.Stack_scoresMean3)},
       {value: this.Stack_scoresMean4, label: "F1 Score", color: scaleColor(this.Stack_scoresMean4)}
     ];
-
-    var svg = d3.select('#svg'+this.firstInside).attr('width', width).attr('height', width).style('margin-right', '38px');
+    console.log(data)
+    var svg = d3.select('#svg'+this.firstInside).attr('width', width).attr('height', width).style('margin-right', '48px');
 
     var arcs = data.map(function (obj, i) {
         return d3.svg.arc().innerRadius(i * arcSize + innerRadius).outerRadius((i + 1) * arcSize - (width / 100) + innerRadius);
@@ -454,7 +470,7 @@ export default {
                         return 0;
                     })
                     .attr("xlink:href", "#Text" + r.data.object.label)
-                    .attr("startOffset", '5')
+                    .attr("startOffset", '0')
                     .attr("dy", '-3em')
                     .text(lableObj.value + '%');
             }
