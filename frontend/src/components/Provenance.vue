@@ -95,6 +95,7 @@ export default {
 
       var localStackStore = []
       var StackInfo = JSON.parse(this.stackInformation[1])
+
       var arrayOfNumbers = StackInfo.map(Number)
       this.storeData.push(arrayOfNumbers)
       localStackStore = this.storeData.slice()
@@ -123,53 +124,54 @@ export default {
       plat.pixelRatio = window.devicePixelRatio || 1;
       this.platform = plat
 
+      console.log(this.data)
       for (let i = 0; i < StackInfo.length; i++) {
-        if (StackInfo[i] < this.SVCModels){
+        if (Number(StackInfo[i]) < this.SVCModels){
           this.data.push({
             type:0, column:this.counter, height:height
           })
           flagKNN = 1
-        } else if (StackInfo[i] < this.GausNBModels){
+        } else if (Number(StackInfo[i]) < this.GausNBModels){
           this.data.push({
             type:1, column:this.counter, height:height
           })
           flagSVC = 1
-        } else if (StackInfo[i] < this.MLPModels){
+        } else if (Number(StackInfo[i]) < this.MLPModels){
           this.data.push({
             type:2, column:this.counter, height:height
           })
           flagGausNB = 1
-        } else if (StackInfo[i] < this.LRModels){
+        } else if (Number(StackInfo[i]) < this.LRModels){
           this.data.push({
             type:3, column:this.counter, height:height
           })
           flagMLP = 1
-        } else if (StackInfo[i] < this.LDAModels){
+        } else if (Number(StackInfo[i]) < this.LDAModels){
           this.data.push({
             type:4, column:this.counter, height:height
           })
           flagLR = 1
-        } else if (StackInfo[i] < this.QDAModels){
+        } else if (Number(StackInfo[i]) < this.QDAModels){
           this.data.push({
             type:5, column:this.counter, height:height
           })
           flagLDA = 1
-        } else if (StackInfo[i] < this.RFModels){
+        } else if (Number(StackInfo[i]) < this.RFModels){
           this.data.push({
             type:6, column:this.counter, height:height
           })
           flagQDA = 1
-        } else if (StackInfo[i] < this.ExtraTModels){
+        } else if (Number(StackInfo[i]) < this.ExtraTModels){
           this.data.push({
             type:7, column:this.counter, height:height
           })
           flagRF = 1
-        } else if (StackInfo[i] < this.AdaBModels){
+        } else if (Number(StackInfo[i]) < this.AdaBModels){
           this.data.push({
             type:8, column:this.counter, height:height
           })
           flagExtraT = 1
-        } else if (StackInfo[i] < this.GradBModels){
+        } else if (Number(StackInfo[i]) < this.GradBModels){
           this.data.push({
             type:9, column:this.counter, height:height
           })
@@ -182,15 +184,20 @@ export default {
         }
       }
 
-      if (flagKNN == 1) {
-        this.typeCounter.push(0)
-      }
-      if (flagSVC == 1) {
-        this.typeCounter.push(0)
-      }
-      if (flagGausNB == 1) {
-        this.typeCounter.push(0)
-      }
+
+      this.typeCounter.push(0)
+      this.typeCounter.push(0)
+      this.typeCounter.push(0)
+      this.typeCounter.push(0)
+      this.typeCounter.push(0)
+      this.typeCounter.push(0)
+      this.typeCounter.push(0)
+      this.typeCounter.push(0)
+      this.typeCounter.push(0)
+      this.typeCounter.push(0)
+      this.typeCounter.push(0)
+      this.typeCounter.push(0)
+      /*
       if (flagMLP == 1) {
         this.typeCounter.push(0)
       }
@@ -215,10 +222,13 @@ export default {
       if (flagGradB == 1) {
         this.typeCounter.push(0)
       }
+      */
       this.typeColumnCounter.push(0)
-      
+
       this.data.forEach(d => {
         if (d.column == this.counter) {
+          console.log(this.typeCounter)
+          console.log(d.type)
           d.typeIndex = this.typeCounter[d.type]++;
           d.typeColumnIndex = this.typeColumnCounter[d.column]++;
         }
@@ -280,7 +290,7 @@ export default {
       canvas.onmousedown = function (e) {
         var x = e.clientX - canvas.getBoundingClientRect().left;
         var y = e.clientY - canvas.getBoundingClientRect().top;
-        var p = platform.getPickingPixel(x * platform.pixelRatio, y * platform.pixelRatio);
+        var p = plat.getPickingPixel(x * plat.pixelRatio, y * plat.pixelRatio);
         if (p) {
           selectedNode = nodes[p[1]];
           requestRender();
@@ -407,7 +417,6 @@ export default {
       {value: this.Stack_scoresMean3, label: "Recall", color: scaleColor(this.Stack_scoresMean3)},
       {value: this.Stack_scoresMean4, label: "F1 Score", color: scaleColor(this.Stack_scoresMean4)}
     ];
-    console.log(data)
     var svg = d3.select('#svg'+this.firstInside).attr('width', width).attr('height', width).style('margin-right', '48px');
 
     var arcs = data.map(function (obj, i) {

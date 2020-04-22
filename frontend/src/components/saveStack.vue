@@ -20,6 +20,7 @@ export default {
   },
   methods: {
       valueActiveStFun () {
+        console.log('mpike')
         EventBus.$emit('storeStack')
       }
   }
