@@ -351,7 +351,7 @@ export default {
           })
           .attr("class", "row");
       svg.append("text").attr("x", 220).attr("y", -50).text("Models").style("font-size", "16px").attr("alignment-baseline","top")
-      svg.append("text").attr("transform", "rotate(-90)").attr("x", -40).attr("y", -45).style("text-anchor", "middle").style("font-size", "16px").text("Data Features"); // -130 before for HeartC
+      svg.append("text").attr("transform", "rotate(-90)").attr("x", -130).attr("y", -45).style("text-anchor", "middle").style("font-size", "16px").text("Data Features"); // -130 before for HeartC
       var heatMap = row.selectAll(".cell")
           .data(function(d) {
               return d;

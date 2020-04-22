@@ -87,7 +87,7 @@
           <b-row class="md-3">
               <b-col cols="6">
               <mdb-card style="margin-top: 15px;">
-                  <mdb-card-header color="primary-color" tag="h5" class="text-center">Data Space</mdb-card-header>
+                  <mdb-card-header color="primary-color" tag="h5" class="text-center">Data Space<small class="float-right"><saveStack/></small></mdb-card-header>
                   <mdb-card-body>
                     <mdb-card-text class="text-center" style="min-height: 822px">
                       <DataSpace/>
@@ -172,6 +172,7 @@ import ResetClass from './ResetClass.vue'
 import Knowledge from './Knowledge.vue'
 import Active from './Active.vue'
 import ActiveScatter from './ActiveScatter.vue'
+import saveStack from './saveStack.vue'
 import Export from './Export.vue'
 import SlidersController from './SlidersController.vue'
 import ScatterPlot from './ScatterPlot.vue'
@@ -220,6 +221,7 @@ export default Vue.extend({
     BalancePredictions,
     BarChart,
     Heatmap,
+    saveStack,
     ToggleSelection,
     Provenance,
     Parameters,

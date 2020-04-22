@@ -654,7 +654,7 @@ memory = Memory(location, verbose=0)
 @memory.cache
 def GridSearchForModels(XData, yData, clf, params, eachAlgor, AlgorithmsIDsEnd, toggle):
     print('toggle:',toggle)
-    #print('inside')
+    print('inside')
     # instantiate spark session
     spark = (   
         SparkSession    

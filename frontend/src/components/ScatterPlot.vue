@@ -561,6 +561,8 @@ export default {
 
     // reset view
     EventBus.$on('resetViews', this.reset)
+
+    EventBus.$on('storeStack', this.RemoveStack)
   }
 }
 </script>

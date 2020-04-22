@@ -3,7 +3,7 @@
         <div class="squares-container" style="overflow: auto; width: 6000px; min-height: 374px; margin-left: 10px; margin-top:-10px">
         <div id="tooltip"></div>	<!-- new  -->
           <div id="performanceCapture" style="overflow: auto; width: 6000px; min-height: 150px;"></div>	<!-- new  -->
-          <canvas id="main-canvas" style="overflow-y: auto; overflow-x: auto; height:190px;"></canvas>
+          <canvas id="main-canvas" style="overflow: auto; height:190px;"></canvas>
           <br>
           <div id="dynamic-buttons" style="overflow: auto; width: 6000px;"></div>
         </div>
@@ -472,7 +472,7 @@ export default {
                     .attr("xlink:href", "#Text" + r.data.object.label)
                     .attr("startOffset", '0')
                     .attr("dy", '-3em')
-                    .text(lableObj.value + '%');
+                    .text(lableObj.value + '%'); // for the iris data set
             }
             if (i === 0) {
                 var centroidText = r.data.arc.centroid({
