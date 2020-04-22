@@ -49,7 +49,7 @@
           <b-row class="md-3">
             <b-col cols="3">
               <mdb-card style="margin-top: 15px">
-                <mdb-card-header color="primary-color" tag="h5" class="text-center">Overview of the Algorithms Space</mdb-card-header>
+                <mdb-card-header color="primary-color" tag="h5" class="text-center">Overview of the Algorithms' Space</mdb-card-header>
                 <mdb-card-body class="text-center">
                   <Parameters/>
                 </mdb-card-body>
