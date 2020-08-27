@@ -653,8 +653,8 @@ memory = Memory(location, verbose=0)
 # calculating for all algorithms and models the performance and other results
 @memory.cache
 def GridSearchForModels(XData, yData, clf, params, eachAlgor, AlgorithmsIDsEnd, toggle):
-    print('toggle:',toggle)
-    print('inside')
+
+    print('loop here')
     # instantiate spark session
     spark = (   
         SparkSession    
@@ -3043,13 +3043,18 @@ def EnsembleModel(Models, keyRetrieved):
         scores.append(previousStateActive[7])
         previousState.append(previousStateActive[6])
         previousState.append(previousStateActive[7])
-    print(scores)
+    # print(scores)
     global StanceTest
     if (StanceTest):
         sclf.fit(XData, yData)
         y_pred = sclf.predict(XDataTest)
 
-        print(accuracy_score(yDataTest, y_pred))
+        # print(accuracy_score(yDataTest, y_pred))
+
+        # print(precision_score(yDataTest, y_pred, average='macro'))
+        # print(recall_score(yDataTest, y_pred, average='macro'))
+        # print(f1_score(yDataTest, y_pred, average='macro'))
+        
         print(precision_score(yDataTest, y_pred, average='weighted'))
         print(recall_score(yDataTest, y_pred, average='weighted'))
         print(f1_score(yDataTest, y_pred, average='weighted'))

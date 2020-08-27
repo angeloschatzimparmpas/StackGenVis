@@ -124,7 +124,6 @@ export default {
       plat.pixelRatio = window.devicePixelRatio || 1;
       this.platform = plat
 
-      console.log(this.data)
       for (let i = 0; i < StackInfo.length; i++) {
         if (Number(StackInfo[i]) < this.SVCModels){
           this.data.push({
@@ -227,8 +226,6 @@ export default {
 
       this.data.forEach(d => {
         if (d.column == this.counter) {
-          console.log(this.typeCounter)
-          console.log(d.type)
           d.typeIndex = this.typeCounter[d.type]++;
           d.typeColumnIndex = this.typeColumnCounter[d.column]++;
         }
