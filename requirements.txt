@@ -1,0 +1,7 @@
+flask_cors
+scikit-learn
+pandas
+scikit-learn-extra
+sk-dist
+eli5
+pymongo

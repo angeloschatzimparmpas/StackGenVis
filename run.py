@@ -50,12 +50,11 @@ from sklearn.decomposition import PCA
 from mlxtend.classifier import StackingCVClassifier
 from mlxtend.feature_selection import ColumnSelector
 
-from skdist.distribute.search import DistGridSearchCV
-from pyspark.sql import SparkSession
+from sklearn.model_selection import GridSearchCV
 
 from scipy.spatial import procrustes
 
-# This block of code is for the connection between the server, the database, and the client (plus routing).
+# This block of code == for the connection between the server, the database, and the client (plus routing).
 
 # Access MongoDB 
 app = Flask(__name__)
@@ -653,20 +652,12 @@ memory = Memory(location, verbose=0)
 # calculating for all algorithms and models the performance and other results
 @memory.cache
 def GridSearchForModels(XData, yData, clf, params, eachAlgor, AlgorithmsIDsEnd, toggle):
-
     print('loop here')
-    # instantiate spark session
-    spark = (   
-        SparkSession    
-        .builder    
-        .getOrCreate()    
-        )
-    sc = spark.sparkContext 
 
     # this is the grid we use to train the models
-    grid = DistGridSearchCV(    
-        estimator=clf, param_grid=params,     
-        sc=sc, cv=crossValidation, refit='accuracy', scoring=scoring,
+    grid = GridSearchCV(    
+        estimator=clf, param_grid=params, 
+        cv=crossValidation, refit='accuracy', scoring=scoring,
         verbose=0, n_jobs=-1)
 
     # fit and extract the probabilities
@@ -974,11 +965,11 @@ def RetrieveFactors():
     flagLocal = 0
     countRemovals = 0
     for l,el in enumerate(factors):
-        if el is 0:
+        if el == 0:
             loopThroughMetrics.drop(loopThroughMetrics.columns[[l-countRemovals]], axis=1, inplace=True)
             countRemovals = countRemovals + 1
             flagLocal = 1
-    if flagLocal is 1:
+    if flagLocal == 1:
         ModelSpaceMDSNew = FunMDS(loopThroughMetrics)
         ModelSpaceTSNENew = FunTsne(loopThroughMetrics)
         ModelSpaceTSNENew = ModelSpaceTSNENew.tolist()
@@ -1536,7 +1527,7 @@ def preProcsumPerMetric(factors):
         name, values = row
         for loop, elements in enumerate(values):
             rowSum = elements*factors[loop] + rowSum
-        if sum(factors) is 0:
+        if sum(factors) == 0:
             sumPerClassifier = 0
         else:
             sumPerClassifier.append(rowSum/sum(factors) * 100)
@@ -2005,37 +1996,37 @@ def RetrieveSelDataPoints():
         RetrieveParamsCleared[key] = withoutDuplicates
     RetrieveParamsClearedListGradB.append(RetrieveParamsCleared)
 
-    if (len(paramsListSeptoDicKNN['n_neighbors']) is 0):
+    if (len(paramsListSeptoDicKNN['n_neighbors']) == 0):
         RetrieveParamsClearedListKNN = []
 
-    if (len(paramsListSeptoDicSVC['C']) is 0):
+    if (len(paramsListSeptoDicSVC['C']) == 0):
         RetrieveParamsClearedListSVC = []
 
-    if (len(paramsListSeptoDicGausNB['var_smoothing']) is 0):
+    if (len(paramsListSeptoDicGausNB['var_smoothing']) == 0):
         RetrieveParamsClearedListGausNB = []
 
-    if (len(paramsListSeptoDicMLP['alpha']) is 0):
+    if (len(paramsListSeptoDicMLP['alpha']) == 0):
         RetrieveParamsClearedListMLP = []
 
-    if (len(paramsListSeptoDicLR['C']) is 0):
+    if (len(paramsListSeptoDicLR['C']) == 0):
         RetrieveParamsClearedListLR = []
 
-    if (len(paramsListSeptoDicLDA['shrinkage']) is 0):
+    if (len(paramsListSeptoDicLDA['shrinkage']) == 0):
         RetrieveParamsClearedListLDA = []
 
-    if (len(paramsListSeptoDicQDA['reg_param']) is 0):
+    if (len(paramsListSeptoDicQDA['reg_param']) == 0):
         RetrieveParamsClearedListQDA = []
 
-    if (len(paramsListSeptoDicRF['n_estimators']) is 0):
+    if (len(paramsListSeptoDicRF['n_estimators']) == 0):
         RetrieveParamsClearedListRF = []
 
-    if (len(paramsListSeptoDicExtraT['n_estimators']) is 0):
+    if (len(paramsListSeptoDicExtraT['n_estimators']) == 0):
         RetrieveParamsClearedListExtraT = []
 
-    if (len(paramsListSeptoDicAdaB['n_estimators']) is 0):
+    if (len(paramsListSeptoDicAdaB['n_estimators']) == 0):
         RetrieveParamsClearedListAdaB = []
 
-    if (len(paramsListSeptoDicGradB['n_estimators']) is 0):
+    if (len(paramsListSeptoDicGradB['n_estimators']) == 0):
         RetrieveParamsClearedListGradB = []
 
     for eachAlgor in algorithms:
@@ -2355,21 +2346,15 @@ def GridSearchSel(clf, params, factors, AlgorithmsIDsEnd, DataPointsSel):
         resultsMetrics.append([]) # Position: 0 and so on 
         parametersSelData.append([])
     else:
-        # instantiate spark session
-        spark = (   
-            SparkSession    
-            .builder    
-            .getOrCreate()    
-            )
-        sc = spark.sparkContext 
+
         XDatasubset = XData.iloc[DataPointsSel,:]
 
         yDataSubset = [yData[i] for i in DataPointsSel]
 
         # this is the grid we use to train the models
-        grid = DistGridSearchCV(    
-            estimator=clf, param_grid=params,     
-            sc=sc, cv=crossValidation, refit='accuracy', scoring=scoring,
+        grid = GridSearchCV(    
+            estimator=clf, param_grid=params, 
+            cv=crossValidation, refit='accuracy', scoring=scoring,
             verbose=0, n_jobs=-1)
 
         # fit and extract the probabilities
@@ -2506,7 +2491,7 @@ def preProcsumPerMetricAccordingtoData(factors, loopThroughMetrics):
         name, values = row
         for loop, elements in enumerate(values):
             rowSum = elements*factors[loop] + rowSum
-        if sum(factors) is 0:
+        if sum(factors) == 0:
             sumPerClassifier = 0
         else:
             sumPerClassifier.append(rowSum/sum(factors) * 100)
@@ -2755,7 +2740,7 @@ def EnsembleModel(Models, keyRetrieved):
             for loop in Models['ClassifiersList']:
                 if (int(loop) == int(modHere)):
                     flag = 1
-            if (flag is 1):
+            if (flag == 1):
                 all_classifiersSelection.append(all_classifiers[index])
 
         sclf = StackingCVClassifier(classifiers=all_classifiersSelection,
@@ -3055,9 +3040,11 @@ def EnsembleModel(Models, keyRetrieved):
         # print(recall_score(yDataTest, y_pred, average='macro'))
         # print(f1_score(yDataTest, y_pred, average='macro'))
         
-        print(precision_score(yDataTest, y_pred, average='weighted'))
-        print(recall_score(yDataTest, y_pred, average='weighted'))
-        print(f1_score(yDataTest, y_pred, average='weighted'))
+        print(precision_score(yDataTest, y_pred, pos_label=0, average='weighted'))
+        print(recall_score(yDataTest, y_pred, pos_label=0, average='weighted'))
+        print(f1_score(yDataTest, y_pred, pos_label=0, average='weighted'))
+
+        print(report)
 
     return 'Okay'
 
