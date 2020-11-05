@@ -1,5 +1,7 @@
 # StackGenVis: Alignment of Data, Algorithms, and Models for Stacking Ensemble Learning Using Performance Metrics
 
+[![Codacy Badge](https://api.codacy.com/project/badge/Grade/da58a1f383514ed8b5473dff982f0d3f)](https://app.codacy.com/gh/angeloschatzimparmpas/StackGenVis?utm_source=github.com&utm_medium=referral&utm_content=angeloschatzimparmpas/StackGenVis&utm_campaign=Badge_Grade)
+
 This Git repository contains the code that accompanies the research paper "StackGenVis: Alignment of Data, Algorithms, and Models for Stacking Ensemble Learning Using Performance Metrics". The details of the experiments and the research outcome are described in [the paper](https://doi.org/10.1109/TVCG.2020.3030352).
 
 **Note:** StackGenVis is optimized to work better for standard resolutions (such as 1440p/QHD (Quad High Definition)). Any other resolution might need manual adjustment of your browser's zoom level to work properly.
