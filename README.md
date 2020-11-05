@@ -28,7 +28,11 @@ For the frontend:
 - [D3.js](https://d3js.org/)
 - [Plotly.js](https://github.com/plotly/plotly.js/)
 
-There is no need to install anything for the frontend, since all modules are in the repository.
+You can install all the frontend requirements with the following commands:
+```
+cd frontend
+sudo npm install
+```
 
 # Usage #
 Below is an example of how you can get StackGenVis running using Python for both frontend and backend. The frontend is written in JavaScript/HTML, so it could be hosted in any other web server of your preference. The only hard requirement (currently) is that both frontend and backend must be running on the same machine. 
