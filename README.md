@@ -4,7 +4,7 @@
 
 This Git repository contains the code that accompanies the research paper "StackGenVis: Alignment of Data, Algorithms, and Models for Stacking Ensemble Learning Using Performance Metrics". The details of the experiments and the research outcome are described in [the paper](https://doi.org/10.1109/TVCG.2020.3030352).
 
-**Note:** StackGenVis is optimized to work better for standard resolutions (such as 1440p/QHD (Quad High Definition)). Any other resolution might need manual adjustment of your browser's zoom level to work properly.
+**Note:** StackGenVis is optimized to work better for standard resolutions (such as 1440p/QHD (Quad High Definition) and 1080p). For lower resolutions, our recommendation is to use the collapsible functionality of the top dark gray panels. Finally, any other resolution might need manual adjustment of your browser's zoom level to work properly.
 
 **Note:** The tag `paper-version` matches the implementation at the time of the paper's publication. The current version might look significantly different depending on how much time has passed since then.
 

@@ -4,8 +4,8 @@
   <select id="selectFile" @change="selectDataSet()">
       <option value="HeartC.csv" selected>Heart Disease</option>
       <!--<option value="StanceC.csv">Stance in Texts</option>-->
-      <option value="IrisC.csv">Iris</option>
-      <option value="local">Upload New File</option>
+      <option value="IrisC.csv">Iris Flower</option>
+      <option value="local">Upload File</option>
   </select>
 
   <button class="btn-outline-primary"
@@ -39,7 +39,7 @@ export default {
       RetrieveValueCSV: 'DiabetesC', // default value for the first data set
       value: 'Confirm',
       valueReset: 'Reset',
-      dataset: 'Data set'
+      dataset: 'Data'
     }
   },
   methods: {
@@ -49,7 +49,7 @@ export default {
       this.RetrieveValueCSV = this.RetrieveValueCSV.split('.')[0]
 
       if (this.RetrieveValueCSV == "DiabetesC" || this.RetrieveValueCSV == "HeartC" || this.RetrieveValueCSV == "IrisC" || this.RetrieveValueCSV == "StanceC") { // This is a function that handles a new file, which users can upload.
-        this.dataset = "Data set"
+        this.dataset = "Data"
         d3.select("#data").select("input").remove(); // Remove the selection field.
         EventBus.$emit('SendToServerDataSetConfirmation', this.RetrieveValueCSV)
       } else {

@@ -78,8 +78,8 @@ export default {
     },
     provenance () {
       var canvas = document.getElementById("main-canvas");
-      var width = this.WH[0]*6.52 // interactive visualization
-      var height = this.WH[1]*0.375 // interactive visualization
+      var width = 1195.3333333333333
+      var height = 173.375
 
       var flagKNN = 0
       var flagSVC = 0
@@ -525,8 +525,6 @@ export default {
     EventBus.$on('InitializeProvenance', this.provenance)
 
     EventBus.$on('Responsive', data => {
-    this.WH = data})
-    EventBus.$on('ResponsiveandChange', data => {
     this.WH = data})
 
     // reset the views

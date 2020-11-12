@@ -54,14 +54,14 @@
 </b-row>
 <b-row>
     <b-col cols="6">
-        <p>(*) Average: <select id="selectFilterAverage" @change="selectAppliedFilterAverage()">
-        <option value="weighted" selected>Weighted (W)</option>
+        <p>(*) Aver.: <select id="selectFilterAverage" @change="selectAppliedFilterAverage()">
+        <option value="weighted" selected>Weighted</option>
         <option value="micro">Micro</option>
         <option value="macro">Macro</option>
       </select></p>
     </b-col>
     <b-col cols="6">
-        <p>Detailed Feature Search: <input type="checkbox" id="toggleDeepID" data-toggle="toggle" checked="checked" data-on="Enabled" data-off="Disabled" data-size="small"></p>
+        <p>Feat. Search: <input type="checkbox" id="toggleDeepID" data-toggle="toggle" checked="checked" data-on="Enabled" data-off="Disabled" data-size="small"></p>
     </b-col>
 </b-row>
 </div>
@@ -243,6 +243,21 @@
           },
         },
         mounted () {
+          EventBus.$on('Responsive', data => {
+
+            this.WH = data
+            var myClasses = document.getElementsByClassName('slider slider-horizontal')
+
+            for(var i = 0; i < myClasses.length; i++){
+              if (this.WH[0] > 125) {
+                myClasses[i].style.width = "260px"; // or
+              }
+              else {
+                myClasses[i].style.width = "60px"; // depending on what you're doing
+              }
+            }
+          })
+
           $('#toggleDeepID').bootstrapToggle({
             on: 'On',
             off: 'Off',
@@ -266,8 +281,12 @@ p {
     padding: 0 !important;
 }
 
-.slider.slider-horizontal{
-  width:260px; /* sample value - set it as you like*/
+.toggle-on.btn-sm {
+  padding-right: 20px
+}
+
+.toggle-off.btn-sm {
+  padding-right: 0px
 }
 
 .slider-handle {

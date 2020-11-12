@@ -63,7 +63,8 @@ export default {
       keyLocal: 0,
       activeModels: 0,
       pushModelsRemaining: [],
-      onlyOnce: true
+      onlyOnce: true,
+      smallScreenMode: '0px',
     }
   },
   methods: {
@@ -234,7 +235,6 @@ export default {
           //this.TSNEStore.push(TSNEData)
           this.modelIDStore.push(modelId)
           this.UMAPStore.push(UMAPData)
-          console.log('mpike5')
           colorsforScatterPlot = this.colorsStore.slice(this.activeModels,this.activeModels+1)[0]
           MDSData = this.MDSStore.slice(this.activeModels,this.activeModels+1)[0]
           parameters = this.parametersStore.slice(this.activeModels,this.activeModels+1)[0]
@@ -251,8 +251,6 @@ export default {
         EventBus.$emit('NewHeatmapAccordingtoNewStack', modelId)
 
       }
-      console.log(this.colorsStore)
-      console.log(this.MDSStore)
       var DataGeneral
 
       var maxX
@@ -260,8 +258,13 @@ export default {
       var maxY
       var minY
 
-      var width = this.WH[0]*6.5 // interactive visualization
-      var height = this.WH[1]*1.192 // interactive visualization
+      if (this.smallScreenMode != "370px") {
+        var width = this.WH[0]*6.6 // interactive visualization
+        var height = this.WH[1]*0.98 // interactive visualization
+      } else {
+        var width = this.WH[0]*7 // interactive visualization
+        var height = this.WH[1]*0.95 // interactive visualization
+      }
 
       var layout
       if (this.representationDef == 'mds') {
@@ -548,10 +551,11 @@ export default {
     EventBus.$on('emittedEventCallingScatterPlot', this.ScatterPlotView)
     EventBus.$on('getColors', data => {
       this.colorsforOver = data})
+
     EventBus.$on('Responsive', data => {
     this.WH = data})
-    EventBus.$on('ResponsiveandChange', data => {
-    this.WH = data})
+    EventBus.$on('ResponsiveandAdapt', data => { this.smallScreenMode = data })
+
     EventBus.$on('ParametersAll',  data => { this.parametersAll = data })
     EventBus.$on('getColors', this.UpdateScatter)
     EventBus.$on('RepresentationSelection', data => {this.representationDef = data})

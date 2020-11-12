@@ -409,7 +409,7 @@ export default {
         autosize: true,
         barmode: 'group',
         width: this.WH[0]*10.205,
-        height: this.WH[1]*0.6,
+        height: this.WH[1]*0.61,
             xaxis: {
                 title: 'Algorithm',
                 type:"category",
@@ -585,6 +585,7 @@ export default {
 
       EventBus.$on('Responsive', data => {
           this.WH = data})
+          
       EventBus.$on('ResponsiveandChange', data => {
           this.WH = data})
 

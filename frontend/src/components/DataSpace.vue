@@ -30,7 +30,7 @@
       <font-awesome-icon icon="eraser" />
       {{ removeData }}
       </button>
-      &nbsp;&nbsp;
+      &nbsp;&nbsp;<br>
       History Manager: <button
       id="saveID"
       v-on:click="save">
@@ -76,6 +76,7 @@ export default {
       colorsValues: ['#808000','#008080','#bebada','#fccde5','#d9d9d9','#bc80bd','#ccebc5'],
       onlyOnce: true,
       restylePoints: [],
+      smallScreenMode: '0px'
     }
   },
   methods: {
@@ -128,10 +129,15 @@ export default {
     },
     scatterPlotDataView () {
       Plotly.purge('OverviewDataPlotly')
-  
-      // responsive visualization
-      let width = this.responsiveWidthHeight[0]*6.5
-      let height = this.responsiveWidthHeight[1]*1.1
+        
+      if (this.smallScreenMode != "370px") {
+        // responsive visualization
+        var width = this.responsiveWidthHeight[0]*6.5
+        var height = this.responsiveWidthHeight[1]*0.85
+      } else {
+        var width = this.responsiveWidthHeight[0]*6.5
+        var height = this.responsiveWidthHeight[1]*0.83
+      }
 
       var target_names = JSON.parse(this.dataPoints[0])
       const XandYCoordinatesMDS = JSON.parse(this.dataPoints[1])
@@ -296,12 +302,9 @@ export default {
         for (let i = 0; i < result.Xax.length; i++) {
           IDs.push(i)
           if (this.restylePoints.length != 0) {
-            console.log('test1')
             if (XandYCoordinatesMDS[0].length == this.restylePoints.length) {
-              console.log('test2')
               colorUpdate.push('rgb(0, 0, 0)')
             } else {
-              console.log('test3')
               if (this.restylePoints.includes(i)) {
                   colorUpdate.push('rgb(175, 68, 39)')
                 } else {
@@ -309,7 +312,6 @@ export default {
                 }
               }
             } else {
-              console.log('test')
               colorUpdate.push('rgb(0, 0, 0)')
           }
         }
@@ -516,8 +518,8 @@ export default {
     // make the view responsive to window changes
     EventBus.$on('Responsive', data => {
       this.responsiveWidthHeight = data})
-    EventBus.$on('ResponsiveandChange', data => {
-      this.responsiveWidthHeight = data})
+    
+    EventBus.$on('ResponsiveandAdapt', data => { this.smallScreenMode = data })
 
     EventBus.$on('RepresentationSelectionData', data => {this.representationDef = data})
     EventBus.$on('RepresentationSelectionData', this.scatterPlotDataView)

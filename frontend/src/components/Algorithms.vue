@@ -1,6 +1,6 @@
 <template>
   <div>
-    <div id="exploding_boxplot" class="exploding_boxplot" style="min-height: 450px;"></div>
+    <div id="exploding_boxplot" class="exploding_boxplot" style="min-height: 337px;"></div>
   </div>
 </template>
 
@@ -342,7 +342,7 @@ export default {
       // label : displayed text in toolbox
       this.chart = exploding_boxplot(data, {y:'# Performance (%) #',group:'Algorithm',color:'Algorithm',label:'Model'})
       this.chart.width(this.WH[0]*10.225) // interactive visualization
-      this.chart.height(this.WH[1]*0.95) // interactive visualization
+      this.chart.height(this.WH[1]*0.72) // interactive visualization
       //call chart on a div
       this.chart('#exploding_boxplot')       
 
@@ -1073,7 +1073,7 @@ export default {
           $(el)[8].dispatchEvent(new Event('click'))
         } else if (this.selectedAlgorithm == 'AdaB') {
           $(el)[9].dispatchEvent(new Event('click'))
-        } else {
+        } else if (this.selectedAlgorithm == 'GradB') {
           $(el)[10].dispatchEvent(new Event('click'))
         }
       }
@@ -1093,8 +1093,8 @@ export default {
       this.WH = data})
     EventBus.$on('ResponsiveandChange', data => {
       this.WH = data})
-    EventBus.$on('ResponsiveandChange', this.boxplot)
     EventBus.$on('ResponsiveandChange', this.previousBoxPlotState)
+    EventBus.$on('ResponsiveandChange', this.brushed)
     EventBus.$on('emittedEventCallingSelectedALgorithm', data => {
       this.selectedAlgorithm = data})
     EventBus.$on('brusheAllOn', this.brushActivationAll)

@@ -4,10 +4,10 @@
 <body>
     <b-container fluid class="bv-example-row">
       <b-row class="md-3">
-        <b-col cols="3" >
+        <b-col cols="3">
           <mdb-card>
-            <mdb-card-header color="primary-color" tag="h5" class="text-center" style="background-color: #C0C0C0;">Data Sets and Performance Metrics Manager</mdb-card-header>
-              <mdb-card-body>
+            <mdb-card-header color="primary-color" tag="h5" class="text-center collapsible" style="background-color: #C0C0C0;">Data Sets and Perform. Metrics Manager</mdb-card-header>
+              <mdb-card-body class="content">
                 <mdb-card-text class="text-left" style="font-size: 18.5px;">
                   <DataSetExecController/>
                   <SlidersController/>
@@ -17,16 +17,16 @@
         </b-col>
         <b-col cols="6">
           <mdb-card>
-            <mdb-card-header color="primary-color" tag="h5" class="text-center" style="background-color: #C0C0C0;">History of the Stacking Ensemble<small class="float-right"><knowledge/></small></mdb-card-header>
-            <mdb-card-body>
+            <mdb-card-header color="primary-color" tag="h5" class="text-center collapsible" style="background-color: #C0C0C0;">History of the Stacking Ensemble<small class="float-right"><knowledge/></small></mdb-card-header>
+            <mdb-card-body class="content">
                 <Provenance/>
             </mdb-card-body>
           </mdb-card>
         </b-col>
         <b-col cols="3">
             <mdb-card>
-              <mdb-card-header color="primary-color" tag="h5" class="text-center" style="background-color: #C0C0C0;"><small class="float-left" style="padding-top: 3px;"><font-awesome-icon class="fa-lg" icon="dice-four"/>&nbsp;Metrics Support: [M1, M3-M5 (W)]</small>Metamodel's Performance</mdb-card-header>
-              <mdb-card-body>
+              <mdb-card-header color="primary-color" tag="h5" class="text-center collapsible" style="background-color: #C0C0C0;"><small class="float-left" style="padding-top: 3px;"><font-awesome-icon class="fa-lg" icon="dice-four"/>&nbsp;[M1, M3-M5 (W)]</small>Metamodel's Perform.</mdb-card-header>
+              <mdb-card-body class="content">
                 <FinalResultsLinePlot/>
               </mdb-card-body>
             </mdb-card>
@@ -67,7 +67,7 @@
           <b-row class="md-3">
             <b-col cols="3">
               <mdb-card style="margin-top: 15px">
-                <mdb-card-header color="primary-color" tag="h5" class="text-center"><small class="float-left" style="padding-top: 3px;">Metrics Support: [All]</small>Parameters Manipulation for Each Algorithm</mdb-card-header>
+                <mdb-card-header color="primary-color" tag="h5" class="text-center"><small class="float-left" style="padding-top: 3px;">[All]</small>Parameters Manipulation for Each Alg.</mdb-card-header>
                 <mdb-card-body>
                   <AlgorithmHyperParam/>
                 </mdb-card-body>
@@ -89,7 +89,7 @@
               <mdb-card style="margin-top: 15px;">
                   <mdb-card-header color="primary-color" tag="h5" class="text-center">Data Space<small class="float-right"><saveStack/></small></mdb-card-header>
                   <mdb-card-body>
-                    <mdb-card-text class="text-center" style="min-height: 822px">
+                    <mdb-card-text class="text-center" style="min-height: 710px">
                       <DataSpace/>
                       <PCPData/>
                     </mdb-card-text>
@@ -100,7 +100,7 @@
                 <mdb-card style="margin-top: 15px;">
                   <mdb-card-header color="primary-color" tag="h5" class="text-center">Features Selection for Each Model<small class="float-right"><active/></small></mdb-card-header>
                     <mdb-card-body>
-                      <mdb-card-text class="text-center" style="min-height: 822px">
+                      <mdb-card-text class="text-center" style="min-height: 711px">
                         <ToggleSelection/>
                         <br/>
                         <Heatmap/>
@@ -118,7 +118,7 @@
                     [Sel: {{OverSelLength}} / All: {{OverAllLength}}]<small class="float-right"><active-scatter/></small>
                     </mdb-card-header>
                     <mdb-card-body>
-                      <mdb-card-text class="text-center"  style="min-height: 822px">
+                      <mdb-card-text class="text-center"  style="min-height: 710px">
                         <ScatterPlot/>
                         <PerMetricBarChart/>
                       </mdb-card-text>
@@ -129,7 +129,7 @@
                 <mdb-card style="margin-top: 15px;">
                   <mdb-card-header color="primary-color" tag="h5" class="text-center">Predictions' Space</mdb-card-header>
                   <mdb-card-body>
-                    <mdb-card-text class="text-center"  style="min-height: 822px">
+                    <mdb-card-text class="text-center"  style="min-height: 711px">
                       <PredictionsSpace/>
                       <BalancePredictions/>
                     </mdb-card-text>
@@ -138,6 +138,15 @@
               </b-col>
             </b-row>
         </div>
+      </div>
+      <div class="footer" style="margin-top: 0px">
+        <hr>
+         <p class="text-muted credit no-top-margin no-bottom-margin">
+             &copy; ISOVIS group 2020&ndash;2021
+         </p>
+         <p class="text-muted credit no-top-margin no-bottom-margin">
+             Last updated: November 12, 2020
+         </p>
       </div>
     </b-container>
   <div class="w3-container">
@@ -974,6 +983,7 @@ export default Vue.extend({
     },
   },
   created () {
+
     // does the browser support the Navigation Timing API?
     if (window.performance) {
         console.info("window.performance is supported");
@@ -986,6 +996,38 @@ export default Vue.extend({
     window.addEventListener('resize', this.change)
   },
   mounted() {
+    var coll = document.getElementsByClassName("collapsible");
+    var i;
+    var flagLocalMounted = true
+    var flagLocalSkip = true
+    EventBus.$on('OpenModal', data =>{ flagLocalSkip = false }) 
+    for (i = 0; i < coll.length; i++) {
+      coll[i].addEventListener("click", function() {
+        console.log(flagLocalSkip)
+        if (flagLocalSkip) {
+          var content = document.getElementsByClassName("content")
+          var value = "370px"
+          for (let j = 0; j < content.length; j++) {
+            if (content[j].style.display === "block") {
+              content[j].style.display = "none";
+            } else {
+              content[j].style.display = "block";
+              if (flagLocalMounted) {
+                content[j].style.display = "none";
+              }
+            }
+          }
+          flagLocalMounted = false
+          var combineWH = []
+          combineWH.push(this.width)
+          combineWH.push(this.height - 100)
+          EventBus.$emit('ResponsiveandAdapt', value)
+          EventBus.$emit('ResponsiveandChange', combineWH)
+          EventBus.$emit('ResponsiveandChange', combineWH)
+        }
+      flagLocalSkip = true
+      });
+    }
 
     this.Alg()
     var modal = document.getElementById('myModal')
@@ -1116,6 +1158,15 @@ hr {
   margin-bottom: 1rem;
   border: 0;
   border-top: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+.collapsible {
+  cursor: pointer;
+}
+
+.content {
+  display: block;
+  overflow: hidden;
 }
 
 @import './../assets/w3.css';

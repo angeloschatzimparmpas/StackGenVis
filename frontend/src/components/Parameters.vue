@@ -93,7 +93,7 @@ export default {
       legendPosition: {x: 20, y: 20}, // the position of the legend, from the top-left corner of the svg
       levels: 3,				//How many levels or inner circles should there be drawn
       maxValue: 0, 				//What is the value that the biggest circle will represent
-      labelFactor: 1.25, 			//How much farther than the radius of the outer circle should the labels be placed
+      labelFactor: 1.32, 			//How much farther than the radius of the outer circle should the labels be placed
       wrapWidth: 60, 			//The number of pixels after which a label needs to be given a new line
       opacityArea: 0.35, 			//The opacity of the area of the blob
       dotRadius: 2, 				//The size of the colored circles of each blog
@@ -634,8 +634,8 @@ export default {
     ////////////////////////////////////////////////////////////// 
 
       var margin = {top: 50, right: 120, bottom: 55, left: 65},
-        legendPosition = {x: 425, y: 25},
-				width = Math.min(520, window.innerWidth - 10) - margin.left - margin.right,
+        legendPosition = {x: 320, y: 25},
+				width = Math.min(406, window.innerWidth - 10) - margin.left - margin.right,
         height = Math.min(width + 12, window.innerHeight + 12 - margin.top - margin.bottom);
         
 			////////////////////////////////////////////////////////////// 
@@ -752,8 +752,10 @@ export default {
 
     EventBus.$on('Responsive', data => {
     this.WH = data})
-    EventBus.$on('ResponsiveandChange', data => {
-    this.WH = data})
+    EventBus.$on('ResponsiveandAdapt', data => {
+      document.getElementById('overview').style.height = data 
+      document.getElementById('overview').style.marginTop = "35px" 
+    })
 
     // reset the views
     EventBus.$on('resetViews', this.reset)
@@ -841,6 +843,6 @@ export default {
 }
 
 #overview {
-  min-height: 450px;
+  min-height: 336px;
 }
 </style>

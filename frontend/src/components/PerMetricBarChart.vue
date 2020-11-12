@@ -21,6 +21,7 @@ export default {
       ,0,0,1,0,0
       ,0,1,1,1
       ],
+      smallScreenMode: '0px',
     }
   },
   methods: {
@@ -84,90 +85,98 @@ export default {
           }
         }
       }
-      var width = this.WH[0]*6.5 // interactive visualization
-      var height = this.WH[1]*0.482 // interactive visualization
-          var trace1 = {
-          x: x,
-          y: perModelAllClear, 
-          name: 'All Points', 
-          type: 'box',
-          boxmean: true,
-          marker: {
-              color: 'rgb(0,0,0)'
-          }
-          };
-          var trace2 = {
-          x: x,
-          y: perModelSelectedClear, 
-          name: 'Selected Points', 
-          type: 'box',
-          boxmean: true,
-          marker: {
-              color: 'rgb(211,211,211)'
-          }
-          };
-          var data = [trace1, trace2];
-          var layout = {
-          font: { family: 'Helvetica', size: 14, color: '#000000' },
-          boxmode: 'group',
-          autosize: true,
-          width:  width,
-          height: height,
-          hovermode: 'x',
-          margin: {
-            l: 50,
-            r: 0,
-            b: 35,
-            t: 40,
-            pad: 0
-          },
-          xaxis: {
-              title: 'Performance Metrics',
-              titlefont: {
-              size: 16,
-              color: 'black'
-              }},
-          yaxis: {
-              title: '# Performance (%) #',
-              titlefont: {
-              size: 16,
-              color: 'black'
-              }}};
-          var boxPlot = document.getElementById('PerMetricBar');
-          var config = {displayModeBar: false, scrollZoom: true, displaylogo: false, showLink: false, showSendToCloud: false, modeBarButtonsToRemove: ['toImage'], responsive: true}
-          Plotly.newPlot(boxPlot, data, layout, config);
 
-          boxPlot.on('plotly_click', (eventData) => {
-            var xAxisHovered
-            xAxisHovered = eventData.points[0].x
-            var index
-            if (xAxisHovered == 'Accuracy') {
-              index = 0
-            }
-            else if (xAxisHovered == 'G-Mean') {
-              index = 1
-            }
-            else if (xAxisHovered == 'Precision') {
-              index = 2
-            }
-            else if (xAxisHovered == 'Recall') {
-              index = 3
-            }
-            else if (xAxisHovered == 'F-Beta Score') {
-              index = 4
-            }
-            else if (xAxisHovered == 'MCC') {
-              index = 5
-            }
-            else if (xAxisHovered == 'ROC AUC') {
-              index = 6
-            }
-            else {
-              index = 7
-            }
-            EventBus.$emit('updateBold', xAxisHovered)
-            EventBus.$emit('updateMetricsScatter', resultsColors[index])
-          });
+
+      if (this.smallScreenMode != "370px") {
+        var width = this.WH[0]*6.5 // interactive visualization
+        var height = this.WH[1]*0.482 // interactive visualization
+      } else {
+        var width = this.WH[0]*6.8
+        var height = this.WH[1]*0.38
+      }
+
+        var trace1 = {
+        x: x,
+        y: perModelAllClear, 
+        name: 'All Points', 
+        type: 'box',
+        boxmean: true,
+        marker: {
+            color: 'rgb(0,0,0)'
+        }
+        };
+        var trace2 = {
+        x: x,
+        y: perModelSelectedClear, 
+        name: 'Selected Points', 
+        type: 'box',
+        boxmean: true,
+        marker: {
+            color: 'rgb(211,211,211)'
+        }
+        };
+        var data = [trace1, trace2];
+        var layout = {
+        font: { family: 'Helvetica', size: 14, color: '#000000' },
+        boxmode: 'group',
+        autosize: true,
+        width:  width,
+        height: height,
+        hovermode: 'x',
+        margin: {
+          l: 50,
+          r: 0,
+          b: 35,
+          t: 40,
+          pad: 0
+        },
+        xaxis: {
+            title: 'Performance Metrics',
+            titlefont: {
+            size: 16,
+            color: 'black'
+            }},
+        yaxis: {
+            title: '# Performance (%) #',
+            titlefont: {
+            size: 16,
+            color: 'black'
+            }}};
+        var boxPlot = document.getElementById('PerMetricBar');
+        var config = {displayModeBar: false, scrollZoom: true, displaylogo: false, showLink: false, showSendToCloud: false, modeBarButtonsToRemove: ['toImage'], responsive: true}
+        Plotly.newPlot(boxPlot, data, layout, config);
+
+        boxPlot.on('plotly_click', (eventData) => {
+          var xAxisHovered
+          xAxisHovered = eventData.points[0].x
+          var index
+          if (xAxisHovered == 'Accuracy') {
+            index = 0
+          }
+          else if (xAxisHovered == 'G-Mean') {
+            index = 1
+          }
+          else if (xAxisHovered == 'Precision') {
+            index = 2
+          }
+          else if (xAxisHovered == 'Recall') {
+            index = 3
+          }
+          else if (xAxisHovered == 'F-Beta Score') {
+            index = 4
+          }
+          else if (xAxisHovered == 'MCC') {
+            index = 5
+          }
+          else if (xAxisHovered == 'ROC AUC') {
+            index = 6
+          }
+          else {
+            index = 7
+          }
+          EventBus.$emit('updateBold', xAxisHovered)
+          EventBus.$emit('updateMetricsScatter', resultsColors[index])
+        });
       },
       reset () {
         Plotly.purge('PerMetricBar')
@@ -186,8 +195,8 @@ export default {
 
       EventBus.$on('Responsive', data => {
       this.WH = data})
-      EventBus.$on('ResponsiveandChange', data => {
-      this.WH = data})
+
+      EventBus.$on('ResponsiveandAdapt', data => { this.smallScreenMode = data })
 
       EventBus.$on('UpdateBarChartperMetric', data => {
       this.SelBarChartMetrics = data})

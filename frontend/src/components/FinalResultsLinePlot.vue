@@ -1,5 +1,5 @@
 <template>
-  <div id="LinePlot" style="min-height: 363px;"></div>
+  <div id="LinePlot" style="min-height: 365px;"></div>
 </template>
 
 <script>
@@ -46,7 +46,8 @@ export default {
       Stack_scoresNegative4: [],
       xaxis: [],
       WH: [],
-      firstTime: 0
+      firstTime: 0,
+      smallScreenMode: '0px',
     }
   },
   methods: {
@@ -128,7 +129,7 @@ export default {
         mode: "lines+markers", 
         marker : {
           symbol: 'circle' },
-        name: "Active Accuracy",
+        name: "Active Acc.",
         type: "scatter"
       }
 
@@ -140,7 +141,7 @@ export default {
         fill: "tozerox", 
         fillcolor: "rgba(55,126,184,0)", 
         line: {color: "transparent"}, 
-        name: "Active Accuracy", 
+        name: "Active Acc.", 
         showlegend: false, 
         type: "scatter"
       }
@@ -157,7 +158,7 @@ export default {
         mode: "lines+markers", 
         marker : {
             symbol: 'square' },
-        name: "Active Precision", 
+        name: "Active Pre.", 
         type: "scatter"
       }
 
@@ -169,7 +170,7 @@ export default {
         fill: "tozerox", 
         fillcolor: "rgba(55,126,184,0)", 
         line: {color: "transparent"}, 
-        name: "Active Precision", 
+        name: "Active Pre.", 
         showlegend: false, 
         type: "scatter"
       }
@@ -184,7 +185,7 @@ export default {
         mode: "lines+markers", 
         marker : {
             symbol: 'triangle-up' },
-        name: "Active Recall", 
+        name: "Active Rec.", 
         type: "scatter"
       }
 
@@ -196,7 +197,7 @@ export default {
         fill: "tozerox", 
         fillcolor: "rgba(55,126,184,0)", 
         line: {color: "transparent"}, 
-        name: "Active Recall", 
+        name: "Active Rec.", 
         showlegend: false, 
         type: "scatter"
       }
@@ -211,7 +212,7 @@ export default {
         mode: "lines+markers", 
         marker : {
             symbol: 'diamond' },
-        name: "Active F1 Score", 
+        name: "Active F1", 
         type: "scatter"
       }
 
@@ -223,7 +224,7 @@ export default {
         fill: "tozerox", 
         fillcolor: "rgba(55,126,184,0)", 
         line: {color: "transparent"}, 
-        name: "Active F1 Score", 
+        name: "Active F1", 
         showlegend: false, 
         type: "scatter"
       }
@@ -240,7 +241,7 @@ export default {
         mode: "lines+markers", 
         marker : {
           symbol: 'x' },
-        name: "Stack Accuracy", 
+        name: "Stack Acc.", 
         type: "scatter"
       }
 
@@ -252,7 +253,7 @@ export default {
         fill: "tozerox", 
         fillcolor: "rgba(228,26,28,0)", 
         line: {color: "transparent"}, 
-        name: "Stack Accuracy", 
+        name: "Stack Acc.", 
         showlegend: false, 
         type: "scatter"
       }
@@ -267,7 +268,7 @@ export default {
         mode: "lines+markers", 
         marker : {
           symbol: 'cross' },
-        name: "Stack Precision", 
+        name: "Stack Pre.", 
         type: "scatter"
       }
 
@@ -279,7 +280,7 @@ export default {
         fill: "tozerox", 
         fillcolor: "rgba(228,26,28,0)", 
         line: {color: "transparent"}, 
-        name: "Stack Precision", 
+        name: "Stack Pre.", 
         showlegend: false, 
         type: "scatter"
       }
@@ -294,7 +295,7 @@ export default {
         mode: "lines+markers",
         marker : {
           symbol: 'triangle-down' },
-        name: "Stack Recall", 
+        name: "Stack Rec.", 
         type: "scatter"
       }
 
@@ -306,7 +307,7 @@ export default {
         fill: "tozerox", 
         fillcolor: "rgba(228,26,28,0)", 
         line: {color: "transparent"}, 
-        name: "Stack Recall", 
+        name: "Stack Rec.", 
         showlegend: false, 
         type: "scatter"
       }
@@ -321,7 +322,7 @@ export default {
         mode: "lines+markers",
         marker : {
           symbol: 'hexagram' },
-        name: "Stack F1 Score", 
+        name: "Stack F1", 
         type: "scatter"
       }
 
@@ -333,15 +334,19 @@ export default {
         fill: "tozerox", 
         fillcolor: "rgba(228,26,28,0)", 
         line: {color: "transparent"}, 
-        name: "Stack F1 Score", 
+        name: "Stack F1", 
         showlegend: false, 
         type: "scatter"
       }
 
       const DataforLinePlot = [trace1, trace2, trace3, trace4, trace5, trace6, trace7, trace8, trace9, trace10, trace11, trace12, trace13, trace14, trace15, trace16]
 
-      var width = this.WH[0]*3.18 // interactive visualization
-      var height = this.WH[1]*0.765 // interactive visualization
+      if (this.smallScreenMode != "370px") {
+        var width = 583.0000000000001
+      } else {
+        var width = 400
+      }
+      var height = 353.685
 
       var layout = {
         font: { family: 'Helvetica', size: 14, color: '#000000' },
@@ -398,8 +403,8 @@ export default {
 
     EventBus.$on('Responsive', data => {
     this.WH = data})
-    EventBus.$on('ResponsiveandChange', data => {
-    this.WH = data})
+
+    EventBus.$on('ResponsiveandAdapt', data => { this.smallScreenMode = data })
 
     // reset the views
     EventBus.$on('resetViews', this.reset)

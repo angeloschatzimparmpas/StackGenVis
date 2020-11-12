@@ -30,6 +30,7 @@ export default {
       colorsValues: ['#808000','#008080','#bebada','#fccde5','#d9d9d9','#bc80bd','#ccebc5'],
       WH: [],
       onlyOnce: true,
+      smallScreenMode: '0px',
     }
   },
   methods: {
@@ -53,9 +54,14 @@ export default {
     ScatterPlotPredView () {
       Plotly.purge('OverviewPredPlotly')
 
-      // responsive visualization
-      var width = this.WH[0]*6.5 // interactive visualization
-      var height = this.WH[1]*1.185 // interactive visualization
+      if (this.smallScreenMode != "370px") {
+        var width = this.WH[0]*6.5 // interactive visualization
+        var height = this.WH[1]*0.98 // interactive visualization
+      } else {
+        var width = this.WH[0]*6.6 // interactive visualization
+        var height = this.WH[1]*0.95 // interactive visualization
+      }
+
       var XandYCoordinatesMDS
       var target_names = JSON.parse(this.PredictionsData[4])
       if (this.UpdatedData.length != 0) {
@@ -74,7 +80,6 @@ export default {
         stringParameters.push(JSON.stringify(DataSetParse[i]).replace(/,/gi, '<br>'))
       }
       const XandYCoordinatesTSNE = JSON.parse(this.PredictionsData[18])
-      console.log(XandYCoordinatesTSNE)
       const XandYCoordinatesUMAP= JSON.parse(this.PredictionsData[19])
 
       var result = [];
@@ -330,7 +335,6 @@ export default {
       OverviewPlotly.on('plotly_selected', function (evt) {
         if (typeof evt !== 'undefined') {
           const DataPoints = []
-          console.log(evt)
           for (let i = 0; evt.points.length; i++) {
             if (evt.points[i] === undefined) {
               break
@@ -339,7 +343,6 @@ export default {
               DataPoints.push(OnlyId[3])
             }
           }
-          console.log(DataPoints)
           if (DataPoints != '') {
             EventBus.$emit('SendSelectedDataPointsToServerEvent', DataPoints)
           } else {
@@ -358,8 +361,8 @@ export default {
     EventBus.$on('emittedEventCallingPredictionsSpacePlotView', this.ScatterPlotPredView)
     EventBus.$on('Responsive', data => {
     this.WH = data})
-    EventBus.$on('ResponsiveandChange', data => {
-    this.WH = data})
+
+    EventBus.$on('ResponsiveandAdapt', data => { this.smallScreenMode = data })
 
     EventBus.$on('RepresentationSelectionPred', data => {this.representationDef = data})
     EventBus.$on('RepresentationSelectionPred', this.ScatterPlotPredView)

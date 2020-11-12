@@ -18,7 +18,8 @@
             return {
             resultsfromOverview: '',
             newResultsFromSelection: '',
-            responsiveWidthHeight: []
+            responsiveWidthHeight: [],
+            smallScreenMode: '0px',
             }
         },
         methods: {
@@ -31,9 +32,17 @@
             var svg = d3.select("#my_dataviz");
             svg.selectAll("*").remove();
 
-            // responsive visualizations
-            var widthInitial = this.responsiveWidthHeight[0]*6.5
-            var heightInitial = this.responsiveWidthHeight[1]*0.5
+            if (this.smallScreenMode != "370px") {
+              var widthInitial = this.responsiveWidthHeight[0]*6.5
+              var heightInitial = this.responsiveWidthHeight[1]*0.5
+              var heightforText = 215
+              var widthforText = 215
+            } else {
+              var widthInitial = this.responsiveWidthHeight[0]*6.8
+              var heightInitial = this.responsiveWidthHeight[1]*0.395
+              var heightforText = 202
+              var widthforText = 20
+            }
 
             var performancePerModel = JSON.parse(this.resultsfromOverview[0])
             var performancePerModelSelection = []
@@ -186,12 +195,11 @@
                   
 
             // Handmade legend
-            var heightforText = 215
-            svg.append("circle").attr("cx", 215).attr("cy", heightforText-1.5).attr("r", 6).style("fill", "#000")
-            svg.append("circle").attr("cx", 785).attr("cy", heightforText-1.5).attr("r", 6).style("fill", "#D3D3D3")
-            svg.append("text").attr("x", 230).attr("y", heightforText).text("All Points").style("font-size", "16px").attr("alignment-baseline","middle")
-            svg.append("text").attr("x", 515).attr("y", heightforText-6).text("# Performance (%) #").style("font-size", "16px").attr("alignment-baseline","top")
-            svg.append("text").attr("x", 800).attr("y", heightforText).text("Selected Points").style("font-size", "16px").attr("alignment-baseline","middle")
+            svg.append("circle").attr("cx", widthforText).attr("cy", heightforText-1.5).attr("r", 6).style("fill", "#000")
+            svg.append("circle").attr("cx", widthforText+570).attr("cy", heightforText-1.5).attr("r", 6).style("fill", "#D3D3D3")
+            svg.append("text").attr("x", widthforText+15).attr("y", heightforText).text("All Points").style("font-size", "16px").attr("alignment-baseline","middle")
+            svg.append("text").attr("x", widthforText+275).attr("y", heightforText-6).text("# Performance (%) #").style("font-size", "16px").attr("alignment-baseline","top")
+            svg.append("text").attr("x", widthforText+585).attr("y", heightforText).text("Selected Points").style("font-size", "16px").attr("alignment-baseline","middle")
             svg.append("text").attr("transform", "rotate(-90)").attr("x", -89).attr("y", -45).style("text-anchor", "middle").style("font-size", "16px").text("Number of Models"); 
 
             // Function to compute density
@@ -216,8 +224,7 @@
           EventBus.$on('UpdateBalanceView', this.Balance)
           EventBus.$on('Responsive', data => {
           this.responsiveWidthHeight = data})
-          EventBus.$on('ResponsiveandChange', data => {
-          this.responsiveWidthHeight = data})
+          EventBus.$on('ResponsiveandAdapt', data => { this.smallScreenMode = data })
 
           // reset view
           EventBus.$on('resetViews', this.reset)

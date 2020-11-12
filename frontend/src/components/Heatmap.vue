@@ -36,6 +36,7 @@ export default {
       keyLocal: 0,
       activeModels: 0,
       flagLocal: false,
+      smallScreenMode: '0px'
     }
   },
   methods: {
@@ -228,9 +229,20 @@ export default {
                         })
 
     //==================================================
-    var viewerWidth = this.responsiveWidthHeight[0]*6.5
-    var viewerHeight = this.responsiveWidthHeight[1]*1.415
-    var viewerPosTop = viewerHeight * 0.1;
+    
+
+    if (this.smallScreenMode != "370px") {
+        var viewerWidth = this.responsiveWidthHeight[0]*6.5
+        var viewerHeight = this.responsiveWidthHeight[1]*1.25
+        var widthHeatmap = viewerWidth/2
+    } else {
+        var viewerWidth = this.responsiveWidthHeight[0]*6.5
+        var viewerHeight = this.responsiveWidthHeight[1]*1.14
+        var widthHeatmap = 600
+    }
+
+    var viewerPosTop = viewerHeight * 0.05;
+    var viewerPosTopHeat = viewerHeight * 0.15;
     var viewerPosLeft = viewerWidth*0.1;
 
     var legendElementWidth = cellSize * 3;
@@ -256,7 +268,7 @@ export default {
           .call(zoom)
             //.call(zoom.transform, d3.zoomIdentity.translate(200, 20).scale(0.25)) //initial size
             .append('svg:g')
-            .attr("transform", "translate(" + viewerPosLeft + "," + viewerPosTop + ")");
+            .attr("transform", "translate(" + viewerPosLeft + "," + viewerPosTopHeat + ")");
 
       svg.append('defs')
           .append('pattern')
@@ -445,7 +457,7 @@ export default {
       svgLeg.selectAll("*").remove();
         
       var svgLeg = d3.select("#LegendHeat").append("svg")
-        .attr("width", viewerWidth/2)
+        .attr("width", widthHeatmap)
         .attr("height", viewerHeight*0.13)
 
       var legend = svgLeg.append('g')
@@ -478,7 +490,7 @@ export default {
           })
           .attr("y", viewerPosTop + cellSize);
 
-      svgLeg.append("text").attr("x", 220).attr("y", 50).text("Importance (Normalized)").style("font-size", "16px").attr("alignment-baseline","top")
+      svgLeg.append("text").attr("x", 220).attr("y", 15).text("Importance (Normalized)").style("font-size", "16px").attr("alignment-baseline","top")
 
       //==================================================
       // Change ordering of cells
@@ -651,13 +663,12 @@ export default {
       EventBus.$on('SendSelectedPointsToBrushHeatmap', data => { this.highlighted = data; })
       EventBus.$on('SendSelectedPointsToBrushHeatmap', this.brush)
 
-    EventBus.$on('Responsive', data => {
-    this.responsiveWidthHeight = data})
-    EventBus.$on('ResponsiveandChange', data => {
-    this.responsiveWidthHeight = data})
+      EventBus.$on('Responsive', data => {
+      this.responsiveWidthHeight = data})
 
       // reset the views
       EventBus.$on('resetViews', this.reset)
+      EventBus.$on('ResponsiveandAdapt', data => { this.smallScreenMode = data })
     }
 }
 </script>

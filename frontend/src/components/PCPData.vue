@@ -20,6 +20,7 @@ export default {
       colorsValues: ['#808000','#008080','#bebada','#fccde5','#d9d9d9','#bc80bd','#ccebc5'],
       ClassifierIDsListClearedData: [],
       RetrieveDataSet: 'HeartC',
+      smallScreenMode: '0px'
     }
   },
   methods: {
@@ -32,6 +33,14 @@ export default {
       var DataSetParse = JSON.parse(DataSetNew)
       const target_names = JSON.parse(this.PCPDataReceived[3])
       const target_names_original = JSON.parse(this.PCPDataReceived[4])
+
+      if (this.smallScreenMode != "370px") {
+        var width = 1200
+        var height = 248
+      } else {
+        var width = 800
+        var height = 251
+      }
 
       var extraction = []
       for (let i = 0; i < DataSetParse.length; i++) {
@@ -55,8 +64,8 @@ export default {
       if (DataSetParse.length == this.ClassifierIDsListClearedData.length || this.ClassifierIDsListClearedData.length == 0) {
         var pc = ParCoords()("#PCPDataView")
             .data(DataSetParse)
-            .width(1200)
-            .height(272)
+            .width(width)
+            .height(height)
             .hideAxis(["Outcome","ID"])
             .color(function(d, i) { return colors[d.Outcome] })
             .bundlingStrength(0) // set bundling strength
@@ -70,8 +79,8 @@ export default {
       else {
         var pc = ParCoords()("#PCPDataView")
           .data(DataSetParse)
-          .width(1200)
-          .height(272)
+          .width(width)
+          .height(height)
           .hideAxis(["Outcome","ID"])
           .color(function(d, i) { return colors[d.Outcome] })
           .bundlingStrength(0) // set bundling strength
@@ -107,6 +116,8 @@ export default {
     EventBus.$on('resetViews', this.reset)
 
     EventBus.$on('SendToServerDataSetConfirmation', data => { this.RetrieveDataSet = data })
+
+    EventBus.$on('ResponsiveandAdapt', data => { this.smallScreenMode = data })
   }
 }
 </script>

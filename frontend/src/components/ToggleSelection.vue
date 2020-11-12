@@ -1,8 +1,8 @@
 <template>
     <div id="toggles" style="visibility:hidden">
-        Univariate Feature Selection:&nbsp;<input type="checkbox" id="toggle-uni" data-toggle="toggle" checked="checked" data-on="Enabled" data-off="Disabled" data-size="small">&nbsp;&nbsp;&nbsp;
-        Permutation Feature Importance:&nbsp;<input type="checkbox" id="toggle-per" data-toggle="toggle" checked="checked" data-on="Enabled" data-off="Disabled" data-size="small">&nbsp;&nbsp;&nbsp;
-        Accuracy Feature Importance:&nbsp;<input type="checkbox" id="toggle-fi" data-toggle="toggle" checked="checked" data-on="Enabled" data-off="Disabled" data-size="small">
+        Univariate FS:&nbsp;<input type="checkbox" id="toggle-uni" data-toggle="toggle" checked="checked" data-on="Enabled" data-off="Disabled" data-size="small">&nbsp;&nbsp;&nbsp;
+        Permutation FI:&nbsp;<input type="checkbox" id="toggle-per" data-toggle="toggle" checked="checked" data-on="Enabled" data-off="Disabled" data-size="small">&nbsp;&nbsp;&nbsp;
+        Accuracy FI:&nbsp;<input type="checkbox" id="toggle-fi" data-toggle="toggle" checked="checked" data-on="Enabled" data-off="Disabled" data-size="small">
     </div>
 </template>
 
@@ -40,8 +40,8 @@ export default {
 
     EventBus.$on('resetToggles', this.ResetPosition)
     $('#toggle-uni').bootstrapToggle({
-        on: 'Enabled',
-        off: 'Disabled',
+        on: 'On',
+        off: 'Off',
         width: '8%',
     });
     $('#toggle-uni').change(function() {
@@ -55,8 +55,8 @@ export default {
         }
     })
     $('#toggle-per').bootstrapToggle({
-        on: 'Enabled',
-        off: 'Disabled',
+        on: 'On',
+        off: 'Off',
         width: '8%',
     });
     $('#toggle-per').change(function() {
@@ -70,8 +70,8 @@ export default {
         }
     })
     $('#toggle-fi').bootstrapToggle({
-        on: 'Enabled',
-        off: 'Disabled',
+        on: 'On',
+        off: 'Off',
         width: '8%',
     });
     $('#toggle-fi').change(function() {
