@@ -2982,7 +2982,6 @@ def EnsembleModel(Models, keyRetrieved):
                 yDataStack = [yData[i] for i in test_index]
         print(XDataStack)
         print(yDataStack)
-        print(crossValidation)
         flat_results = Parallel(n_jobs=num_cores)(delayed(solve)(sclf,keyData,keySpec,keySpecInternal,previousState,previousStateActive,XDataStack,yDataStack,CVDepends,item,index) for index, item in enumerate(inputsSc))
         scores = [item for sublist in flat_results for item in sublist]
     if (keySpec == 0):
