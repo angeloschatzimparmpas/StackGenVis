@@ -17,7 +17,7 @@
         </b-col>
         <b-col cols="6">
           <mdb-card>
-            <mdb-card-header color="primary-color" tag="h5" class="text-center collapsible" style="background-color: #C0C0C0;">History of the Stacking Ensemble<small class="float-right"><knowledge/></small></mdb-card-header>
+            <mdb-card-header color="primary-color" tag="h5" class="text-center collapsible" style="background-color: #C0C0C0;">{{ historyVar }}<small class="float-left"><mode/></small><small class="float-right"><knowledge/></small></mdb-card-header>
             <mdb-card-body class="content">
                 <Provenance/>
             </mdb-card-body>
@@ -145,7 +145,7 @@
              &copy; ISOVIS group 2020&ndash;2021
          </p>
          <p class="text-muted credit no-top-margin no-bottom-margin">
-             Last updated: November 12, 2020
+             Last updated: February 26, 2021
          </p>
       </div>
     </b-container>
@@ -153,7 +153,7 @@
     <div id="myModal" class="w3-modal" style="position: fixed;">
       <div class="w3-modal-content w3-card-4 w3-animate-zoom">
         <header class="w3-container w3-blue"> 
-        <h3 style="display:inline-block; font-size: 16px; margin-top: 15px; margin-bottom:15px">Serialized Data and Stacking Ensemble Learning Models using Cryo</h3>
+        <h3 style="display:inline-block; font-size: 16px; margin-top: 15px; margin-bottom:15px">Serialized Data and Models using Cryo</h3>
         </header>
         <Export/>
         <div class="w3-container w3-light-grey w3-padding">
@@ -179,6 +179,7 @@ import AlgorithmHyperParam from './AlgorithmHyperParam.vue'
 import Controller from './Controller.vue'
 import ResetClass from './ResetClass.vue'
 import Knowledge from './Knowledge.vue'
+import Mode from './Mode.vue'
 import Active from './Active.vue'
 import ActiveScatter from './ActiveScatter.vue'
 import saveStack from './saveStack.vue'
@@ -220,6 +221,7 @@ export default Vue.extend({
     Controller,
     ResetClass,
     Knowledge,
+    Mode,
     Active,
     ActiveScatter,
     SlidersController,
@@ -243,6 +245,8 @@ export default Vue.extend({
   },
   data () {
     return {
+      defaultModeMain: 'stack',
+      historyVar: 'History of the Stacking Ensemble',
       valuePickled: 'Close',
       Collection: 0,
       OverviewResults: 0,
@@ -981,6 +985,32 @@ export default Vue.extend({
         }, delayInMilliseconds);
       })
     },
+    statusMode () {
+      if (this.defaultModeMain == 'stack') {
+        this.historyVar = 'History of the Stacking Ensemble'
+      } else {
+        this.historyVar = 'History of the Blending Ensemble'
+      }
+      const path = `http://127.0.0.1:5000/data/EnsembleMode`
+      const postData = {
+        defaultModeMain: this.defaultModeMain
+      }
+      const axiosConfig = {
+        headers: {
+          'Content-Type': 'application/json',
+          'Access-Control-Allow-Origin': '*',
+          'Access-Control-Allow-Headers': 'Origin, Content-Type, X-Auth-Token',
+          'Access-Control-Allow-Methods': 'GET, PUT, POST, DELETE, OPTIONS'
+        }
+      }
+      axios.post(path, postData, axiosConfig)
+        .then(response => {
+          console.log('Send active ensemble method!')
+        })
+        .catch(error => {
+          console.log(error)
+      })
+    }
   },
   created () {
 
@@ -1000,10 +1030,10 @@ export default Vue.extend({
     var i;
     var flagLocalMounted = true
     var flagLocalSkip = true
+    EventBus.$on('ChangeOfMode', data =>{ flagLocalSkip = false }) 
     EventBus.$on('OpenModal', data =>{ flagLocalSkip = false }) 
     for (i = 0; i < coll.length; i++) {
       coll[i].addEventListener("click", function() {
-        console.log(flagLocalSkip)
         if (flagLocalSkip) {
           var content = document.getElementsByClassName("content")
           var value = "370px"
@@ -1021,9 +1051,6 @@ export default Vue.extend({
           var combineWH = []
           combineWH.push(this.width)
           combineWH.push(this.height - 100)
-          EventBus.$emit('ResponsiveandAdapt', value)
-          EventBus.$emit('ResponsiveandChange', combineWH)
-          EventBus.$emit('ResponsiveandChange', combineWH)
         }
       flagLocalSkip = true
       });
@@ -1106,6 +1133,9 @@ export default Vue.extend({
     EventBus.$on('SendProvenance', this.ProvenanceControlFun)
 
     EventBus.$on('toggleDeep', data => {this.toggleDeepMain = data})
+
+    EventBus.$on('ChangeOfMode', data => { this.defaultModeMain = data }) 
+    EventBus.$on('ChangeOfMode', this.statusMode) 
 
     //Prevent double click to search for a word. 
     document.addEventListener('mousedown', function (event) {

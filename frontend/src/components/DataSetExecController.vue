@@ -5,7 +5,7 @@
       <option value="HeartC.csv" selected>Heart Disease</option>
       <!--<option value="StanceC.csv">Stance in Texts</option>-->
       <option value="IrisC.csv">Iris Flower</option>
-      <option value="local">Upload File</option>
+      <!--<option value="local">Upload File</option>-->
   </select>
 
   <button class="btn-outline-primary"
@@ -39,7 +39,7 @@ export default {
       RetrieveValueCSV: 'DiabetesC', // default value for the first data set
       value: 'Confirm',
       valueReset: 'Reset',
-      dataset: 'Data'
+      dataset: 'Data: '
     }
   },
   methods: {

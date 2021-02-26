@@ -51,6 +51,7 @@ from mlxtend.classifier import StackingCVClassifier
 from mlxtend.feature_selection import ColumnSelector
 
 from sklearn.model_selection import GridSearchCV
+from sklearn.model_selection import ShuffleSplit
 
 from scipy.spatial import procrustes
 
@@ -85,11 +86,11 @@ def Reset():
     global previousStateActive
     previousStateActive = []
 
-    global RANDOM_SEED
-    RANDOM_SEED = 42
-
     global StanceTest
     StanceTest = False
+
+    global status
+    status = True
 
     global factors
     factors = [1,0,0,1,0,0,1,0,0,1,0,0,0,0,0,1,0,0,0,1,1,1]
@@ -220,6 +221,9 @@ def RetrieveFileName():
     global previousStateActive
     previousStateActive = []
 
+    global status
+    status = True
+
     global yData
     yData = []
 
@@ -254,9 +258,6 @@ def RetrieveFileName():
 
     global all_classifiers
     all_classifiers = []
-
-    global crossValidation
-    crossValidation = 5
 
     global scoring
     scoring = {'accuracy': 'accuracy', 'precision_micro': 'precision_micro', 'precision_macro': 'precision_macro', 'precision_weighted': 'precision_weighted', 'recall_micro': 'recall_micro', 'recall_macro': 'recall_macro', 'recall_weighted': 'recall_weighted', 'roc_auc_ovo_weighted': 'roc_auc_ovo_weighted'}
@@ -567,6 +568,26 @@ def class_feature_importance(X, Y, feature_importances):
 
     return out
 
+@cross_origin(origin='localhost',headers=['Content-Type','Authorization'])
+@app.route('/data/EnsembleMode', methods=["GET", "POST"])
+def EnsembleMethod():
+
+    global crossValidation
+    global RANDOM_SEED
+    global XData
+    RANDOM_SEED = 42
+
+    RetrievedStatus = request.get_data().decode('utf8').replace("'", '"')
+    RetrievedStatus = json.loads(RetrievedStatus)
+    modeMethod = RetrievedStatus['defaultModeMain']
+
+    if (modeMethod == 'blend'):
+        crossValidation = ShuffleSplit(n_splits=1, test_size=.20, random_state=RANDOM_SEED)
+    else:
+        crossValidation = 5
+
+    return 'Okay'
+
 # Initialize every model for each algorithm
 @cross_origin(origin='localhost',headers=['Content-Type','Authorization'])
 @app.route('/data/ServerRequestSelParameters', methods=["GET", "POST"])
@@ -579,7 +600,8 @@ def RetrieveModel():
     global algorithms
     algorithms = RetrievedModel['Algorithms']
     toggle = RetrievedModel['Toggle']
-
+    
+    global crossValidation
     global XData
     global yData
     global SVCModelsCount
@@ -595,6 +617,7 @@ def RetrieveModel():
 
     # loop through the algorithms
     global allParametersPerformancePerModel
+
     for eachAlgor in algorithms:
         if (eachAlgor) == 'KNN':
             clf = KNeighborsClassifier()
@@ -640,7 +663,7 @@ def RetrieveModel():
             clf = GradientBoostingClassifier(random_state=RANDOM_SEED)
             params = {'n_estimators': list(range(85, 115)), 'learning_rate': list(np.arange(0.01,0.23,0.11)), 'criterion': ['friedman_mse', 'mse', 'mae']}
             AlgorithmsIDsEnd = GradBModelsCount
-        allParametersPerformancePerModel = GridSearchForModels(XData, yData, clf, params, eachAlgor, AlgorithmsIDsEnd, toggle)
+        allParametersPerformancePerModel = GridSearchForModels(XData, yData, clf, params, eachAlgor, AlgorithmsIDsEnd, toggle, crossValidation)
     # call the function that sends the results to the frontend 
     SendEachClassifiersPerformanceToVisualize()
 
@@ -651,13 +674,13 @@ memory = Memory(location, verbose=0)
 
 # calculating for all algorithms and models the performance and other results
 @memory.cache
-def GridSearchForModels(XData, yData, clf, params, eachAlgor, AlgorithmsIDsEnd, toggle):
+def GridSearchForModels(XData, yData, clf, params, eachAlgor, AlgorithmsIDsEnd, toggle, crossVal):
     print('loop here')
-
+    
     # this is the grid we use to train the models
     grid = GridSearchCV(    
         estimator=clf, param_grid=params, 
-        cv=crossValidation, refit='accuracy', scoring=scoring,
+        cv=crossVal, refit='accuracy', scoring=scoring,
         verbose=0, n_jobs=-1)
 
     # fit and extract the probabilities
@@ -742,7 +765,7 @@ def GridSearchForModels(XData, yData, clf, params, eachAlgor, AlgorithmsIDsEnd, 
             n_feats = XData.shape[1]
             PerFeatureAccuracy = []
             for i in range(n_feats):
-                scores = model_selection.cross_val_score(clf, XData.values[:, i].reshape(-1, 1), yData, cv=crossValidation)
+                scores = model_selection.cross_val_score(clf, XData.values[:, i].reshape(-1, 1), yData, cv=5)
                 PerFeatureAccuracy.append(scores.mean())
             PerFeatureAccuracyAll.append(PerFeatureAccuracy)
         else:
@@ -2074,7 +2097,7 @@ def RetrieveSelDataPoints():
             clf = GradientBoostingClassifier(random_state=RANDOM_SEED)
             params = RetrieveParamsClearedListGradB
             AlgorithmsIDsEnd = GradBModelsCount
-        metricsSelList = GridSearchSel(clf, params, factors, AlgorithmsIDsEnd, listofDataPoints)
+        metricsSelList = GridSearchSel(clf, params, factors, AlgorithmsIDsEnd, listofDataPoints, crossValidation)
 
     if (len(metricsSelList[0]) != 0 and len(metricsSelList[1]) != 0 and len(metricsSelList[2]) != 0 and len(metricsSelList[3]) != 0 and len(metricsSelList[4]) != 0 and len(metricsSelList[5]) != 0 and len(metricsSelList[6]) != 0 and len(metricsSelList[7]) != 0 and len(metricsSelList[8]) != 0 and len(metricsSelList[9]) != 0 and len(metricsSelList[10]) != 0):
         dicKNN = json.loads(metricsSelList[0])
@@ -2339,7 +2362,7 @@ def RetrieveSelDataPoints():
     return 'Everything Okay'
 
 
-def GridSearchSel(clf, params, factors, AlgorithmsIDsEnd, DataPointsSel):
+def GridSearchSel(clf, params, factors, AlgorithmsIDsEnd, DataPointsSel, crossVal):
     global XData
     global yData
     if (len(params) == 0):
@@ -2354,7 +2377,7 @@ def GridSearchSel(clf, params, factors, AlgorithmsIDsEnd, DataPointsSel):
         # this is the grid we use to train the models
         grid = GridSearchCV(    
             estimator=clf, param_grid=params, 
-            cv=crossValidation, refit='accuracy', scoring=scoring,
+            cv=crossVal, refit='accuracy', scoring=scoring,
             verbose=0, n_jobs=-1)
 
         # fit and extract the probabilities
@@ -2948,10 +2971,20 @@ def EnsembleModel(Models, keyRetrieved):
     if (keySpec == 0 or keySpec == 1):
         num_cores = multiprocessing.cpu_count()
         inputsSc = ['accuracy','precision_weighted','recall_weighted','f1_weighted']
-
-        flat_results = Parallel(n_jobs=num_cores)(delayed(solve)(sclf,keyData,keySpec,keySpecInternal,previousState,previousStateActive,XData,yData,crossValidation,item,index) for index, item in enumerate(inputsSc))
+        if (crossValidation == 5):
+            CVDepends = 5
+            XDataStack = XData.copy()
+            yDataStack = yData
+        else:
+            CVDepends = crossValidation
+            for train_index, test_index in crossValidation.split(XData):
+                XDataStack = XData[XData.index.isin(test_index)]
+                yDataStack = [yData[i] for i in test_index]
+        print(XDataStack)
+        print(yDataStack)
+        print(crossValidation)
+        flat_results = Parallel(n_jobs=num_cores)(delayed(solve)(sclf,keyData,keySpec,keySpecInternal,previousState,previousStateActive,XDataStack,yDataStack,CVDepends,item,index) for index, item in enumerate(inputsSc))
         scores = [item for sublist in flat_results for item in sublist]
-
     if (keySpec == 0):
         previousState = []
         previousState.append(scores[2])
@@ -3028,10 +3061,10 @@ def EnsembleModel(Models, keyRetrieved):
         scores.append(previousStateActive[7])
         previousState.append(previousStateActive[6])
         previousState.append(previousStateActive[7])
-    # print(scores)
+    print(scores)
     global StanceTest
     if (StanceTest):
-        sclf.fit(XData, yData)
+        sclf.fit(XDataStack, yDataStack)
         y_pred = sclf.predict(XDataTest)
 
         # print(accuracy_score(yDataTest, y_pred))
@@ -3044,14 +3077,12 @@ def EnsembleModel(Models, keyRetrieved):
         print(recall_score(yDataTest, y_pred, pos_label=0, average='weighted'))
         print(f1_score(yDataTest, y_pred, pos_label=0, average='weighted'))
 
-        print(report)
-
     return 'Okay'
 
-def solve(sclf,keyData,keySpec,keySpecInternal,previousStateLoc,previousStateActiveLoc,XData,yData,crossValidation,scoringIn,loop):
+def solve(sclf,keyData,keySpec,keySpecInternal,previousStateLoc,previousStateActiveLoc,XDataLocalIns,yDataLocalIns,crossValidation,scoringIn,loop):
     scoresLoc = []
     if (keySpec == 0):
-        temp = model_selection.cross_val_score(sclf, XData, yData, cv=crossValidation, scoring=scoringIn, n_jobs=-1)
+        temp = model_selection.cross_val_score(sclf, XDataLocalIns, yDataLocalIns, cv=crossValidation, scoring=scoringIn, n_jobs=-1)
         scoresLoc.append(temp.mean())
         scoresLoc.append(temp.std())
         if (keyData == 1):
