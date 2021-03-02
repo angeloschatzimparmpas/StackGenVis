@@ -14,6 +14,7 @@ import copy
 from joblib import Memory
 from itertools import chain
 import ast
+import timeit
 
 from sklearn.neighbors import KNeighborsClassifier # 1 neighbors
 from sklearn.svm import SVC # 1 svm
@@ -321,7 +322,19 @@ def RetrieveFileName():
         CollectionDB = mongo.db.StanceC.find()
         CollectionDBTest = mongo.db.StanceCTest.find()
     elif data['fileName'] == 'DiabetesC':
-        CollectionDB = mongo.db.DiabetesC.find()
+        CollectionDB = mongo.db.diabetesC.find()
+    elif data['fileName'] == 'BreastC':
+        CollectionDB = mongo.db.breastC.find()
+    elif data['fileName'] == 'WineC':
+        CollectionDB = mongo.db.WineC.find()
+    elif data['fileName'] == 'ContraceptiveC':
+        CollectionDB = mongo.db.ContraceptiveC.find()
+    elif data['fileName'] == 'VehicleC':
+        CollectionDB = mongo.db.VehicleC.find()
+    elif data['fileName'] == 'BiodegC':
+        StanceTest = True
+        CollectionDB = mongo.db.biodegC.find()
+        CollectionDBTest = mongo.db.biodegCTest.find()
     else:
         CollectionDB = mongo.db.IrisC.find()
     DataResultsRaw = []
@@ -617,7 +630,8 @@ def RetrieveModel():
 
     # loop through the algorithms
     global allParametersPerformancePerModel
-
+    start = timeit.default_timer()
+    print('CVorTT', crossValidation)
     for eachAlgor in algorithms:
         if (eachAlgor) == 'KNN':
             clf = KNeighborsClassifier()
@@ -665,6 +679,8 @@ def RetrieveModel():
             AlgorithmsIDsEnd = GradBModelsCount
         allParametersPerformancePerModel = GridSearchForModels(XData, yData, clf, params, eachAlgor, AlgorithmsIDsEnd, toggle, crossValidation)
     # call the function that sends the results to the frontend 
+    stop = timeit.default_timer()
+    print('Time GridSearch: ', stop - start) 
     SendEachClassifiersPerformanceToVisualize()
 
     return 'Everything Okay'
@@ -675,7 +691,7 @@ memory = Memory(location, verbose=0)
 # calculating for all algorithms and models the performance and other results
 @memory.cache
 def GridSearchForModels(XData, yData, clf, params, eachAlgor, AlgorithmsIDsEnd, toggle, crossVal):
-    print('loop here')
+    print('loop')
     
     # this is the grid we use to train the models
     grid = GridSearchCV(    
@@ -2980,10 +2996,13 @@ def EnsembleModel(Models, keyRetrieved):
             for train_index, test_index in crossValidation.split(XData):
                 XDataStack = XData[XData.index.isin(test_index)]
                 yDataStack = [yData[i] for i in test_index]
-        print(XDataStack)
-        print(yDataStack)
+        print('XDataShort', XDataStack)
+        print('yDataShort', yDataStack)
+        start = timeit.default_timer()
         flat_results = Parallel(n_jobs=num_cores)(delayed(solve)(sclf,keyData,keySpec,keySpecInternal,previousState,previousStateActive,XDataStack,yDataStack,CVDepends,item,index) for index, item in enumerate(inputsSc))
         scores = [item for sublist in flat_results for item in sublist]
+        stop = timeit.default_timer()
+        print('Time Stack: ', stop - start) 
     if (keySpec == 0):
         previousState = []
         previousState.append(scores[2])
@@ -3060,7 +3079,7 @@ def EnsembleModel(Models, keyRetrieved):
         scores.append(previousStateActive[7])
         previousState.append(previousStateActive[6])
         previousState.append(previousStateActive[7])
-    print(scores)
+    print('Final Scores',scores)
     global StanceTest
     if (StanceTest):
         sclf.fit(XDataStack, yDataStack)

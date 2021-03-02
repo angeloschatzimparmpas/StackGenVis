@@ -3,9 +3,13 @@
   <label id="data" for="param-dataset" data-toggle="tooltip" data-placement="right" title="Tip: use one of the data sets already provided or upload a new file.">{{ dataset }}</label>
   <select id="selectFile" @change="selectDataSet()">
       <option value="HeartC.csv" selected>Heart Disease</option>
-      <!--<option value="StanceC.csv">Stance in Texts</option>-->
-      <option value="IrisC.csv">Iris Flower</option>
-      <!--<option value="local">Upload File</option>-->
+      <!--<option value="ContraceptiveC.csv">Contraceptive Method</option>
+      <option value="BreastC.csv">Breast Cancer</option>
+      <option value="DiabetesC.csv">India Diabetes</option>
+      <option value="VehicleC.csv">Vehicle Silhouettes</option>
+      <option value="WineC.csv">Red Wine</option>
+      <option value="StanceC.csv">Stance in Texts</option>-->
+      <option value="local">Upload File</option>
   </select>
 
   <button class="btn-outline-primary"
@@ -48,7 +52,7 @@ export default {
       this.RetrieveValueCSV = fileName.options[fileName.selectedIndex].value
       this.RetrieveValueCSV = this.RetrieveValueCSV.split('.')[0]
 
-      if (this.RetrieveValueCSV == "DiabetesC" || this.RetrieveValueCSV == "HeartC" || this.RetrieveValueCSV == "IrisC" || this.RetrieveValueCSV == "StanceC") { // This is a function that handles a new file, which users can upload.
+      if (this.RetrieveValueCSV == "VehicleC" || this.RetrieveValueCSV == "DiabetesC" || this.RetrieveValueCSV == "HeartC" || this.RetrieveValueCSV == "IrisC" || this.RetrieveValueCSV == "StanceC" || this.RetrieveValueCSV == "ContraceptiveC" || this.RetrieveValueCSV == "BreastC" || this.RetrieveValueCSV == "WineC" || this.RetrieveValueCSV == "BiodegC") { // This is a function that handles a new file, which users can upload.
         this.dataset = "Data"
         d3.select("#data").select("input").remove(); // Remove the selection field.
         EventBus.$emit('SendToServerDataSetConfirmation', this.RetrieveValueCSV)
