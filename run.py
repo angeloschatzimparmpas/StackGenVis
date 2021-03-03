@@ -3121,7 +3121,7 @@ def solve(sclf,keyData,keySpec,keySpecInternal,previousStateLoc,previousStateAct
             scoresLoc.append(temp.std())
     else:
         if (keySpecInternal == 1):
-            temp = model_selection.cross_val_score(sclf, XData, yData, cv=crossValidation, scoring=scoringIn, n_jobs=-1)
+            temp = model_selection.cross_val_score(sclf, XDataLocalIns, yDataLocalIns, cv=crossValidation, scoring=scoringIn, n_jobs=-1)
             scoresLoc.append(temp.mean())
             scoresLoc.append(temp.std())
             if (loop == 0):
@@ -3137,7 +3137,7 @@ def solve(sclf,keyData,keySpec,keySpecInternal,previousStateLoc,previousStateAct
                 scoresLoc.append(previousStateLoc[6])
                 scoresLoc.append(previousStateLoc[7])
         else:
-            temp = model_selection.cross_val_score(sclf, XData, yData, cv=crossValidation, scoring=scoringIn, n_jobs=-1)
+            temp = model_selection.cross_val_score(sclf, XDataLocalIns, yDataLocalIns, cv=crossValidation, scoring=scoringIn, n_jobs=-1)
             scoresLoc.append(temp.mean())
             scoresLoc.append(temp.std())
             scoresLoc.append(temp.mean())
