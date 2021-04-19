@@ -678,6 +678,72 @@ def RetrieveModel():
             params = {'n_estimators': list(range(85, 115)), 'learning_rate': list(np.arange(0.01,0.23,0.11)), 'criterion': ['friedman_mse', 'mse', 'mae']}
             AlgorithmsIDsEnd = GradBModelsCount
         allParametersPerformancePerModel = GridSearchForModels(XData, yData, clf, params, eachAlgor, AlgorithmsIDsEnd, toggle, crossValidation)
+    
+    # New visualization - model space
+    # header = "model_id,algorithm_id,mean_test_accuracy,mean_test_precision_micro,mean_test_precision_macro,mean_test_precision_weighted,mean_test_recall_micro,mean_test_recall_macro,mean_test_recall_weighted,mean_test_roc_auc_ovo_weighted,geometric_mean_score_micro,geometric_mean_score_macro,geometric_mean_score_weighted,matthews_corrcoef,f5_micro,f5_macro,f5_weighted,f1_micro,f1_macro,f1_weighted,f2_micro,f2_macro,f2_weighted,log_loss\n"
+    # dataReceived = []
+    # counter = 0
+    # for indx, el in enumerate(allParametersPerformancePerModel):
+    #     dictFR = json.loads(el)
+    #     frame = pd.DataFrame.from_dict(dictFR)
+    #     for ind, elInside in frame.iterrows():
+    #         counter = counter + 1
+    #         dataReceived.append(str(counter))
+    #         dataReceived.append(',')
+    #         dataReceived.append(str(indx+1))
+    #         dataReceived.append(',')
+    #         dataReceived.append(str(elInside['mean_test_accuracy']))
+    #         dataReceived.append(',')
+    #         dataReceived.append(str(elInside['mean_test_precision_micro']))
+    #         dataReceived.append(',')
+    #         dataReceived.append(str(elInside['mean_test_precision_macro']))
+    #         dataReceived.append(',')
+    #         dataReceived.append(str(elInside['mean_test_precision_weighted']))
+    #         dataReceived.append(',')
+    #         dataReceived.append(str(elInside['mean_test_recall_micro']))
+    #         dataReceived.append(',')
+    #         dataReceived.append(str(elInside['mean_test_recall_macro']))
+    #         dataReceived.append(',')
+    #         dataReceived.append(str(elInside['mean_test_recall_weighted']))
+    #         dataReceived.append(',')
+    #         dataReceived.append(str(elInside['mean_test_roc_auc_ovo_weighted']))
+    #         dataReceived.append(',')
+    #         dataReceived.append(str(elInside['geometric_mean_score_micro']))
+    #         dataReceived.append(',')
+    #         dataReceived.append(str(elInside['geometric_mean_score_macro']))
+    #         dataReceived.append(',')
+    #         dataReceived.append(str(elInside['geometric_mean_score_weighted']))
+    #         dataReceived.append(',')
+    #         dataReceived.append(str(elInside['matthews_corrcoef']))
+    #         dataReceived.append(',')
+    #         dataReceived.append(str(elInside['f5_micro']))
+    #         dataReceived.append(',')
+    #         dataReceived.append(str(elInside['f5_macro']))
+    #         dataReceived.append(',')
+    #         dataReceived.append(str(elInside['f5_weighted']))
+    #         dataReceived.append(',')
+    #         dataReceived.append(str(elInside['f1_micro']))
+    #         dataReceived.append(',')
+    #         dataReceived.append(str(elInside['f1_macro']))
+    #         dataReceived.append(',')
+    #         dataReceived.append(str(elInside['f1_weighted']))
+    #         dataReceived.append(',')
+    #         dataReceived.append(str(elInside['f2_micro']))
+    #         dataReceived.append(',')
+    #         dataReceived.append(str(elInside['f2_macro']))
+    #         dataReceived.append(',')
+    #         dataReceived.append(str(elInside['f2_weighted']))
+    #         dataReceived.append(',')
+    #         dataReceived.append(str(elInside['log_loss']))
+    #         dataReceived.append("\n")
+
+    # dataReceivedItems = ''.join(dataReceived)
+    # csvString = header + dataReceivedItems
+
+    # fw = open ("modelSpace.csv","w+",encoding="utf-8")
+    # fw.write(csvString)
+    # fw.close()
+
     # call the function that sends the results to the frontend 
     stop = timeit.default_timer()
     print('Time GridSearch: ', stop - start) 

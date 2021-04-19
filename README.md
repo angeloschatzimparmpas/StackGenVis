@@ -18,7 +18,7 @@ Most of them are available online from the [UCI Machine Learning Repository](htt
 For the backend:
 - [Python 3](https://www.python.org/downloads/)
 - [Flask](https://palletsprojects.com/p/flask/)
-- Other packages: `pymongo`, `numpy`, `scipy`, `scikit-learn`, `sk-dist`, `eli5`, and `pandas`.
+- Other packages: `Flask-PyMongo`, `flask_cors`, `mlxtend`, `imblearn`, `joblib`, `numpy`, `scikit-learn`, `scikit-learn-extra`, `sk-dist`, `eli5`, `umap-learn`, and `pandas`.
 
 You can install all the backend requirements with the following command:
 ```

@@ -1,7 +1,12 @@
+Flask-PyMongo
 flask_cors
-scikit-learn
+numpy
 pandas
+joblib
+scikit-learn
 scikit-learn-extra
 sk-dist
+mlxtend
+umap-learn
 eli5
-pymongo
+imblearn
