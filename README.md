@@ -17,7 +17,7 @@ For the backend:
 - [Python 3](https://www.python.org/downloads/)
 - [Flask](https://palletsprojects.com/p/flask/)
 - [MongoDB](https://www.mongodb.com/try/download/community) (Version: 4.x)
-- Other packages: `pymongo`, `Flask-PyMongo`, `flask_cors`, `numpy`, `pandas`, `joblib`, `xgboost`, `bayesian-optimization`, `scikit-learn`, `eli5`, and `statsmodels`.
+- Other packages: `Flask-PyMongo`, `flask_cors`, `mlxtend`, `imblearn`, `joblib`, `numpy`, `scikit-learn`, `scikit-learn-extra`, `sk-dist`, `eli5`, `umap-learn`, and `pandas`.
 
 You can install all the backend requirements for Python with the following command:
 ```
