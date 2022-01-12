@@ -16,22 +16,28 @@ Most of them are available online from the [UCI Machine Learning Repository](htt
 For the backend:
 - [Python 3](https://www.python.org/downloads/)
 - [Flask](https://palletsprojects.com/p/flask/)
-- Other packages: `Flask-PyMongo`, `flask_cors`, `mlxtend`, `imblearn`, `joblib`, `numpy`, `scikit-learn`, `scikit-learn-extra`, `sk-dist`, `eli5`, `umap-learn`, and `pandas`.
+- [MongoDB](https://www.mongodb.com/try/download/community) (Version: 4.x)
+- Other packages: `pymongo`, `Flask-PyMongo`, `flask_cors`, `numpy`, `pandas`, `joblib`, `xgboost`, `bayesian-optimization`, `scikit-learn`, `eli5`, and `statsmodels`.
 
-You can install all the backend requirements with the following command:
+You can install all the backend requirements for Python with the following command:
 ```
 pip install -r requirements.txt
 ```
 
 For the frontend:
 - [Node.js](https://nodejs.org/en/) (including Webpack; to install it, `npm install webpack-dev-server@3.10.3`)
-- [D3.js](https://d3js.org/)
-- [Plotly.js](https://github.com/plotly/plotly.js/)
 
-There is no need to install anything further for the frontend, since all modules are in the repository.
+There is no need to install anything further for the frontend (e.g., D3 and Plotly.js), since all modules are in the repository.
+
+For the reproducibility of the first use case, the red wine quality data set should be inserted to MongoDB by using the commands below:
+```
+# recommendation: use insertMongo script to add a data set in Mongo database
+# for Python3
+python3 insertMongo.py
+```
 
 # Usage #
-Below is an example of how you can get FeatureEnVi running using Python and Node.js for the backend and frontend, respectively. The frontend is written in JavaScript/HTML with the help of Vue.js framework, so it could be hosted in any other web server of your preference. The only hard requirement (currently) is that both frontend and backend must be running on the same machine. 
+Below is an example of how you can get StackGenVis running using Python and Node.js for the backend and frontend, respectively. The frontend is written in JavaScript/HTML with the help of Vue.js framework, so it could be hosted in any other web server of your preference. The only hard requirement (currently) is that both frontend and backend must be running on the same machine. 
 ```
 # first terminal: hosting the visualization side (client)
 # with Node.js
@@ -42,10 +48,6 @@ npm run dev
 ```
 # second terminal: hosting the computational side (server)
 FLASK_APP=run.py flask run
-
-# (optional) recommendation: use insertMongo script to add a data set in Mongo database
-# for Python3
-python3 insertMongo.py
 ```
 
 Then, open your browser and point it to `localhost:8080`. We recommend using an up-to-date version of Google Chrome.
